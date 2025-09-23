@@ -1,16 +1,146 @@
 ---
+import Layout from '@/layouts/Layout.astro'
+import { HackCard } from '@/components/hack-card'
+import { ContributeCard } from '@/components/contribute-card'
+import { Button } from '@/components/ui/button'
+import { ArrowRight, Zap, Users, BookOpen } from 'lucide-react'
+import { getCollection } from 'astro:content'
 
+// Fetch all hacks from the content collection
+const allHacks = await getCollection('hacks')
+const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="HackShelf - Badger 2350 Hacks & Projects">
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
+    <div class="container py-24 lg:py-32">
+      <div class="max-w-4xl mx-auto text-center space-y-8">
+        <div class="space-y-4">
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+            Unleash Your 
+            <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Badger 2350
+            </span>
+          </h1>
+          <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Discover amazing hacks, tutorials, and projects for your Badger 2350 device. 
+            From simple experiments to complex creations - your journey starts here.
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button asChild size="lg" class="text-lg px-8">
+            <a href="/about-badge" class="flex items-center gap-2">
+              <BookOpen class="h-5 w-5" />
+              Learn About Your Badge
+              <ArrowRight class="h-5 w-5" />
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg" class="text-lg px-8">
+            <a href="#hacks" class="flex items-center gap-2">
+              <Zap class="h-5 w-5" />
+              Explore Hacks
+            </a>
+          </Button>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-8 mt-16 pt-8 border-t border-border/50">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-foreground">{featuredHacks.length}+</div>
+            <div class="text-sm text-muted-foreground">Hacks Available</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-foreground">3</div>
+            <div class="text-sm text-muted-foreground">Difficulty Levels</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-foreground">∞</div>
+            <div class="text-sm text-muted-foreground">Possibilities</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hacks Catalog Section -->
+  <section id="hacks" class="py-24 bg-background">
+    <div class="container">
+      <div class="max-w-2xl mx-auto text-center mb-16">
+        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+          Featured Hacks & Projects
+        </h2>
+        <p class="text-xl text-muted-foreground">
+          Hand-picked tutorials and projects to get you started with your Badger 2350.
+          Each hack includes step-by-step instructions and all the code you need.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {featuredHacks.map((hack) => (
+          <HackCard 
+            key={hack.slug}
+            title={hack.data.title}
+            description={hack.data.description}
+            difficulty={hack.data.difficulty}
+            duration={hack.data.duration}
+            tags={hack.data.tags}
+            thumbnail={hack.data.thumbnail}
+            slug={hack.slug}
+            client:load
+          />
+        ))}
+        
+        <!-- Contribute Card -->
+        <ContributeCard client:load />
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-24 bg-muted/50">
+    <div class="container">
+      <div class="max-w-2xl mx-auto text-center mb-16">
+        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+          Why HackShelf?
+        </h2>
+        <p class="text-xl text-muted-foreground">
+          Everything you need to unlock the full potential of your Badger 2350.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center space-y-4">
+          <div class="mx-auto h-12 w-12 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+            <BookOpen class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          </div>
+          <h3 class="text-xl font-semibold">Step-by-Step Tutorials</h3>
+          <p class="text-muted-foreground">
+            Each hack comes with detailed instructions, code snippets, and helpful tips to guide you through the process.
+          </p>
+        </div>
+
+        <div class="text-center space-y-4">
+          <div class="mx-auto h-12 w-12 rounded-lg bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+            <Zap class="h-6 w-6 text-green-600 dark:text-green-400" />
+          </div>
+          <h3 class="text-xl font-semibold">Ready-to-Use Code</h3>
+          <p class="text-muted-foreground">
+            Copy and paste working code examples. All projects are tested and verified to work with the Badger 2350.
+          </p>
+        </div>
+
+        <div class="text-center space-y-4">
+          <div class="mx-auto h-12 w-12 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+            <Users class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+          </div>
+          <h3 class="text-xl font-semibold">Community Driven</h3>
+          <p class="text-muted-foreground">
+            Built by the community, for the community. Contribute your own hacks and help others learn.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

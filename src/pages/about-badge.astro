@@ -1,0 +1,256 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { BadgeDiagram } from '@/components/badge-diagram'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { 
+  Cpu, 
+  Wifi, 
+  Bluetooth, 
+  Battery, 
+  Zap, 
+  Monitor,
+  Usb,
+  ArrowRight
+} from 'lucide-react'
+---
+
+<Layout title="About the Badger 2350 - HackShelf" description="Learn everything about the Badger 2350 device, its features, capabilities, and what makes it perfect for hacking and experimentation.">
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20 py-24">
+    <div class="container">
+      <div class="max-w-4xl mx-auto text-center space-y-8">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+          Meet the 
+          <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Badger 2350
+          </span>
+        </h1>
+        <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+          A powerful, hackable electronic badge designed for creativity, learning, and endless possibilities. 
+          Discover what makes this device special and how you can unlock its potential.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Diagram Section -->
+  <section class="py-24 bg-background">
+    <div class="container">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+            Interactive Badge Diagram
+          </h2>
+          <p class="text-xl text-muted-foreground">
+            Hover over different parts to learn about the Badger 2350's features and capabilities.
+          </p>
+        </div>
+
+        <BadgeDiagram client:load />
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="py-24 bg-muted/50">
+    <div class="container">
+      <div class="max-w-2xl mx-auto text-center mb-16">
+        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+          Key Features & Specifications
+        </h2>
+        <p class="text-xl text-muted-foreground">
+          Everything you need to know about your Badger 2350's capabilities.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Processor -->
+        <Card class="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div class="flex items-center space-x-3">
+              <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
+                <Cpu class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <CardTitle class="text-lg">RP2350 Processor</CardTitle>
+                <CardDescription>Dual-core ARM Cortex-M33</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p class="text-sm text-muted-foreground">
+              150MHz dual-core processor with 520KB RAM and 4MB flash storage. 
+              Perfect for running complex programs and real-time applications.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <Badge variant="secondary">150MHz</Badge>
+              <Badge variant="secondary">520KB RAM</Badge>
+              <Badge variant="secondary">4MB Flash</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Display -->
+        <Card class="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div class="flex items-center space-x-3">
+              <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
+                <Monitor class="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <CardTitle class="text-lg">E-Ink Display</CardTitle>
+                <CardDescription>296×128 pixel monochrome</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p class="text-sm text-muted-foreground">
+              Ultra-low power e-ink display that stays visible even when powered off. 
+              Perfect for badges, displays, and low-power applications.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <Badge variant="secondary">296×128px</Badge>
+              <Badge variant="secondary">E-Ink</Badge>
+              <Badge variant="secondary">Low Power</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Connectivity -->
+        <Card class="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div class="flex items-center space-x-3">
+              <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
+                <Wifi class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <CardTitle class="text-lg">Wireless</CardTitle>
+                <CardDescription>WiFi & Bluetooth ready</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p class="text-sm text-muted-foreground">
+              Built-in WiFi and Bluetooth capabilities for IoT projects, 
+              wireless communication, and internet connectivity.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <Badge variant="secondary">WiFi 4</Badge>
+              <Badge variant="secondary">Bluetooth 5.0</Badge>
+              <Badge variant="secondary">IoT Ready</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Power -->
+        <Card class="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div class="flex items-center space-x-3">
+              <div class="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/20">
+                <Battery class="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <CardTitle class="text-lg">Power Options</CardTitle>
+                <CardDescription>Battery & USB powered</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p class="text-sm text-muted-foreground">
+              Flexible power options including USB-C charging, battery operation, 
+              and ultra-low power modes for extended runtime.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <Badge variant="secondary">USB-C</Badge>
+              <Badge variant="secondary">Li-Po Battery</Badge>
+              <Badge variant="secondary">Low Power</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- GPIO -->
+        <Card class="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div class="flex items-center space-x-3">
+              <div class="p-2 rounded-lg bg-red-100 dark:bg-red-900/20">
+                <Zap class="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <CardTitle class="text-lg">GPIO Pins</CardTitle>
+                <CardDescription>Expandable I/O</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p class="text-sm text-muted-foreground">
+              Multiple GPIO pins for connecting sensors, LEDs, motors, and other 
+              electronic components. Perfect for hardware hacking.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <Badge variant="secondary">GPIO</Badge>
+              <Badge variant="secondary">I2C</Badge>
+              <Badge variant="secondary">SPI</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Programming -->
+        <Card class="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div class="flex items-center space-x-3">
+              <div class="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/20">
+                <Usb class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div>
+                <CardTitle class="text-lg">Programming</CardTitle>
+                <CardDescription>Multiple languages supported</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p class="text-sm text-muted-foreground">
+              Program in Python, C++, or MicroPython. Easy USB programming 
+              and debugging make development a breeze.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <Badge variant="secondary">Python</Badge>
+              <Badge variant="secondary">C++</Badge>
+              <Badge variant="secondary">MicroPython</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Getting Started Section -->
+  <section class="py-24 bg-background">
+    <div class="container">
+      <div class="max-w-4xl mx-auto text-center space-y-8">
+        <h2 class="text-3xl lg:text-4xl font-bold">
+          Ready to Start Hacking?
+        </h2>
+        <p class="text-xl text-muted-foreground">
+          Now that you know what your Badger 2350 can do, it's time to put it to work. 
+          Explore our collection of hacks and start building amazing projects today.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button asChild size="lg" class="text-lg px-8">
+            <a href="/" class="flex items-center gap-2">
+              Browse Hacks
+              <ArrowRight class="h-5 w-5" />
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg" class="text-lg px-8">
+            <a href="/contribute">
+              Contribute a Hack
+            </a>
+          </Button>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

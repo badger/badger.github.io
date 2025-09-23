@@ -1,0 +1,406 @@
+---
+title: "Weather Station Display"
+description: "Build a wireless weather station that displays real-time data on your badge's screen."
+difficulty: "medium"
+duration: 45
+tags: ["WiFi", "Sensors", "API"]
+thumbnail: "/images/hacks/weather-station.jpg"
+author: "HackShelf Team"
+date: "2025-01-20"
+hardware:
+  - "Badger 2350"
+  - "DHT22 Temperature/Humidity Sensor"
+  - "BMP280 Pressure Sensor"
+  - "Jumper wires"
+  - "Breadboard"
+github: "https://github.com/badger/hackshelf-samples/tree/main/weather-station"
+---
+
+# Weather Station Display
+
+Turn your Badger 2350 into a comprehensive weather monitoring station! This project combines local sensors with online weather APIs to create a complete weather dashboard on your e-ink display.
+
+## What You'll Build
+
+Your weather station will feature:
+- Local temperature and humidity readings
+- Barometric pressure monitoring
+- Online weather data integration
+- Weather forecast display
+- Automatic data updates every 10 minutes
+- Low-power operation perfect for e-ink displays
+
+## Hardware Requirements
+
+Gather these components for your build:
+
+- **Badger 2350** - The brain of your weather station
+- **DHT22 Sensor** - For temperature and humidity
+- **BMP280 Sensor** - For barometric pressure
+- **Jumper Wires** - For sensor connections
+- **Breadboard** - For prototyping (optional)
+
+:::tip
+**Pro Tip:** The BMP280 sensor is more accurate than the DHT22 for temperature, so we'll use it as our primary temperature source.
+:::
+
+## Circuit Connections
+
+Wire up your sensors to the Badger 2350:
+
+```
+DHT22 Sensor:
+  VCC  →  3.3V (Pin 36)
+  GND  →  GND (Pin 38)
+  DATA →  GPIO 4 (Pin 7)
+
+BMP280 Sensor (I2C):
+  VCC  →  3.3V (Pin 36)
+  GND  →  GND (Pin 38)
+  SDA  →  GPIO 20 (Pin 31)
+  SCL  →  GPIO 21 (Pin 32)
+```
+
+## Step-by-Step Guide
+
+### Step 1: Set Up WiFi Configuration
+
+First, let's create a configuration file for WiFi credentials:
+
+```python
+# config.py - Keep your credentials safe!
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourPassword"
+
+# Get your API key from OpenWeatherMap
+OPENWEATHER_API_KEY = "your_api_key_here"
+CITY_NAME = "London"
+COUNTRY_CODE = "GB"
+
+# Update interval in seconds (600 = 10 minutes)
+UPDATE_INTERVAL = 600
+```
+
+:::warning
+**Security Note:** Never commit your actual WiFi credentials or API keys to version control. Use environment variables or a separate config file.
+:::
+
+### Step 2: Initialize Sensors and WiFi
+
+```python
+import badger2350 as badger
+from machine import Pin, I2C
+import network
+import urequests
+import ujson
+import time
+from dht import DHT22
+import bmp280
+
+# Initialize badge
+badger.init()
+display = badger.Display()
+
+# Initialize DHT22 sensor
+dht_sensor = DHT22(Pin(4))
+
+# Initialize I2C for BMP280
+i2c = I2C(0, scl=Pin(21), sda=Pin(20))
+bmp_sensor = bmp280.BMP280(i2c)
+
+# Initialize WiFi
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+
+print("Weather Station initializing...")
+```
+
+### Step 3: WiFi Connection Function
+
+```python
+def connect_wifi(ssid, password):
+    """Connect to WiFi network with timeout"""
+    if wlan.isconnected():
+        return True
+    
+    print(f"Connecting to {ssid}...")
+    wlan.connect(ssid, password)
+    
+    # Wait up to 10 seconds for connection
+    timeout = 10
+    while not wlan.isconnected() and timeout > 0:
+        time.sleep(1)
+        timeout -= 1
+        print(".", end="")
+    
+    if wlan.isconnected():
+        print(f"\nConnected! IP: {wlan.ifconfig()[0]}")
+        return True
+    else:
+        print("\nConnection failed!")
+        return False
+```
+
+### Step 4: Sensor Reading Functions
+
+```python
+def read_local_sensors():
+    """Read data from connected sensors"""
+    sensor_data = {}
+    
+    try:
+        # Read DHT22 (temperature and humidity)
+        dht_sensor.measure()
+        sensor_data['dht_temp'] = dht_sensor.temperature()
+        sensor_data['humidity'] = dht_sensor.humidity()
+        
+        # Read BMP280 (temperature and pressure)
+        sensor_data['temperature'] = bmp_sensor.temperature
+        sensor_data['pressure'] = bmp_sensor.pressure / 100  # Convert to hPa
+        
+        print(f"Local readings: {sensor_data['temperature']:.1f}°C, {sensor_data['humidity']:.1f}%, {sensor_data['pressure']:.1f}hPa")
+        
+    except Exception as e:
+        print(f"Sensor reading error: {e}")
+        sensor_data = None
+    
+    return sensor_data
+
+def get_weather_data(api_key, city, country):
+    """Fetch weather data from OpenWeatherMap API"""
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city},{country}&appid={api_key}&units=metric"
+    
+    try:
+        print("Fetching online weather data...")
+        response = urequests.get(url)
+        weather_data = ujson.loads(response.text)
+        response.close()
+        
+        if weather_data.get('cod') == 200:
+            return {
+                'city': weather_data['name'],
+                'description': weather_data['weather'][0]['description'],
+                'temp': weather_data['main']['temp'],
+                'feels_like': weather_data['main']['feels_like'],
+                'pressure': weather_data['main']['pressure'],
+                'humidity': weather_data['main']['humidity'],
+                'wind_speed': weather_data['wind']['speed'],
+                'visibility': weather_data.get('visibility', 0) / 1000  # Convert to km
+            }
+        else:
+            print(f"API Error: {weather_data.get('message', 'Unknown error')}")
+            return None
+            
+    except Exception as e:
+        print(f"Weather API error: {e}")
+        return None
+```
+
+### Step 5: Display Functions
+
+```python
+def draw_weather_display(local_data, online_data):
+    """Draw comprehensive weather information on the display"""
+    display.clear()
+    
+    y_pos = 5
+    
+    # Title
+    display.text("Weather Station", 5, y_pos, scale=2)
+    y_pos += 25
+    
+    # Local sensor data
+    if local_data:
+        display.text("Local Sensors:", 5, y_pos, scale=1)
+        y_pos += 15
+        
+        display.text(f"Temp: {local_data['temperature']:.1f}°C", 10, y_pos, scale=1)
+        y_pos += 12
+        
+        display.text(f"Humidity: {local_data['humidity']:.1f}%", 10, y_pos, scale=1)
+        y_pos += 12
+        
+        display.text(f"Pressure: {local_data['pressure']:.1f}hPa", 10, y_pos, scale=1)
+        y_pos += 18
+    
+    # Online weather data
+    if online_data:
+        display.text(f"{online_data['city']} Weather:", 5, y_pos, scale=1)
+        y_pos += 15
+        
+        display.text(f"Temp: {online_data['temp']:.1f}°C", 10, y_pos, scale=1)
+        display.text(f"Feels: {online_data['feels_like']:.1f}°C", 150, y_pos, scale=1)
+        y_pos += 12
+        
+        display.text(f"Wind: {online_data['wind_speed']:.1f}m/s", 10, y_pos, scale=1)
+        display.text(f"Vis: {online_data['visibility']:.1f}km", 150, y_pos, scale=1)
+        y_pos += 12
+        
+        # Weather description
+        display.text(online_data['description'].title(), 10, y_pos, scale=1)
+    else:
+        display.text("No online data", 5, y_pos, scale=1)
+    
+    # Update timestamp
+    display.text(f"Updated: {format_time()}", 5, 115, scale=1)
+    
+    display.update()
+
+def format_time():
+    """Format current time for display"""
+    current_time = time.localtime()
+    return f"{current_time[3]:02d}:{current_time[4]:02d}"
+
+def show_error_message(message):
+    """Display error message on screen"""
+    display.clear()
+    display.text("Weather Station", 5, 5, scale=2)
+    display.text("ERROR:", 5, 35, scale=1)
+    
+    # Word wrap long messages
+    words = message.split(' ')
+    line = ""
+    y = 50
+    
+    for word in words:
+        if len(line + word) > 35:  # Approximate character limit
+            display.text(line, 5, y, scale=1)
+            line = word + " "
+            y += 12
+        else:
+            line += word + " "
+    
+    if line:
+        display.text(line, 5, y, scale=1)
+    
+    display.update()
+```
+
+### Step 6: Main Program Loop
+
+```python
+def main():
+    """Main weather station program"""
+    from config import WIFI_SSID, WIFI_PASSWORD, OPENWEATHER_API_KEY, CITY_NAME, COUNTRY_CODE, UPDATE_INTERVAL
+    
+    print("Starting Weather Station...")
+    
+    # Initial display
+    display.clear()
+    display.text("Weather Station", 5, 5, scale=2)
+    display.text("Starting up...", 5, 35, scale=1)
+    display.update()
+    
+    # Connect to WiFi
+    if not connect_wifi(WIFI_SSID, WIFI_PASSWORD):
+        show_error_message("WiFi connection failed. Check credentials.")
+        return
+    
+    last_update = 0
+    
+    while True:
+        try:
+            current_time = time.time()
+            
+            # Update data every UPDATE_INTERVAL seconds
+            if current_time - last_update >= UPDATE_INTERVAL or last_update == 0:
+                print("Updating weather data...")
+                
+                # Read local sensors
+                local_data = read_local_sensors()
+                
+                # Get online weather data
+                online_data = get_weather_data(OPENWEATHER_API_KEY, CITY_NAME, COUNTRY_CODE)
+                
+                # Update display
+                draw_weather_display(local_data, online_data)
+                
+                last_update = current_time
+                print(f"Next update in {UPDATE_INTERVAL} seconds")
+            
+            # Check for button press to force update
+            if not Pin(badger.BUTTON_A, Pin.IN, Pin.PULL_UP).value():
+                print("Manual update requested...")
+                last_update = 0  # Force update on next loop
+                time.sleep_ms(500)  # Debounce
+            
+            time.sleep(1)
+            
+        except KeyboardInterrupt:
+            print("Weather station stopped by user")
+            break
+        except Exception as e:
+            print(f"Main loop error: {e}")
+            show_error_message(f"System error: {str(e)}")
+            time.sleep(30)  # Wait before retrying
+
+# Start the weather station
+if __name__ == "__main__":
+    main()
+```
+
+## Testing Your Weather Station
+
+1. **Set up your API key**: Register at [OpenWeatherMap](https://openweathermap.org/api) for a free API key
+2. **Configure WiFi**: Update the config.py file with your network details
+3. **Test sensors**: Run sensor reading functions individually first
+4. **Upload and run**: Transfer all files to your Badger 2350 and run the main program
+
+## Troubleshooting Guide
+
+**WiFi won't connect?**
+- Double-check SSID and password
+- Ensure your network supports 2.4GHz
+- Try moving closer to your router
+
+**Sensor readings incorrect?**
+- Check wiring connections
+- Verify sensor power (3.3V, not 5V)
+- Allow sensors to stabilize for a few minutes
+
+**API calls failing?**
+- Verify your API key is active
+- Check internet connectivity
+- Ensure city name is spelled correctly
+
+**Display not updating?**
+- Check for error messages in console
+- Verify display initialization
+- Try restarting the program
+
+## Enhancements & Next Steps
+
+Take your weather station to the next level:
+
+**Data Logging**
+- Store historical weather data
+- Create graphs and trends
+- Export data to CSV files
+
+**Additional Sensors**
+- Light sensor for UV index
+- Rain sensor for precipitation
+- Air quality sensor (PM2.5, CO2)
+
+**Smart Features**
+- Weather alerts and notifications
+- Automatic plant watering based on humidity
+- Energy usage optimization
+
+**Connectivity**
+- MQTT integration for IoT platforms
+- Web dashboard for remote monitoring
+- Mobile app notifications
+
+## Resources & Documentation
+
+- [OpenWeatherMap API Documentation](https://openweathermap.org/api)
+- [DHT22 Sensor Datasheet](https://example.com/dht22-datasheet)
+- [BMP280 Sensor Guide](https://example.com/bmp280-guide)
+- [Badger 2350 I2C Reference](https://example.com/i2c-reference)
+
+---
+
+**Difficulty:** Medium | **Time Required:** 45 minutes | **Components:** 4
+
+*Share your weather station setup with #BadgerWeather*

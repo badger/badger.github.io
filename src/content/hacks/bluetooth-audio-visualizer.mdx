@@ -1,0 +1,138 @@
+---
+title: "Bluetooth Audio Visualizer"
+description: "Create a stunning audio visualizer that responds to music via Bluetooth connection."
+difficulty: "hard"
+duration: 90
+tags: ["Bluetooth", "Audio", "Visualization"]
+thumbnail: "/images/hacks/audio-visualizer.jpg"
+author: "HackShelf Team"
+date: "2025-01-25"
+hardware:
+  - "Badger 2350"
+  - "Bluetooth Audio Module"
+  - "Op-Amp Circuit (LM358)"
+  - "LED Strip (WS2812B)"
+  - "Capacitors and Resistors"
+  - "Breadboard"
+github: "https://github.com/badger/hackshelf-samples/tree/main/bluetooth-audio-visualizer"
+---
+
+# Bluetooth Audio Visualizer
+
+Turn your Badger 2350 into a spectacular audio visualizer that dances to the rhythm of your favorite music! This advanced project combines Bluetooth audio processing with LED visualization techniques to create stunning light shows.
+
+## What You'll Build
+
+This project creates a sophisticated audio visualizer featuring:
+- Real-time audio analysis via Bluetooth
+- Multi-frequency LED visualization 
+- Dynamic pattern generation based on music
+- Touch controls for pattern switching
+- Low-latency audio processing
+
+## Advanced Audio Processing
+
+This hack involves complex signal processing concepts including Fast Fourier Transform (FFT), frequency bin analysis, and real-time LED control. Perfect for those ready to tackle an advanced project!
+
+## Step-by-Step Tutorial
+
+### Step 1: Audio Input Setup
+
+First, we'll configure the Bluetooth module for audio input:
+
+```python
+import bluetooth
+import numpy as np
+from machine import Pin, I2S
+import badger2350 as badger
+
+# Initialize Bluetooth and I2S for audio
+bt = bluetooth.BLE()
+i2s = I2S(0, sck=Pin(0), ws=Pin(1), sd=Pin(2))
+
+def setup_bluetooth_audio():
+    """Configure Bluetooth for audio streaming"""
+    bt.active(True)
+    # Configure A2DP profile for audio
+    bt.config(gap_name="Badger Visualizer")
+    return bt
+```
+
+### Step 2: FFT Audio Analysis
+
+Process incoming audio data to extract frequency information:
+
+```python
+def analyze_audio_spectrum(audio_data):
+    """Perform FFT analysis on audio data"""
+    # Apply window function to reduce spectral leakage
+    windowed = audio_data * np.hanning(len(audio_data))
+    
+    # Compute FFT
+    spectrum = np.fft.fft(windowed)
+    magnitude = np.abs(spectrum[:len(spectrum)//2])
+    
+    # Group into frequency bands
+    bass = np.mean(magnitude[0:64])
+    mid = np.mean(magnitude[64:512]) 
+    treble = np.mean(magnitude[512:1024])
+    
+    return bass, mid, treble
+```
+
+### Step 3: LED Visualization
+
+Create dynamic LED patterns based on audio analysis:
+
+```python
+from machine import SPI
+import neopixel
+
+# Initialize LED strip
+num_pixels = 60
+pixels = neopixel.NeoPixel(Pin(5), num_pixels)
+
+def visualize_spectrum(bass, mid, treble):
+    """Create LED visualization from audio spectrum"""
+    
+    # Bass visualization (red tones)
+    bass_pixels = int(bass * 20)  
+    for i in range(min(bass_pixels, 20)):
+        intensity = int(255 * (bass / 255))
+        pixels[i] = (intensity, 0, 0)
+    
+    # Mid-range visualization (green tones) 
+    mid_pixels = int(mid * 20)
+    for i in range(20, min(20 + mid_pixels, 40)):
+        intensity = int(255 * (mid / 255))
+        pixels[i] = (0, intensity, 0)
+    
+    # Treble visualization (blue tones)
+    treble_pixels = int(treble * 20)
+    for i in range(40, min(40 + treble_pixels, 60)):
+        intensity = int(255 * (treble / 255))
+        pixels[i] = (0, 0, intensity)
+    
+    pixels.write()
+```
+
+This is an advanced project that demonstrates complex audio processing and real-time visualization techniques!
+
+## Troubleshooting
+
+**Bluetooth won't connect?**
+- Ensure your device supports A2DP profile
+- Check Bluetooth module wiring
+- Verify power supply is adequate
+
+**LEDs not responsive to audio?**
+- Check FFT calculation accuracy
+- Verify audio input levels
+- Test LED strip independently
+
+## Next Level Enhancements
+
+- Add beat detection algorithms
+- Implement particle effect visualizations  
+- Create custom visualization modes
+- Add wireless pattern sharing

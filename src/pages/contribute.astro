@@ -1,0 +1,435 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { 
+  Github, 
+  FileText, 
+  Upload, 
+  Users,
+  Lightbulb,
+  Code,
+  Camera,
+  GitPullRequest,
+  ExternalLink
+} from 'lucide-react'
+---
+
+<Layout title="Contribute to HackShelf" description="Help grow the Badger 2350 community by contributing your own hacks, tutorials, and projects to HackShelf.">
+  <!-- Hero Section -->
+  <section class="py-24 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
+    <div class="container">
+      <div class="max-w-4xl mx-auto text-center space-y-8">
+        <div class="space-y-4">
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+            Share Your 
+            <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Creations
+            </span>
+          </h1>
+          <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Help grow the Badger 2350 community by contributing your own hacks, tutorials, and projects. 
+            Your creativity inspires others to build amazing things!
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button asChild size="lg" class="text-lg px-8" client:load>
+            <a href="https://github.com/badger/hackshelf" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
+              <Github class="h-5 w-5" />
+              View Repository
+              <ExternalLink class="h-4 w-4" />
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg" class="text-lg px-8" client:load>
+            <a href="#how-to-contribute">
+              Learn How to Contribute
+            </a>
+          </Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Contribute Section -->
+  <section class="py-24 bg-background">
+    <div class="container">
+      <div class="max-w-2xl mx-auto text-center mb-16">
+        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+          Why Contribute?
+        </h2>
+        <p class="text-xl text-muted-foreground">
+          Your contributions make HackShelf a valuable resource for the entire Badger 2350 community.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center space-y-4">
+          <div class="mx-auto h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+            <Users class="h-8 w-8 text-blue-600 dark:text-blue-400" />
+          </div>
+          <h3 class="text-xl font-semibold">Help Others Learn</h3>
+          <p class="text-muted-foreground">
+            Your tutorials and projects help newcomers get started and experienced makers discover new techniques.
+          </p>
+        </div>
+
+        <div class="text-center space-y-4">
+          <div class="mx-auto h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+            <Lightbulb class="h-8 w-8 text-green-600 dark:text-green-400" />
+          </div>
+          <h3 class="text-xl font-semibold">Share Innovation</h3>
+          <p class="text-muted-foreground">
+            Showcase your creative solutions and inspire others to push the boundaries of what's possible.
+          </p>
+        </div>
+
+        <div class="text-center space-y-4">
+          <div class="mx-auto h-16 w-16 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+            <Github class="h-8 w-8 text-purple-600 dark:text-purple-400" />
+          </div>
+          <h3 class="text-xl font-semibold">Build Your Portfolio</h3>
+          <p class="text-muted-foreground">
+            Contributing to open source projects demonstrates your skills and commitment to the maker community.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How to Contribute Section -->
+  <section id="how-to-contribute" class="py-24 bg-muted/50">
+    <div class="container">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+            How to Contribute
+          </h2>
+          <p class="text-xl text-muted-foreground">
+            Follow these simple steps to share your hack with the community.
+          </p>
+        </div>
+
+        <div class="space-y-8">
+          <!-- Step 1 -->
+          <Card client:load>
+            <CardHeader>
+              <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
+                  <span class="text-xl font-bold text-blue-600 dark:text-blue-400">1</span>
+                </div>
+                <div>
+                  <CardTitle class="text-xl">Create Your Hack</CardTitle>
+                  <CardDescription>Build something awesome with your Badger 2350</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent class="pl-16">
+              <div class="space-y-4">
+                <p class="text-muted-foreground">
+                  First, create your project! Whether it's a simple LED controller or a complex IoT application, 
+                  we welcome hacks of all skill levels and complexity.
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  <Badge variant="outline" client:load>Test your code</Badge>
+                  <Badge variant="outline" client:load>Take photos/videos</Badge>
+                  <Badge variant="outline" client:load>Document components</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <!-- Step 2 -->
+          <Card client:load>
+            <CardHeader>
+              <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center shrink-0">
+                  <Github class="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <CardTitle class="text-xl">Fork the Repository</CardTitle>
+                  <CardDescription>Get your own copy of the HackShelf codebase</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent class="pl-16">
+              <div class="space-y-4">
+                <p class="text-muted-foreground">
+                  Visit our GitHub repository and click "Fork" to create your own copy. This allows you to 
+                  make changes without affecting the main repository.
+                </p>
+                <Button asChild variant="outline" client:load>
+                  <a href="https://github.com/badger/hackshelf/fork" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
+                    <Github class="h-4 w-4" />
+                    Fork on GitHub
+                    <ExternalLink class="h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <!-- Step 3 -->
+          <Card client:load>
+            <CardHeader>
+              <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center shrink-0">
+                  <FileText class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <CardTitle class="text-xl">Write Your Tutorial</CardTitle>
+                  <CardDescription>Create a comprehensive guide using MDX format</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent class="pl-16">
+              <div class="space-y-4">
+                <p class="text-muted-foreground">
+                  Write your tutorial in MDX format (Markdown with React components). Include step-by-step 
+                  instructions, code snippets, troubleshooting tips, and photos of your build.
+                </p>
+                
+                <div class="bg-muted p-4 rounded-lg">
+                  <h4 class="font-semibold mb-2">Your tutorial should include:</h4>
+                  <ul class="text-sm text-muted-foreground space-y-1">
+                    <li>• Clear title and description</li>
+                    <li>• Difficulty level (easy/medium/hard)</li>
+                    <li>• Estimated completion time</li>
+                    <li>• Required hardware components</li>
+                    <li>• Step-by-step instructions</li>
+                    <li>• Code snippets with explanations</li>
+                    <li>• Photos or diagrams</li>
+                    <li>• Troubleshooting section</li>
+                    <li>• Ideas for improvements</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <!-- Step 4 -->
+          <Card client:load>
+            <CardHeader>
+              <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-full bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
+                  <Upload class="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <CardTitle class="text-xl">Submit Your Contribution</CardTitle>
+                  <CardDescription>Create a pull request to share your hack</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent class="pl-16">
+              <div class="space-y-4">
+                <p class="text-muted-foreground">
+                  Once your tutorial is ready, create a pull request to submit it to the main repository. 
+                  Our maintainers will review your contribution and help you polish it before publishing.
+                </p>
+                
+                <div class="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                  <GitPullRequest class="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                  <div class="text-sm">
+                    <p class="font-medium text-blue-800 dark:text-blue-200">Need help with Git/GitHub?</p>
+                    <p class="text-blue-700 dark:text-blue-300">
+                      Check out our contributor guide for detailed instructions on creating pull requests.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Guidelines -->
+  <section class="py-24 bg-background">
+    <div class="container">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+            Content Guidelines
+          </h2>
+          <p class="text-xl text-muted-foreground">
+            Help us maintain high-quality content by following these guidelines.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Do's -->
+          <Card client:load>
+            <CardHeader>
+              <CardTitle class="text-xl text-green-600 dark:text-green-400 flex items-center gap-2">
+                ✓ Do's
+              </CardTitle>
+            </CardHeader>
+            <CardContent class="space-y-4">
+              <ul class="space-y-3 text-sm">
+                <li class="flex items-start gap-3">
+                  <span class="text-green-600 font-bold">•</span>
+                  <span>Test your code thoroughly before submitting</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-green-600 font-bold">•</span>
+                  <span>Include clear, high-quality photos</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-green-600 font-bold">•</span>
+                  <span>Write step-by-step instructions</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-green-600 font-bold">•</span>
+                  <span>Explain complex concepts simply</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-green-600 font-bold">•</span>
+                  <span>Include troubleshooting tips</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-green-600 font-bold">•</span>
+                  <span>Add safety warnings where needed</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-green-600 font-bold">•</span>
+                  <span>Credit any sources or inspiration</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <!-- Don'ts -->
+          <Card client:load>
+            <CardHeader>
+              <CardTitle class="text-xl text-red-600 dark:text-red-400 flex items-center gap-2">
+                ✗ Don'ts
+              </CardTitle>
+            </CardHeader>
+            <CardContent class="space-y-4">
+              <ul class="space-y-3 text-sm">
+                <li class="flex items-start gap-3">
+                  <span class="text-red-600 font-bold">•</span>
+                  <span>Submit untested or broken code</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-red-600 font-bold">•</span>
+                  <span>Use copyrighted images without permission</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-red-600 font-bold">•</span>
+                  <span>Skip safety considerations</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-red-600 font-bold">•</span>
+                  <span>Write overly complex explanations</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-red-600 font-bold">•</span>
+                  <span>Include inappropriate content</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-red-600 font-bold">•</span>
+                  <span>Plagiarize others' work</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-red-600 font-bold">•</span>
+                  <span>Promote commercial products excessively</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Community Section -->
+  <section class="py-24 bg-muted/50">
+    <div class="container">
+      <div class="max-w-4xl mx-auto text-center space-y-8">
+        <h2 class="text-3xl lg:text-4xl font-bold">
+          Join Our Community
+        </h2>
+        <p class="text-xl text-muted-foreground">
+          Connect with other Badger 2350 enthusiasts, get help with your projects, 
+          and stay updated on the latest community contributions.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card class="text-center" client:load>
+            <CardContent class="pt-6">
+              <Github class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 class="font-semibold mb-2">GitHub Discussions</h3>
+              <p class="text-sm text-muted-foreground mb-4">
+                Ask questions and discuss projects with the community.
+              </p>
+              <Button variant="outline" size="sm" asChild client:load>
+                <a href="https://github.com/badger/hackshelf/discussions" target="_blank" rel="noopener noreferrer">
+                  Join Discussion
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card class="text-center" client:load>
+            <CardContent class="pt-6">
+              <FileText class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 class="font-semibold mb-2">Issues & Requests</h3>
+              <p class="text-sm text-muted-foreground mb-4">
+                Report bugs or request new features for HackShelf.
+              </p>
+              <Button variant="outline" size="sm" asChild client:load>
+                <a href="https://github.com/badger/hackshelf/issues" target="_blank" rel="noopener noreferrer">
+                  View Issues
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card class="text-center" client:load>
+            <CardContent class="pt-6">
+              <Code class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 class="font-semibold mb-2">Developer Resources</h3>
+              <p class="text-sm text-muted-foreground mb-4">
+                Documentation and examples for contributing to HackShelf.
+              </p>
+              <Button variant="outline" size="sm" asChild client:load>
+                <a href="https://github.com/badger/hackshelf/wiki" target="_blank" rel="noopener noreferrer">
+                  View Docs
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-24 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+    <div class="container">
+      <div class="max-w-2xl mx-auto text-center space-y-8">
+        <h2 class="text-3xl font-bold">Ready to Contribute?</h2>
+        <p class="text-xl text-muted-foreground">
+          Your next great idea could inspire thousands of makers. Start contributing to HackShelf today!
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button size="lg" asChild client:load>
+            <a href="https://github.com/badger/hackshelf" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
+              <Github class="h-5 w-5" />
+              Start Contributing
+            </a>
+          </Button>
+          <Button variant="outline" size="lg" asChild client:load>
+            <a href="/">
+              Browse Existing Hacks
+            </a>
+          </Button>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,322 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CopyCodeBlock } from '@/components/copy-code-block'
+import { getDifficultyColor, formatDuration } from '@/lib/utils'
+import { getPlaceholderImage } from '@/lib/placeholder-images'
+import { 
+  Clock, 
+  Users, 
+  Github, 
+  ArrowLeft, 
+  ExternalLink,
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  Lightbulb
+} from 'lucide-react'
+
+// This is a dynamic page - in a real implementation you'd fetch this data
+// For now, we'll use the LED Pattern Controller as an example
+const hackData = {
+  title: "LED Pattern Controller",
+  description: "Create mesmerizing LED patterns with your Badger 2350. Control brightness, colors, and timing.",
+  difficulty: "easy" as const,
+  duration: 15,
+  tags: ["LED", "Patterns", "Beginner"],
+  thumbnail: "/images/hacks/led-pattern.jpg",
+  author: "HackShelf Team",
+  date: "2025-01-15",
+  hardware: [
+    "Badger 2350",
+    "5mm RGB LEDs (x3)",
+    "220Ω resistors (x3)",
+    "Jumper wires",
+    "Breadboard"
+  ],
+  github: "https://github.com/badger/hackshelf-samples/tree/main/led-pattern-controller"
+}
+
+const imageSrc = getPlaceholderImage(hackData.thumbnail.split('/').pop() || 'led-pattern.jpg')
+---
+
+<Layout title={`${hackData.title} - HackShelf`} description={hackData.description}>
+  <!-- Back Navigation -->
+  <nav class="border-b bg-background/95 backdrop-blur">
+    <div class="container py-4">
+      <Button variant="ghost" asChild>
+        <a href="/" class="flex items-center gap-2">
+          <ArrowLeft class="h-4 w-4" />
+          Back to Hacks
+        </a>
+      </Button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="py-12 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
+    <div class="container">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <!-- Content -->
+        <div class="space-y-6">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <Badge 
+                variant="secondary" 
+                class={`${getDifficultyColor(hackData.difficulty)} text-sm`}
+              >
+                {hackData.difficulty}
+              </Badge>
+              <div class="flex items-center gap-2 text-muted-foreground">
+                <Clock class="h-4 w-4" />
+                <span>{formatDuration(hackData.duration)}</span>
+              </div>
+            </div>
+            
+            <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">
+              {hackData.title}
+            </h1>
+            
+            <p class="text-xl text-muted-foreground">
+              {hackData.description}
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            {hackData.tags.map((tag) => (
+              <Badge key={tag} variant="outline">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <Button size="lg" asChild>
+              <a href={hackData.github} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
+                <Github class="h-5 w-5" />
+                View Code
+                <ExternalLink class="h-4 w-4" />
+              </a>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <a href={`${hackData.github}/issues/new`} target="_blank" rel="noopener noreferrer">
+                Suggest Improvement
+              </a>
+            </Button>
+          </div>
+        </div>
+
+        <!-- Image -->
+        <div class="order-first lg:order-last">
+          <div class="aspect-video rounded-xl overflow-hidden shadow-2xl">
+            <img 
+              src={imageSrc} 
+              alt={hackData.title}
+              class="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hardware Requirements -->
+  <section class="py-12 bg-muted/50">
+    <div class="container">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-8">Hardware Requirements</h2>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle class="flex items-center gap-2">
+              <CheckCircle class="h-5 w-5 text-green-600" />
+              Components Needed
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {hackData.hardware.map((item, index) => (
+                <div key={index} class="flex items-center gap-3 p-3 rounded-lg bg-background border">
+                  <CheckCircle class="h-4 w-4 text-green-600 shrink-0" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tutorial Content -->
+  <section class="py-12">
+    <div class="container">
+      <div class="max-w-4xl mx-auto prose prose-lg dark:prose-invert">
+        <!-- Step 1 -->
+        <h2>Step 1: Set Up Your Development Environment</h2>
+        <p>First, make sure you have the Badger 2350 firmware and development tools installed:</p>
+        
+        <CopyCodeBlock 
+          code={`# Install required libraries
+import badger2350
+import time
+import math`}
+          language="python"
+          client:load
+        />
+
+        <!-- Callout -->
+        <div class="callout tip">
+          <div class="flex items-start gap-3">
+            <Info class="h-5 w-5 text-blue-600 shrink-0 mt-1" />
+            <div>
+              <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-2">Development Tip</h4>
+              <p class="text-blue-700 dark:text-blue-300 mb-0">
+                Make sure your Badger 2350 is connected via USB and recognized by your system before proceeding.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <h2>Step 2: Initialize the Hardware</h2>
+        <p>Create the basic setup code to initialize your LEDs and display:</p>
+
+        <CopyCodeBlock 
+          code={`import badger2350 as badger
+from machine import Pin, PWM
+import time
+import math
+
+# Initialize the display
+badger.init()
+display = badger.Display()
+
+# Set up LED pins with PWM for brightness control
+led_red = PWM(Pin(2))
+led_green = PWM(Pin(3))  
+led_blue = PWM(Pin(4))
+
+# Set PWM frequency (1000 Hz works well for LEDs)
+led_red.freq(1000)
+led_green.freq(1000)
+led_blue.freq(1000)
+
+print("LED Pattern Controller initialized!")`}
+          language="python"
+          client:load
+        />
+
+        <!-- Warning -->
+        <div class="callout warning">
+          <div class="flex items-start gap-3">
+            <AlertTriangle class="h-5 w-5 text-amber-600 shrink-0 mt-1" />
+            <div>
+              <h4 class="font-semibold text-amber-800 dark:text-amber-200 mb-2">Important Safety Note</h4>
+              <p class="text-amber-700 dark:text-amber-300 mb-0">
+                Always check your wiring before powering on. Incorrect connections can damage your components.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <h2>Step 3: Create Pattern Functions</h2>
+        <p>Now let's create different lighting patterns that will make your LEDs come alive:</p>
+
+        <CopyCodeBlock 
+          code={`def pattern_fade():
+    """Smooth fade in/out pattern"""
+    for brightness in range(0, 65536, 1000):
+        led_red.duty_u16(brightness)
+        led_green.duty_u16(brightness // 2)
+        led_blue.duty_u16(brightness // 3)
+        time.sleep_ms(50)
+    
+    for brightness in range(65535, -1, -1000):
+        led_red.duty_u16(brightness)
+        led_green.duty_u16(brightness // 2)
+        led_blue.duty_u16(brightness // 3)
+        time.sleep_ms(50)
+
+def pattern_rainbow():
+    """RGB rainbow cycle"""
+    for hue in range(360):
+        # Convert HSV to RGB
+        rgb = hsv_to_rgb(hue, 1.0, 1.0)
+        
+        led_red.duty_u16(int(rgb[0] * 65535))
+        led_green.duty_u16(int(rgb[1] * 65535))
+        led_blue.duty_u16(int(rgb[2] * 65535))
+        
+        time.sleep_ms(20)`}
+          language="python"
+          client:load
+        />
+
+        <!-- Pro Tip -->
+        <div class="callout tip">
+          <div class="flex items-start gap-3">
+            <Lightbulb class="h-5 w-5 text-green-600 shrink-0 mt-1" />
+            <div>
+              <h4 class="font-semibold text-green-800 dark:text-green-200 mb-2">Pro Tip</h4>
+              <p class="text-green-700 dark:text-green-300 mb-0">
+                Experiment with different sleep delays to change the speed of your patterns. Shorter delays create faster effects!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Final Steps -->
+        <h2>Testing Your Build</h2>
+        <ol class="space-y-3">
+          <li><strong>Upload the code</strong> to your Badger 2350</li>
+          <li><strong>Check your wiring</strong> - LEDs should light up when the program starts</li>
+          <li><strong>Test the buttons</strong>:
+            <ul class="mt-2 space-y-1">
+              <li>Press A to cycle forward through patterns</li>
+              <li>Press B to cycle backward through patterns</li>
+              <li>Press C to stop the program</li>
+            </ul>
+          </li>
+          <li><strong>Watch the display</strong> - It should show the current pattern name</li>
+        </ol>
+
+        <!-- Next Steps -->
+        <h2>What's Next?</h2>
+        <p>Congratulations! You've built your first LED pattern controller. Here are some ideas to expand your project:</p>
+        
+        <ul class="space-y-2">
+          <li>Add more LED patterns (strobe, sparkle, breathing)</li>
+          <li>Control pattern speed with a potentiometer</li>
+          <li>Add sound reactive patterns using a microphone</li>
+          <li>Create custom patterns that respond to WiFi data</li>
+          <li>Build a web interface to control patterns remotely</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer CTA -->
+  <section class="py-16 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+    <div class="container">
+      <div class="max-w-2xl mx-auto text-center space-y-8">
+        <h2 class="text-3xl font-bold">Ready for Your Next Challenge?</h2>
+        <p class="text-xl text-muted-foreground">
+          Explore more hacks and projects to push your Badger 2350 to its limits.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button size="lg" asChild>
+            <a href="/">Browse More Hacks</a>
+          </Button>
+          <Button variant="outline" size="lg" asChild>
+            <a href="/contribute">Share Your Creation</a>
+          </Button>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
