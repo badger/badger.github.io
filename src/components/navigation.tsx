@@ -1,6 +1,7 @@
-import { Github, Home, BookOpen, Plus } from 'lucide-react'
+import { Github, Home, BookOpen, Plus, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { GitHubRepoBadge } from '@/components/github-repo-badge'
 
 /**
  * Main Navigation Component
@@ -38,6 +39,7 @@ export function Navigation() {
             href="/hacks"
             className="flex items-center space-x-2 text-foreground/80 hover:text-foreground transition-colors"
           >
+            <Settings className="h-4 w-4" />
             <span>Hacks</span>
           </a>
           <a
@@ -47,20 +49,16 @@ export function Navigation() {
             <Plus className="h-4 w-4" />
             <span>Contribute</span>
           </a>
-          <a
-            href="https://github.com/badger/hackshelf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center space-x-2 text-foreground/80 hover:text-foreground transition-colors"
-          >
-            <Github className="h-4 w-4" />
-            <span>GitHub</span>
-          </a>
         </div>
 
-        {/* Theme Toggle */}
-        <div className="flex items-center">
-          <ThemeToggle />
+        {/* Right side actions */}
+        <div className="flex items-center space-x-4">
+          <div className="[&>*]:block">
+            <ThemeToggle />
+          </div>
+          <div className="[&>*]:block">
+            <GitHubRepoBadge repo="badger/hackshelf" />
+          </div>
         </div>
       </div>
     </nav>

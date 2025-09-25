@@ -31,8 +31,15 @@ export function HackCard({
   // Use placeholder image for development
   const imageSrc = getPlaceholderImage(thumbnail.split('/').pop() || 'led-pattern.jpg')
   
+  const handleCardClick = () => {
+    window.location.href = `/hack/${slug}`
+  }
+  
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 glow-border">
+    <Card 
+      className="group overflow-hidden hover:shadow-lg transition-all duration-300 glow-border cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="aspect-video overflow-hidden">
         <img 
           src={imageSrc} 
@@ -78,14 +85,11 @@ export function HackCard({
         </div>
 
         <Button 
-          asChild 
-          className="w-full group/button"
+          className="w-full group/button pointer-events-none"
           variant="default"
         >
-          <a href={`/hack/${slug}`}>
-            Try this
-            <ExternalLink className="h-4 w-4 ml-2 group-hover/button:translate-x-1 transition-transform" />
-          </a>
+          Try this hack
+          <ExternalLink className="h-4 w-4 ml-2 group-hover/button:translate-x-1 transition-transform" />
         </Button>
       </CardContent>
     </Card>

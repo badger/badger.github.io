@@ -100,12 +100,49 @@
   opacity: 1;
 }
 
-.code-block {
-  @apply bg-muted p-4 rounded-lg border font-mono text-sm overflow-x-auto;
+/* Tutorial Content Styling */
+.prose pre {
+  @apply relative;
 }
 
+.prose pre code {
+  @apply text-sm leading-relaxed;
+}
+
+.prose pre::before {
+  @apply absolute top-3 right-3 text-xs text-muted-foreground font-mono;
+  content: attr(data-language);
+}
+
+.prose blockquote {
+  @apply relative;
+}
+
+.prose blockquote::before {
+  @apply absolute -left-1 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-r;
+  content: '';
+}
+
+/* Enhanced code blocks */
+.prose pre[data-language="python"]::before {
+  content: "Python";
+}
+
+.prose pre[data-language="javascript"]::before {
+  content: "JavaScript";
+}
+
+.prose pre[data-language="bash"]::before {
+  content: "Terminal";
+}
+
+.prose pre[data-language="json"]::before {
+  content: "JSON";
+}
+
+/* Custom callout styles for MDX content */
 .callout {
-  @apply p-4 rounded-lg border-l-4 mb-4;
+  @apply p-4 rounded-lg border-l-4 mb-6 shadow-sm;
 }
 
 .callout.tip {
@@ -118,4 +155,183 @@
 
 .callout.danger {
   @apply border-l-red-500 bg-red-50 dark:bg-red-950/20;
+}
+
+.callout.info {
+  @apply border-l-purple-500 bg-purple-50 dark:bg-purple-950/20;
+}
+
+/* Step indicators for tutorials */
+.prose h2[id*="step"]::before {
+  @apply inline-flex items-center justify-center w-8 h-8 bg-blue-500 text-white text-sm font-bold rounded-full mr-3 mb-1;
+  content: counter(step-counter);
+  counter-increment: step-counter;
+}
+
+.prose article {
+  counter-reset: step-counter;
+}
+
+/* Better table styling */
+.prose table {
+  @apply w-full border-collapse;
+}
+
+.prose thead {
+  @apply bg-muted;
+}
+
+.prose th {
+  @apply font-semibold text-left;
+}
+
+.prose td, .prose th {
+  @apply border border-border;
+}
+
+/* Image captions */
+.prose img + em {
+  @apply block text-center text-sm text-muted-foreground mt-2 mb-4;
+}
+
+/* Highlight boxes */
+.highlight-box {
+  @apply bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 my-6;
+}
+
+/* Enhanced Prose Styling for Tutorial Content */
+.prose {
+  @apply text-foreground leading-7 max-w-none;
+}
+
+.prose h1 {
+  @apply text-3xl font-bold text-foreground mb-6 mt-8 first:mt-0;
+  @apply border-b border-border pb-2;
+}
+
+.prose h2 {
+  @apply text-2xl font-semibold text-foreground mb-4 mt-8 first:mt-0;
+  @apply border-b border-border/50 pb-1;
+}
+
+.prose h3 {
+  @apply text-xl font-medium text-foreground mb-3 mt-6;
+}
+
+.prose h4 {
+  @apply text-lg font-medium text-foreground mb-2 mt-4;
+}
+
+.prose p {
+  @apply text-muted-foreground mb-4 leading-relaxed;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-blue-500 pl-4 italic text-muted-foreground bg-muted/30 py-2 my-4 rounded-r;
+}
+
+.prose ul {
+  @apply list-disc pl-6 mb-4 space-y-1;
+}
+
+.prose ol {
+  @apply list-decimal pl-6 mb-4 space-y-1;
+}
+
+.prose li {
+  @apply text-muted-foreground;
+}
+
+.prose strong {
+  @apply font-semibold text-foreground;
+}
+
+.prose em {
+  @apply italic;
+}
+
+.prose a {
+  @apply text-blue-600 dark:text-blue-400 hover:underline transition-colors;
+}
+
+.prose hr {
+  @apply border-border my-8;
+}
+
+/* Enhanced Code Styling */
+.prose pre {
+  @apply relative rounded-lg bg-zinc-950 dark:bg-zinc-900 text-sm leading-6 overflow-x-auto my-6;
+  @apply border border-border shadow-lg;
+}
+
+.prose pre > code {
+  @apply block p-4 text-zinc-100 font-mono;
+}
+
+.prose :not(pre) > code {
+  @apply relative rounded bg-muted px-2 py-1 text-sm font-mono text-foreground;
+  @apply border border-border;
+  @apply before:content-['`'] after:content-['`'] before:text-muted-foreground after:text-muted-foreground;
+}
+
+/* Syntax highlighting improvements */
+.prose pre code {
+  @apply text-gray-100;
+}
+
+.prose pre code .token.comment,
+.prose pre code .token.prolog,
+.prose pre code .token.doctype,
+.prose pre code .token.cdata {
+  @apply text-gray-400;
+}
+
+.prose pre code .token.punctuation {
+  @apply text-gray-300;
+}
+
+.prose pre code .token.property,
+.prose pre code .token.tag,
+.prose pre code .token.boolean,
+.prose pre code .token.number,
+.prose pre code .token.constant,
+.prose pre code .token.symbol,
+.prose pre code .token.deleted {
+  @apply text-red-300;
+}
+
+.prose pre code .token.selector,
+.prose pre code .token.attr-name,
+.prose pre code .token.string,
+.prose pre code .token.char,
+.prose pre code .token.builtin,
+.prose pre code .token.inserted {
+  @apply text-green-300;
+}
+
+.prose pre code .token.operator,
+.prose pre code .token.entity,
+.prose pre code .token.url,
+.prose pre code .token.variable {
+  @apply text-yellow-300;
+}
+
+.prose pre code .token.atrule,
+.prose pre code .token.attr-value,
+.prose pre code .token.function,
+.prose pre code .token.class-name {
+  @apply text-blue-300;
+}
+
+.prose pre code .token.keyword {
+  @apply text-purple-300;
+}
+
+/* Highlighted lines and chars */
+.prose .line--highlighted {
+  @apply bg-zinc-800/50 dark:bg-zinc-700/50 block -mx-4 px-4;
+}
+
+.prose .chars--highlighted {
+  @apply bg-zinc-700/50 dark:bg-zinc-600/50 rounded px-1;
 }

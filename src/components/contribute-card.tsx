@@ -7,8 +7,18 @@ import { Button } from '@/components/ui/button'
  * Encourages users to contribute their own hacks
  */
 export function ContributeCard() {
+  const handleContributeClick = () => {
+    window.location.href = '/contribute'
+  }
+
+  const handleGitHubClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
+    window.open('https://github.com/badger/hackshelf', '_blank', 'noopener,noreferrer')
+  }
+
   return (
-    <Card className="group border-dashed border-2 hover:border-solid hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+    <Card className="group border-dashed border-2 hover:border-solid hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 cursor-pointer"
+          onClick={handleContributeClick}>
       <CardHeader className="text-center pb-3">
         <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
           <Plus className="h-8 w-8 text-white" />
@@ -26,33 +36,20 @@ export function ContributeCard() {
 
         <div className="space-y-2">
           <Button 
-            asChild 
-            className="w-full"
+            className="w-full pointer-events-none"
             variant="default"
           >
-            <a 
-              href="/contribute"
-              className="flex items-center justify-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Contribute Now
-            </a>
+            <Plus className="h-4 w-4 mr-2" />
+            Contribute Now
           </Button>
 
           <Button 
-            asChild 
             variant="outline"
             className="w-full"
+            onClick={handleGitHubClick}
           >
-            <a 
-              href="https://github.com/badger/hackshelf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2"
-            >
-              <Github className="h-4 w-4" />
-              View on GitHub
-            </a>
+            <Github className="h-4 w-4 mr-2" />
+            View on GitHub
           </Button>
         </div>
       </CardContent>

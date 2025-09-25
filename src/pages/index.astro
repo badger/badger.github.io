@@ -13,51 +13,91 @@ const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
 
 <Layout title="HackShelf - Badger 2350 Hacks & Projects">
   <!-- Hero Section -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
-    <div class="container py-24 lg:py-32">
-      <div class="max-w-4xl mx-auto text-center space-y-8">
-        <div class="space-y-4">
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-            Unleash Your 
-            <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Badger 2350
-            </span>
-          </h1>
-          <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover amazing hacks, tutorials, and projects for your Badger 2350 device. 
-            From simple experiments to complex creations - your journey starts here.
-          </p>
+    <!-- Hero Section -->
+  <section class="py-24 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
+    <div class="container">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <!-- Content -->
+        <div class="space-y-8">
+          <div class="space-y-4">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+              Unlock Your 
+              <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Badger 2350
+              </span>
+            </h1>
+            <p class="text-xl text-muted-foreground">
+              Discover amazing hacks, tutorials, and projects for your Badger 2350. 
+              From LED patterns to IoT sensors - build something extraordinary today.
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <Button asChild size="lg" class="text-lg px-8" client:load>
+              <a href="#featured-hacks" class="flex items-center gap-2">
+                <BookOpen class="h-5 w-5" />
+                Explore Hacks
+                <ArrowRight class="h-4 w-4" />
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="lg" class="text-lg px-8" client:load>
+              <a href="/about-badge" class="flex items-center gap-2">
+                <Zap class="h-5 w-5" />
+                Learn About Your Badge
+              </a>
+            </Button>
+          </div>
+
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-6 mt-12 pt-6 border-t border-border/50">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-foreground">{featuredHacks.length}+</div>
+              <div class="text-xs text-muted-foreground">Hacks</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-foreground">3</div>
+              <div class="text-xs text-muted-foreground">Levels</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-foreground">∞</div>
+              <div class="text-xs text-muted-foreground">Ideas</div>
+            </div>
+          </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild size="lg" class="text-lg px-8">
-            <a href="/about-badge" class="flex items-center gap-2">
-              <BookOpen class="h-5 w-5" />
-              Learn About Your Badge
-              <ArrowRight class="h-5 w-5" />
-            </a>
-          </Button>
-          <Button asChild variant="outline" size="lg" class="text-lg px-8">
-            <a href="#hacks" class="flex items-center gap-2">
-              <Zap class="h-5 w-5" />
-              Explore Hacks
-            </a>
-          </Button>
-        </div>
-
-        <!-- Stats -->
-        <div class="grid grid-cols-3 gap-8 mt-16 pt-8 border-t border-border/50">
-          <div class="text-center">
-            <div class="text-3xl font-bold text-foreground">{featuredHacks.length}+</div>
-            <div class="text-sm text-muted-foreground">Hacks Available</div>
-          </div>
-          <div class="text-center">
-            <div class="text-3xl font-bold text-foreground">3</div>
-            <div class="text-sm text-muted-foreground">Difficulty Levels</div>
-          </div>
-          <div class="text-center">
-            <div class="text-3xl font-bold text-foreground">∞</div>
-            <div class="text-sm text-muted-foreground">Possibilities</div>
+        <!-- Badge Image -->
+        <div class="order-first lg:order-last">
+          <div class="relative">
+            <div class="aspect-square max-w-md mx-auto rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
+              <!-- Placeholder Badge Image -->
+              <div class="w-full h-full flex items-center justify-center">
+                <svg width="300" height="200" viewBox="0 0 300 200" class="opacity-80">
+                  <!-- Badge outline -->
+                  <rect x="20" y="40" width="260" height="120" rx="15" fill="currentColor" class="text-slate-300 dark:text-slate-600"/>
+                  <rect x="25" y="45" width="250" height="110" rx="10" fill="currentColor" class="text-white dark:text-slate-800"/>
+                  
+                  <!-- Screen -->
+                  <rect x="40" y="60" width="140" height="70" rx="5" fill="currentColor" class="text-slate-800 dark:text-slate-200"/>
+                  <text x="110" y="90" text-anchor="middle" fill="currentColor" class="text-white dark:text-slate-800 text-sm font-mono">Badger</text>
+                  <text x="110" y="110" text-anchor="middle" fill="currentColor" class="text-white dark:text-slate-800 text-sm font-mono">2350</text>
+                  
+                  <!-- Buttons -->
+                  <circle cx="210" cy="75" r="8" fill="currentColor" class="text-blue-500"/>
+                  <circle cx="210" cy="95" r="8" fill="currentColor" class="text-green-500"/>
+                  <circle cx="210" cy="115" r="8" fill="currentColor" class="text-red-500"/>
+                  
+                  <!-- USB port -->
+                  <rect x="130" y="165" width="40" height="8" rx="2" fill="currentColor" class="text-slate-400"/>
+                  
+                  <!-- Text label -->
+                  <text x="150" y="185" text-anchor="middle" fill="currentColor" class="text-slate-500 dark:text-slate-400 text-xs">Badger 2350</text>
+                </svg>
+              </div>
+            </div>
+            
+            <!-- Floating elements -->
+            <div class="absolute -top-4 -right-4 w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>
+            <div class="absolute -bottom-4 -left-4 w-6 h-6 bg-purple-500 rounded-full animate-pulse delay-1000"></div>
           </div>
         </div>
       </div>
@@ -143,4 +183,59 @@ const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
       </div>
     </div>
   </section>
+
+  <!-- Footer -->
+  <footer class="bg-background border-t">
+    <div class="container py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold">HackShelf</h3>
+          <p class="text-sm text-muted-foreground">
+            A community-driven catalog of hacks and projects for the Badger 2350.
+          </p>
+        </div>
+        
+        <div class="space-y-4">
+          <h4 class="font-semibold">Learn</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="/" class="text-muted-foreground hover:text-foreground">Browse Hacks</a></li>
+            <li><a href="/about-badge" class="text-muted-foreground hover:text-foreground">About Badger 2350</a></li>
+            <li><a href="/contribute" class="text-muted-foreground hover:text-foreground">Get Started</a></li>
+          </ul>
+        </div>
+        
+        <div class="space-y-4">
+          <h4 class="font-semibold">Community</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="/contribute" class="text-muted-foreground hover:text-foreground">Contribute</a></li>
+            <li><a href="https://github.com/badger/hackshelf" class="text-muted-foreground hover:text-foreground">GitHub</a></li>
+            <li><a href="https://github.com/badger/hackshelf/discussions" class="text-muted-foreground hover:text-foreground">Discussions</a></li>
+          </ul>
+        </div>
+        
+        <div class="space-y-4">
+          <h4 class="font-semibold">Resources</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="text-muted-foreground hover:text-foreground">Documentation</a></li>
+            <li><a href="#" class="text-muted-foreground hover:text-foreground">API Reference</a></li>
+            <li><a href="#" class="text-muted-foreground hover:text-foreground">Hardware Guide</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="mt-8 pt-8 border-t flex flex-col sm:flex-row justify-between items-center">
+        <p class="text-sm text-muted-foreground">
+          © 2025 HackShelf. Built with ❤️ for the Badger 2350 community.
+        </p>
+        <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+          <a href="https://github.com/badger/hackshelf" class="text-muted-foreground hover:text-foreground">
+            <span class="sr-only">GitHub</span>
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
 </Layout>
