@@ -53,12 +53,8 @@ export function Navigation() {
 
         {/* Right side actions */}
         <div className="flex items-center space-x-4">
-          <div className="[&>*]:block">
-            <ThemeToggle />
-          </div>
-          <div className="[&>*]:block">
-            <GitHubRepoBadge repo="badger/hackshelf" />
-          </div>
+          <ThemeToggle />
+          <GitHubRepoBadge repo="badger/home" />
         </div>
       </div>
     </nav>

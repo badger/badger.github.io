@@ -79,7 +79,7 @@ export function GitHubRepoBadge({ repo }: GitHubRepoBadgeProps) {
     >
       <Github className="h-5 w-5" />
       <div className="flex flex-col min-w-0">
-        <span className="text-sm font-semibold truncate">{repoData.name}</span>
+        <span className="text-sm font-semibold truncate">{repoData.full_name}</span>
         <div className="flex items-center space-x-3 text-xs text-muted-foreground">
           <div className="flex items-center space-x-1">
             <Star className="h-3 w-3" />

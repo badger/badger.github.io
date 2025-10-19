@@ -1,0 +1,212 @@
+---
+title: "Conway's Game of Life"
+description: "Watch cellular automata come alive on your e-ink display with this implementation of Conway's famous Game of Life."
+difficulty: "medium"
+duration: 20
+tags: ["simulation", "algorithm", "visualization", "interactive"]
+thumbnail: "/images/hacks/game-of-life.jpg"
+author: "@link- (ported by HackShelf Team)"
+date: "2025-09-25"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/home/tree/main/examples/life"
+---
+
+# Conway's Game of Life
+
+Experience one of the most famous cellular automata simulations right on your Badger 2350! Watch patterns evolve, oscillate, and create complex behaviors from simple rules.
+
+## What You'll Learn
+
+- Cellular automata algorithms
+- 2D array manipulation
+- Interactive simulation control
+- Grid-based display techniques
+- Algorithm optimization for embedded devices
+
+## Hardware Requirements
+
+- Badger 2350
+- USB-C cable for programming
+
+## How to Play
+
+- **A Button**: Reset grid with new random pattern (hold for 2s)
+- **B Button**: Pause/Resume simulation (hold for 2s)  
+- **UP Button**: Increase refresh rate (faster simulation)
+- **DOWN Button**: Decrease refresh rate (slower simulation)
+- **A+C**: Exit to launcher
+
+## The Rules of Life
+
+Conway's Game of Life follows four simple rules:
+
+1. **Birth**: A dead cell with exactly 3 living neighbors becomes alive
+2. **Survival**: A living cell with 2 or 3 living neighbors stays alive
+3. **Death by isolation**: A living cell with fewer than 2 neighbors dies
+4. **Death by overcrowding**: A living cell with more than 3 neighbors dies
+
+## Code Implementation
+
+### Grid Initialization
+```python
+def initialize_grid():
+    return [[random.choice([EMPTY_CELL, CELL]) for _ in range(WIDTH)] for _ in range(HEIGHT)]
+```
+
+### Neighbor Counting Algorithm
+```python
+def count_neighbors(grid, x, y):
+    neighbors = [
+        (-1, -1), (-1, 0), (-1, 1),
+        (0, -1),           (0, 1),
+        (1, -1),   (1, 0), (1, 1)
+    ]
+    
+    count = 0
+    for dx, dy in neighbors:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < HEIGHT and 0 <= ny < WIDTH:
+            if grid[nx][ny] == CELL:
+                count += 1
+    return count
+```
+
+### Evolution Engine
+```python
+def update_grid(grid):
+    new_grid = [[EMPTY_CELL for _ in range(WIDTH)] for _ in range(HEIGHT)]
+    
+    for x in range(HEIGHT):
+        for y in range(WIDTH):
+            neighbors = count_neighbors(grid, x, y)
+            
+            if grid[x][y] == CELL:  # Living cell
+                if neighbors in [2, 3]:
+                    new_grid[x][y] = CELL  # Survives
+                else:
+                    new_grid[x][y] = EMPTY_CELL  # Dies
+            else:  # Dead cell
+                if neighbors == 3:
+                    new_grid[x][y] = CELL  # Birth
+                    
+    return new_grid
+```
+
+## Display System
+
+### Grid Visualization
+The simulation uses ASCII characters for clear visualization:
+```python
+WIDTH = 45    # Grid width in characters
+HEIGHT = 12   # Grid height in characters  
+CELL = '+'    # Living cell symbol
+EMPTY_CELL = ' '  # Dead cell symbol
+```
+
+### Text Rendering
+```python
+def print_grid(grid):
+    badger.set_pen(0)
+    badger.clear()
+    badger.set_pen(15)
+    badger.set_font("bitmap8")
+    
+    for k, row in enumerate(grid):
+        badger.text(''.join(row), 0, k*10)
+    
+    badger.update()
+```
+
+## Interactive Controls
+
+### Speed Control
+Adjust simulation speed dynamically:
+```python
+if badger.pressed(badger2040.BUTTON_UP):
+    if REFRESH_RATE - 0.1 > 0:
+        REFRESH_RATE -= 0.1  # Faster
+        
+if badger.pressed(badger2040.BUTTON_DOWN):
+    REFRESH_RATE += 0.1      # Slower
+```
+
+### Pause/Resume
+Toggle simulation state:
+```python
+if badger.pressed(badger2040.BUTTON_B):
+    RUNNING = not RUNNING
+    write_text('Running: ' + str(RUNNING))
+```
+
+## Famous Patterns to Watch For
+
+### Static Patterns
+- **Block**: 2x2 square that never changes
+- **Beehive**: Stable hexagonal pattern
+- **Loaf**: Asymmetric stable pattern
+
+### Oscillators  
+- **Blinker**: Simple 3-cell vertical/horizontal flipper
+- **Toad**: 6-cell period-2 oscillator
+- **Beacon**: Corner-flipping pattern
+
+### Spaceships
+- **Glider**: Moves diagonally across the grid
+- **Lightweight Spaceship**: Travels horizontally
+
+### Chaotic Patterns
+- **R-Pentomino**: Takes 1103 generations to stabilize
+- **Acorn**: Creates complex patterns from 7 cells
+
+## Optimization Features
+
+### Memory Efficiency
+```python
+# Efficient grid copying
+new_grid = [[EMPTY_CELL for _ in range(WIDTH)] for _ in range(HEIGHT)]
+```
+
+### Performance Tuning
+- Optimized neighbor checking with boundary validation
+- Efficient display updates using e-ink characteristics
+- Adjustable refresh rates for battery conservation
+
+## Educational Value
+
+### Algorithm Design
+- Learn about cellular automata theory
+- Understand emergence and complexity
+- Practice grid-based algorithms
+
+### Programming Concepts
+- 2D array manipulation
+- State management
+- Interactive controls
+- Performance optimization
+
+## Customization Ideas
+
+### Grid Modifications
+- Increase grid resolution for more detail
+- Implement toroidal (wrap-around) boundaries
+- Add different cell states or colors
+
+### Rule Variations
+Try other cellular automata rules:
+- **Seeds**: B2/S (chaotic growth)
+- **Life without Death**: B3/S012345678 (explosive growth)
+- **Maze**: B3/S12345 (maze-like patterns)
+
+### Visual Enhancements
+- Different symbols for cell ages
+- Highlight recently changed cells
+- Add generation counter display
+
+## Installation
+
+1. Copy these files to `/examples/` on your Badger 2350:
+   - `life.py`
+   - `icon-life.jpg`
+2. Launch through the app menu (A+C buttons)
+
+This implementation showcases how simple rules can create incredibly complex and beautiful behaviors - a perfect demonstration of emergent complexity!

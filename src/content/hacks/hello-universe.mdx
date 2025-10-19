@@ -1,0 +1,98 @@
+---
+title: "Hello Universe"
+description: "Your first Badger 2350 app - display a simple greeting message on the e-ink screen."
+difficulty: "easy"
+duration: 5
+tags: ["beginner", "display", "text"]
+thumbnail: "/images/hacks/hello-universe.jpg"
+author: "HackShelf Team"
+date: "2025-09-25"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/home/tree/main/examples/hello"
+---
+
+# Hello Universe
+
+There's nothing like a classic! This is the perfect first app for your Badger 2350 - a simple program that displays "Hello, Universe!" on the e-ink screen.
+
+## What You'll Learn
+
+- Basic Badger 2350 setup and initialization
+- How to control the e-ink display
+- Working with fonts and text rendering
+- Using the LED indicator
+- Power management basics
+
+## Hardware Requirements
+
+- Badger 2350
+- USB-C cable for programming
+
+## Code Overview
+
+This example demonstrates the core concepts of Badger programming:
+
+```python
+import badger2040
+from badger2040 import WIDTH
+
+# Create a new Badger and set it to update at normal speed
+display = badger2040.Badger2040()
+display.led(128)
+display.set_update_speed(badger2040.UPDATE_NORMAL)
+
+# Reset display and show message
+display.clear()
+display.set_font("sans")
+display.set_thickness(3)
+display.set_pen(0)
+display.rectangle(0, 0, WIDTH, 16)
+display.set_pen(15)
+display.text("Hello, Universe!", 20, 20, WIDTH, 1)
+display.update()
+
+# Call halt in a loop, on battery this switches off power
+# On USB, the app will exit when A+C is pressed because the launcher picks that up
+while True:
+    display.keepalive()
+    display.halt()
+```
+
+## Key Concepts Explained
+
+### Display Initialization
+```python
+display = badger2040.Badger2040()
+display.led(128)  # Set LED brightness (0-255)
+display.set_update_speed(badger2040.UPDATE_NORMAL)
+```
+
+### Drawing Operations
+- `display.clear()` - Clear the screen
+- `display.set_font()` - Choose font (sans, serif, bitmap8, etc.)
+- `display.set_thickness()` - Set line thickness
+- `display.set_pen()` - Set drawing color (0=black, 15=white)
+- `display.rectangle()` - Draw shapes
+- `display.text()` - Render text
+
+### Power Management
+The `keepalive()` and `halt()` functions manage power efficiently:
+- On battery: the badge powers down between interactions
+- On USB: the app exits when A+C buttons are pressed simultaneously
+
+## Installation
+
+1. Copy `hello.py` and `icon-hello.jpg` to the `/examples/` directory on your Badger 2350
+2. Press A+C to access the app launcher
+3. Navigate to "hello" and press the corresponding button
+
+## Next Steps
+
+Once you've got this working, try modifying the message or experimenting with different fonts and layouts. This simple example is the foundation for more complex apps!
+
+## Tips
+
+- The e-ink display updates slowly, so use `UPDATE_FAST` or `UPDATE_TURBO` for testing
+- Remember that e-ink displays are black and white only
+- The screen resolution is 296x128 pixels
+- Battery life is excellent due to the power management features

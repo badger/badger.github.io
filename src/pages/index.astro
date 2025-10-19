@@ -68,36 +68,13 @@ const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
         <!-- Badge Image -->
         <div class="order-first lg:order-last">
           <div class="relative">
-            <div class="aspect-square max-w-md mx-auto rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
-              <!-- Placeholder Badge Image -->
-              <div class="w-full h-full flex items-center justify-center">
-                <svg width="300" height="200" viewBox="0 0 300 200" class="opacity-80">
-                  <!-- Badge outline -->
-                  <rect x="20" y="40" width="260" height="120" rx="15" fill="currentColor" class="text-slate-300 dark:text-slate-600"/>
-                  <rect x="25" y="45" width="250" height="110" rx="10" fill="currentColor" class="text-white dark:text-slate-800"/>
-                  
-                  <!-- Screen -->
-                  <rect x="40" y="60" width="140" height="70" rx="5" fill="currentColor" class="text-slate-800 dark:text-slate-200"/>
-                  <text x="110" y="90" text-anchor="middle" fill="currentColor" class="text-white dark:text-slate-800 text-sm font-mono">Badger</text>
-                  <text x="110" y="110" text-anchor="middle" fill="currentColor" class="text-white dark:text-slate-800 text-sm font-mono">2350</text>
-                  
-                  <!-- Buttons -->
-                  <circle cx="210" cy="75" r="8" fill="currentColor" class="text-blue-500"/>
-                  <circle cx="210" cy="95" r="8" fill="currentColor" class="text-green-500"/>
-                  <circle cx="210" cy="115" r="8" fill="currentColor" class="text-red-500"/>
-                  
-                  <!-- USB port -->
-                  <rect x="130" y="165" width="40" height="8" rx="2" fill="currentColor" class="text-slate-400"/>
-                  
-                  <!-- Text label -->
-                  <text x="150" y="185" text-anchor="middle" fill="currentColor" class="text-slate-500 dark:text-slate-400 text-xs">Badger 2350</text>
-                </svg>
-              </div>
+            <div class="aspect-square max-w-md mx-auto rounded-2xl overflow-hidden shadow-2xl">
+              <img 
+                src="/images/hero.jpg" 
+                alt="Badger 2350" 
+                class="w-full h-full object-cover"
+              />
             </div>
-            
-            <!-- Floating elements -->
-            <div class="absolute -top-4 -right-4 w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>
-            <div class="absolute -bottom-4 -left-4 w-6 h-6 bg-purple-500 rounded-full animate-pulse delay-1000"></div>
           </div>
         </div>
       </div>
