@@ -5,212 +5,150 @@ icon: "/images/apps/badge_icon.png"
 category: "utility"
 preloaded: true
 customizable: true
-fileLocation: "/apps/badge"
-tags: ["profile", "GitHub", "identity", "networking"]
+fileLocation: "/system/apps/badge"
 ---
 
 # Badge
 
-Transform your Badger 2350 into a personalized digital badge displaying your GitHub profile, name, photo, and stats.
+A digital conference badge featuring your GitHub profile! Displays your contribution graph, avatar, stats (followers/repos/contributions), and username with beautiful animations.
 
 ## Features
 
-- **GitHub Integration**: Pull data directly from your GitHub profile
-- **Profile Photo**: Display your GitHub avatar
-- **Live Stats**: Show your repos, followers, and contributions
-- **Customizable Layout**: Choose from different badge designs
-- **QR Code**: Optional QR code linking to your profile
-- **Always-On Display**: Perfect for conferences and meetups
+- **Contribution Graph**: Scrolling GitHub contribution heatmap background
+- **Animated Avatar Loading**: Spinning squircle animation while fetching
+- **Three Key Stats**: Followers, total contributions, and public repos
+- **WiFi Integration**: Fetches live data from GitHub's API
+- **Offline Cache**: Works offline after initial data fetch
+- **Auto-Configuration**: Reads credentials from `/secrets.py`
+- **Force Refresh**: Hold A+C to re-fetch all data
 
 ## File Location
 
-Badge is located at `/apps/badge` on your Badger 2350 filesystem.
+Badge is located at `/system/apps/badge` on your Badger 2350 filesystem.
 
 ```
-/apps/badge/
-  ├── main.py          # Main badge app
-  ├── github_api.py    # GitHub API integration
-  ├── config.json      # Your badge settings
-  ├── layouts/         # Badge layout templates
-  │   ├── classic.py
-  │   ├── minimal.py
-  │   └── stats.py
-  └── cache/           # Cached profile data
-      └── profile.json
+/system/apps/badge/
+  ├── __init__.py      # Main badge app with WiFi and API logic
+  ├── /user_data.json  # Cached user profile (root level)
+  ├── /contrib_data.json # Cached contribution data (root level)
+  └── /avatar.png      # Cached avatar image (root level)
 ```
 
 ## Configuration
 
-Set up your badge by editing `config.json`:
-
-```json
-{
-  "github_username": "octocat",
-  "display_name": "Octocat",
-  "layout": "classic",
-  "show_qr": true,
-  "show_stats": true,
-  "refresh_interval": 3600,
-  "wifi_enabled": true
-}
-```
-
-### Configuration Options
-
-- **github_username**: Your GitHub username (required)
-- **display_name**: Name to show on badge (defaults to GitHub name)
-- **layout**: Badge style - `"classic"`, `"minimal"`, or `"stats"`
-- **show_qr**: Include QR code linking to your profile (`true`/`false`)
-- **show_stats**: Display follower/repo counts (`true`/`false`)
-- **refresh_interval**: How often to update stats (seconds)
-- **wifi_enabled**: Allow WiFi for real-time updates (`true`/`false`)
-
-## Badge Layouts
-
-### Classic Layout
-- Large profile photo
-- Name and username
-- GitHub logo
-- Optional QR code in corner
-
-### Minimal Layout
-- Simple text-based design
-- Name in large font
-- Username below
-- Clean and professional
-
-### Stats Layout
-- Smaller profile photo
-- Prominent stat display
-- Repositories, followers, following
-- Recent activity indicator
-
-## Setting Up
-
-1. **Connect to WiFi** (for first-time setup)
-2. **Edit config.json** with your GitHub username
-3. **Launch Badge app** - it will fetch your profile
-4. **Choose a layout** from the menu
-5. **Your badge is ready!** Data is cached for offline use
-
-## GitHub Stats
-
-The app displays:
-- **Username**: Your GitHub handle
-- **Name**: Full display name
-- **Avatar**: Profile picture (converted to e-ink)
-- **Public Repos**: Number of public repositories
-- **Followers**: Follower count
-- **Following**: Following count
-- **Bio**: Optional short bio text
-
-## Cached Profile Data
-
-```json
-{
-  "username": "octocat",
-  "name": "The Octocat",
-  "bio": "GitHub's mascot",
-  "avatar_url": "https://github.com/octocat.png",
-  "public_repos": 8,
-  "followers": 5432,
-  "following": 9,
-  "last_updated": "2025-10-19T10:00:00",
-  "profile_url": "https://github.com/octocat"
-}
-```
-
-## Offline Mode
-
-Once your profile is cached:
-- Badge works without WiFi
-- Stats show last known values
-- "Last updated" timestamp shown
-- Manual refresh available when online
-
-## Tips
-
-- **Update Regularly**: Refresh stats before events for current numbers
-- **QR Code**: Great for networking - people can scan to visit your profile
-- **Choose Your Layout**: Match the layout to your event style
-- **Backup Config**: Save your config.json before experimenting
-- **Photo Quality**: Use a high-contrast GitHub avatar for best e-ink display
-
-## Privacy
-
-- **Local Storage**: All data cached locally on your badge
-- **GitHub API**: Uses public GitHub API (no authentication required)
-- **No Tracking**: App doesn't send data anywhere except GitHub
-- **Offline First**: Works completely offline after initial setup
-
-## Code Example
-
-Basic badge display implementation:
+Create or edit `/secrets.py` on your badge:
 
 ```python
-from badger2350 import Badger2350
-import urequests
-import json
+# WiFi credentials
+WIFI_SSID = "YourNetworkName"
+WIFI_PASSWORD = "YourPassword"
 
-badge = Badger2350()
-
-class GitHubBadge:
-    def __init__(self, username):
-        self.username = username
-        self.profile = None
-    
-    def fetch_profile(self):
-        url = f"https://api.github.com/users/{self.username}"
-        response = urequests.get(url)
-        self.profile = json.loads(response.text)
-        
-        # Cache the profile
-        with open('/apps/badge/cache/profile.json', 'w') as f:
-            json.dump(self.profile, f)
-    
-    def display_classic(self):
-        if not self.profile:
-            return
-        
-        badge.set_pen(15)
-        badge.clear()
-        
-        badge.set_pen(0)
-        
-        # Display name
-        badge.text(self.profile['name'], 10, 10, scale=2)
-        badge.text(f"@{self.username}", 10, 40, scale=1)
-        
-        # Display stats
-        badge.text(f"Repos: {self.profile['public_repos']}", 10, 70)
-        badge.text(f"Followers: {self.profile['followers']}", 10, 90)
-        
-        # GitHub logo placeholder
-        badge.text("GitHub", 200, 100, scale=1)
-        
-        badge.update()
-    
-    def display_minimal(self):
-        badge.set_pen(15)
-        badge.clear()
-        
-        badge.set_pen(0)
-        badge.text(self.profile['name'], 20, 40, scale=3)
-        badge.text(f"@{self.username}", 70, 80, scale=1)
-        
-        badge.update()
-
-# Usage
-github_badge = GitHubBadge("octocat")
-github_badge.fetch_profile()
-github_badge.display_classic()
+# Your GitHub username
+GITHUB_USERNAME = "octocat"
 ```
 
-## Customization Ideas
+**Required Variables:**
+- `WIFI_SSID`: Your WiFi network name
+- `WIFI_PASSWORD`: Your WiFi password
+- `GITHUB_USERNAME`: Your GitHub username
 
-- Add your company logo
-- Include social media handles
-- Show recent commit activity
-- Display your current project
-- Add custom graphics or borders
-- Include conference-specific info
+## Setup Process
+
+1. **Put badge in disk mode** (tap RESET twice)
+2. **Edit `/secrets.py`** with your credentials
+3. **Reload the badge** (press RESET once)
+4. **Launch Badge app** from menu
+5. **Wait for data fetch** (~60 second timeout)
+
+The app will:
+1. Connect to WiFi
+2. Fetch user data from `https://api.github.com/users/{username}`
+3. Fetch contribution graph from `https://github.com/{username}.contribs`
+4. Download avatar from `https://wsrv.nl/?url=https://github.com/{username}.png&w=75`
+5. Cache everything locally for offline use
+
+## Visual Elements
+
+**Contribution Graph Background:**
+- 53 weeks × 7 days grid
+- 5 contribution levels with green gradient colors
+- Horizontal scrolling animation (sine wave pattern)
+- Each cell is a 15×15px rounded rectangle with 2px spacing
+
+**Stats Display:**
+- Large font for numbers (phosphor color: rgb(211, 250, 55))
+- Small font for labels  
+- Three stats positioned vertically on right side
+- Falls back to random numbers if data not loaded yet
+
+**Avatar:**
+- 75×75px image loaded from wsrv.nl (image resize service)
+- Positioned at (5, 37) on screen
+- While loading: animated spinning squircle pattern
+- Four rotating squircles with scaling effect
+
+**Status Messages:**
+- "fetching user data..." → "fetching contribs..." → "fetching avatar..."
+- "connecting..." when WiFi not ready
+- Username displayed at top center when ready
+
+## Data Fetching
+
+**Three Async Operations:**
+1. **User Data**: `GET /users/{username}` → `/user_data.json`
+   - Name, login, followers, public_repos
+2. **Contributions**: `GET /{username}.contribs` → `/contrib_data.json`
+   - 53 weeks of contribution data with levels (0-4)
+3. **Avatar**: Download PNG → `/avatar.png`
+   - Resized to 75px via wsrv.nl service
+
+Each operation is a generator function using `yield` for async-like behavior without blocking.
+
+## Colors
+
+```python
+phosphor = brushes.color(211, 250, 55, 150)  # Bright lime
+white = brushes.color(235, 245, 255)         # Off-white
+faded = brushes.color(235, 245, 255, 100)    # Faded white
+
+# Contribution levels (green gradient)
+levels = [
+    (21/2, 27/2, 35/2),    # Level 0 - darkest
+    (3/2, 58/2, 22/2),     # Level 1
+    (25/2, 108/2, 46/2),   # Level 2
+    (46/2, 160/2, 67/2),   # Level 3
+    (86/2, 211/2, 100/2),  # Level 4 - brightest
+]
+```
+
+## Error Handling
+
+**No Secrets File:**
+- Shows "Missing Details!" screen
+- Instructions to edit secrets.py
+- Three-step setup guide
+
+**Connection Failed:**
+- Shows "Connection Failed!" screen
+- WiFi troubleshooting steps
+- Retry instructions
+
+## Force Refresh
+
+Hold **Button A + Button C** together to:
+- Clear cached data
+- Re-fetch everything from GitHub
+- Useful after updating your profile
+
+## Technical Details
+
+- **WiFi Timeout**: 60 seconds to connect
+- **Streaming Downloads**: Uses chunked 512-byte buffers
+- **State Persistence**: Checks for cached files on startup
+- **Generator Pattern**: Non-blocking data fetching
+- **Image Optimization**: Uses 2x antialiasing
+
+## Source Code
+
+View the complete source code on GitHub:
+- [Main badge app](https://github.com/badger/tufty/blob/main/badge/apps/badge/__init__.py) - Complete WiFi, API, and rendering logic

@@ -5,94 +5,86 @@ icon: "/images/apps/monaquest_icon.png"
 category: "game"
 preloaded: true
 customizable: false
-fileLocation: "/apps/monaquest"
-tags: ["game", "adventure", "quest"]
+fileLocation: "/system/apps/quest"
 ---
 
 # Mona's Quest
 
-An exciting adventure game that comes preloaded on your Badger 2350. Go on a quest to find all treasures at GitHub Universe!
+An interactive scavenger hunt game using IR beacons placed at various locations around GitHub Universe. Find all 9 locations to complete the quest!
 
 ## Features
 
-- **Interactive Quest**: Follow clues to discover hidden treasures
-- **GitHub Universe Integration**: Starts at the "Hack the Badge" station
-- **Progressive Challenges**: Multiple stages of discovery
-- **E-ink Optimized Graphics**: Beautiful visuals designed for your badge display
+- **IR Beacon Detection**: Uses infrared signals to detect when you're at quest locations
+- **9 Quest Locations**: Find Hack Your Badge, What's Up Docs, Stars Lounge, GitHub Next, Open Source Zone, Demos & Donuts, GitHub Learn, Octocat Generator, and Makerspace
+- **Real-Time Progress**: Visual grid shows which locations you've discovered
+- **Animated Feedback**: Zoom-in celebration animation when you find each location
+- **Persistent Progress**: Your quest progress is automatically saved between sessions
 
 ## File Location
 
-Mona's Quest is located at `/apps/monaquest` on your Badger 2350 filesystem.
+Mona's Quest is located at `/system/apps/quest` on your Badger 2350 filesystem.
 
 ```
-/apps/monaquest/
-  ├── main.py          # Main game file
-  ├── quest_data.py    # Quest stages and clues
-  ├── graphics/        # Game graphics
-  └── progress.json    # Your quest progress
+/system/apps/quest/
+  ├── __init__.py      # Main game file
+  ├── beacon.py        # IR beacon detection logic
+  ├── ui.py            # User interface rendering
+  └── assets/          # Game graphics
 ```
 
-## How to Play
+## Quest Locations
 
-1. **Start the Quest**: Launch Mona's Quest from your badge menu
-2. **Visit Hack the Badge Station**: Your first clue will be there
-3. **Follow Instructions**: Each location provides the next clue
-4. **Collect Treasures**: Find all hidden items throughout the venue
-5. **Complete Your Quest**: Track your progress on the badge
+The 9 locations you need to find:
 
-### Controls
+1. **Hack Your Badge** - Start here!
+2. **What's Up Docs** - Documentation station
+3. **Stars Lounge** - Community area
+4. **GitHub Next** - Innovation showcase
+5. **Open Source Zone** - OSS projects
+6. **Demos & Donuts** - Live demonstrations
+7. **GitHub Learn** - Learning resources
+8. **Octocat Generator** - Create your Octocat
+9. **Makerspace** - Hands-on activities
 
-- **Button A/B/C/D**: Navigate menus and move Mona
-- **Button E**: Interact with objects and collect treasures
+## How It Works
 
-## Quest Progress
+The quest uses **NEC IR protocol** to detect beacons:
+- Each location has an IR beacon transmitting a unique code
+- Your badge's IR receiver (GPIO pin 21) detects these signals
+- When you get close to a beacon, the location is automatically unlocked
+- A celebratory animation plays showing which location you found
 
-Your progress is automatically saved:
+## Progress Tracking
 
-```json
-{
-  "treasuresFound": 0,
-  "totalTreasures": 10,
-  "currentClue": "hack-the-badge-station",
-  "visitedLocations": []
+Your progress is saved automatically in the badge's state system:
+
+```python
+state = {
+  "completed": [1, 2, 3]  # IDs of completed quests
 }
 ```
 
 ## Tips
 
-- Visit the Hack the Badge station first to get your initial instructions
-- Talk to other badge holders for hints
-- Check your progress anytime by opening the quest menu
-- Some treasures are hidden in plain sight!
+- **Start at Hack Your Badge**: The first station will get you oriented
+- **Watch the Screen**: The grid shows all locations and marks completed ones
+- **Get Close**: IR signals have limited range - move closer to beacons
+- **Complete the Set**: Finding all 9 locations shows a special completion message
+- **Progress Persists**: Your discoveries are saved even when the badge powers off
 
-## Code Example
+## Technical Details
 
-Basic quest navigation structure:
+- **IR Protocol**: NEC infrared remote control protocol
+- **Receiver Pin**: GPIO 21
+- **State Management**: Uses the badge's State.save/load system
+- **Button Codes**: Each location has a unique code (0x11, 0x22, 0x33, etc.)
 
-```python
-from badger2350 import Badger2350
+## Source Code
 
-badge = Badger2350()
-
-class MonaQuest:
-    def __init__(self):
-        self.treasures_found = 0
-        self.current_location = "start"
-    
-    def display_quest(self):
-        badge.set_pen(15)
-        badge.clear()
-        
-        badge.set_pen(0)
-        badge.text("Mona's Quest", 20, 20, scale=2)
-        badge.text(f"Treasures: {self.treasures_found}/10", 20, 60)
-        
-        badge.update()
-    
-    def collect_treasure(self):
-        self.treasures_found += 1
-        # Show celebration animation
-````
+View the complete source code on GitHub:
+- [Main game logic](https://github.com/badger/tufty/blob/main/badge/apps/quest/__init__.py)
+- [IR beacon handler](https://github.com/badger/tufty/blob/main/badge/apps/quest/beacon.py)
+- [UI rendering](https://github.com/badger/tufty/blob/main/badge/apps/quest/ui.py)`
 
 ## How to Play
 

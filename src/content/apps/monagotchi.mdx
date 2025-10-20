@@ -5,131 +5,112 @@ icon: "/images/apps/monagotchi_icon.png"
 category: "game"
 preloaded: true
 customizable: false
-fileLocation: "/apps/monagotchi"
-tags: ["game", "pet", "virtual"]
+fileLocation: "/system/apps/monapet"
 ---
 
 # Monagotchi
 
-Your very own virtual Mona pet on your Badger 2350! Take care of your digital companion by playing, feeding, and keeping them clean.
+Your very own virtual Mona pet! Take care of your digital companion by playing, feeding, and keeping them clean. Watch Mona move around, react to your care, and show different moods.
 
 ## Features
 
-- **Feed Your Pet**: Keep Mona well-fed and happy
-- **Play Games**: Interact and play with your virtual companion
-- **Keep Clean**: Maintain hygiene by cleaning your pet regularly
-- **Happiness Meter**: Monitor Mona's mood and well-being
-- **Growth System**: Watch your pet grow over time
-- **Persistent State**: Your pet's stats are saved between sessions
+- **Three Core Stats**: Happiness, Hunger, and Cleanliness that decay over time
+- **Interactive Actions**: Play (shows heart), Feed (eating animation), Clean (dance animation)
+- **Autonomous Behavior**: Mona moves to random locations every 5 seconds
+- **Dynamic Moods**: Idle animations change every 8 seconds
+- **Notification System**: Mona alerts you when stats drop below 30%
+- **Death & Revival**: If neglected too much, Mona can "die" but be revived
+- **Persistent State**: Your pet's stats are automatically saved
 
 ## File Location
 
-Monagotchi is located at `/apps/monagotchi` on your Badger 2350 filesystem.
+Monagotchi is located at `/system/apps/monapet` on your Badger 2350 filesystem.
 
 ```
-/apps/monagotchi/
-  ├── main.py          # Main application file
-  ├── pet_logic.py     # Pet behavior and stats
-  ├── animations.py    # Pet animations
-  ├── sprites/         # Pet graphics
-  └── save_data.json   # Your pet's stats
+/system/apps/monapet/
+  ├── __init__.py      # Main application file
+  ├── mona.py          # Mona character class and behavior
+  ├── ui.py            # User interface rendering
+  └── assets/          # Pet sprites and graphics
 ```
 
 ## How to Care for Your Monagotchi
 
-### Basic Needs
+### Three Stats to Manage
 
-Your Monagotchi has three main stats to manage:
-
-- **Hunger** 🍔: Feed your pet to keep hunger low
-- **Happiness** 😊: Play games to increase happiness
-- **Cleanliness** 🧼: Clean your pet regularly
+Each stat decays at a different rate:
+- **Happiness**: Decreases to 0% in 30 minutes (1800 seconds)
+- **Hunger**: Decreases to 0% in 20 minutes (1200 seconds) - fastest!
+- **Cleanliness**: Decreases to 0% in 40 minutes (2400 seconds) - slowest
 
 ### Controls
 
-- **Button A**: Feed Mona
-- **Button B**: Play with Mona
-- **Button C**: Clean Mona
-- **Button D**: Check stats
-- **Button E**: Menu/Back
+- **Button A**: Play with Mona (+30 happiness, shows heart animation)
+- **Button B**: Feed Mona (+30 hunger, shows eating animation)
+- **Button C**: Clean Mona (+30 cleanliness, shows dance animation)
+- **Button B** (when dead): Revive Mona and reset all stats
 
-### Pet States
+### Mona's Behavior
 
-Your Monagotchi can be in different moods:
-- **Happy**: All stats are good
-- **Hungry**: Needs food
-- **Sad**: Needs attention or play
-- **Sleepy**: Resting (nighttime)
-- **Dirty**: Needs cleaning
+**Autonomous Actions:**
+- Moves to a random screen position every 5 seconds
+- Changes idle animation/mood every 8 seconds
+- Shows notification mood when any stat drops below 30%
 
-## Save Data
+**When Neglected:**
+- If any stat reaches critical levels, Mona becomes distressed
+- Prolonged neglect leads to "death"
+- When dead, Mona moves to screen center with a death animation
+- Press Button B to revive and start fresh
 
-Your pet's progress is automatically saved:
+## Visual Interface
 
-```json
-{
-  "name": "Mona",
-  "age": 5,
-  "hunger": 40,
-  "happiness": 85,
-  "cleanliness": 90,
-  "lastFed": "2025-10-19T10:30:00",
-  "lastPlayed": "2025-10-19T11:00:00",
-  "lastCleaned": "2025-10-19T09:00:00"
+The app displays:
+- **Mona sprite**: Animated character that moves and reacts
+- **Three progress bars**: Happiness (top), Hunger (middle), Cleanliness (bottom)
+- **Action buttons**: Visual indicators at bottom showing which action is active
+- **Background scene**: Decorative UI drawn behind Mona
+
+## State Persistence
+
+Your pet's state is saved using the badge's State system:
+
+```python
+state = {
+  "happy": 100,
+  "hunger": 100,
+  "clean": 100
 }
 ```
 
-## Tips for a Happy Pet
+The app automatically:
+- Loads saved stats when opened (`init()` function)
+- Saves current stats when closed (`on_exit()` function)
+- Tracks time delta to calculate stat decay accurately
 
-- Check on your Monagotchi regularly throughout the day
-- Stats decrease over time, so don't neglect your pet!
-- Playing increases happiness the most
-- Feeding when not hungry won't help
-- A clean pet is a happy pet
-- Your pet sleeps at night (no need to wake them!)
+## Tips for Success
 
-## Code Example
+- **Watch the bars**: Keep all three bars above 30% to avoid notifications
+- **Hunger drops fastest**: Feed Mona more frequently than other actions
+- **Cleanliness lasts longest**: You can be less vigilant about cleaning
+- **Each button gives +30**: Plan your care based on the decay rates
+- **Revival is free**: Don't worry if Mona "dies" - just press B to restart!
+- **Mona is autonomous**: She'll move and change moods on her own
 
-Basic pet care system:
+## Technical Implementation
 
-```python
-from badger2350 import Badger2350
-import time
+- **Time-based stat decay**: Uses `io.ticks_delta` to calculate precise decay
+- **Action cooldowns**: Animations play when buttons are pressed
+- **Movement system**: Random target positions with smooth interpolation
+- **Mood changes**: Automatic idle animation cycling
+- **Sprite rendering**: Uses badge's sprite sheet system
 
-badge = Badger2350()
+## Source Code
 
-class Monagotchi:
-    def __init__(self):
-        self.hunger = 50
-        self.happiness = 80
-        self.cleanliness = 100
-    
-    def feed(self):
-        if self.hunger > 0:
-            self.hunger = max(0, self.hunger - 20)
-            self.happiness += 5
-    
-    def play(self):
-        self.happiness = min(100, self.happiness + 15)
-        self.hunger += 5
-        self.cleanliness -= 10
-    
-    def clean(self):
-        self.cleanliness = 100
-        self.happiness += 10
-    
-    def display(self):
-        badge.set_pen(15)
-        badge.clear()
-        
-        badge.set_pen(0)
-        badge.text("Monagotchi", 40, 10, scale=2)
-        badge.text(f"Hunger: {self.hunger}", 20, 50)
-        badge.text(f"Happy: {self.happiness}", 20, 70)
-        badge.text(f"Clean: {self.cleanliness}", 20, 90)
-        
-        badge.update()
-```
+View the complete source code on GitHub:
+- [Main game loop](https://github.com/badger/tufty/blob/main/badge/apps/monapet/__init__.py)
+- [Mona character class](https://github.com/badger/tufty/blob/main/badge/apps/monapet/mona.py)
+- [UI rendering](https://github.com/badger/tufty/blob/main/badge/apps/monapet/ui.py)
 
 ## How to Play
 

@@ -75,27 +75,6 @@ const iconBgColor = APP_COLORS[iconFilename] || 'rgb(99, 102, 241)'
 
           <!-- App Info -->
           <div class="flex-1 space-y-4">
-            <div class="flex flex-wrap gap-2">
-              <Badge 
-                variant="secondary" 
-                className={getCategoryColor(app.data.category)}
-              >
-                {app.data.category}
-              </Badge>
-              {app.data.preloaded && (
-                <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  <Check className="h-3 w-3 mr-1" />
-                  Preloaded
-                </Badge>
-              )}
-              {app.data.customizable && (
-                <Badge variant="outline">
-                  <Settings className="h-3 w-3 mr-1" />
-                  Customizable
-                </Badge>
-              )}
-            </div>
-
             <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">
               {app.data.title}
             </h1>
@@ -103,14 +82,6 @@ const iconBgColor = APP_COLORS[iconFilename] || 'rgb(99, 102, 241)'
             <p class="text-xl text-muted-foreground">
               {app.data.description}
             </p>
-
-            <div class="flex flex-wrap gap-2">
-              {app.data.tags.map((tag) => (
-                <Badge variant="outline" className="text-sm">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
 
             <div class="flex flex-col sm:flex-row gap-3 pt-4">
               <div class="bg-muted rounded-lg px-4 py-3 flex items-center gap-3">

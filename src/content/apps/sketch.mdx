@@ -5,139 +5,106 @@ icon: "/images/apps/sketch_icon.png"
 category: "fun"
 preloaded: true
 customizable: false
-fileLocation: "/apps/sketch"
-tags: ["creative", "drawing", "art"]
+fileLocation: "/system/apps/sketch"
 ---
 
 # Monasketch
 
-A creative drawing app for your Badger 2350! Create pixel art and sketches using the badge buttons as your drawing tools.
+An Etch-A-Sketch style drawing app with a twist - Mona runs away from your cursor! Create pixel art while Mona watches (and flees) from the sides.
 
 ## Features
 
-- **Freeform Drawing**: Draw whatever comes to mind
-- **Straight Lines**: Use directional buttons to draw perfect straight lines
-- **Angled Lines**: Combine up/down with left/right for diagonal drawing
-- **Save Your Art**: Save your sketches to view later
-- **Clear Canvas**: Start fresh anytime
-- **E-ink Perfect**: Designed for the badge's display
+- **Pixel-by-Pixel Drawing**: Move cursor continuously to draw lines
+- **Interactive Mona**: Mona character reacts to your cursor position
+- **Animated Dials**: Visual feedback showing cursor position
+- **Continuous Drawing**: Hold buttons to draw smooth lines
+- **Canvas Area**: Dedicated drawing space with Mona sidebars
+- **Real-Time Rendering**: Instant visual feedback
 
 ## File Location
 
-Monasketch is located at `/apps/sketch` on your Badger 2350 filesystem.
+Monasketch is located at `/system/apps/sketch` on your Badger 2350 filesystem.
 
 ```
-/apps/sketch/
-  ├── main.py          # Main drawing app
-  ├── drawing.py       # Drawing logic
-  ├── saved_sketches/  # Your saved artwork
-  └── canvas_state.json # Current canvas
+/system/apps/sketch/
+  ├── __init__.py      # Main drawing app
+  ├── ui.py            # User interface and Mona rendering
+  └── assets/          # Mona sprites and UI graphics
 ```
 
 ## How to Draw
 
 ### Controls
 
-- **Button A (Up)**: Draw line upward
-- **Button B (Left)**: Draw line left
-- **Button C (Right)**: Draw line right
-- **Button D (Down)**: Draw line downward
-- **Up + Left**: Draw diagonal line (↖)
-- **Up + Right**: Draw diagonal line (↗)
-- **Down + Left**: Draw diagonal line (↙)
-- **Down + Right**: Draw diagonal line (↘)
-- **Button E**: Menu (Save, Clear, Exit)
+- **Button A**: Move cursor left
+- **Button C**: Move cursor right  
+- **Button UP (D-pad)**: Move cursor up
+- **Button DOWN (D-pad)**: Move cursor down
+- Hold buttons to draw continuously
 
-### Drawing Techniques
+### Drawing Mechanism
 
-**Straight Lines**
-- Press and hold a direction button to draw continuously
-- Release to stop drawing
+The app draws as your cursor moves:
+- **Cursor update rate**: 20ms between movements when buttons held
+- **Drawing color**: Gray pixels (105, 105, 105)
+- **Pixel size**: 1x1 pixels
+- **Canvas bounds**: Cursor is clamped within the drawing area
 
-**Angled Lines**
-- Press two direction buttons simultaneously for 45° angles
-- Great for creating geometric patterns
+### Interactive Elements
 
-**Complex Shapes**
-- Combine different directions to create curves and shapes
-- Plan your path before drawing for best results
+**Mona's Behavior:**
+- **Left side presence**: When cursor is on the left (x < 30), Mona runs to the right
+- **Right side presence**: When cursor is on the right (x > canvas_width - 30), Mona runs to the left
+- **Smooth movement**: Mona animates to her target position pixel by pixel
+- **Direction indicator**: Mona faces the direction she's heading
 
-## Menu Options
+**Visual Feedback:**
+- **Animated dials**: Two dials at bottom corners rotate based on cursor position
+  - Left dial: rotates based on horizontal position (-cursor.x * 3 degrees)
+  - Right dial: rotates based on vertical position (cursor.y * 3 degrees)
 
-Press Button E to access:
-- **Save Sketch**: Save current drawing
-- **Load Sketch**: View saved drawings
-- **Clear Canvas**: Start with a blank slate
-- **Undo**: Remove last line drawn
-- **Exit**: Return to app menu
+## Drawing Canvas
 
-## Saved Sketches
+**Canvas Specifications:**
+- Canvas is an off-screen Image buffer
+- Rendered to screen at position defined in `ui.canvas_area`
+- Cursor starts at center of canvas
+- Drawing persists as long as app is running (no save/load functionality)
 
-Your artwork is automatically saved with timestamps:
+## Tips for Drawing
 
-```json
-{
-  "sketches": [
-    {
-      "id": "sketch_001",
-      "timestamp": "2025-10-19T14:30:00",
-      "lines": [...],
-      "thumbnail": "base64_image_data"
-    }
-  ]
-}
-```
+- **Smooth lines**: Hold buttons down for continuous drawing
+- **Keep Mona around**: Draw near the center to keep her visible
+- **Chase Mona**: Move your cursor to make her run away
+- **Watch the dials**: They show your cursor position at a glance
+- **Precision**: Move slowly for detailed work
+- **Speed**: Hold buttons longer for quick sketches
 
-## Drawing Tips
+## Technical Details
 
-- **Start Simple**: Practice with basic shapes first
-- **Use Diagonals**: Diagonal lines add visual interest
-- **Plan Ahead**: Think about your design before starting
-- **Save Often**: Don't lose your masterpiece!
-- **Layer Lines**: Cross lines to create texture and depth
-- **Experiment**: Try different button combinations
-
-## Code Example
-
-Basic drawing implementation:
-
+**Canvas System:**
 ```python
-from badger2350 import Badger2350
-
-badge = Badger2350()
-
-class Sketch:
-    def __init__(self):
-        self.x = 148  # Center of screen
-        self.y = 64
-        self.lines = []
-        self.drawing = False
-    
-    def draw_line(self, dx, dy):
-        new_x = self.x + dx * 2
-        new_y = self.y + dy * 2
-        
-        badge.line(self.x, self.y, new_x, new_y)
-        badge.update()
-        
-        self.lines.append(((self.x, self.y), (new_x, new_y)))
-        self.x = new_x
-        self.y = new_y
-    
-    def clear_canvas(self):
-        badge.set_pen(15)
-        badge.clear()
-        badge.update()
-        self.lines = []
-        self.x = 148
-        self.y = 64
-
-# Usage
-sketch = Sketch()
-# Button A pressed: sketch.draw_line(0, -1)  # Up
-# Button C pressed: sketch.draw_line(1, 0)   # Right
-# A + C pressed: sketch.draw_line(1, -1)     # Diagonal
+canvas = Image(0, 0, canvas_width, canvas_height)
+cursor = (canvas_width / 2, canvas_height / 2)
 ```
+
+**Drawing Logic:**
+- Cursor updates every 20ms when buttons held
+- Draws 1x1 rectangle at cursor position if cursor moved
+- Canvas is blitted to screen each frame
+- Cursor position clamped to canvas bounds
+
+**Mona AI:**
+- Target position changes based on cursor proximity
+- Moves 1 pixel per frame toward target
+- Direction flips based on screen position
+- Smoothly animated movement
+
+## Source Code
+
+View the complete source code on GitHub:
+- [Main app and drawing logic](https://github.com/badger/tufty/blob/main/badge/apps/sketch/__init__.py)
+- [UI and Mona rendering](https://github.com/badger/tufty/blob/main/badge/apps/sketch/ui.py)
 
 ## How to Draw
 

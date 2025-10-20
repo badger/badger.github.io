@@ -8,7 +8,6 @@ export interface AppCardProps {
   category: 'utility' | 'game' | 'productivity' | 'fun'
   preloaded: boolean
   customizable: boolean
-  tags: string[]
   slug: string
 }
 
@@ -33,7 +32,6 @@ export function AppCard({
   category,
   preloaded,
   customizable,
-  tags, 
   slug 
 }: AppCardProps) {
   // Try to use actual icon, fallback to placeholder if needed

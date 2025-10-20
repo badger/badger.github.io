@@ -31,7 +31,6 @@ const appsCollection = defineCollection({
     preloaded: z.boolean(), // whether it comes preloaded on the badge
     customizable: z.boolean(), // whether users can customize it
     fileLocation: z.string(), // where it lives on the badge filesystem
-    tags: z.array(z.string()),
   }),
 })
 
