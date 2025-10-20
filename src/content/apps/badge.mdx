@@ -1,0 +1,216 @@
+---
+title: "Badge"
+description: "Make your screen into your badge, showing your name, photo and stats from your GitHub profile."
+icon: "/images/apps/badge_icon.png"
+category: "utility"
+preloaded: true
+customizable: true
+fileLocation: "/apps/badge"
+tags: ["profile", "GitHub", "identity", "networking"]
+---
+
+# Badge
+
+Transform your Badger 2350 into a personalized digital badge displaying your GitHub profile, name, photo, and stats.
+
+## Features
+
+- **GitHub Integration**: Pull data directly from your GitHub profile
+- **Profile Photo**: Display your GitHub avatar
+- **Live Stats**: Show your repos, followers, and contributions
+- **Customizable Layout**: Choose from different badge designs
+- **QR Code**: Optional QR code linking to your profile
+- **Always-On Display**: Perfect for conferences and meetups
+
+## File Location
+
+Badge is located at `/apps/badge` on your Badger 2350 filesystem.
+
+```
+/apps/badge/
+  ├── main.py          # Main badge app
+  ├── github_api.py    # GitHub API integration
+  ├── config.json      # Your badge settings
+  ├── layouts/         # Badge layout templates
+  │   ├── classic.py
+  │   ├── minimal.py
+  │   └── stats.py
+  └── cache/           # Cached profile data
+      └── profile.json
+```
+
+## Configuration
+
+Set up your badge by editing `config.json`:
+
+```json
+{
+  "github_username": "octocat",
+  "display_name": "Octocat",
+  "layout": "classic",
+  "show_qr": true,
+  "show_stats": true,
+  "refresh_interval": 3600,
+  "wifi_enabled": true
+}
+```
+
+### Configuration Options
+
+- **github_username**: Your GitHub username (required)
+- **display_name**: Name to show on badge (defaults to GitHub name)
+- **layout**: Badge style - `"classic"`, `"minimal"`, or `"stats"`
+- **show_qr**: Include QR code linking to your profile (`true`/`false`)
+- **show_stats**: Display follower/repo counts (`true`/`false`)
+- **refresh_interval**: How often to update stats (seconds)
+- **wifi_enabled**: Allow WiFi for real-time updates (`true`/`false`)
+
+## Badge Layouts
+
+### Classic Layout
+- Large profile photo
+- Name and username
+- GitHub logo
+- Optional QR code in corner
+
+### Minimal Layout
+- Simple text-based design
+- Name in large font
+- Username below
+- Clean and professional
+
+### Stats Layout
+- Smaller profile photo
+- Prominent stat display
+- Repositories, followers, following
+- Recent activity indicator
+
+## Setting Up
+
+1. **Connect to WiFi** (for first-time setup)
+2. **Edit config.json** with your GitHub username
+3. **Launch Badge app** - it will fetch your profile
+4. **Choose a layout** from the menu
+5. **Your badge is ready!** Data is cached for offline use
+
+## GitHub Stats
+
+The app displays:
+- **Username**: Your GitHub handle
+- **Name**: Full display name
+- **Avatar**: Profile picture (converted to e-ink)
+- **Public Repos**: Number of public repositories
+- **Followers**: Follower count
+- **Following**: Following count
+- **Bio**: Optional short bio text
+
+## Cached Profile Data
+
+```json
+{
+  "username": "octocat",
+  "name": "The Octocat",
+  "bio": "GitHub's mascot",
+  "avatar_url": "https://github.com/octocat.png",
+  "public_repos": 8,
+  "followers": 5432,
+  "following": 9,
+  "last_updated": "2025-10-19T10:00:00",
+  "profile_url": "https://github.com/octocat"
+}
+```
+
+## Offline Mode
+
+Once your profile is cached:
+- Badge works without WiFi
+- Stats show last known values
+- "Last updated" timestamp shown
+- Manual refresh available when online
+
+## Tips
+
+- **Update Regularly**: Refresh stats before events for current numbers
+- **QR Code**: Great for networking - people can scan to visit your profile
+- **Choose Your Layout**: Match the layout to your event style
+- **Backup Config**: Save your config.json before experimenting
+- **Photo Quality**: Use a high-contrast GitHub avatar for best e-ink display
+
+## Privacy
+
+- **Local Storage**: All data cached locally on your badge
+- **GitHub API**: Uses public GitHub API (no authentication required)
+- **No Tracking**: App doesn't send data anywhere except GitHub
+- **Offline First**: Works completely offline after initial setup
+
+## Code Example
+
+Basic badge display implementation:
+
+```python
+from badger2350 import Badger2350
+import urequests
+import json
+
+badge = Badger2350()
+
+class GitHubBadge:
+    def __init__(self, username):
+        self.username = username
+        self.profile = None
+    
+    def fetch_profile(self):
+        url = f"https://api.github.com/users/{self.username}"
+        response = urequests.get(url)
+        self.profile = json.loads(response.text)
+        
+        # Cache the profile
+        with open('/apps/badge/cache/profile.json', 'w') as f:
+            json.dump(self.profile, f)
+    
+    def display_classic(self):
+        if not self.profile:
+            return
+        
+        badge.set_pen(15)
+        badge.clear()
+        
+        badge.set_pen(0)
+        
+        # Display name
+        badge.text(self.profile['name'], 10, 10, scale=2)
+        badge.text(f"@{self.username}", 10, 40, scale=1)
+        
+        # Display stats
+        badge.text(f"Repos: {self.profile['public_repos']}", 10, 70)
+        badge.text(f"Followers: {self.profile['followers']}", 10, 90)
+        
+        # GitHub logo placeholder
+        badge.text("GitHub", 200, 100, scale=1)
+        
+        badge.update()
+    
+    def display_minimal(self):
+        badge.set_pen(15)
+        badge.clear()
+        
+        badge.set_pen(0)
+        badge.text(self.profile['name'], 20, 40, scale=3)
+        badge.text(f"@{self.username}", 70, 80, scale=1)
+        
+        badge.update()
+
+# Usage
+github_badge = GitHubBadge("octocat")
+github_badge.fetch_profile()
+github_badge.display_classic()
+```
+
+## Customization Ideas
+
+- Add your company logo
+- Include social media handles
+- Show recent commit activity
+- Display your current project
+- Add custom graphics or borders
+- Include conference-specific info

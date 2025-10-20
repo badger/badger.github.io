@@ -1,0 +1,256 @@
+---
+title: "Flappy Mona"
+description: "Play the flappy mona game!"
+icon: "/images/apps/flappymona_icon.png"
+category: "game"
+preloaded: true
+customizable: false
+fileLocation: "/apps/flappymona"
+tags: ["game", "arcade", "high-score"]
+---
+
+# Flappy Mona
+
+The addictive Flappy Bird-style game featuring Mona! Tap to flap and navigate through obstacles to achieve the highest score possible.
+
+## Features
+
+- **Classic Gameplay**: Tap to flap, avoid pipes
+- **High Score System**: Track your best runs
+- **E-ink Optimized**: Smooth animations for e-ink display
+- **Increasing Difficulty**: Pipes get trickier as you progress
+- **One-Button Control**: Simple and addictive
+
+## File Location
+
+Flappy Mona is located at `/apps/flappymona` on your Badger 2350 filesystem.
+
+```
+/apps/flappymona/
+  ├── main.py          # Main game file
+  ├── game_logic.py    # Physics and collision
+  ├── sprites/         # Mona and pipe graphics
+  └── highscores.json  # Your best scores
+```
+
+## How to Play
+
+### Controls
+
+- **Button A**: Flap (make Mona fly up)
+- **Button E**: Start game / Return to menu
+
+### Gameplay
+
+1. Press Button A to start
+2. Tap Button A to make Mona flap and fly upward
+3. Release to let gravity pull Mona down
+4. Navigate through gaps between pipes
+5. Each pipe passed = 1 point
+6. Collision ends the game
+
+### Scoring
+
+- **1 point**: For each pipe successfully passed
+- **Bronze Medal**: Score 10+
+- **Silver Medal**: Score 25+
+- **Gold Medal**: Score 50+
+
+## High Scores
+
+Your best scores are saved automatically:
+
+```json
+{
+  "highScore": 42,
+  "lastScore": 15,
+  "totalGames": 127,
+  "totalPipes": 523,
+  "medals": {
+    "bronze": true,
+    "silver": true,
+    "gold": false
+  }
+}
+```
+
+## Tips & Tricks
+
+- **Gentle Taps**: Small, frequent taps work better than holding
+- **Find Your Rhythm**: Establish a consistent tapping pattern
+- **Watch Ahead**: Look at upcoming pipes, not just Mona
+- **Center Position**: Stay near the middle of the screen when possible
+- **Practice Mode**: Play repeatedly to learn pipe patterns
+- **Stay Calm**: Panic leads to overcorrection!
+
+## Game Physics
+
+- **Gravity**: Constant downward acceleration
+- **Flap Force**: Each button press gives upward velocity
+- **Terminal Velocity**: Maximum fall speed is capped
+- **Collision**: Any contact with pipes or ground ends game
+
+## Code Example
+
+Basic flappy game mechanics:
+
+```python
+from badger2350 import Badger2350
+import random
+
+badge = Badger2350()
+
+class FlappyMona:
+    def __init__(self):
+        self.y = 64  # Mona's vertical position
+        self.velocity = 0
+        self.gravity = 0.5
+        self.flap_power = -8
+        self.pipes = []
+        self.score = 0
+    
+    def flap(self):
+        self.velocity = self.flap_power
+    
+    def update(self):
+        # Apply gravity
+        self.velocity += self.gravity
+        self.y += self.velocity
+        
+        # Check boundaries
+        if self.y < 0 or self.y > 128:
+            return False  # Game over
+        
+        # Move pipes
+        for pipe in self.pipes:
+            pipe['x'] -= 2
+            
+            # Check collision
+            if pipe['x'] < 30 and pipe['x'] > 10:
+                if self.y < pipe['gap_top'] or self.y > pipe['gap_bottom']:
+                    return False  # Hit pipe
+        
+        return True
+    
+    def draw(self):
+        badge.set_pen(15)
+        badge.clear()
+        
+        # Draw Mona
+        badge.circle(20, int(self.y), 8)
+        
+        # Draw pipes
+        for pipe in self.pipes:
+            badge.rectangle(pipe['x'], 0, 20, pipe['gap_top'])
+            badge.rectangle(pipe['x'], pipe['gap_bottom'], 20, 128)
+        
+        # Draw score
+        badge.text(f"Score: {self.score}", 10, 10)
+        
+        badge.update()
+```
+
+## How to Play
+
+### Controls
+
+- **Button A**: Flap (make Mona fly up)
+- **Button E**: Restart / Return to menu
+
+### Gameplay
+
+1. Mona falls down automatically due to gravity
+2. Tap Button A to flap and fly upward
+3. Navigate through the gaps between pipes
+4. Each pipe you pass scores 1 point
+5. Game ends if Mona hits a pipe or the ground
+
+### Scoring
+
+- **1 point** per pipe successfully passed
+- Your high score is automatically saved
+- Try to beat your personal best!
+
+## Tips & Tricks
+
+- **Timing is Everything**: Don't flap too early or too late
+- **Find Your Rhythm**: Regular tapping works better than frantic mashing
+- **Watch Ahead**: Look at the next pipe while passing the current one
+- **Stay Centered**: Try to keep Mona in the middle of the screen
+- **Practice Makes Perfect**: The more you play, the better you'll get
+- **Start Small**: Focus on passing 5 pipes, then 10, then 20+
+
+## Difficulty Progression
+
+- **0-10 pipes**: Beginner - Wide gaps, slow speed
+- **11-20 pipes**: Intermediate - Narrower gaps
+- **21+ pipes**: Expert - Fast speed, requires precision
+
+## High Scores
+
+Your scores are saved locally:
+
+```json
+// scores.json
+{
+  "highScore": 42,
+  "lastScore": 18,
+  "totalGames": 156,
+  "totalPipes": 847
+}
+```
+
+## Code Example
+
+Here's how the flappy mechanics work:
+
+```python
+from badger2350 import Badger2350
+import time
+
+badge = Badger2350()
+
+class FlappyMona:
+    def __init__(self):
+        self.y = badge.height // 2
+        self.velocity = 0
+        self.gravity = 0.5
+        self.flap_strength = -8
+    
+    def flap(self):
+        self.velocity = self.flap_strength
+    
+    def update(self):
+        # Apply gravity
+        self.velocity += self.gravity
+        self.y += self.velocity
+        
+        # Keep on screen
+        if self.y < 0:
+            self.y = 0
+            self.velocity = 0
+        elif self.y > badge.height:
+            return False  # Game over
+        
+        return True
+    
+    def draw(self):
+        badge.set_pen(0)
+        # Draw Mona sprite
+        badge.circle(20, int(self.y), 8)
+
+# Main game loop
+mona = FlappyMona()
+while True:
+    if badge.pressed(badge.BUTTON_A):
+        mona.flap()
+    
+    if not mona.update():
+        break  # Game over
+    
+    badge.set_pen(15)
+    badge.clear()
+    mona.draw()
+    badge.update()
+    time.sleep(0.03)
+```

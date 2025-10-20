@@ -1,0 +1,298 @@
+---
+title: "Gallery"
+description: "Show all photos in the gallery, and set any photo as full screen image to show on your badge."
+icon: "/images/apps/gallery_icon.png"
+category: "utility"
+preloaded: true
+customizable: true
+fileLocation: "/apps/gallery"
+tags: ["photos", "display", "customization"]
+---
+
+# Gallery
+
+Browse and display your favorite photos on your Badger 2350. Set any image as your badge's home screen or cycle through your collection.
+
+## Features
+
+- **Photo Browser**: Scroll through all your uploaded photos
+- **Full-Screen Display**: Set any image to display on your badge
+- **Thumbnail Grid**: Quick overview of all photos
+- **Image Management**: Add or remove photos
+- **E-ink Optimized**: Images converted for perfect display
+- **Persistent Display**: Image stays on screen even when badge is off
+
+## File Location
+
+Gallery is located at `/apps/gallery` on your Badger 2350 filesystem.
+
+```
+/apps/gallery/
+  ├── main.py          # Main gallery app
+  ├── image_viewer.py  # Image display logic
+  ├── photos/          # Your uploaded photos
+  │   ├── photo1.bmp
+  │   ├── photo2.bmp
+  │   └── photo3.bmp
+  └── metadata.json    # Photo information
+```
+
+## How to Use
+
+### Controls
+
+- **Button A**: Previous photo
+- **Button C**: Next photo
+- **Button B**: Toggle between grid and full-screen view
+- **Button D**: Set current photo as display image
+- **Button E**: Menu (Add/Delete photos, Exit)
+
+### Viewing Modes
+
+**Grid View**
+- See thumbnails of all photos at once
+- Navigate with A/C buttons
+- Select with D button
+
+**Full-Screen View**
+- Display single photo at full resolution
+- Perfect for showcasing your favorite image
+- Photo persists even when badge powers off
+
+### Adding Photos
+
+1. Connect badge to computer via USB
+2. Navigate to `/apps/gallery/photos/`
+3. Copy your images (will be auto-converted to BMP)
+4. Supported formats: JPG, PNG, BMP
+5. Images are automatically resized to fit display (296x128)
+
+## Photo Metadata
+
+Gallery tracks information about your photos:
+
+```json
+{
+  "photos": [
+    {
+      "filename": "photo1.bmp",
+      "title": "GitHub Universe 2025",
+      "date_added": "2025-10-19",
+      "favorite": true,
+      "display_count": 15
+    },
+    {
+      "filename": "photo2.bmp",
+      "title": "My Team",
+      "date_added": "2025-10-18",
+      "favorite": false,
+      "display_count": 3
+    }
+  ],
+  "current_display": "photo1.bmp"
+}
+```
+
+## Tips for Best Display
+
+- **High Contrast**: Photos with strong contrast work best on e-ink
+- **Simple Subjects**: Avoid overly detailed images
+- **Portrait Mode**: Images are displayed in landscape (296x128)
+- **Dithering**: Black and white conversion uses dithering for better quality
+- **File Size**: Keep images under 50KB for faster loading
+
+## Image Optimization
+
+For best results, pre-process your images:
+- **Resolution**: 296x128 pixels
+- **Format**: BMP or PNG
+- **Colors**: Black and white or grayscale
+- **Contrast**: Boost contrast before uploading
+
+## Code Example
+
+Basic gallery viewer:
+
+```python
+from badger2350 import Badger2350
+import os
+
+badge = Badger2350()
+
+class Gallery:
+    def __init__(self):
+        self.photos_dir = "/apps/gallery/photos"
+        self.photos = self.load_photos()
+        self.current_index = 0
+    
+    def load_photos(self):
+        return [f for f in os.listdir(self.photos_dir) 
+                if f.endswith('.bmp')]
+    
+    def show_current_photo(self):
+        if not self.photos:
+            badge.text("No photos", 100, 60)
+            badge.update()
+            return
+        
+        photo_path = f"{self.photos_dir}/{self.photos[self.current_index]}"
+        
+        # Load and display image
+        badge.set_pen(15)
+        badge.clear()
+        
+        # Display image (simplified - actual implementation uses image library)
+        badge.image(photo_path, 0, 0)
+        
+        # Show photo counter
+        badge.set_pen(0)
+        badge.text(f"{self.current_index + 1}/{len(self.photos)}", 
+                   10, 110, scale=1)
+        
+        badge.update()
+    
+    def next_photo(self):
+        self.current_index = (self.current_index + 1) % len(self.photos)
+        self.show_current_photo()
+    
+    def prev_photo(self):
+        self.current_index = (self.current_index - 1) % len(self.photos)
+        self.show_current_photo()
+    
+    def set_as_display(self):
+        # Save current photo as the display image
+        current_photo = self.photos[self.current_index]
+        # Copy to display location
+        badge.text("Set as display!", 80, 60)
+        badge.update()
+
+# Usage
+gallery = Gallery()
+gallery.show_current_photo()
+```
+
+## How to Use
+
+### Adding Photos
+
+1. Connect your Badger to your computer via USB
+2. Navigate to `/apps/gallery/photos/`
+3. Copy your images (must be .bmp or .jpg format)
+4. Images are automatically resized for the e-ink display
+
+### Browsing Photos
+
+- **Button A**: Previous photo
+- **Button C**: Next photo
+- **Button B**: Set current photo as badge display
+- **Button D**: Return to thumbnail view
+- **Button E**: Exit gallery
+
+### Setting a Photo as Display
+
+1. Browse to your desired photo
+2. Press Button B to set as badge display
+3. The photo will be shown when badge is idle
+4. Change anytime by selecting a different photo
+
+## Customization
+
+Edit `config.json` to customize gallery behavior:
+
+```json
+{
+  "autoRotate": false,
+  "rotationInterval": 300,
+  "defaultPhoto": "mona_default.bmp",
+  "showFilename": true,
+  "thumbnailSize": 64
+}
+```
+
+### Configuration Options
+
+- **autoRotate**: Automatically cycle through photos (`true`/`false`)
+- **rotationInterval**: Seconds between auto-rotation (default: 300)
+- **defaultPhoto**: Default image to show
+- **showFilename**: Display filename below image
+- **thumbnailSize**: Size of thumbnails in pixels (default: 64)
+
+## Image Requirements
+
+**Supported Formats:**
+- BMP (recommended for e-ink)
+- JPG/JPEG
+
+**Optimal Settings:**
+- Resolution: 296x128 pixels (native badge resolution)
+- Color depth: 1-bit (black and white) or 16-color
+- File size: Keep under 100KB for faster loading
+
+## Converting Images
+
+Use the included converter to prepare images:
+
+```bash
+# On your computer
+python /tools/convert_image.py input.jpg output.bmp
+```
+
+Or use online tools to convert to monochrome BMP format.
+
+## Tips & Tricks
+
+- Use high-contrast images for best e-ink display quality
+- Portraits and line art work better than photos
+- Name files descriptively for easy identification
+- Keep your gallery organized with subfolders
+- The badge can hold 50-100 photos depending on size
+
+## Code Example
+
+Here's how the gallery displays images:
+
+```python
+from badger2350 import Badger2350
+import os
+
+badge = Badger2350()
+
+class Gallery:
+    def __init__(self):
+        self.photos_dir = '/apps/gallery/photos/'
+        self.photos = self.load_photos()
+        self.current_index = 0
+    
+    def load_photos(self):
+        # List all image files
+        files = os.listdir(self.photos_dir)
+        return [f for f in files if f.endswith(('.bmp', '.jpg'))]
+    
+    def display_current(self):
+        if not self.photos:
+            badge.text("No photos found", 10, 60)
+            return
+        
+        photo_path = self.photos_dir + self.photos[self.current_index]
+        
+        # Load and display image
+        badge.image(photo_path, 0, 0)
+        badge.update()
+    
+    def next_photo(self):
+        self.current_index = (self.current_index + 1) % len(self.photos)
+        self.display_current()
+    
+    def prev_photo(self):
+        self.current_index = (self.current_index - 1) % len(self.photos)
+        self.display_current()
+    
+    def set_as_wallpaper(self):
+        current_photo = self.photos[self.current_index]
+        with open('/config/wallpaper.txt', 'w') as f:
+            f.write(current_photo)
+
+# Usage
+gallery = Gallery()
+gallery.display_current()
+```

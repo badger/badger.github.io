@@ -1,14 +1,19 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import { HackCard } from '@/components/hack-card'
+import { AppCard } from '@/components/app-card'
 import { ContributeCard } from '@/components/contribute-card'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Zap, Users, BookOpen } from 'lucide-react'
+import { ArrowRight, Zap, Users, BookOpen, Grid3x3 } from 'lucide-react'
 import { getCollection } from 'astro:content'
 
 // Fetch all hacks from the content collection
 const allHacks = await getCollection('hacks')
 const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
+
+// Fetch all apps from the content collection
+const allApps = await getCollection('apps')
+const featuredApps = allApps // Show all apps
 ---
 
 <Layout title="HackShelf - Badger 2350 Hacks & Projects">
@@ -34,9 +39,9 @@ const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
 
           <div class="flex flex-col sm:flex-row gap-4">
             <Button asChild size="lg" class="text-lg px-8" client:load>
-              <a href="#featured-hacks" class="flex items-center gap-2">
-                <BookOpen class="h-5 w-5" />
-                Explore Hacks
+              <a href="#preloaded-apps" class="flex items-center gap-2">
+                <Grid3x3 class="h-5 w-5" />
+                View Apps
                 <ArrowRight class="h-4 w-4" />
               </a>
             </Button>
@@ -51,12 +56,12 @@ const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
           <!-- Stats -->
           <div class="grid grid-cols-3 gap-6 mt-12 pt-6 border-t border-border/50">
             <div class="text-center">
-              <div class="text-2xl font-bold text-foreground">{featuredHacks.length}+</div>
-              <div class="text-xs text-muted-foreground">Hacks</div>
+              <div class="text-2xl font-bold text-foreground">{featuredApps.length}</div>
+              <div class="text-xs text-muted-foreground">Preloaded Apps</div>
             </div>
             <div class="text-center">
-              <div class="text-2xl font-bold text-foreground">3</div>
-              <div class="text-xs text-muted-foreground">Levels</div>
+              <div class="text-2xl font-bold text-foreground">{featuredHacks.length}+</div>
+              <div class="text-xs text-muted-foreground">Hacks</div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-foreground">∞</div>
@@ -81,15 +86,58 @@ const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
     </div>
   </section>
 
-  <!-- Hacks Catalog Section -->
-  <section id="hacks" class="py-24 bg-background">
+  <!-- Preloaded Apps Section -->
+  <section id="preloaded-apps" class="py-24 bg-background">
     <div class="container">
       <div class="max-w-2xl mx-auto text-center mb-16">
         <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-          Featured Hacks & Projects
+          Preloaded Apps
         </h2>
         <p class="text-xl text-muted-foreground">
-          Hand-picked tutorials and projects to get you started with your Badger 2350.
+          Your Badger 2350 comes with these apps ready to use. Explore, customize, and make them your own.
+        </p>
+      </div>
+
+      <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {featuredApps.map((app) => (
+            <AppCard 
+              key={app.slug}
+              title={app.data.title}
+              description={app.data.description}
+              icon={app.data.icon}
+              category={app.data.category}
+              preloaded={app.data.preloaded}
+              customizable={app.data.customizable}
+              tags={app.data.tags}
+              slug={app.slug}
+              client:load
+            />
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <Button asChild size="lg" variant="outline" client:load>
+          <a href="/apps" class="flex items-center gap-2">
+            <Grid3x3 class="h-5 w-5" />
+            View All Apps
+            <ArrowRight class="h-4 w-4" />
+          </a>
+        </Button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hacks Catalog Section -->
+  <section id="hacks" class="py-24 bg-muted/50">
+    <div class="container">
+      <div class="max-w-2xl mx-auto text-center mb-16">
+        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
+          Community Hacks & Tutorials
+        </h2>
+        <p class="text-xl text-muted-foreground">
+          Get inspired by community projects. Learn to build new features and customize your badge.
           Each hack includes step-by-step instructions and all the code you need.
         </p>
       </div>
@@ -175,6 +223,7 @@ const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
         <div class="space-y-4">
           <h4 class="font-semibold">Learn</h4>
           <ul class="space-y-2 text-sm">
+            <li><a href="/apps" class="text-muted-foreground hover:text-foreground">Preloaded Apps</a></li>
             <li><a href="/" class="text-muted-foreground hover:text-foreground">Browse Hacks</a></li>
             <li><a href="/about-badge" class="text-muted-foreground hover:text-foreground">About Badger 2350</a></li>
             <li><a href="/contribute" class="text-muted-foreground hover:text-foreground">Get Started</a></li>

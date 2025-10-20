@@ -1,0 +1,147 @@
+---
+title: "Mona's Quest"
+description: "Go on a quest to find all treasures at GitHub Universe. Start with hack the badge station and find instructions there."
+icon: "/images/apps/monaquest_icon.png"
+category: "game"
+preloaded: true
+customizable: false
+fileLocation: "/apps/monaquest"
+tags: ["game", "adventure", "quest"]
+---
+
+# Mona's Quest
+
+An exciting adventure game that comes preloaded on your Badger 2350. Go on a quest to find all treasures at GitHub Universe!
+
+## Features
+
+- **Interactive Quest**: Follow clues to discover hidden treasures
+- **GitHub Universe Integration**: Starts at the "Hack the Badge" station
+- **Progressive Challenges**: Multiple stages of discovery
+- **E-ink Optimized Graphics**: Beautiful visuals designed for your badge display
+
+## File Location
+
+Mona's Quest is located at `/apps/monaquest` on your Badger 2350 filesystem.
+
+```
+/apps/monaquest/
+  ├── main.py          # Main game file
+  ├── quest_data.py    # Quest stages and clues
+  ├── graphics/        # Game graphics
+  └── progress.json    # Your quest progress
+```
+
+## How to Play
+
+1. **Start the Quest**: Launch Mona's Quest from your badge menu
+2. **Visit Hack the Badge Station**: Your first clue will be there
+3. **Follow Instructions**: Each location provides the next clue
+4. **Collect Treasures**: Find all hidden items throughout the venue
+5. **Complete Your Quest**: Track your progress on the badge
+
+### Controls
+
+- **Button A/B/C/D**: Navigate menus and move Mona
+- **Button E**: Interact with objects and collect treasures
+
+## Quest Progress
+
+Your progress is automatically saved:
+
+```json
+{
+  "treasuresFound": 0,
+  "totalTreasures": 10,
+  "currentClue": "hack-the-badge-station",
+  "visitedLocations": []
+}
+```
+
+## Tips
+
+- Visit the Hack the Badge station first to get your initial instructions
+- Talk to other badge holders for hints
+- Check your progress anytime by opening the quest menu
+- Some treasures are hidden in plain sight!
+
+## Code Example
+
+Basic quest navigation structure:
+
+```python
+from badger2350 import Badger2350
+
+badge = Badger2350()
+
+class MonaQuest:
+    def __init__(self):
+        self.treasures_found = 0
+        self.current_location = "start"
+    
+    def display_quest(self):
+        badge.set_pen(15)
+        badge.clear()
+        
+        badge.set_pen(0)
+        badge.text("Mona's Quest", 20, 20, scale=2)
+        badge.text(f"Treasures: {self.treasures_found}/10", 20, 60)
+        
+        badge.update()
+    
+    def collect_treasure(self):
+        self.treasures_found += 1
+        # Show celebration animation
+````
+
+## How to Play
+
+### Getting Started
+
+1. Launch Mona's Quest from the app menu
+2. Start at the "Hack the Badge" station at GitHub Universe
+3. Follow the on-screen instructions and clues
+4. Navigate using the badge buttons
+5. Find all treasures to complete the quest!
+
+### Controls
+
+- **Button A/B/C/D**: Navigate and select options
+- **Button E**: Open menu / Go back
+
+### Game Progression
+
+The game saves your progress automatically, so you can pick up where you left off. Each treasure you find unlocks new clues and areas to explore.
+
+## Tips & Tricks
+
+- Pay attention to clues at each station
+- Talk to other badge hackers for hints
+- Some treasures are hidden in plain sight
+- Check the Hack the Badge station first for your starting clue
+- Your progress is saved, so explore at your own pace
+
+## Code Example
+
+Here's how the treasure detection works:
+
+```python
+from badger2350 import Badger2350
+import json
+
+badge = Badger2350()
+
+def check_treasure_found(location_id):
+    with open('/apps/monaquest/progress.json', 'r') as f:
+        progress = json.load(f)
+    
+    if location_id not in progress['found_treasures']:
+        progress['found_treasures'].append(location_id)
+        progress['total_found'] += 1
+        
+        with open('/apps/monaquest/progress.json', 'w') as f:
+            json.dump(progress, f)
+        
+        return True
+    return False
+```

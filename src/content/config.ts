@@ -21,6 +21,21 @@ const hacksCollection = defineCollection({
   }),
 })
 
+const appsCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    icon: z.string(), // path to icon image
+    category: z.enum(['utility', 'game', 'productivity', 'fun']),
+    preloaded: z.boolean(), // whether it comes preloaded on the badge
+    customizable: z.boolean(), // whether users can customize it
+    fileLocation: z.string(), // where it lives on the badge filesystem
+    tags: z.array(z.string()),
+  }),
+})
+
 export const collections = {
   hacks: hacksCollection,
+  apps: appsCollection,
 }

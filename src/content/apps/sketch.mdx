@@ -1,0 +1,228 @@
+---
+title: "Monasketch"
+description: "Sketchpad to draw anything you want. Use up, down, left, right to draw straight lines. Use combo of up/down and left/right to draw angled lines."
+icon: "/images/apps/sketch_icon.png"
+category: "fun"
+preloaded: true
+customizable: false
+fileLocation: "/apps/sketch"
+tags: ["creative", "drawing", "art"]
+---
+
+# Monasketch
+
+A creative drawing app for your Badger 2350! Create pixel art and sketches using the badge buttons as your drawing tools.
+
+## Features
+
+- **Freeform Drawing**: Draw whatever comes to mind
+- **Straight Lines**: Use directional buttons to draw perfect straight lines
+- **Angled Lines**: Combine up/down with left/right for diagonal drawing
+- **Save Your Art**: Save your sketches to view later
+- **Clear Canvas**: Start fresh anytime
+- **E-ink Perfect**: Designed for the badge's display
+
+## File Location
+
+Monasketch is located at `/apps/sketch` on your Badger 2350 filesystem.
+
+```
+/apps/sketch/
+  ├── main.py          # Main drawing app
+  ├── drawing.py       # Drawing logic
+  ├── saved_sketches/  # Your saved artwork
+  └── canvas_state.json # Current canvas
+```
+
+## How to Draw
+
+### Controls
+
+- **Button A (Up)**: Draw line upward
+- **Button B (Left)**: Draw line left
+- **Button C (Right)**: Draw line right
+- **Button D (Down)**: Draw line downward
+- **Up + Left**: Draw diagonal line (↖)
+- **Up + Right**: Draw diagonal line (↗)
+- **Down + Left**: Draw diagonal line (↙)
+- **Down + Right**: Draw diagonal line (↘)
+- **Button E**: Menu (Save, Clear, Exit)
+
+### Drawing Techniques
+
+**Straight Lines**
+- Press and hold a direction button to draw continuously
+- Release to stop drawing
+
+**Angled Lines**
+- Press two direction buttons simultaneously for 45° angles
+- Great for creating geometric patterns
+
+**Complex Shapes**
+- Combine different directions to create curves and shapes
+- Plan your path before drawing for best results
+
+## Menu Options
+
+Press Button E to access:
+- **Save Sketch**: Save current drawing
+- **Load Sketch**: View saved drawings
+- **Clear Canvas**: Start with a blank slate
+- **Undo**: Remove last line drawn
+- **Exit**: Return to app menu
+
+## Saved Sketches
+
+Your artwork is automatically saved with timestamps:
+
+```json
+{
+  "sketches": [
+    {
+      "id": "sketch_001",
+      "timestamp": "2025-10-19T14:30:00",
+      "lines": [...],
+      "thumbnail": "base64_image_data"
+    }
+  ]
+}
+```
+
+## Drawing Tips
+
+- **Start Simple**: Practice with basic shapes first
+- **Use Diagonals**: Diagonal lines add visual interest
+- **Plan Ahead**: Think about your design before starting
+- **Save Often**: Don't lose your masterpiece!
+- **Layer Lines**: Cross lines to create texture and depth
+- **Experiment**: Try different button combinations
+
+## Code Example
+
+Basic drawing implementation:
+
+```python
+from badger2350 import Badger2350
+
+badge = Badger2350()
+
+class Sketch:
+    def __init__(self):
+        self.x = 148  # Center of screen
+        self.y = 64
+        self.lines = []
+        self.drawing = False
+    
+    def draw_line(self, dx, dy):
+        new_x = self.x + dx * 2
+        new_y = self.y + dy * 2
+        
+        badge.line(self.x, self.y, new_x, new_y)
+        badge.update()
+        
+        self.lines.append(((self.x, self.y), (new_x, new_y)))
+        self.x = new_x
+        self.y = new_y
+    
+    def clear_canvas(self):
+        badge.set_pen(15)
+        badge.clear()
+        badge.update()
+        self.lines = []
+        self.x = 148
+        self.y = 64
+
+# Usage
+sketch = Sketch()
+# Button A pressed: sketch.draw_line(0, -1)  # Up
+# Button C pressed: sketch.draw_line(1, 0)   # Right
+# A + C pressed: sketch.draw_line(1, -1)     # Diagonal
+```
+
+## How to Draw
+
+### Controls
+
+- **Button A (Up)**: Draw upward
+- **Button B (Left)**: Draw left
+- **Button C (Right)**: Draw right
+- **Button D (Down)**: Draw downward
+- **Button E**: Menu (save, clear, exit)
+
+### Drawing Techniques
+
+**Straight Lines:**
+- Hold a single direction button to draw straight lines
+- Release to stop drawing
+
+**Diagonal Lines:**
+- Press **Up + Left** for top-left diagonal
+- Press **Up + Right** for top-right diagonal
+- Press **Down + Left** for bottom-left diagonal
+- Press **Down + Right** for bottom-right diagonal
+
+### Menu Options
+
+Press Button E to access:
+- **Save**: Save your current sketch
+- **Load**: Load a previously saved sketch
+- **Clear**: Clear the canvas and start fresh
+- **Exit**: Return to app menu
+
+## Drawing Tips
+
+- Start with simple shapes before complex drawings
+- Use diagonal combinations for more natural curves
+- Take advantage of the e-ink display's high contrast
+- Save your work frequently
+- Experiment with different line patterns
+
+## Creative Ideas
+
+- Draw pixel art characters
+- Create patterns and designs
+- Make your own badge artwork
+- Design mazes or puzzles
+- Sketch diagrams and notes
+
+## Code Example
+
+Here's how the drawing system works:
+
+```python
+from badger2350 import Badger2350
+
+badge = Badger2350()
+
+class Canvas:
+    def __init__(self):
+        self.x = badge.width // 2
+        self.y = badge.height // 2
+        self.drawing = False
+    
+    def draw_pixel(self):
+        badge.set_pen(0)
+        badge.pixel(self.x, self.y)
+    
+    def move(self, dx, dy):
+        self.x = max(0, min(badge.width - 1, self.x + dx))
+        self.y = max(0, min(badge.height - 1, self.y + dy))
+        if self.drawing:
+            self.draw_pixel()
+    
+    def handle_input(self):
+        # Check button states
+        dx, dy = 0, 0
+        
+        if badge.pressed(badge.BUTTON_A):  # Up
+            dy = -1
+        if badge.pressed(badge.BUTTON_D):  # Down
+            dy = 1
+        if badge.pressed(badge.BUTTON_B):  # Left
+            dx = -1
+        if badge.pressed(badge.BUTTON_C):  # Right
+            dx = 1
+        
+        if dx != 0 or dy != 0:
+            self.move(dx, dy)
+```

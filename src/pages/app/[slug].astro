@@ -1,0 +1,163 @@
+---
+import { getCollection } from 'astro:content'
+import type { GetStaticPaths } from 'astro'
+import Layout from '@/layouts/Layout.astro'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft, Check, Settings, FileCode, Grid3x3, ExternalLink } from 'lucide-react'
+
+export const getStaticPaths = (async () => {
+  const apps = await getCollection('apps')
+  return apps.map((app) => ({
+    params: { slug: app.slug },
+    props: { app },
+  }))
+}) satisfies GetStaticPaths
+
+const { app } = Astro.props
+const { Content } = await app.render()
+
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case 'utility':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+    case 'game':
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+    case 'productivity':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    case 'fun':
+      return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+  }
+}
+
+// Bold background colors for app icons
+const APP_COLORS: Record<string, string> = {
+  'monaquest_icon.png': 'rgb(211, 250, 55)',
+  'monagotchi_icon.png': 'rgb(48, 148, 255)',
+  'sketch_icon.png': 'rgb(95, 237, 131)',
+  'flappymona_icon.png': 'rgb(225, 46, 251)',
+  'gallery_icon.png': 'rgb(216, 189, 14)',
+  'badge_icon.png': 'rgb(255, 128, 210)',
+}
+
+const iconFilename = app.data.icon.split('/').pop() || 'app-icon.png'
+const iconBgColor = APP_COLORS[iconFilename] || 'rgb(99, 102, 241)'
+---
+
+<Layout title={`${app.data.title} - Preloaded App | HackShelf`}>
+  <!-- Back Navigation -->
+  <div class="border-b bg-background/95 backdrop-blur">
+    <div class="container py-4">
+      <Button variant="ghost" asChild client:load>
+        <a href="/apps" class="flex items-center gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Apps
+        </a>
+      </Button>
+    </div>
+  </div>
+
+  <!-- App Header -->
+  <section class="py-16 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
+    <div class="container">
+      <div class="max-w-4xl mx-auto">
+        <div class="flex flex-col md:flex-row gap-8 items-start">
+          <!-- App Icon -->
+          <div class="w-32 h-32 rounded-2xl flex items-center justify-center p-6 shadow-lg" style={`background-color: ${iconBgColor}`}>
+            <img 
+              src={app.data.icon} 
+              alt={app.data.title}
+              class="w-20 h-20 object-contain"
+            />
+          </div>
+
+          <!-- App Info -->
+          <div class="flex-1 space-y-4">
+            <div class="flex flex-wrap gap-2">
+              <Badge 
+                variant="secondary" 
+                className={getCategoryColor(app.data.category)}
+              >
+                {app.data.category}
+              </Badge>
+              {app.data.preloaded && (
+                <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  <Check className="h-3 w-3 mr-1" />
+                  Preloaded
+                </Badge>
+              )}
+              {app.data.customizable && (
+                <Badge variant="outline">
+                  <Settings className="h-3 w-3 mr-1" />
+                  Customizable
+                </Badge>
+              )}
+            </div>
+
+            <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">
+              {app.data.title}
+            </h1>
+
+            <p class="text-xl text-muted-foreground">
+              {app.data.description}
+            </p>
+
+            <div class="flex flex-wrap gap-2">
+              {app.data.tags.map((tag) => (
+                <Badge variant="outline" className="text-sm">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 pt-4">
+              <div class="bg-muted rounded-lg px-4 py-3 flex items-center gap-3">
+                <FileCode className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <div class="text-xs text-muted-foreground">File Location</div>
+                  <div class="font-mono text-sm font-medium">{app.data.fileLocation}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- App Content -->
+  <section class="py-16 bg-background">
+    <div class="container">
+      <div class="max-w-4xl mx-auto">
+        <article class="prose prose-lg dark:prose-invert max-w-none">
+          <Content />
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Apps -->
+  <section class="py-16 bg-muted/50 border-t">
+    <div class="container">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-8">Explore More Apps</h2>
+        <div class="flex gap-4">
+          <Button asChild variant="outline" size="lg" client:load>
+            <a href="/apps" class="flex items-center gap-2">
+              <Grid3x3 className="h-4 w-4" />
+              View All Apps
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg" client:load>
+            <a href="/hacks" class="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              View Hacks & Tutorials
+            </a>
+          </Button>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

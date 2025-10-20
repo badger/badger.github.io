@@ -1,4 +1,4 @@
-import { Github, Home, BookOpen, Plus, Settings } from 'lucide-react'
+import { Github, Home, BookOpen, Plus, Settings, Grid3x3 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
@@ -34,6 +34,13 @@ export function Navigation() {
           >
             <BookOpen className="h-4 w-4" />
             <span>About Badge</span>
+          </a>
+          <a
+            href="/apps"
+            className="flex items-center space-x-2 text-foreground/80 hover:text-foreground transition-colors"
+          >
+            <Grid3x3 className="h-4 w-4" />
+            <span>Apps</span>
           </a>
           <a
             href="/hacks"
