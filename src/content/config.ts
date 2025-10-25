@@ -10,7 +10,7 @@ const hacksCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    difficulty: z.enum(['easy', 'medium', 'hard']),
+    difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
     duration: z.number(), // in minutes
     tags: z.array(z.string()),
     thumbnail: z.string(),

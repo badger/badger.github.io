@@ -8,7 +8,7 @@ import { getPlaceholderImage } from '@/lib/placeholder-images'
 export interface HackCardProps {
   title: string
   description: string
-  difficulty: 'easy' | 'medium' | 'hard'
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
   duration: number // in minutes
   tags: string[]
   thumbnail: string

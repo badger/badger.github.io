@@ -25,13 +25,13 @@ export function formatDuration(minutes: number): string {
 /**
  * Get difficulty color based on level
  */
-export function getDifficultyColor(difficulty: 'easy' | 'medium' | 'hard'): string {
+export function getDifficultyColor(difficulty: 'beginner' | 'intermediate' | 'advanced'): string {
   switch (difficulty) {
-    case 'easy':
+    case 'beginner':
       return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/20'
-    case 'medium':
+    case 'intermediate':
       return 'text-amber-600 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/20'
-    case 'hard':
+    case 'advanced':
       return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/20'
     default:
       return 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/20'
