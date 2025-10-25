@@ -1,0 +1,145 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { HackListItem } from '@/components/hack-list-item'
+import { getCollection } from 'astro:content'
+
+// Fetch all hacks
+const allHacks = await getCollection('hacks')
+
+// Sort by date (newest first)
+const sortedHacks = allHacks.sort((a, b) => 
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+)
+---
+
+<Layout title="All Hacks | HackShelf">
+  <!-- Page Header -->
+  <section class="py-16 border-b border-border/30">
+    <div class="container">
+      <div class="max-w-3xl">
+        <h1 class="text-5xl lg:text-6xl font-display font-semibold tracking-tight leading-[1.1] mb-5">
+          All Hacks
+        </h1>
+        <p class="text-base text-muted-foreground leading-relaxed">
+          Browse all available tutorials and modifications. Filter by difficulty to find hacks that match your skill level.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hacks Listing with Sidebar -->
+  <section class="py-12">
+    <div class="container">
+      <div class="flex gap-8">
+        <!-- Sidebar Filters -->
+        <aside class="w-64 shrink-0 pr-8" style="border-right: 1px solid rgba(255, 255, 255, 0.2);">
+          <div class="sticky top-24 rounded-lg border border-border/40 bg-card/30 p-6">
+            <h3 class="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground mb-4 pb-3 border-b border-border/30">
+              Filter by Level
+            </h3>
+            <div class="flex flex-col gap-2.5" id="filter-controls">
+              <button 
+                class="px-3 py-2 rounded text-sm font-medium transition-all duration-150 filter-btn active text-left"
+                data-filter="all"
+                style="border: 2px solid #5FED83; box-shadow: 0 0 10px rgba(95, 237, 131, 0.4);"
+              >
+                All Hacks
+              </button>
+              <button 
+                class="px-3 py-2 rounded text-sm font-medium transition-all duration-150 filter-btn text-left text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/30"
+                data-filter="beginner"
+                style="border: 2px solid transparent;"
+              >
+                Beginner
+              </button>
+              <button 
+                class="px-3 py-2 rounded text-sm font-medium transition-all duration-150 filter-btn text-left text-amber-600 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/20 hover:bg-amber-200 dark:hover:bg-amber-900/30"
+                data-filter="intermediate"
+                style="border: 2px solid transparent;"
+              >
+                Intermediate
+              </button>
+              <button 
+                class="px-3 py-2 rounded text-sm font-medium transition-all duration-150 filter-btn text-left text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30"
+                data-filter="advanced"
+                style="border: 2px solid transparent;"
+              >
+                Advanced
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Hacks List -->
+        <div class="flex-1 min-w-0">
+          <div class="space-y-4" id="hacks-grid">
+            {sortedHacks.map((hack) => (
+              <div class="hack-item" data-difficulty={hack.data.difficulty}>
+                <HackListItem 
+                  title={hack.data.title}
+                  description={hack.data.description}
+                  difficulty={hack.data.difficulty}
+                  duration={hack.data.duration}
+                  slug={hack.slug}
+                  client:load
+                />
+              </div>
+            ))}
+          </div>
+
+          <!-- No results message -->
+          <div id="no-results" class="hidden text-center py-16">
+            <p class="text-muted-foreground font-mono text-sm">No hacks found for this difficulty level.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Client-side filtering
+    document.addEventListener('DOMContentLoaded', () => {
+      const filterButtons = document.querySelectorAll('.filter-btn')
+      const hackItems = document.querySelectorAll('.hack-item')
+      const noResults = document.getElementById('no-results')
+      
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const filter = button.getAttribute('data-filter')
+          
+          // Update active button with inline styles
+          filterButtons.forEach(btn => {
+            btn.classList.remove('active')
+            const htmlBtn = btn as HTMLElement
+            htmlBtn.style.border = '2px solid transparent'
+            htmlBtn.style.boxShadow = 'none'
+          })
+          
+          button.classList.add('active')
+          const htmlButton = button as HTMLElement
+          htmlButton.style.border = '2px solid #5FED83'
+          htmlButton.style.boxShadow = '0 0 10px rgba(95, 237, 131, 0.4)'
+          
+          // Filter hacks
+          let visibleCount = 0
+          hackItems.forEach(item => {
+            const difficulty = item.getAttribute('data-difficulty')
+            if (filter === 'all' || difficulty === filter) {
+              item.classList.remove('hidden')
+              visibleCount++
+            } else {
+              item.classList.add('hidden')
+            }
+          })
+          
+          // Show/hide no results message
+          if (visibleCount === 0) {
+            noResults?.classList.remove('hidden')
+          } else {
+            noResults?.classList.add('hidden')
+          }
+        })
+      })
+    })
+  </script>
+</Layout>

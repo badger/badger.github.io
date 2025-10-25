@@ -2,6 +2,7 @@
 import '@/styles/globals.css'
 import { ViewTransitions } from 'astro:transitions'
 import { AppNavigation } from '@/components/app-navigation'
+import Footer from '@/components/Footer.astro'
 
 export interface Props {
   title: string
@@ -27,5 +28,6 @@ const { title, description = 'Badger 2350 hack index: code, hardware notes, exam
     <main>
       <slot />
     </main>
+    <Footer />
   </body>
 </html>
