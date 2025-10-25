@@ -26,8 +26,7 @@ const featuredApps = allApps // Show all apps
         <!-- Content -->
         <div class="space-y-10">
           <div class="space-y-6">
-            <h1 class="font-display text-5xl lg:text-6xl tracking-tight leading-tight">
-              <span class="block font-mono text-xs text-primary/70 mb-2">// BADGER LAB</span>
+            <h1 class="font-display text-6xl lg:text-7xl tracking-tight leading-tight">
               Hack. Tinker. Repeat.
             </h1>
             <p class="font-mono text-sm text-muted-foreground max-w-prose">
@@ -70,10 +69,14 @@ const featuredApps = allApps // Show all apps
         <!-- Badge Image -->
         <div class="order-first lg:order-last">
           <div class="relative mx-auto max-w-sm">
-            <div class="aspect-square rounded-lg border border-border/40 bg-secondary/10 flex items-center justify-center shadow-sm">
-              <span class="font-mono text-xs text-muted-foreground">/images/hero.jpg</span>
+            <div class="aspect-square rounded-lg border border-border/50 bg-secondary/10 overflow-hidden shadow-[0_0_35px_rgba(255,255,255,0.25)]">
+              <img 
+                src="/images/hero.jpg" 
+                alt="Badger 2350 Hardware Badge" 
+                class="w-full h-full object-cover"
+              />
             </div>
-            <div class="absolute -inset-4 -z-10 opacity-30 blur-xl bg-gradient-to-r from-primary/20 to-transparent"></div>
+            <div class="absolute -inset-10 -z-10 opacity-40 blur-2xl bg-gradient-to-r from-white/25 via-white/12 to-transparent"></div>
           </div>
         </div>
       </div>
