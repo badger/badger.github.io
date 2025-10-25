@@ -48,6 +48,23 @@ export default {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
   			},
+  			// GitHub Universe Brand Colors
+  			universe: {
+  				black: '#010409',
+  				white: '#FFFFFF',
+  				grey: {
+  					9: '#101411',
+  					8: '#232925',
+  					6: '#5A615C',
+  					4: '#909692',
+  					1: '#E4EBE6'
+  				},
+  				green: {
+  					3: '#5FED83',
+  					4: '#08872B'
+  				},
+  				error: '#CF222E'
+  			},
   			difficulty: {
   				easy: '#10b981',
   				medium: '#f59e0b',
@@ -60,6 +77,22 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
+  		},
+  		fontFamily: {
+  			sans: ['Mona Sans', 'system-ui', 'sans-serif'],
+  			display: ['Mona Sans SemiCondensed', 'system-ui', 'sans-serif'],
+  			mono: ['Monaspace Neon', 'ui-monospace', 'monospace']
+  		},
+  		spacing: {
+  			xs: '0.5rem',   // 8px
+  			sm: '1rem',     // 16px
+  			md: '1.5rem',   // 24px
+  			lg: '2rem',     // 32px
+  			xl: '2.5rem',   // 40px
+  			'2xl': '3rem',  // 48px
+  			'3xl': '4rem',  // 64px
+  			'4xl': '5rem',  // 80px
+  			'5xl': '8rem'   // 128px
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

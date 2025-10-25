@@ -1,5 +1,4 @@
-import { ThemeToggle } from './theme-toggle'
-
+// Dark-only site: removing client theme toggle UI.
 export function ClientThemeToggle() {
-  return <ThemeToggle />
+  return null
 }

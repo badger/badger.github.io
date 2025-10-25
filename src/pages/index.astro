@@ -19,67 +19,61 @@ const featuredApps = allApps // Show all apps
 <Layout title="HackShelf - Badger 2350 Hacks & Projects">
   <!-- Hero Section -->
     <!-- Hero Section -->
-  <section class="py-24 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
+  <section class="py-24 bg-background relative overflow-hidden">
+    <div class="pointer-events-none absolute inset-0 opacity-[0.25] [background-image:radial-gradient(circle_at_center,#5FED83_1px,transparent_1px)] [background-size:24px_24px]"></div>
     <div class="container">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <!-- Content -->
-        <div class="space-y-8">
-          <div class="space-y-4">
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-              Unlock Your 
-              <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Badger 2350
-              </span>
+        <div class="space-y-10">
+          <div class="space-y-6">
+            <h1 class="font-display text-5xl lg:text-6xl tracking-tight leading-tight">
+              <span class="block font-mono text-xs text-primary/70 mb-2">// BADGER LAB</span>
+              Hack. Tinker. Repeat.
             </h1>
-            <p class="text-xl text-muted-foreground">
-              Discover amazing hacks, tutorials, and projects for your Badger 2350. 
-              From LED patterns to IoT sensors - build something extraordinary today.
+            <p class="font-mono text-sm text-muted-foreground max-w-prose">
+              A stripped-down catalog of experiments for the Badger 2350. No marketing fluff. Just code, hardware pins, and ways to bend them.
             </p>
           </div>
 
-          <div class="flex flex-col sm:flex-row gap-4">
-            <Button asChild size="lg" class="text-lg px-8" client:load>
-              <a href="#preloaded-apps" class="flex items-center gap-2">
-                <Grid3x3 class="h-5 w-5" />
-                View Apps
-                <ArrowRight class="h-4 w-4" />
+          <div class="flex flex-col sm:flex-row gap-5">
+            <Button asChild size="lg" client:load>
+              <a href="#preloaded-apps" class="inline-flex items-center gap-2">
+                <span class="font-mono">APPS</span>
+                <ArrowRight className="h-4 w-4" />
               </a>
             </Button>
-            <Button asChild variant="outline" size="lg" class="text-lg px-8" client:load>
-              <a href="/about-badge" class="flex items-center gap-2">
-                <Zap class="h-5 w-5" />
-                Learn About Your Badge
+            <Button asChild variant="outline" size="lg" client:load>
+              <a href="/about-badge" class="inline-flex items-center gap-2">
+                <span class="font-mono">HARDWARE MAP</span>
+                <Zap className="h-4 w-4" />
               </a>
             </Button>
           </div>
 
           <!-- Stats -->
-          <div class="grid grid-cols-3 gap-6 mt-12 pt-6 border-t border-border/50">
+          <div class="grid grid-cols-3 gap-6 mt-14 pt-6 border-t border-border/30">
             <div class="text-center">
-              <div class="text-2xl font-bold text-foreground">{featuredApps.length}</div>
-              <div class="text-xs text-muted-foreground">Preloaded Apps</div>
+              <div class="font-mono text-xl text-primary">{featuredApps.length}</div>
+              <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">apps</div>
             </div>
             <div class="text-center">
-              <div class="text-2xl font-bold text-foreground">{featuredHacks.length}+</div>
-              <div class="text-xs text-muted-foreground">Hacks</div>
+              <div class="font-mono text-xl text-primary">{featuredHacks.length}+</div>
+              <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">hacks</div>
             </div>
             <div class="text-center">
-              <div class="text-2xl font-bold text-foreground">∞</div>
-              <div class="text-xs text-muted-foreground">Ideas</div>
+              <div class="font-mono text-xl text-primary">∞</div>
+              <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">ideas</div>
             </div>
           </div>
         </div>
 
         <!-- Badge Image -->
         <div class="order-first lg:order-last">
-          <div class="relative">
-            <div class="aspect-square max-w-md mx-auto rounded-2xl overflow-hidden shadow-2xl">
-              <img 
-                src="/images/hero.jpg" 
-                alt="Badger 2350" 
-                class="w-full h-full object-cover"
-              />
+          <div class="relative mx-auto max-w-sm">
+            <div class="aspect-square rounded-lg border border-border/40 bg-secondary/10 flex items-center justify-center shadow-sm">
+              <span class="font-mono text-xs text-muted-foreground">/images/hero.jpg</span>
             </div>
+            <div class="absolute -inset-4 -z-10 opacity-30 blur-xl bg-gradient-to-r from-primary/20 to-transparent"></div>
           </div>
         </div>
       </div>
@@ -136,15 +130,14 @@ const featuredApps = allApps // Show all apps
           Community Hacks & Tutorials
         </h2>
         <p class="text-xl text-muted-foreground">
-          Get inspired by community projects. Learn to build new features and customize your badge.
-          Each hack includes step-by-step instructions and all the code you need.
+          Community-supplied examples: hardware pin use, LED patterns, input handling, small tools.
+          Each entry includes minimal steps plus source.
         </p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {featuredHacks.map((hack) => (
           <HackCard 
-            key={hack.slug}
             title={hack.data.title}
             description={hack.data.description}
             difficulty={hack.data.difficulty}

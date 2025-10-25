@@ -18,18 +18,16 @@ import {
 
 <Layout title="About the Badger 2350 - HackShelf" description="Learn everything about the Badger 2350 device, its features, capabilities, and what makes it perfect for hacking and experimentation.">
   <!-- Hero Section -->
-  <section class="bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20 py-24">
-    <div class="container">
+  <section class="py-20 bg-background relative overflow-hidden">
+    <div class="absolute inset-0 opacity-25 [background-image:radial-gradient(circle_at_center,#5FED83_1px,transparent_1px)] [background-size:22px_22px]"></div>
+    <div class="container relative">
       <div class="max-w-4xl mx-auto text-center space-y-8">
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-          Meet the 
-          <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Badger 2350
-          </span>
+        <h1 class="font-display text-5xl lg:text-6xl tracking-tight leading-tight">
+          <span class="font-mono text-xs text-primary/70 block mb-3">// BADGER 2350 HARDWARE MAP</span>
+          System Breakdown
         </h1>
-        <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-          A powerful, hackable electronic badge designed for creativity, learning, and endless possibilities. 
-          Discover what makes this device special and how you can unlock its potential.
+        <p class="font-mono text-sm text-muted-foreground max-w-2xl mx-auto">
+          Hardware reference for rapid hacking: buttons, I/O, display, power, expansion. No fluff—just the parts and what they do.
         </p>
       </div>
     </div>
@@ -92,7 +90,6 @@ import {
         <!-- Component Details -->
         <div class="space-y-8">
           <h3 class="text-2xl font-semibold text-center mb-6">Component Details</h3>
-          <h3 class="text-2xl font-semibold text-center mb-6">Component Details</h3>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Front Components -->
@@ -134,7 +131,6 @@ import {
 
             <!-- Back Components -->
             <div class="space-y-4">
-              <h4 class="font-semibold text-lg text-primary">Back Components</h4>
               <h4 class="font-semibold text-lg text-primary">Back Components</h4>
               
               <Card>
@@ -375,18 +371,17 @@ import {
           Ready to Start Hacking?
         </h2>
         <p class="text-xl text-muted-foreground">
-          Now that you know what your Badger 2350 can do, it's time to put it to work. 
-          Explore our collection of hacks and start building amazing projects today.
+          Reference complete—proceed to hacks for applied examples or submit a new experiment.
         </p>
         
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild size="lg" class="text-lg px-8">
+          <Button asChild size="lg" className="text-lg px-8">
             <a href="/" class="flex items-center gap-2">
               Browse Hacks
-              <ArrowRight class="h-5 w-5" />
+              <ArrowRight className="h-5 w-5" />
             </a>
           </Button>
-          <Button asChild variant="outline" size="lg" class="text-lg px-8">
+          <Button asChild variant="outline" size="lg" className="text-lg px-8">
             <a href="/contribute">
               Contribute a Hack
             </a>

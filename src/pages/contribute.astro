@@ -18,85 +18,36 @@ import {
 
 <Layout title="Contribute to HackShelf" description="Help grow the Badger 2350 community by contributing your own hacks, tutorials, and projects to HackShelf.">
   <!-- Hero Section -->
-  <section class="py-24 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
-    <div class="container">
-      <div class="max-w-4xl mx-auto text-center space-y-8">
-        <div class="space-y-4">
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-            Share Your 
-            <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Creations
-            </span>
-          </h1>
-          <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Help grow the Badger 2350 community by contributing your own hacks, tutorials, and projects. 
-            Your creativity inspires others to build amazing things!
-          </p>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild size="lg" class="text-lg px-8" client:load>
-            <a href="https://github.com/badger/hackshelf" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
-              <Github class="h-5 w-5" />
-              View Repository
-              <ExternalLink class="h-4 w-4" />
-            </a>
-          </Button>
-          <Button asChild variant="outline" size="lg" class="text-lg px-8" client:load>
-            <a href="#how-to-contribute">
-              Learn How to Contribute
-            </a>
-          </Button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Why Contribute Section -->
-  <section class="py-24 bg-background">
-    <div class="container">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-          Why Contribute?
-        </h2>
-        <p class="text-xl text-muted-foreground">
-          Your contributions make HackShelf a valuable resource for the entire Badger 2350 community.
+  <section class="py-20 bg-background relative overflow-hidden">
+    <div class="pointer-events-none absolute inset-0 opacity-25 [background-image:radial-gradient(circle_at_center,#5FED83_1px,transparent_1px)] [background-size:22px_22px]"></div>
+    <div class="container relative">
+      <div class="max-w-4xl mx-auto text-center space-y-10">
+        <h1 class="font-display text-5xl lg:text-6xl tracking-tight leading-tight">
+          <span class="font-mono text-xs text-primary/70 block mb-3">// CONTRIBUTE</span>
+          Add Experiments
+        </h1>
+        <p class="font-mono text-sm text-muted-foreground max-w-2xl mx-auto">
+          Submit raw hacks, hardware notes, and code samples. Keep descriptions concise and technical. Screenshots or schematics welcome.
         </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="text-center space-y-4">
-          <div class="mx-auto h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-            <Users class="h-8 w-8 text-blue-600 dark:text-blue-400" />
-          </div>
-          <h3 class="text-xl font-semibold">Help Others Learn</h3>
-          <p class="text-muted-foreground">
-            Your tutorials and projects help newcomers get started and experienced makers discover new techniques.
-          </p>
-        </div>
-
-        <div class="text-center space-y-4">
-          <div class="mx-auto h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-            <Lightbulb class="h-8 w-8 text-green-600 dark:text-green-400" />
-          </div>
-          <h3 class="text-xl font-semibold">Share Innovation</h3>
-          <p class="text-muted-foreground">
-            Showcase your creative solutions and inspire others to push the boundaries of what's possible.
-          </p>
-        </div>
-
-        <div class="text-center space-y-4">
-          <div class="mx-auto h-16 w-16 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-            <Github class="h-8 w-8 text-purple-600 dark:text-purple-400" />
-          </div>
-          <h3 class="text-xl font-semibold">Build Your Portfolio</h3>
-          <p class="text-muted-foreground">
-            Contributing to open source projects demonstrates your skills and commitment to the maker community.
-          </p>
+        <div class="flex flex-col sm:flex-row gap-5 justify-center">
+          <Button asChild size="lg" client:load>
+            <a href="https://github.com/badger/hackshelf" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2">
+              <span class="font-mono">REPO</span>
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg" client:load>
+            <a href="#how-to-contribute" class="inline-flex items-center gap-2">
+              <span class="font-mono">GUIDE</span>
+              <Code className="h-4 w-4" />
+            </a>
+          </Button>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- Removed marketing rationale section -->
 
   <!-- How to Contribute Section -->
   <section id="how-to-contribute" class="py-24 bg-muted/50">
