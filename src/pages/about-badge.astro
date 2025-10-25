@@ -41,14 +41,156 @@ import {
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            Interactive Badge Diagram
+            Badge Schematics
           </h2>
           <p class="text-xl text-muted-foreground">
-            Hover over different parts to learn about the Badger 2350's features and capabilities.
+            Explore the front and back of your Badger 2350. Click on the images to view in full size.
           </p>
         </div>
 
-        <BadgeDiagram client:load />
+        <!-- Side by Side Images -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          <!-- Front Badge Schematic -->
+          <div>
+            <h3 class="text-xl font-semibold mb-4 text-center">Front View</h3>
+            <a 
+              href="/images/badge-front.png" 
+              target="_blank"
+              class="block bg-card rounded-xl p-6 shadow-lg hover:shadow-xl transition-all group cursor-pointer"
+            >
+              <img 
+                src="/images/badge-front.png" 
+                alt="Badger 2350 Front Schematic" 
+                class="w-full h-auto rounded-lg group-hover:scale-105 transition-transform"
+              />
+              <p class="text-center text-sm text-muted-foreground mt-3 group-hover:text-primary transition-colors">
+                Click to view full size →
+              </p>
+            </a>
+          </div>
+
+          <!-- Back Badge Schematic -->
+          <div>
+            <h3 class="text-xl font-semibold mb-4 text-center">Back View</h3>
+            <a 
+              href="/images/badge-back.png" 
+              target="_blank"
+              class="block bg-card rounded-xl p-6 shadow-lg hover:shadow-xl transition-all group cursor-pointer"
+            >
+              <img 
+                src="/images/badge-back.png" 
+                alt="Badger 2350 Back Schematic" 
+                class="w-full h-auto rounded-lg group-hover:scale-105 transition-transform"
+              />
+              <p class="text-center text-sm text-muted-foreground mt-3 group-hover:text-primary transition-colors">
+                Click to view full size →
+              </p>
+            </a>
+          </div>
+        </div>
+
+        <!-- Component Details -->
+        <div class="space-y-8">
+          <h3 class="text-2xl font-semibold text-center mb-6">Component Details</h3>
+          <h3 class="text-2xl font-semibold text-center mb-6">Component Details</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Front Components -->
+            <div class="space-y-4">
+              <h4 class="font-semibold text-lg text-primary">Front Components</h4>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Display</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-2">
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">Full-Color TFT Display</h5>
+                    <p class="text-sm text-muted-foreground">Vibrant full-color screen displaying the GitHub Octocat and your custom apps</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Control Buttons</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-3">
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">Bottom Buttons (A, B, C)</h5>
+                    <p class="text-sm text-muted-foreground">Three primary tactile buttons for app interaction and menu selection</p>
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">Side Navigation (UP △, DOWN ▽)</h5>
+                    <p class="text-sm text-muted-foreground">Two directional buttons on the right edge for scrolling and navigation</p>
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">Status LEDs</h5>
+                    <p class="text-sm text-muted-foreground">Five indicator LEDs on the left side for visual feedback</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <!-- Back Components -->
+            <div class="space-y-4">
+              <h4 class="font-semibold text-lg text-primary">Back Components</h4>
+              <h4 class="font-semibold text-lg text-primary">Back Components</h4>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Power & Connectivity</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-2">
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">USB-C Port</h5>
+                    <p class="text-sm text-muted-foreground">For power, charging, and programming</p>
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">Battery Connector</h5>
+                    <p class="text-sm text-muted-foreground">JST connector for Li-Po battery power</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Expansion & GPIO</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-2">
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">QWIIC Connector</h5>
+                    <p class="text-sm text-muted-foreground">I2C connector (purple) for easy sensor and module attachment</p>
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">GPIO Pins</h5>
+                    <p class="text-sm text-muted-foreground">6 pins: 3V, GP6, GP7, GP10, GP11, GND for hardware expansion</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Processor & Info</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-2">
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">RP2350B Chip</h5>
+                    <p class="text-sm text-muted-foreground">Dual-core ARM processor visible on the PCB</p>
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">QR Code</h5>
+                    <p class="text-sm text-muted-foreground">Links to gh.io/badger for documentation</p>
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-sm mb-1">Made by Pimoroni</h5>
+                    <p class="text-sm text-muted-foreground">Crafted in Sheffield, UK • Sponsored by ARM</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -74,14 +216,14 @@ import {
                 <Cpu class="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <CardTitle class="text-lg">RP2350 Processor</CardTitle>
+                <CardTitle class="text-lg">RP2350B Processor</CardTitle>
                 <CardDescription>Dual-core ARM Cortex-M33</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <p class="text-sm text-muted-foreground">
-              150MHz dual-core processor with 520KB RAM and 4MB flash storage. 
+              150MHz dual-core ARM Cortex-M33 processor with 520KB RAM and 4MB flash storage. 
               Perfect for running complex programs and real-time applications.
             </p>
             <div class="mt-3 flex flex-wrap gap-2">
@@ -100,20 +242,20 @@ import {
                 <Monitor class="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <CardTitle class="text-lg">E-Ink Display</CardTitle>
-                <CardDescription>296×128 pixel monochrome</CardDescription>
+                <CardTitle class="text-lg">Full-Color TFT Display</CardTitle>
+                <CardDescription>Vivid color screen</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <p class="text-sm text-muted-foreground">
-              Ultra-low power e-ink display that stays visible even when powered off. 
-              Perfect for badges, displays, and low-power applications.
+              Vibrant full-color TFT display perfect for apps, graphics, games, and displaying 
+              your GitHub profile with rich visuals.
             </p>
             <div class="mt-3 flex flex-wrap gap-2">
-              <Badge variant="secondary">296×128px</Badge>
-              <Badge variant="secondary">E-Ink</Badge>
-              <Badge variant="secondary">Low Power</Badge>
+              <Badge variant="secondary">Full Color</Badge>
+              <Badge variant="secondary">TFT LCD</Badge>
+              <Badge variant="secondary">Vivid Graphics</Badge>
             </div>
           </CardContent>
         </Card>

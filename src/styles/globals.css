@@ -32,29 +32,29 @@
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
+    --background: 220 13% 8%;
+    --foreground: 210 40% 98%;
+    --card: 220 13% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 13% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142 76% 73%;
+    --primary-foreground: 220 13% 8%;
+    --secondary: 220 13% 16%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 220 13% 16%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 220 13% 16%;
+    --accent-foreground: 142 76% 73%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 13% 18%;
+    --input: 220 13% 18%;
+    --ring: 142 76% 73%;
+    --chart-1: 142 76% 73%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 280 65% 60%;
+    --chart-4: 30 80% 55%;
     --chart-5: 340 75% 55%;
   }
 }
@@ -65,6 +65,73 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Dark mode background gradient */
+  .dark body {
+    background: linear-gradient(
+      180deg,
+      hsl(220, 13%, 8%) 0%,
+      hsl(220, 15%, 10%) 50%,
+      hsl(220, 13%, 8%) 100%
+    );
+    background-attachment: fixed;
+  }
+  
+  /* Enhanced card backgrounds in dark mode */
+  .dark .bg-card,
+  .dark [class*="bg-muted"] {
+    background: linear-gradient(
+      135deg,
+      hsl(220, 13%, 10%) 0%,
+      hsl(220, 15%, 12%) 100%
+    );
+    border: none;
+    box-shadow: 
+      0 0 20px rgba(142, 236, 192, 0.05),
+      0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Elevated surfaces */
+  .dark .shadow-sm {
+    box-shadow: 0 0 15px rgba(142, 236, 192, 0.03);
+  }
+  
+  .dark .shadow-md {
+    box-shadow: 0 0 25px rgba(142, 236, 192, 0.06);
+  }
+  
+  .dark .shadow-lg {
+    box-shadow: 0 0 40px rgba(142, 236, 192, 0.1);
+  }
+  
+  /* Remove borders, add glow */
+  .dark .border,
+  .dark .border-border,
+  .dark [class*="border-"] {
+    border-color: transparent !important;
+  }
+  
+  /* Soft glow for cards and containers */
+  .dark .rounded-xl,
+  .dark .rounded-lg,
+  .dark .rounded-2xl {
+    box-shadow: 
+      0 0 30px rgba(142, 236, 192, 0.04),
+      0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Hover states with enhanced glow */
+  .dark .hover\:bg-muted\/50:hover,
+  .dark [class*="hover:bg-"]:hover {
+    background: linear-gradient(
+      135deg,
+      hsla(142, 76%, 73%, 0.05) 0%,
+      hsla(217, 91%, 60%, 0.05) 100%
+    ) !important;
+    box-shadow: 
+      0 0 40px rgba(142, 236, 192, 0.15),
+      0 8px 30px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -78,6 +145,16 @@
   );
 }
 
+/* Dark mode: Enhanced glow for interactive elements */
+.dark .gradient-glow {
+  background: linear-gradient(
+    135deg,
+    rgba(142, 236, 192, 0.08) 0%,
+    rgba(59, 130, 246, 0.08) 50%,
+    rgba(168, 85, 247, 0.08) 100%
+  );
+}
+
 .glow-border {
   position: relative;
   overflow: hidden;
@@ -88,7 +165,7 @@
   position: absolute;
   inset: -2px;
   padding: 2px;
-  background: linear-gradient(45deg, #22c55e, #3b82f6, #a855f7);
+  background: linear-gradient(45deg, #8eecc0, #3b82f6, #a855f7);
   border-radius: inherit;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: subtract;
@@ -100,18 +177,53 @@
   opacity: 1;
 }
 
+/* Hover glow effects in dark mode */
+.dark button:hover,
+.dark a:hover {
+  text-shadow: 0 0 8px rgba(142, 236, 192, 0.3);
+}
+
+/* Accent glow for primary elements */
+.dark .text-primary,
+.dark .hover\:text-primary:hover {
+  text-shadow: 0 0 12px rgba(142, 236, 192, 0.4);
+}
+
 /* Tutorial Content Styling */
 .prose pre {
   @apply relative;
+}
+
+.dark .prose pre {
+  background: linear-gradient(
+    135deg,
+    hsl(220, 15%, 12%) 0%,
+    hsl(220, 13%, 14%) 100%
+  );
+  border: none;
+  box-shadow: 
+    0 0 40px rgba(142, 236, 192, 0.08),
+    0 8px 30px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(142, 236, 192, 0.1);
 }
 
 .prose pre code {
   @apply text-sm leading-relaxed;
 }
 
+.dark .prose pre code {
+  color: hsl(210, 40%, 92%);
+  text-shadow: 0 0 2px rgba(142, 236, 192, 0.1);
+}
+
 .prose pre::before {
   @apply absolute top-3 right-3 text-xs text-muted-foreground font-mono;
   content: attr(data-language);
+}
+
+.dark .prose pre::before {
+  color: hsl(142, 76%, 73%);
+  opacity: 0.6;
 }
 
 .prose blockquote {
@@ -121,6 +233,19 @@
 .prose blockquote::before {
   @apply absolute -left-1 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-r;
   content: '';
+}
+
+.dark .prose blockquote {
+  border-left: none;
+  background: linear-gradient(
+    90deg,
+    hsla(142, 76%, 73%, 0.08) 0%,
+    transparent 100%
+  );
+  box-shadow: 
+    -4px 0 20px rgba(142, 236, 192, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  padding-left: 1.5rem;
 }
 
 /* Enhanced code blocks */
@@ -206,12 +331,45 @@
 
 .prose h1 {
   @apply text-3xl font-bold text-foreground mb-6 mt-8 first:mt-0;
-  @apply border-b border-border pb-2;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+.dark .prose h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(142, 236, 192, 0.6) 0%,
+    rgba(59, 130, 246, 0.4) 50%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px rgba(142, 236, 192, 0.4);
 }
 
 .prose h2 {
   @apply text-2xl font-semibold text-foreground mb-4 mt-8 first:mt-0;
-  @apply border-b border-border/50 pb-1;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.dark .prose h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(142, 236, 192, 0.4) 0%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px rgba(142, 236, 192, 0.3);
 }
 
 .prose h3 {
@@ -270,8 +428,19 @@
 
 .prose :not(pre) > code {
   @apply relative rounded bg-muted px-2 py-1 text-sm font-mono text-foreground;
-  @apply border border-border;
   @apply before:content-['`'] after:content-['`'] before:text-muted-foreground after:text-muted-foreground;
+}
+
+.dark .prose :not(pre) > code {
+  background: linear-gradient(
+    135deg,
+    hsla(142, 76%, 73%, 0.08) 0%,
+    hsla(217, 91%, 60%, 0.08) 100%
+  );
+  box-shadow: 
+    0 0 15px rgba(142, 236, 192, 0.1),
+    inset 0 0 10px rgba(142, 236, 192, 0.05);
+  border: none;
 }
 
 /* Syntax highlighting improvements */

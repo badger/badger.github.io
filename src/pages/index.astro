@@ -116,9 +116,9 @@ const featuredApps = allApps // Show all apps
         </div>
       </div>
 
-      <div class="mt-12 text-center">
-        <Button asChild size="lg" variant="outline" client:load>
-          <a href="/apps" class="flex items-center gap-2">
+      <div class="mt-12 flex justify-center">
+        <Button asChild size="lg" class="text-lg px-8" client:load>
+          <a href="/apps" class="inline-flex items-center gap-2">
             <Grid3x3 class="h-5 w-5" />
             View All Apps
             <ArrowRight class="h-4 w-4" />
@@ -158,52 +158,6 @@ const featuredApps = allApps // Show all apps
         
         <!-- Contribute Card -->
         <ContributeCard client:load />
-      </div>
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section class="py-24 bg-muted/50">
-    <div class="container">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-          Why HackShelf?
-        </h2>
-        <p class="text-xl text-muted-foreground">
-          Everything you need to unlock the full potential of your Badger 2350.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="text-center space-y-4">
-          <div class="mx-auto h-12 w-12 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-            <BookOpen class="h-6 w-6 text-blue-600 dark:text-blue-400" />
-          </div>
-          <h3 class="text-xl font-semibold">Step-by-Step Tutorials</h3>
-          <p class="text-muted-foreground">
-            Each hack comes with detailed instructions, code snippets, and helpful tips to guide you through the process.
-          </p>
-        </div>
-
-        <div class="text-center space-y-4">
-          <div class="mx-auto h-12 w-12 rounded-lg bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-            <Zap class="h-6 w-6 text-green-600 dark:text-green-400" />
-          </div>
-          <h3 class="text-xl font-semibold">Ready-to-Use Code</h3>
-          <p class="text-muted-foreground">
-            Copy and paste working code examples. All projects are tested and verified to work with the Badger 2350.
-          </p>
-        </div>
-
-        <div class="text-center space-y-4">
-          <div class="mx-auto h-12 w-12 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-            <Users class="h-6 w-6 text-purple-600 dark:text-purple-400" />
-          </div>
-          <h3 class="text-xl font-semibold">Community Driven</h3>
-          <p class="text-muted-foreground">
-            Built by the community, for the community. Contribute your own hacks and help others learn.
-          </p>
-        </div>
       </div>
     </div>
   </section>

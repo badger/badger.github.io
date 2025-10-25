@@ -41,4 +41,24 @@ export default defineConfig({
   ],
   site: 'https://badger.github.io',
   base: '/',
+  vite: {
+    server: {
+      // Disable caching in dev mode
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    },
+    build: {
+      // Add content hash to filenames for cache busting
+      rollupOptions: {
+        output: {
+          entryFileNames: 'entry.[hash].js',
+          chunkFileNames: 'chunks/chunk.[hash].js',
+          assetFileNames: 'assets/asset.[hash].[ext]'
+        }
+      }
+    }
+  }
 });
