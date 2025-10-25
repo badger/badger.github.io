@@ -12,7 +12,6 @@ const hacksCollection = defineCollection({
     description: z.string(),
     difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
     duration: z.number(), // in minutes
-    tags: z.array(z.string()),
     thumbnail: z.string(),
     author: z.string(),
     date: z.string(),

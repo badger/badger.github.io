@@ -1,6 +1,6 @@
 import { Clock } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { getDifficultyColor, formatDuration } from '@/lib/utils'
+import { DifficultyBadge } from '@/components/difficulty-badge'
+import { formatDuration } from '@/lib/utils'
 
 export interface HackListItemProps {
   title: string
@@ -32,12 +32,10 @@ export function HackListItem({
     >
       {/* Difficulty and Duration */}
       <div className="flex items-center gap-3 mb-3">
-        <Badge 
-          variant="secondary" 
-          className={`${getDifficultyColor(difficulty)} text-xs`}
-        >
-          {difficulty}
-        </Badge>
+        <DifficultyBadge 
+          difficulty={difficulty}
+          className="text-xs"
+        />
         <div className="flex items-center gap-2 text-xs text-muted-foreground group-hover:text-foreground transition-colors">
           <Clock className="h-3.5 w-3.5" />
           <span className="font-mono">{formatDuration(duration)}</span>

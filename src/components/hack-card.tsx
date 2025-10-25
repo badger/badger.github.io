@@ -1,8 +1,8 @@
 import { Clock, ExternalLink } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { DifficultyBadge } from '@/components/difficulty-badge'
 import { Button } from '@/components/ui/button'
-import { getDifficultyColor, formatDuration } from '@/lib/utils'
+import { formatDuration } from '@/lib/utils'
 import { getPlaceholderImage } from '@/lib/placeholder-images'
 
 export interface HackCardProps {
@@ -10,7 +10,6 @@ export interface HackCardProps {
   description: string
   difficulty: 'beginner' | 'intermediate' | 'advanced'
   duration: number // in minutes
-  tags: string[]
   thumbnail: string
   slug: string
 }
@@ -24,7 +23,6 @@ export function HackCard({
   description, 
   difficulty, 
   duration, 
-  tags, 
   thumbnail, 
   slug 
 }: HackCardProps) {
@@ -42,12 +40,10 @@ export function HackCard({
           <CardTitle className="font-sans font-bold text-lg text-foreground group-hover:text-primary line-clamp-2 transition-colors normal-case tracking-tight">
             {title}
           </CardTitle>
-          <Badge 
-            variant="secondary" 
-            className={`${getDifficultyColor(difficulty)} shrink-0 text-xs`}
-          >
-            {difficulty}
-          </Badge>
+          <DifficultyBadge 
+            difficulty={difficulty}
+            className="shrink-0 text-xs"
+          />
         </div>
         <CardDescription className="line-clamp-2">
           {description}
