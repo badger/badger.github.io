@@ -18,6 +18,7 @@ const hacksCollection = defineCollection({
     date: z.string(),
     hardware: z.array(z.string()),
     github: z.string().url(),
+    featured: z.union([z.literal(false), z.literal(1), z.literal(2), z.literal(3)]).optional(),
   }),
 })
 

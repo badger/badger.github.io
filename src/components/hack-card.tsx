@@ -17,7 +17,7 @@ export interface HackCardProps {
 
 /**
  * Hack Card Component
- * Displays a hack in a card format with thumbnail, metadata, and CTA
+ * Displays a hack in a card format with metadata and CTA
  */
 export function HackCard({ 
   title, 
@@ -28,29 +28,18 @@ export function HackCard({
   thumbnail, 
   slug 
 }: HackCardProps) {
-  // Use placeholder image for development
-  const imageSrc = getPlaceholderImage(thumbnail.split('/').pop() || 'led-pattern.jpg')
-  
   const handleCardClick = () => {
     window.location.href = `/hack/${slug}`
   }
   
   return (
     <Card 
-      className="group overflow-hidden hover:shadow-lg transition-all duration-300 glow-border cursor-pointer"
+      className="group overflow-hidden transition-all duration-200 cursor-pointer border-border/40 hover:border-primary/60 hover:shadow-[0_0_30px_rgba(95,237,131,0.3)]"
       onClick={handleCardClick}
     >
-      <div className="aspect-video overflow-hidden">
-        <img 
-          src={imageSrc} 
-          alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-      </div>
-      
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-lg line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+          <CardTitle className="font-sans font-bold text-lg text-foreground group-hover:text-primary line-clamp-2 transition-colors normal-case tracking-tight">
             {title}
           </CardTitle>
           <Badge 
@@ -66,30 +55,17 @@ export function HackCard({
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
           <Clock className="h-4 w-4" />
           <span>{formatDuration(duration)}</span>
         </div>
 
-        <div className="flex flex-wrap gap-1 mb-4">
-          {tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-          {tags.length > 3 && (
-            <Badge variant="outline" className="text-xs">
-              +{tags.length - 3}
-            </Badge>
-          )}
-        </div>
-
         <Button 
-          className="w-full group/button pointer-events-none"
+          className="w-full group/button pointer-events-none group-hover:border-primary transition-colors"
           variant="default"
         >
           Try this hack
-          <ExternalLink className="h-4 w-4 ml-2 group-hover/button:translate-x-1 transition-transform" />
+          <ExternalLink className="h-4 w-4 ml-2" />
         </Button>
       </CardContent>
     </Card>

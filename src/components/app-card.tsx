@@ -70,10 +70,10 @@ export function AppCard({
 
       {/* App Info */}
       <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-base group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1 truncate">
+        <h3 className="font-sans font-bold text-base tracking-tight group-hover:text-primary transition-colors mb-1.5 normal-case">
           {title}
         </h3>
-        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+        <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed">
           {description}
         </p>
       </div>

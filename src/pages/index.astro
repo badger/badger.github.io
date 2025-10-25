@@ -4,12 +4,36 @@ import { HackCard } from '@/components/hack-card'
 import { AppCard } from '@/components/app-card'
 import { ContributeCard } from '@/components/contribute-card'
 import { Button } from '@/components/ui/button'
+import { OutlinedButton } from '@/components/outlined-button'
 import { ArrowRight, Zap, Users, BookOpen, Grid3x3 } from 'lucide-react'
 import { getCollection } from 'astro:content'
 
 // Fetch all hacks from the content collection
 const allHacks = await getCollection('hacks')
-const featuredHacks = allHacks.slice(0, 4) // Show first 4 hacks
+
+// Filter and sort featured hacks
+const hacksWithFeature = allHacks.filter(hack => 
+  typeof hack.data.featured === 'number' && hack.data.featured >= 1 && hack.data.featured <= 3
+)
+
+// Validate: check for duplicate featured positions
+const featuredPositions = hacksWithFeature.map(h => h.data.featured as number)
+const duplicates = featuredPositions.filter((pos, index) => 
+  featuredPositions.indexOf(pos) !== index
+)
+
+if (duplicates.length > 0) {
+  throw new Error(`Build Error: Duplicate featured positions found: ${duplicates.join(', ')}. Each hack must have a unique featured position (1, 2, or 3).`)
+}
+
+// Sort by featured position and take exactly 3
+const featuredHacks = hacksWithFeature
+  .sort((a, b) => {
+    const posA = a.data.featured as number
+    const posB = b.data.featured as number
+    return posA - posB
+  })
+  .slice(0, 3)
 
 // Fetch all apps from the content collection
 const allApps = await getCollection('apps')
@@ -24,44 +48,44 @@ const featuredApps = allApps // Show all apps
     <div class="container">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <!-- Content -->
-        <div class="space-y-10">
-          <div class="space-y-6">
-            <h1 class="font-display text-6xl lg:text-7xl tracking-tight leading-tight">
+        <div class="space-y-12">
+          <div class="space-y-5">
+            <h1 class="font-display text-6xl lg:text-7xl tracking-tight leading-[1.1]">
               Hack. Tinker. Repeat.
             </h1>
-            <p class="font-mono text-sm text-muted-foreground max-w-prose">
+            <p class="font-mono text-base text-muted-foreground max-w-prose leading-relaxed">
               A stripped-down catalog of experiments for the Badger 2350. No marketing fluff. Just code, hardware pins, and ways to bend them.
             </p>
           </div>
 
-          <div class="flex flex-col sm:flex-row gap-5">
+          <div class="flex flex-col sm:flex-row gap-4">
             <Button asChild size="lg" client:load>
-              <a href="#preloaded-apps" class="inline-flex items-center gap-2">
-                <span class="font-mono">APPS</span>
-                <ArrowRight className="h-4 w-4" />
+              <a href="#preloaded-apps" class="inline-flex items-center gap-2.5 px-5 py-3 font-mono text-base uppercase tracking-[0.12em]">
+                <Grid3x3 className="h-5 w-5" />
+                <span>Apps</span>
               </a>
             </Button>
             <Button asChild variant="outline" size="lg" client:load>
-              <a href="/about-badge" class="inline-flex items-center gap-2">
-                <span class="font-mono">HARDWARE MAP</span>
-                <Zap className="h-4 w-4" />
+              <a href="/about-badge" class="inline-flex items-center gap-2.5 px-5 py-3 font-mono text-base uppercase tracking-[0.12em]">
+                <Zap className="h-5 w-5" />
+                <span>Hardware Map</span>
               </a>
             </Button>
           </div>
 
           <!-- Stats -->
-          <div class="grid grid-cols-3 gap-6 mt-14 pt-6 border-t border-border/30">
+          <div class="grid grid-cols-3 gap-8 pt-8 border-t border-border/30">
             <div class="text-center">
-              <div class="font-mono text-xl text-primary">{featuredApps.length}</div>
-              <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">apps</div>
+              <div class="font-mono text-4xl font-semibold text-primary mb-2">{featuredApps.length}</div>
+              <div class="font-mono text-xs uppercase tracking-wider text-muted-foreground">apps</div>
             </div>
             <div class="text-center">
-              <div class="font-mono text-xl text-primary">{featuredHacks.length}+</div>
-              <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">hacks</div>
+              <div class="font-mono text-4xl font-semibold text-primary mb-2">{featuredHacks.length}+</div>
+              <div class="font-mono text-xs uppercase tracking-wider text-muted-foreground">hacks</div>
             </div>
             <div class="text-center">
-              <div class="font-mono text-xl text-primary">∞</div>
-              <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">ideas</div>
+              <div class="font-mono text-4xl font-semibold text-primary mb-2">∞</div>
+              <div class="font-mono text-xs uppercase tracking-wider text-muted-foreground">ideas</div>
             </div>
           </div>
         </div>
@@ -130,11 +154,10 @@ const featuredApps = allApps // Show all apps
     <div class="container">
       <div class="max-w-2xl mx-auto text-center mb-16">
         <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-          Community Hacks & Tutorials
+          Customize Your Badger
         </h2>
         <p class="text-xl text-muted-foreground">
-          Community-supplied examples: hardware pin use, LED patterns, input handling, small tools.
-          Each entry includes minimal steps plus source.
+          Step-by-step tutorials to modify hardware behavior, wire custom features, and build your own apps. Each hack includes executable instructions and source code.
         </p>
       </div>
 
@@ -151,9 +174,13 @@ const featuredApps = allApps // Show all apps
             client:load
           />
         ))}
-        
-        <!-- Contribute Card -->
-        <ContributeCard client:load />
+      </div>
+
+      <div class="mt-12 flex justify-center">
+        <OutlinedButton href="/hacks" client:load>
+          <BookOpen className="h-5 w-5" />
+          <span>View All Hacks</span>
+        </OutlinedButton>
       </div>
     </div>
   </section>

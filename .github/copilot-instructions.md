@@ -6,10 +6,11 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 1. Monochrome + Green: Base is near-black (#010409 / hsl(210 11% 2%)). Accent is Universe Green-3 (#5FED83) used sparingly.
 2. Flat + Precise: Panels are subtle layered dark greys (grey-9 → grey-8) with minimal elevation. No soft blurred frosted UI.
 3. Monospace Bias: Use `font-mono` (Monaspace Neon) for interactive controls, labels, metrics, semantic tags. Display headings use `font-display`.
-4. Technical Voice: Copy must be direct, instructional, terse. Avoid words like “unlock”, “amazing”, “grow”, “inspire”. Prefer “configure”, “wire”, “flash”, “pinout”, “I/O”, “example”.
-5. No Light Mode Fallback: Don’t add light tokens or conditionals. Everything assumes a dark environment.
+4. Technical Voice: Copy must be direct, instructional, terse. Avoid words like "unlock", "amazing", "grow", "inspire". Prefer "configure", "wire", "flash", "pinout", "I/O", "example".
+5. No Light Mode Fallback: Don't add light tokens or conditionals. Everything assumes a dark environment.
 6. Motion Minimization: Only subtle opacity / shadow transitions (150–200ms). No scaling transforms except micro (translate-y for button press).
 7. Honest UI: If data is missing, show placeholder monospace text (e.g. `--` or `/path/not/found`).
+8. Component Modularity: Always componentize reusable UI patterns. Never inline complex markup or styles. If a component doesn't exist, create it first, then use it. Keep everything modular and DRY (Don't Repeat Yourself).
 
 ## Color Tokens (Dark Only)
 ```
@@ -54,6 +55,10 @@ Use existing CSS variables mapped to these.
 - Font: `font-mono` only.
 - Variants kept minimal: default, outline (slightly stronger border), ghost (no border), link.
 - No gradient fills.
+- **Icon placement**: Icons ALWAYS on the left, before text. Never on the right.
+- **Standard structure**: `<icon> <text>` with `gap-2.5` spacing.
+- **Sizing**: Icons are `h-5 w-5` for lg buttons, `h-4 w-4` for default/sm.
+- **Text style**: `font-mono text-base uppercase tracking-[0.12em]` for consistent developer aesthetic.
 
 ### Cards / Panels
 - Use `rounded-lg` only; avoid large radii.
