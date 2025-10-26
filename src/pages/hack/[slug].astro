@@ -28,17 +28,17 @@ const { Content } = await hack.render()
     <div class="container">
       <div class="max-w-4xl mx-auto">
         <!-- Content -->
-        <div class="space-y-6">
+        <div class="space-y-6 text-white">
           <div class="space-y-4">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 text-white">
               <DifficultyBadge 
                 difficulty={hack.data.difficulty}
                 className="text-sm"
                 client:load
               />
-              <div class="flex items-center gap-2 text-muted-foreground">
-                <Clock class="h-4 w-4" />
-                <span>{formatDuration(hack.data.duration)}</span>
+              <div class="flex items-center gap-2 text-white">
+                <Clock className="h-4 w-4" />
+                <span class="font-mono tracking-wide uppercase text-xs">{formatDuration(hack.data.duration)}</span>
               </div>
             </div>
             
@@ -46,7 +46,7 @@ const { Content } = await hack.render()
               {hack.data.title}
             </h1>
             
-            <p class="text-xl text-muted-foreground">
+            <p class="text-xl leading-relaxed">
               {hack.data.description}
             </p>
           </div>
@@ -69,7 +69,7 @@ const { Content } = await hack.render()
   <section class="py-12">
     <div class="container">
       <div class="max-w-4xl mx-auto">
-        <article class="prose prose-lg dark:prose-invert max-w-none">
+        <article class="prose prose-lg max-w-none prose--white">
           <Content />
         </article>
       </div>

@@ -69,6 +69,23 @@
       hsl(135, 5%, 15%) 100%
     );
     border: none;
+      .prose.prose--white {
+        color: #ffffff;
+        --tw-prose-body: #ffffff;
+        --tw-prose-headings: #ffffff;
+        --tw-prose-lead: #ffffff;
+        --tw-prose-links: #ffffff;
+        --tw-prose-bold: #ffffff;
+        --tw-prose-counters: #ffffff;
+        --tw-prose-bullets: rgba(255, 255, 255, 0.8);
+        --tw-prose-hr: rgba(255, 255, 255, 0.25);
+        --tw-prose-quotes: #ffffff;
+        --tw-prose-quote-borders: rgba(255, 255, 255, 0.25);
+        --tw-prose-captions: rgba(255, 255, 255, 0.7);
+        --tw-prose-th-borders: rgba(255, 255, 255, 0.25);
+        --tw-prose-td-borders: rgba(255, 255, 255, 0.15);
+      }
+
     box-shadow: 
       0 0 20px rgba(95, 237, 131, 0.05),
       0 4px 12px rgba(0, 0, 0, 0.3);
@@ -395,6 +412,27 @@
 
 .prose p {
   @apply text-muted-foreground mb-4 leading-relaxed;
+}
+
+.prose.prose--white h1,
+.prose.prose--white h2,
+.prose.prose--white h3,
+.prose.prose--white h4,
+.prose.prose--white h5,
+.prose.prose--white h6,
+.prose.prose--white p,
+.prose.prose--white li,
+.prose.prose--white strong,
+.prose.prose--white em,
+.prose.prose--white blockquote,
+.prose.prose--white a,
+.prose.prose--white th,
+.prose.prose--white td {
+  color: #ffffff !important;
+}
+
+.prose.prose--white :where(span):not(code span) {
+  color: #ffffff !important;
 }
 
 .prose blockquote {
