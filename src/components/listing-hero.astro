@@ -1,0 +1,96 @@
+---
+import { Button } from './ui/button'
+import { OutlinedButton } from './outlined-button'
+
+interface Action {
+  label: string
+  href: string
+  icon?: any
+  variant?: 'solid' | 'outline'
+  external?: boolean
+}
+
+interface Props {
+  eyebrow?: string
+  title: string
+  titleHighlight?: string
+  description?: string
+  actions?: Action[]
+}
+
+const {
+  eyebrow,
+  title,
+  titleHighlight,
+  description,
+  actions = [],
+} = Astro.props as Props
+
+const filteredActions = actions.filter(Boolean)
+---
+
+<section class="relative overflow-hidden py-24 bg-background">
+  <div class="pointer-events-none absolute inset-0 opacity-[0.22] [background-image:radial-gradient(circle_at_center,#5FED83_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
+  <div class="container relative">
+    <div class="max-w-3xl mx-auto text-center space-y-6">
+      {eyebrow && (
+        <span class="inline-flex items-center justify-center px-4 py-2 font-mono text-xs uppercase tracking-[0.18em] text-primary/70 bg-primary/5 border border-primary/20 rounded-full">
+          {eyebrow}
+        </span>
+      )}
+
+      <h1 class="font-display text-5xl lg:text-6xl tracking-tight leading-tight">
+        {title}
+        {titleHighlight && (
+          <span class="block sm:inline bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent sm:ml-2">
+            {titleHighlight}
+          </span>
+        )}
+      </h1>
+
+      {description && (
+        <p class="font-mono text-sm text-muted-foreground/90 leading-relaxed max-w-2xl mx-auto">
+          {description}
+        </p>
+      )}
+
+      {filteredActions.length > 0 && (
+        <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+          {filteredActions.map((action) => {
+            const Icon = action.icon
+            if (action.variant === 'solid') {
+              return (
+                <Button
+                  asChild
+                  size="lg"
+                  className="inline-flex items-center gap-2.5 px-5 py-3 font-mono text-base uppercase tracking-[0.12em]"
+                  client:load
+                >
+                  <a
+                    href={action.href}
+                    target={action.external ? '_blank' : undefined}
+                    rel={action.external ? 'noreferrer noopener' : undefined}
+                  >
+                    {Icon && <Icon className="h-5 w-5" />}
+                    <span>{action.label}</span>
+                  </a>
+                </Button>
+              )
+            }
+
+            return (
+              <OutlinedButton
+                href={action.href}
+                className="gap-2.5"
+                client:load
+              >
+                {Icon && <Icon className="h-5 w-5" />}
+                <span>{action.label}</span>
+              </OutlinedButton>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
