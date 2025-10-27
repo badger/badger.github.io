@@ -19,6 +19,8 @@ const APP_COLORS: Record<string, string> = {
   'flappymona_icon.png': 'rgb(225, 46, 251)',
   'gallery_icon.png': 'rgb(216, 189, 14)',
   'badge_icon.png': 'rgb(255, 128, 210)',
+  'commits.svg': 'rgb(46, 160, 67)',
+  'snake.svg': 'rgb(25, 108, 46)',
 }
 
 /**
@@ -38,6 +40,10 @@ export function AppCard({
   const iconFilename = icon.split('/').pop() || 'app-icon.png'
   const [iconSrc, setIconSrc] = React.useState(icon)
   const iconBgColor = APP_COLORS[iconFilename] || 'rgb(99, 102, 241)'
+  const statusLabel = preloaded ? 'PRELOADED' : 'MANUAL LOAD'
+  const statusClasses = preloaded
+    ? 'border-border/60 text-muted-foreground/80'
+    : 'border-primary/60 text-primary'
   
   React.useEffect(() => {
     // Check if actual image exists, otherwise use placeholder
@@ -70,9 +76,14 @@ export function AppCard({
 
       {/* App Info */}
       <div className="flex-1 min-w-0">
-        <h3 className="font-sans font-bold text-base tracking-tight group-hover:text-primary transition-colors mb-1.5 normal-case">
-          {title}
-        </h3>
+        <div className="flex items-center gap-2 mb-1.5">
+          <h3 className="font-sans font-bold text-base tracking-tight group-hover:text-primary transition-colors normal-case">
+            {title}
+          </h3>
+          <span className={`font-mono text-[10px] uppercase tracking-[0.18em] px-2 py-[2px] rounded border ${statusClasses}`}>
+            {statusLabel}
+          </span>
+        </div>
         <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed">
           {description}
         </p>

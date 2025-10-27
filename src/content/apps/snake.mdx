@@ -1,0 +1,45 @@
+---
+title: "Snake"
+description: "Classic snake re-skinned with GitHub commit squares and four-direction controls."
+icon: "/images/apps/snake.svg"
+category: "game"
+preloaded: false
+customizable: false
+fileLocation: "/system/apps/snake"
+---
+
+# Snake
+
+Guide a neon-green snake across a GitHub-dark grid, merge commits, and stretch the repo history without colliding with yourself.
+
+## Features
+
+- **GitHub Grid**: 40×30 board rendered with the familiar contribution green palette.
+- **Smooth Ticks**: Logic ticks every 150ms for predictable pacing that speeds up only with your mistakes.
+- **Scoreboard**: Merge count follows you across intro, play, and game over screens.
+- **Clean State Reset**: Intro screen respawns the snake and places a fresh commit square each run.
+
+## Controls
+
+- **A**: Move left
+- **C**: Move right
+- **Up / Down**: Move vertically
+- **A (on intro/game over)**: Start or restart the run
+
+## Install
+
+1. Copy the `badge/apps/snake/` folder from [`badger/tufty`](https://github.com/badger/tufty/tree/main/badge/apps/snake).
+2. Drop it into `/apps/snake/` on the BADGER drive while the badge is in USB storage mode.
+3. Eject, reboot, and launch Snake from the menu.
+
+## File Layout
+
+```
+/apps/snake/
+  ├── __init__.py   # Game loop, snake logic, render pipeline
+  └── icon.png      # Optional icon override for the launcher
+```
+
+## Source
+
+- [Snake game](https://github.com/badger/tufty/blob/main/badge/apps/snake/__init__.py)

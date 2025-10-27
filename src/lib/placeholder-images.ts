@@ -134,6 +134,7 @@ export const placeholderImages = {
     </svg>
   `),
 
+
   'badge_icon.png': 'data:image/svg+xml;base64,' + btoa(`
     <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
       <rect width="200" height="200" fill="rgb(255, 128, 210)" rx="40"/>
@@ -144,6 +145,7 @@ export const placeholderImages = {
       <rect x="70" y="130" width="60" height="4" rx="2" fill="#6b7280"/>
     </svg>
   `),
+
 
   'app-icon.png': 'data:image/svg+xml;base64,' + btoa(`
     <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">

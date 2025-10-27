@@ -8,15 +8,19 @@ import { getCollection } from 'astro:content'
 // Fetch all apps from the content collection
 const allApps = await getCollection('apps')
 
-// Group apps by category
-const appsByCategory = allApps.reduce((acc, app) => {
-  const category = app.data.category
-  if (!acc[category]) {
-    acc[category] = []
-  }
-  acc[category].push(app)
-  return acc
-}, {} as Record<string, typeof allApps>)
+const preloadedApps = allApps
+  .filter((app) => app.data.preloaded)
+  .sort((a, b) => a.data.title.localeCompare(b.data.title))
+
+const optionalApps = allApps
+  .filter((app) => !app.data.preloaded)
+  .sort((a, b) => a.data.title.localeCompare(b.data.title))
+
+const optionalCopy = optionalApps.length > 0
+  ? `We also maintain ${optionalApps.length} sideloadable builds below when you want to expand the catalog.`
+  : 'Ready to flash your own code? Drop an app folder into /apps/ and it shows up beside the built-ins.'
+
+const heroDescription = `Your Badger 2350 ships with ${preloadedApps.length} apps ready to boot. ${optionalCopy}`
 ---
 
 <Layout title="Preloaded Apps - Badger 2350 | Badger">
@@ -24,7 +28,7 @@ const appsByCategory = allApps.reduce((acc, app) => {
     eyebrow="// READY TO USE"
     title="Preloaded"
     titleHighlight="Apps"
-    description={`Your Badger 2350 comes with ${allApps.length} powerful apps ready to use out of the box. Explore them, customize them, and make your badge truly yours.`}
+    description={heroDescription}
   />
 
   <!-- Key Features Section -->
@@ -76,14 +80,14 @@ const appsByCategory = allApps.reduce((acc, app) => {
     </div>
   </section>
 
-  <!-- All Apps Section -->
-  <section id="all-apps" class="py-24 bg-muted/50">
+  <!-- Preloaded Apps Section -->
+  <section id="preloaded-apps" class="py-24 bg-muted/50">
     <div class="container">
       <div class="max-w-6xl mx-auto">
-        <h2 class="text-3xl font-bold mb-8">All Apps</h2>
+        <h2 class="text-3xl font-bold mb-8">Preloaded Apps</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {allApps.map((app) => (
+          {preloadedApps.map((app) => (
             <AppCard 
               title={app.data.title}
               description={app.data.description}
@@ -99,6 +103,36 @@ const appsByCategory = allApps.reduce((acc, app) => {
       </div>
     </div>
   </section>
+
+  {optionalApps.length > 0 && (
+    <section class="py-20 bg-background border-t border-border/30">
+      <div class="container">
+        <div class="max-w-4xl mx-auto text-center mb-12">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-4">Loadable Apps</h2>
+          <p class="text-base text-muted-foreground">
+            Copy these folders from the <a href="https://github.com/badger/tufty/tree/main/badge/apps" target="_blank" rel="noopener" class="underline decoration-dotted decoration-primary/60 hover:text-primary">badger/tufty repository</a> into `/apps/` on your badge to try additional community builds.
+          </p>
+        </div>
+
+        <div class="max-w-6xl mx-auto">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {optionalApps.map((app) => (
+              <AppCard
+                title={app.data.title}
+                description={app.data.description}
+                icon={app.data.icon}
+                category={app.data.category}
+                preloaded={app.data.preloaded}
+                customizable={app.data.customizable}
+                slug={app.slug}
+                client:load
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
 
   <!-- Filesystem Guide Section -->
   <section id="filesystem" class="py-24 bg-background">

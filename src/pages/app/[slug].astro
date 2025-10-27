@@ -24,13 +24,16 @@ const APP_COLORS: Record<string, string> = {
   'flappymona_icon.png': 'rgb(225, 46, 251)',
   'gallery_icon.png': 'rgb(216, 189, 14)',
   'badge_icon.png': 'rgb(255, 128, 210)',
+  'commits.svg': 'rgb(46, 160, 67)',
+  'snake.svg': 'rgb(25, 108, 46)',
 }
 
 const iconFilename = app.data.icon.split('/').pop() || 'app-icon.png'
 const iconBgColor = APP_COLORS[iconFilename] || 'rgb(99, 102, 241)'
+const titleQualifier = app.data.preloaded ? 'Preloaded App' : 'Loadable App'
 ---
 
-<Layout title={`${app.data.title} - Preloaded App | Badger`}>
+<Layout title={`${app.data.title} - ${titleQualifier} | Badger`}>
   <!-- Back Navigation -->
   <div class="border-b bg-background/95 backdrop-blur">
     <div class="container py-4">

@@ -1,0 +1,44 @@
+---
+title: "Commits"
+description: "Breakout-style brick field using GitHub greens. Auto-play targeting and lives counter."
+icon: "/images/apps/commits.svg"
+category: "game"
+preloaded: false
+customizable: false
+fileLocation: "/system/apps/commits"
+---
+
+# Commits
+
+Brick breaker, but every tile is a GitHub contribution square. Deflect the build ball, clear the wall, and chase a perfect green merge streak.
+
+## Features
+
+- **GitHub Palette**: Commit bricks cycle through the three GitHub green levels on every spawn.
+- **Paddle AI**: Hold nothing and press **Down** to enable auto-play that targets the brightest remaining brick.
+- **Breakout Core**: Three lives, score readout, win screen once every commit tile is cleared.
+- **Adaptive Restart**: Auto mode resets instantly after a miss, manual mode costs a life and restarts the volley.
+
+## Controls
+
+- **A / C**: Move the paddle left or right.
+- **B**: Launch the ball from centre serve.
+- **Down**: Toggle auto-play (press again or touch the paddle to resume manual control).
+
+## Install
+
+1. Grab the `badge/apps/commits/` folder from [`badger/tufty`](https://github.com/badger/tufty/tree/main/badge/apps/commits).
+2. Copy it to `/apps/commits/` on the BADGER USB drive.
+3. Eject, reboot, and the launcher picks up the new app automatically.
+
+## File Layout
+
+```
+/apps/commits/
+  ├── __init__.py   # Game loop, auto-play logic, rendering
+  └── icon.png      # Menu icon (optional)
+```
+
+## Source
+
+- [Commits game](https://github.com/badger/tufty/blob/main/badge/apps/commits/__init__.py)
