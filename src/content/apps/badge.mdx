@@ -5,7 +5,7 @@ icon: "/images/apps/badge_icon.png"
 category: "utility"
 preloaded: true
 customizable: true
-fileLocation: "/system/apps/badge"
+fileLocation: "/apps/badge"
 ---
 
 # Badge
@@ -24,14 +24,20 @@ A digital conference badge featuring your GitHub profile! Displays your contribu
 
 ## File Location
 
-Badge is located at `/system/apps/badge` on your Badger 2350 filesystem.
+Badge ships in `/apps/badge` when the badge is mounted over USB.
 
 ```
-/system/apps/badge/
-  ├── __init__.py      # Main badge app with WiFi and API logic
-  ├── /user_data.json  # Cached user profile (root level)
-  ├── /contrib_data.json # Cached contribution data (root level)
-  └── /avatar.png      # Cached avatar image (root level)
+/apps/badge/
+   ├── __init__.py      # Main badge app with WiFi and API logic
+   └── icon.png         # Menu icon shown in the launcher
+```
+
+After the first successful sync the app also drops cached data at the root of the drive:
+
+```
+/contrib_data.json     # Contribution graph cache
+/user_data.json        # Profile metadata cache
+/avatar.png            # Resized GitHub avatar
 ```
 
 ## Configuration

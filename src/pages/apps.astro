@@ -153,37 +153,57 @@ const heroDescription = `Your Badger 2350 ships with ${preloadedApps.length} app
             Apps Directory Structure
           </h3>
           
-          <pre class="bg-background rounded-lg p-6 overflow-x-auto text-sm"><code>{`/
-├── apps/                    # All preloaded apps
-│   ├── clock/              # Clock display app
-│   │   ├── main.py
-│   │   ├── config.json
-│   │   └── themes/
-│   ├── weather/            # Weather station app
-│   │   ├── main.py
-│   │   ├── config.json
-│   │   ├── api.py
-│   │   └── icons/
-│   ├── pomodoro/           # Pomodoro timer
-│   │   ├── main.py
-│   │   ├── timer.py
-│   │   ├── config.json
-│   │   └── stats.json
-│   ├── qr_display/         # QR code generator
-│   │   ├── main.py
-│   │   ├── qr_generator.py
-│   │   ├── config.json
-│   │   └── presets/
-│   └── games/              # Games collection
-│       └── snake/
-│           ├── main.py
-│           ├── game_logic.py
-│           └── scores.json
-├── config/                 # System configuration
-│   ├── wifi.json
-│   └── settings.json
-└── lib/                    # Shared libraries
-    └── badger2350.py`}</code></pre>
+          <pre class="bg-background rounded-lg p-6 overflow-x-auto text-sm"><code>{`/Volumes/BADGER/
+├── apps/
+│   ├── badge/
+│   │   ├── __init__.py
+│   │   └── icon.png
+│   ├── commits/
+│   │   ├── __init__.py
+│   │   └── icon.png
+│   ├── flappy/
+│   │   ├── __init__.py
+│   │   ├── mona.py
+│   │   ├── obstacle.py
+│   │   └── assets/
+│   ├── gallery/
+│   │   ├── __init__.py
+│   │   ├── icon.png
+│   │   ├── images/
+│   │   └── thumbnails/
+│   ├── menu/
+│   │   ├── __init__.py
+│   │   ├── icon.py
+│   │   └── ui.py
+│   ├── monapet/
+│   │   ├── __init__.py
+│   │   ├── icon.png
+│   │   ├── mona.py
+│   │   ├── ui.py
+│   │   └── assets/
+│   ├── quest/
+│   │   ├── __init__.py
+│   │   ├── beacon.py
+│   │   ├── icon.png
+│   │   ├── ui.py
+│   │   └── assets/
+│   ├── sketch/
+│   │   ├── __init__.py
+│   │   ├── icon.png
+│   │   ├── ui.py
+│   │   └── assets/
+│   ├── snake/
+│   │   ├── __init__.py
+│   │   └── icon.png
+│   └── startup/
+│       ├── __init__.py
+│       └── frames/
+├── assets/
+│   ├── fonts/
+│   ├── icons.png
+│   └── mona-sprites/
+├── main.py
+└── secrets.py`}</code></pre>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -193,11 +213,13 @@ const heroDescription = `Your Badger 2350 ships with ${preloadedApps.length} app
               Accessing Apps
             </h4>
             <p class="text-sm text-muted-foreground mb-3">
-              Apps can be launched from the badge menu or run directly:
+              Apps can be launched from the badge menu or inspected directly from the REPL:
             </p>
-            <pre class="bg-background rounded p-3 text-sm"><code>import apps.clock.main
-# or
-exec(open('/apps/clock/main.py').read())</code></pre>
+            <pre class="bg-background rounded p-3 text-sm"><code>import os
+os.listdir('/apps')
+
+# example: run flappy from a REPL session
+exec(open('/apps/flappy/__init__.py').read())</code></pre>
           </div>
 
           <div class="bg-purple-50 dark:bg-purple-950/20 rounded-lg p-6">
@@ -206,11 +228,11 @@ exec(open('/apps/clock/main.py').read())</code></pre>
               Customizing Apps
             </h4>
             <p class="text-sm text-muted-foreground mb-3">
-              Most apps have a config.json file you can edit:
+              Most apps expose straight Python or asset files you can tweak while mounted:
             </p>
             <pre class="bg-background rounded p-3 text-sm"><code># Edit via USB file access
-# or use built-in file editor
-edit('/apps/clock/config.json')</code></pre>
+# example: adjust Monapet UI text
+edit('/apps/monapet/ui.py')</code></pre>
           </div>
         </div>
 
@@ -219,7 +241,7 @@ edit('/apps/clock/config.json')</code></pre>
           <ul class="space-y-2 text-sm text-muted-foreground">
             <li class="flex gap-2">
               <span class="text-blue-600 dark:text-blue-400">•</span>
-              <span>Connect your badge via USB to access the filesystem directly from your computer</span>
+              <span>Mount the badge drive (typically `/Volumes/BADGER`) to read and edit `/apps/` and shared assets</span>
             </li>
             <li class="flex gap-2">
               <span class="text-blue-600 dark:text-blue-400">•</span>

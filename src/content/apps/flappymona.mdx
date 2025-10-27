@@ -5,7 +5,7 @@ icon: "/images/apps/flappymona_icon.png"
 category: "game"
 preloaded: true
 customizable: false
-fileLocation: "/system/apps/flappy"
+fileLocation: "/apps/flappy"
 ---
 
 # Flappy Mona
@@ -23,14 +23,15 @@ The classic Flappy Bird game with Mona! Features beautiful parallax scrolling ba
 
 ## File Location
 
-Flappy Mona is located at `/system/apps/flappy` on your Badger 2350 filesystem.
+Flappy Mona lives in `/apps/flappy` when the badge is mounted.
 
 ```
-/system/apps/flappy/
-  ├── __init__.py      # Main game loop and state machine
-  ├── mona.py          # Mona character physics and collision
-  ├── obstacle.py      # Obstacle spawning and movement
-  └── assets/          # Background layers and sprites
+/apps/flappy/
+    ├── __init__.py      # Main game loop and state machine
+    ├── mona.py          # Mona character physics and collision
+    ├── obstacle.py      # Obstacle spawning and movement
+    ├── icon.png         # Launcher icon
+    └── assets/          # Background layers and sprites
 ```
 
 ## How to Play

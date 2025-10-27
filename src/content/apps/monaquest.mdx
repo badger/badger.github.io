@@ -5,7 +5,7 @@ icon: "/images/apps/monaquest_icon.png"
 category: "game"
 preloaded: true
 customizable: false
-fileLocation: "/system/apps/quest"
+fileLocation: "/apps/quest"
 ---
 
 # Mona's Quest
@@ -22,11 +22,12 @@ An interactive scavenger hunt game using IR beacons placed at various locations 
 
 ## File Location
 
-Mona's Quest is located at `/system/apps/quest` on your Badger 2350 filesystem.
+Mona's Quest is located at `/apps/quest` on your Badger 2350 filesystem.
 
 ```
-/system/apps/quest/
+/apps/quest/
   ├── __init__.py      # Main game file
+  ├── icon.png         # Launcher icon
   ├── beacon.py        # IR beacon detection logic
   ├── ui.py            # User interface rendering
   └── assets/          # Game graphics

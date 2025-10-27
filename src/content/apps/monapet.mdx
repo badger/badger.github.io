@@ -1,14 +1,14 @@
 ---
-title: "Monagotchi"
+title: "Monapet"
 description: "Virtual pet simulator. Manage three stats: happiness, hunger, cleanliness. Autonomous movement + mood animations."
-icon: "/images/apps/monagotchi_icon.png"
+icon: "/images/apps/monapet_icon.png"
 category: "game"
 preloaded: true
 customizable: false
-fileLocation: "/system/apps/monapet"
+fileLocation: "/apps/monapet"
 ---
 
-# Monagotchi
+# Monapet
 
 Your very own virtual Mona pet! Take care of your digital companion by playing, feeding, and keeping them clean. Watch Mona move around, react to your care, and show different moods.
 
@@ -24,17 +24,18 @@ Your very own virtual Mona pet! Take care of your digital companion by playing, 
 
 ## File Location
 
-Monagotchi is located at `/system/apps/monapet` on your Badger 2350 filesystem.
+Monapet is located at `/apps/monapet` on your Badger 2350 filesystem.
 
 ```
-/system/apps/monapet/
-  ├── __init__.py      # Main application file
-  ├── mona.py          # Mona character class and behavior
-  ├── ui.py            # User interface rendering
-  └── assets/          # Pet sprites and graphics
+/apps/monapet/
+    ├── __init__.py      # Main application file
+    ├── icon.png         # Launcher icon
+    ├── mona.py          # Mona character class and behavior
+    ├── ui.py            # User interface rendering
+    └── assets/          # Pet sprites and graphics
 ```
 
-## How to Care for Your Monagotchi
+## How to Care for Your Monapet
 
 ### Three Stats to Manage
 
@@ -116,7 +117,7 @@ View the complete source code on GitHub:
 
 ### Pet Care Basics
 
-Your Monagotchi needs regular attention to stay happy and healthy. Monitor the status bars to see what your pet needs:
+Your Monapet needs regular attention to stay happy and healthy. Monitor the status bars to see what your pet needs:
 
 - **Hunger**: Feed your pet when the hunger bar is low
 - **Happiness**: Play with your pet to keep them happy
@@ -132,7 +133,7 @@ Your Monagotchi needs regular attention to stay happy and healthy. Monitor the s
 
 ### Pet States
 
-Your Monagotchi can be in different moods:
+Your Monapet can be in different moods:
 - **Happy** 😊: All needs are met
 - **Hungry** 🍽️: Needs food
 - **Bored** 😐: Wants to play
@@ -158,7 +159,7 @@ import time
 
 badge = Badger2350()
 
-class Monagotchi:
+class Monapet:
     def __init__(self):
         self.hunger = 100
         self.happiness = 100

@@ -88,7 +88,7 @@ export const placeholderImages = {
     </svg>
   `),
 
-  'monagotchi_icon.png': 'data:image/svg+xml;base64,' + btoa(`
+  'monapet_icon.png': 'data:image/svg+xml;base64,' + btoa(`
     <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
       <rect width="200" height="200" fill="rgb(48, 148, 255)" rx="40"/>
       <ellipse cx="100" cy="105" rx="55" ry="45" fill="#1f2937"/>

@@ -5,7 +5,7 @@ icon: "/images/apps/gallery_icon.png"
 category: "utility"
 preloaded: true
 customizable: false
-fileLocation: "/system/apps/gallery"
+fileLocation: "/apps/gallery"
 ---
 
 # Gallery
@@ -23,13 +23,14 @@ An elegant photo viewer with thumbnail carousel and a jumping Mona companion! Br
 
 ## File Location
 
-Gallery is located at `/system/apps/gallery` on your Badger 2350 filesystem.
+Gallery is located at `/apps/gallery` on your Badger 2350 filesystem.
 
 ```
-/system/apps/gallery/
-  ├── __init__.py      # Main gallery app
-  ├── images/          # Full-size photos (160x120 PNG)
-  └── thumbnails/      # Thumbnail versions of photos
+/apps/gallery/
+    ├── __init__.py      # Main gallery app
+    ├── icon.png         # Launcher icon
+    ├── images/          # Full-size photos (160x120 PNG)
+    └── thumbnails/      # Thumbnail versions of photos
 ```
 
 ## How to Use
@@ -58,8 +59,8 @@ Gallery is located at `/system/apps/gallery` on your Badger 2350 filesystem.
 ### Adding Photos
 
 1. **Put badge in disk mode** (tap RESET twice)
-2. **Add images** to `/system/apps/gallery/images/` folder
-3. **Add matching thumbnails** to `/system/apps/gallery/thumbnails/` folder
+2. **Add images** to `/apps/gallery/images/` folder
+3. **Add matching thumbnails** to `/apps/gallery/thumbnails/` folder
 4. **PNG format**, filenames must match exactly
 5. **Full images**: 160x120 pixels recommended
 6. **Thumbnails**: Smaller versions for carousel (any size)

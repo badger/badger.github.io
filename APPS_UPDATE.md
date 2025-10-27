@@ -8,11 +8,11 @@
 - **Description**: Go on a quest to find all treasures at GitHub Universe. Start with hack the badge station and find instructions there.
 - **File**: `/apps/monaquest`
 
-### 2. **Monagotchi** (monagotchi)
+### 2. **Monapet** (monapet)
 - **Category**: Game
-- **Icon**: `monagotchi_icon.png`
+- **Icon**: `monapet_icon.png`
 - **Description**: Virtual mona pet, where you can have it play, feed and clean.
-- **File**: `/apps/monagotchi`
+- **File**: `/apps/monapet`
 
 ### 3. **Monasketch** (sketch)
 - **Category**: Fun
@@ -42,7 +42,7 @@
 
 ### Content Files
 - ✅ `src/content/apps/monaquest.mdx` - Mona's Quest app
-- ✅ `src/content/apps/monagotchi.mdx` - Monagotchi app
+- ✅ `src/content/apps/monapet.mdx` - Monapet app
 - ✅ `src/content/apps/sketch.mdx` - Monasketch app
 - ✅ `src/content/apps/flappymona.mdx` - Flappy Mona app
 - ✅ `src/content/apps/gallery.mdx` - Gallery app
@@ -63,7 +63,7 @@ All icons follow the pattern: `{appname}_icon.png`
 ## Next Steps
 1. Add actual icon images to `public/images/apps/`:
    - `monaquest_icon.png`
-   - `monagotchi_icon.png`
+   - `monapet_icon.png`
    - `sketch_icon.png`
    - `flappymona_icon.png`
    - `gallery_icon.png`
