@@ -17,7 +17,7 @@ export function Navigation() {
             <div className="h-12 w-12 rounded border border-border/40 bg-card flex items-center justify-center transition-colors group-hover:border-primary/60 group-hover:bg-primary/5">
               <Terminal className="h-7 w-7 text-primary" />
             </div>
-            <span className="text-4xl font-display font-semibold tracking-tight">HackShelf</span>
+            <span className="text-4xl font-display font-semibold tracking-tight">Badger</span>
           </a>
         </div>
 
