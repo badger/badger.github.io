@@ -2,7 +2,6 @@
 import Layout from '@/layouts/Layout.astro'
 import ListingHero from '@/components/listing-hero.astro'
 import { HackListItem } from '@/components/hack-list-item'
-import { Filter } from 'lucide-react'
 import { getCollection } from 'astro:content'
 
 // Fetch all hacks
@@ -20,7 +19,6 @@ const sortedHacks = allHacks.sort((a, b) =>
     title="All"
     titleHighlight="Hacks"
     description="Browse every tutorial, firmware tweak, and hardware experiment. Use the filters to lock onto a build that matches your time and skill budget."
-    actions={[{ label: 'Filter Hacks', href: '#filter-controls', icon: Filter, variant: 'outline' }]}
   />
 
   <!-- Hacks Listing with Sidebar -->

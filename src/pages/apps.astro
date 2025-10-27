@@ -2,8 +2,7 @@
 import Layout from '@/layouts/Layout.astro'
 import { AppCard } from '@/components/app-card'
 import ListingHero from '@/components/listing-hero.astro'
-import { Button } from '@/components/ui/button'
-import { Grid3x3, Package, FileCode, ArrowRight, Wrench, Info } from 'lucide-react'
+import { Package, FileCode, Wrench, Info } from 'lucide-react'
 import { getCollection } from 'astro:content'
 
 // Fetch all apps from the content collection
@@ -26,10 +25,6 @@ const appsByCategory = allApps.reduce((acc, app) => {
     title="Preloaded"
     titleHighlight="Apps"
     description={`Your Badger 2350 comes with ${allApps.length} powerful apps ready to use out of the box. Explore them, customize them, and make your badge truly yours.`}
-    actions={[
-      { label: 'All Apps', href: '#all-apps', icon: Grid3x3, variant: 'solid' },
-      { label: 'Filesystem Guide', href: '#filesystem', icon: FileCode, variant: 'outline' },
-    ]}
   />
 
   <!-- Key Features Section -->
@@ -210,23 +205,4 @@ edit('/apps/clock/config.json')</code></pre>
     </div>
   </section>
 
-  <!-- CTA Section -->
-  <section class="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-    <div class="container">
-      <div class="max-w-3xl mx-auto text-center space-y-6">
-        <h2 class="text-3xl lg:text-4xl font-bold">
-          Want to Create Your Own Apps?
-        </h2>
-        <p class="text-xl text-blue-100">
-          Learn how to build custom applications for your Badger 2350 with our comprehensive tutorials and hacks.
-        </p>
-        <Button asChild size="lg" variant="secondary" client:load>
-          <a href="/hacks" class="flex items-center gap-2">
-            Explore Hacks & Tutorials
-            <ArrowRight className="h-4 w-4" />
-          </a>
-        </Button>
-      </div>
-    </div>
-  </section>
 </Layout>
