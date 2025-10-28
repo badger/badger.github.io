@@ -37,7 +37,7 @@ export function HackCard({
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="font-sans font-bold text-lg text-foreground group-hover:text-primary line-clamp-2 transition-colors normal-case tracking-tight">
+          <CardTitle className="font-sans font-bold text-xl text-foreground group-hover:text-primary line-clamp-2 transition-colors normal-case tracking-tight">
             {title}
           </CardTitle>
           <DifficultyBadge 
@@ -45,7 +45,7 @@ export function HackCard({
             className="shrink-0 text-xs"
           />
         </div>
-        <CardDescription className="line-clamp-2">
+        <CardDescription className="text-base leading-6 text-muted-foreground/80 line-clamp-3">
           {description}
         </CardDescription>
       </CardHeader>

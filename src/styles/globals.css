@@ -48,6 +48,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 1.06rem;
+    line-height: 1.7;
   }
   
   /* Global dark background with subtle hacker grid */
@@ -356,7 +358,7 @@
 
 /* Enhanced Prose Styling for Tutorial Content */
 .prose {
-  @apply text-foreground leading-7 max-w-none;
+  @apply text-foreground text-lg leading-8 max-w-none;
 }
 
 .prose h1 {
