@@ -557,3 +557,17 @@
 .prose .chars--highlighted {
   @apply bg-zinc-700/50 dark:bg-zinc-600/50 rounded px-1;
 }
+
+
+.code-block {
+  @apply bg-background rounded p-6 overflow-x-auto text-sm max-w-full;
+}
+
+.code-block-sm {
+  @apply bg-background rounded p-3 overflow-x-auto text-sm max-w-full;
+}
+
+.code-block code,
+.code-block-sm code {
+  @apply block whitespace-pre-wrap font-mono;
+}
