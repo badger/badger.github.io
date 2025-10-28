@@ -1,0 +1,63 @@
+---
+title: "Add Your Photo to Gallery"
+description: "Drop a custom PNG plus thumbnail into the Gallery app so it shows up in the carousel."
+difficulty: "beginner"
+duration: 8
+tags: ["media", "filesystem"]
+thumbnail: "/images/apps/gallery_icon.png"
+author: "Badger Team"
+date: "2025-10-27"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/tufty/tree/main/badge/apps/gallery"
+---
+
+# Add Your Photo to Gallery
+
+The Gallery app scans its `images/` and `thumbnails/` folders at boot. Add a matching PNG pair to make your art appear in the reel.
+
+## Prerequisites
+
+- Badge mounted as the badger volume
+- An image editor that can export PNGs at specific dimensions (Preview on macOS, Paint or Photos on Windows, or an online tool)
+
+## Steps
+
+1. **Copy the Gallery app into override mode (first time only)**
+  - Open the badger volume in Finder or File Explorer.
+  - Duplicate the folder `system/apps/gallery` and move the copy to `apps/gallery`. This lets you edit the override version without touching the system copy.
+2. **Prepare the full-size artwork (160×120)**
+  - Open your source image in the image editor.
+  - Resize or export it to exactly **160×120 px** and save it as `badge-shot.png` (use any name you like) on your desktop.
+3. **Create the thumbnail (60×45)**
+  - Duplicate the 160×120 PNG in your editor.
+  - Resize the duplicate to **60×45 px** and save it as `badge-shot-thumb.png`.
+4. **Copy both files into the app with Finder or File Explorer**
+  - Drag `badge-shot.png` into `badger volume/apps/gallery/images/`.
+  - Drag `badge-shot-thumb.png` into `badger volume/apps/gallery/thumbnails/` and rename it so the filename matches the full-size version (for example, `badge-shot.png`).
+5. **Review in VS Code**
+  - In VS Code, open `badger volume/apps/gallery/` and make sure your two PNGs appear under `images/` and `thumbnails/` with matching names.
+6. **Eject and reset** the badge so Gallery refreshes its file list.
+
+## What the App Looks For
+
+```python
+files = []
+for file in os.listdir("images"):
+    name, ext = file.rsplit(".", 1)
+    if ext == "png":
+        files.append({"name": file, "title": name.replace("-", " ")})
+...
+thumbnails.append(Image.load(f"thumbnails/{file['name']}"))
+```
+
+The code expects a PNG in both `images/` and `thumbnails/` using the same filename. Source: [`badge/apps/gallery/__init__.py`](https://github.com/badger/tufty/blob/main/badge/apps/gallery/__init__.py#L10-L71).
+
+## Verify
+
+- Launch Gallery and scroll with `A/C` until you hit your new tile.
+- Confirm the thumbnail strip shows your preview and the title uses the file name (dashes become spaces).
+
+## Troubleshooting
+
+- If the image fails to load, check for uppercase file extensions or mismatched thumbnail names.
+- Use `Reset` twice to drop back into USB mode and replace any broken files.

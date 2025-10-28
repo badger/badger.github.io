@@ -1,0 +1,58 @@
+---
+title: "Add the Commits Brick-Breaker"
+description: "Install the Commits arcade app so you can bat merge balls through a wall of green squares."
+difficulty: "beginner"
+duration: 15
+tags: ["games", "filesystem"]
+thumbnail: "/images/apps/app_icon.png"
+author: "Badger Team"
+date: "2025-10-27"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/tufty/tree/main/badge/apps/commits"
+---
+
+# Add the Commits Brick-Breaker
+
+Break through a contribution wall by copying the Commits game from the Tufty repository into your local `/apps` directory.
+
+## Prerequisites
+
+- Badge mounted as the badger volume
+- The Tufty source ZIP downloaded from GitHub (reuse the archive from the Snake hack or grab a fresh one via **Code → Download ZIP**)
+
+## Steps
+
+1. **Copy the Commits folder with Finder or File Explorer**
+  - Open the unzipped `tufty-main/badge/apps/commits` directory.
+  - In another window, open `badger volume/apps/` (create `apps` if it is missing).
+  - Drag the entire `commits` directory into `badger volume/apps/`. This brings over `__init__.py`, `icon.png`, and the `assets` sprites.
+2. **Confirm the files in VS Code**
+  - With the badger volume still connected, open VS Code and choose **File → Open...**.
+  - Navigate to `badger volume/apps/commits/__init__.py`, then compare it to the Raw view on GitHub to make sure the copy is up to date.
+3. **Eject and reset the badge** so the launcher indexes the new app.
+
+## What You Added
+
+The game builds a brick field using GitHub contribution colours, then lets you steer a paddle:
+
+```python
+for row in range(BRICK_ROWS):
+    for col in range(BRICK_COLS):
+        color = random.choice(COMMIT_COLORS)
+        bricks.append(Brick(x, y, color))
+...
+if io.BUTTON_A in io.pressed:
+    paddle.update(ball, auto_play=False)
+```
+
+Browse the full implementation for scoring, auto-play, and win states: [`badge/apps/commits/__init__.py`](https://github.com/badger/tufty/blob/main/badge/apps/commits/__init__.py#L0-L435).
+
+## Verify
+
+- Launch **Commits** from the menu.
+- Move the paddle with `A`/`C`. Press `B` to launch the ball.
+- Hold `DOWN` to enable the built-in auto-play helper and confirm it clears bricks.
+
+## Cleanup (optional)
+
+Move the Tufty download and extracted folder to the trash once you have verified the game launches.

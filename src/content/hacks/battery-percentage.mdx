@@ -1,0 +1,56 @@
+---
+title: "Show Battery Percentage"
+description: "Patch the menu header so it renders the live battery % beside the cell icon."
+difficulty: "intermediate"
+duration: 12
+tags: ["launcher", "ui"]
+thumbnail: "/images/apps/app_icon.png"
+author: "Badger Team"
+date: "2025-10-27"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/tufty/blob/main/badge/apps/menu/ui.py"
+---
+
+# Show Battery Percentage
+
+The stock launcher only fills the battery icon. Add monospace text so the header also shows the precise percentage.
+
+## Prerequisites
+
+- Badge mounted as the badger volume
+- VS Code installed (we will edit directly on the mounted drive)
+
+## Steps
+
+1. **Put the menu UI under override** (if you have not already)
+  - Open the badger volume in Finder or File Explorer.
+  - Copy `system/apps/menu` into `apps/` so you have an editable `apps/menu` folder.
+2. **Edit `badger volume/apps/menu/ui.py` in VS Code**
+  - In VS Code, use **File → Open...** to open the badger volume, then open `apps/menu/ui.py`.
+  - In your browser, open the upstream [`menu/ui.py`](https://github.com/badger/tufty/blob/main/badge/apps/menu/ui.py), click **Raw**, and keep it handy for reference.
+  - Update the imports at the top to include `PixelFont`:
+     ```python
+     from badgeware import brushes, shapes, io, screen, Matrix, get_battery_level, is_charging, PixelFont
+     ```
+  - Define a font for the meter label after the colour constants:
+     ```python
+     battery_font = PixelFont.load("/system/assets/fonts/nope.ppf")
+     ```
+  - Inside `draw_header()` (right after the block that fills the battery rectangle), insert:
+     ```python
+         screen.font = battery_font
+         meter = "chg" if is_charging() else f"{int(round(battery_level)):3d}%"
+         w, _ = screen.measure_text(meter)
+         screen.text(meter, pos[0] - w - 4, pos[1])
+     ```
+     Full context to anchor your edit is in [`menu/ui.py`](https://github.com/badger/tufty/blob/main/badge/apps/menu/ui.py#L88-L114).
+3. **Save the file in VS Code**, eject the badger volume, and tap `Reset` to reload the launcher.
+
+## Verify
+
+- Open the menu. You should see the numeric percentage (or `chg`) to the left of the battery icon.
+- Press the buttons to ensure the header still animates; pagination and icons should behave as before.
+
+## Rollback
+
+If you need the stock file back, copy `system/apps/menu/ui.py` over the edited file using Finder or File Explorer, or paste the original contents back in VS Code from the GitHub Raw view.

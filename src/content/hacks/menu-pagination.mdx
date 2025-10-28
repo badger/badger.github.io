@@ -1,0 +1,64 @@
+---
+title: "Paginate the Launcher"
+description: "Replace the menu launcher with the paginated build so every installed app is reachable."
+difficulty: "intermediate"
+duration: 10
+tags: ["system", "launcher"]
+thumbnail: "/images/apps/app_icon.png"
+author: "Badger Team"
+date: "2025-10-27"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/tufty/tree/main/badge/apps/menu"
+---
+
+# Paginate the Launcher
+
+The conference badge ships without menu pagination, so the launcher hides any app past slot six. Swap in the paginated `menu/__init__.py` from the Tufty repo to unlock scrolling.
+
+## Prerequisites
+
+- Badger 2350 connected over USB (mounted as the badger volume)
+- Web browser and VS Code ready
+
+## Steps
+
+1. **Create an override copy of the menu app (first time only)**
+   - Open the badger volume in Finder or File Explorer.
+   - Copy `system/apps/menu` and paste it into `apps/` so you have `apps/menu` you can edit safely.
+2. **Back up the current launcher file**
+   - In Finder or File Explorer, duplicate `badger volume/apps/menu/__init__.py` and rename the duplicate to `__init__-backup.py` in the same folder (or drag a copy to your desktop).
+3. **Grab the paginated source from GitHub**
+   - In your browser, open [`badge/apps/menu/__init__.py`](https://github.com/badger/tufty/blob/main/badge/apps/menu/__init__.py).
+   - Click **Raw**, select all, and copy the contents.
+4. **Replace the launcher code in VS Code**
+   - In VS Code, open `badger volume/apps/menu/__init__.py`.
+   - Select the existing contents, paste the code you copied from the Raw view, and save the file.
+5. **Eject the badger volume**, tap `Reset`, and let the badge reboot into the updated launcher.
+
+## What Changed
+
+The patched launcher keeps a moving window of six icons per page and wraps input between pages:
+
+```python
+APPS_PER_PAGE = 6
+current_page = 0
+...
+if active >= len(icons):
+    if current_page < total_pages - 1:
+        current_page += 1
+        icons = load_page_icons(current_page)
+        active = 0
+```
+
+See the upstream file for the full implementation: [badge/apps/menu/__init__.py](https://github.com/badger/tufty/blob/main/badge/apps/menu/__init__.py#L31-L128).
+
+## Verify
+
+- From the launcher, press `C` until selection moves off the grid—pagination should advance to the next set of apps.
+- Confirm the page indicator (e.g. `1/2`) renders in the lower-right corner.
+
+## Rollback
+
+Restore the backup if you need the stock launcher:
+
+Open the backup you made in step 2 (either the duplicate file beside `__init__.py` or the copy on your desktop), paste its contents back into `badger volume/apps/menu/__init__.py` with VS Code, save, and reboot the badge.

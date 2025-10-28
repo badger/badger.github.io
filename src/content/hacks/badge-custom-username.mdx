@@ -1,0 +1,58 @@
+---
+title: "Set Your GitHub Handle"
+description: "Edit secrets.py so the badge app pulls your live GitHub profile stats."
+difficulty: "beginner"
+duration: 5
+tags: ["networking", "badge-app"]
+thumbnail: "/images/apps/badge_icon.png"
+author: "Badger Team"
+date: "2025-10-27"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/tufty/blob/main/badge/secrets.py"
+---
+
+# Set Your GitHub Handle
+
+The badge app refuses to fetch data until `GITHUB_USERNAME` and Wi-Fi credentials exist in `/secrets.py`. Fill them in so the stats screen lights up with your profile.
+
+## Prerequisites
+
+- Wi-Fi SSID and password for a 2.4 GHz network
+- Your GitHub username (case-sensitive)
+
+## Steps
+
+1. **Enter USB storage mode** (double-tap `Reset`).
+2. **Open the badger volume in VS Code** (`File → Open...` and choose the mounted drive).
+3. **Locate `secrets.py`** at the root of the badger volume and edit it in VS Code, replacing the placeholder values:
+   ```python
+   WIFI_SSID = "your-ssid"
+   WIFI_PASSWORD = "your-password"
+   GITHUB_USERNAME = "your-handle"
+   ```
+4. **Save the file**, eject the badger volume, and tap `Reset` once.
+
+## What the Badge Checks
+
+```python
+from secrets import WIFI_PASSWORD, WIFI_SSID, GITHUB_USERNAME
+...
+if not WIFI_SSID:
+    return False
+if not GITHUB_USERNAME:
+    return False
+user.handle = GITHUB_USERNAME
+```
+
+Reference: [`badge/apps/badge/__init__.py`](https://github.com/badger/tufty/blob/main/badge/apps/badge/__init__.py#L36-L78).
+
+## Verify
+
+- Launch the **Badge** app.
+- Hold `A+C` to force refresh; within ~10 seconds you should see your avatar, follower count, and contribution graph.
+- If you hit `Connection Failed`, double-check the Wi-Fi credentials.
+
+## Safety Tips
+
+- `secrets.py` is plain text. Avoid committing it to Git—it should stay on the badge only.
+- To revert quickly, delete `/secrets.py` and reboot; the badge falls back to the built-in defaults.

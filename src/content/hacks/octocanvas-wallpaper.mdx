@@ -1,0 +1,49 @@
+---
+title: "Render an Octocanvas Wallpaper"
+description: "Generate the badge-sized Octocanvas wallpaper, resize it for Gallery, and copy it onto your badge."
+difficulty: "intermediate"
+duration: 15
+tags: ["media", "design", "filesystem"]
+thumbnail: "/images/apps/gallery_icon.png"
+author: "Badger Team"
+date: "2025-10-27"
+hardware: ["Badger 2350"]
+github: "https://github.com/github/octocanvas"
+---
+
+# Render an Octocanvas Wallpaper
+
+Octocanvas can export a 320×240 "Badge" wallpaper. Shrink that PNG to 160×120, drop it into the Gallery app, and it becomes a full-screen background on your badge.
+
+## Prerequisites
+
+- Web browser with access to [octocanvas.io](https://octocanvas.io)
+- An image editor that can resize PNGs (Preview, Photos, Paint, or an online tool)
+- Badge mounted as the badger volume
+
+## Steps
+
+1. **Generate the artwork**
+   - Open [octocanvas.io](https://octocanvas.io).
+   - Enter your GitHub username, pick colours/effects, and switch to the **Badge (320×240)** download. The code that powers this size sits in [`WallpaperGenerator.tsx`](https://github.com/github/octocanvas/blob/main/src/components/WallpaperGenerator.tsx#L34-L59).
+   - Click **Download** → the file lands in `~/Downloads/octocanvas-badge.png` (name may vary).
+2. **Downscale for the Gallery app (160×120)**
+  - Open the downloaded PNG in your image editor.
+  - Resize or export a copy at **160×120 px** named `octocanvas-gallery.png`.
+3. **Create the thumbnail (60×45)**
+  - Duplicate the 160×120 image, resize it to **60×45 px**, and save it as `octocanvas-gallery-thumb.png`.
+4. **Copy into the Gallery app with Finder or File Explorer**
+  - Drag `octocanvas-gallery.png` into `badger volume/apps/gallery/images/`.
+  - Drag the thumbnail into `badger volume/apps/gallery/thumbnails/` and rename it to `octocanvas-gallery.png` so the filenames match.
+5. **Review in VS Code**
+  - In VS Code, open `badger volume/apps/gallery/` to double-check both PNGs are present with matching filenames.
+6. **Eject + reset** the badge and open Gallery. Your wallpaper should sit alongside the stock art.
+
+## Verify
+
+- In Gallery, the new slide should display edge-to-edge with no stretching.
+- The thumbnail strip shows your custom preview. If it’s blank, check that both PNGs share the same filename.
+
+## Cleanup (optional)
+
+Move any intermediate files (downloads and resized copies) to the trash once you are finished.

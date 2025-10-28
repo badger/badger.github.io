@@ -1,0 +1,58 @@
+---
+title: "Install the Snake Game"
+description: "Copy the Snake app from the Tufty repo so you can merge green commits on your badge."
+difficulty: "beginner"
+duration: 12
+tags: ["games", "filesystem"]
+thumbnail: "/images/apps/gallery_icon.png"
+author: "Badger Team"
+date: "2025-10-27"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/tufty/tree/main/badge/apps/snake"
+---
+
+# Install the Snake Game
+
+Bring the GitHub-flavoured Snake minigame onto your badge by copying the upstream app folder and launching it from the menu.
+
+## Prerequisites
+
+- Badger 2350 in USB storage mode (`Reset` twice)
+- Web browser and VS Code ready
+
+## Steps
+
+1. **Download the Tufty sources**
+  - In a browser go to the [badger/tufty repository](https://github.com/badger/tufty).
+  - Click **Code → Download ZIP** and save the archive.
+  - Use Finder or File Explorer to unzip the download so you have a `tufty-main` folder.
+2. **Copy the Snake app with Finder or File Explorer**
+  - Open the extracted `tufty-main/badge/apps/snake` folder.
+  - Open the badger volume in another window (`apps` lives at the top level; create it if it is missing).
+  - Drag the entire `snake` folder onto `badger volume/apps/` to overwrite or create it.
+3. **Verify the files in VS Code**
+  - In VS Code, use **File → Open** and choose `badger volume/apps/snake/__init__.py` to confirm the file matches the upstream version (copy the contents from the Raw view on GitHub if you need to refresh it).
+4. **Eject the badger volume**, tap `Reset` once, and open the launcher. The menu should show a new Snake tile.
+
+## What You Added
+
+Snake keeps state in RAM and wraps the grid when you cross an edge:
+
+```python
+new_head = ((head_x + dx) % GRID_WIDTH, (head_y + dy) % GRID_HEIGHT)
+if new_head in self.segments:
+    return False
+self.segments.insert(0, new_head)
+```
+
+Review the full source for scoring and controls: [`badge/apps/snake/__init__.py`](https://github.com/badger/tufty/blob/main/badge/apps/snake/__init__.py#L31-L211).
+
+## Verify
+
+- Launch the Snake app from the badge menu.
+- Press `A/C` to move left/right and `UP/DOWN` to move vertically.
+- Eat a commit tile and confirm the score counter increments.
+
+## Cleanup (optional)
+
+Move the downloaded ZIP and extraction folder to the trash once you have confirmed Snake is running.
