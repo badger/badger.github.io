@@ -1,4 +1,4 @@
-import { Github, Home, BookOpen, Plus, Settings, Grid3x3, Terminal } from 'lucide-react'
+import { Home, BookOpen, Plus, Settings, Grid3x3, Terminal, Power } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
@@ -29,6 +29,13 @@ export function Navigation() {
           >
             <Home className="h-5 w-5" />
             <span>Home</span>
+          </a>
+          <a
+            href="/get-started"
+            className="flex items-center space-x-2.5 px-5 py-3 rounded font-mono text-base uppercase tracking-[0.12em] text-foreground hover:text-primary hover:bg-primary/10 transition-all duration-150 border border-transparent hover:border-primary/50 hover:shadow-[0_0_15px_rgba(95,237,131,0.3)]"
+          >
+            <Power className="h-5 w-5" />
+            <span>Get Started</span>
           </a>
           <a
             href="/about-badge"
