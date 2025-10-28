@@ -569,5 +569,5 @@
 
 .code-block code,
 .code-block-sm code {
-  @apply block whitespace-pre;
+  @apply block whitespace-pre-wrap font-mono;
 }
