@@ -564,7 +564,7 @@
 }
 
 .code-block-sm {
-  @apply bg-background rounded p-3 overflow-x-auto text-sm max-w-full;
+  @apply bg-background rounded-lg p-3 overflow-x-auto text-sm max-w-full;
 }
 
 .code-block code,
