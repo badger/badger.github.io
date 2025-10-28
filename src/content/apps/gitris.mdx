@@ -1,0 +1,49 @@
+---
+title: "Gitris"
+description: "Game for GitHub Universe 2025 badge"
+icon: "/images/apps/gitris_icon.png"
+category: "game"
+preloaded: false
+customizable: true
+fileLocation: "/apps/gitris"
+---
+
+# Gitris
+
+It's a line-making, shape-themed game for your GitHub Universe badge!
+
+## Controls
+
+- LEFT/RIGHT = move
+- DOWN = soft drop
+- A = rotate CW
+- B = rotate CCW
+- C = hard drop
+- HOME or B+C = pause/resume (from pause: A=resume, B=quit to title)
+
+## File Location
+
+Drop the game to `/apps/gitris` when the badge is mounted over USB.
+
+```
+/apps/tetris/
+   ├── __init__.py      # Gitris app
+   └── icon.png         # Menu icon shown in the launcher
+```
+
+## Setup Process
+
+1. **Put badge in disk mode** (tap RESET twice)
+2. **Download the Gitris app and icon file from the main badge repo, and save under apps/gitris on your badge
+3. **Reload the badge** (press RESET once)
+4. **Launch Gitris app** from menu
+
+## Source Code
+
+View the complete source code on GitHub:
+- [Tetris app](https://github.com/badger/home/blob/main/badge/apps/gitris/__init__.py) - Complete game
+
+## Want the conflict row to appear more often or less often?
+```
+state["conflict_every"] = 12  # try 10 for spicier, 16 for gentler
+```
