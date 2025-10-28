@@ -1,0 +1,44 @@
+---
+title: "Tetris"
+description: "Tetris game for GitHub Universe 2025 badge"
+icon: "/images/apps/tetris_icon.png"
+category: "game"
+preloaded: false
+customizable: true
+fileLocation: "/apps/tetris"
+---
+
+# Tetris
+
+It's Tetris for your GitHub Universe badge!
+
+## Controls
+
+- LEFT/RIGHT = move
+- DOWN = soft drop
+- A = rotate CW
+- B = rotate CCW
+- C = hard drop
+- HOME or B+C = pause/resume (from pause: A=resume, B=quit to title)
+
+## File Location
+
+Drop the game to `/apps/tetris` when the badge is mounted over USB.
+
+```
+/apps/tetris/
+   ├── __init__.py      # Tetris app
+   └── icon.png         # Menu icon shown in the launcher
+```
+
+## Setup Process
+
+1. **Put badge in disk mode** (tap RESET twice)
+2. **Download the Tetris app and icon file from the main badge repo, and save under apps/tetris on your badge
+3. **Reload the badge** (press RESET once)
+4. **Launch Tetris app** from menu
+
+## Source Code
+
+View the complete source code on GitHub:
+- [Tetris app](https://github.com/badger/home/blob/main/badge/apps/tetris/__init__.py) - Complete game
