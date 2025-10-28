@@ -8,7 +8,7 @@ thumbnail: "/images/apps/app_icon.png"
 author: "Badger Team"
 date: "2025-10-27"
 hardware: ["Badger 2350"]
-github: "https://github.com/badger/tufty/blob/main/badge/apps/menu/ui.py"
+github: "https://github.com/badger/home/blob/main/badge/apps/menu/ui.py"
 ---
 
 # Show Battery Percentage
@@ -27,7 +27,7 @@ The stock launcher only fills the battery icon. Add monospace text so the header
   - Copy `system/apps/menu` into `apps/` so you have an editable `apps/menu` folder.
 2. **Edit `badger volume/apps/menu/ui.py` in VS Code**
   - In VS Code, use **File → Open...** to open the badger volume, then open `apps/menu/ui.py`.
-  - In your browser, open the upstream [`menu/ui.py`](https://github.com/badger/tufty/blob/main/badge/apps/menu/ui.py), click **Raw**, and keep it handy for reference.
+   - In your browser, open the upstream [`menu/ui.py`](https://github.com/badger/home/blob/main/badge/apps/menu/ui.py), click **Raw**, and keep it handy for reference.
   - Update the imports at the top to include `PixelFont`:
      ```python
      from badgeware import brushes, shapes, io, screen, Matrix, get_battery_level, is_charging, PixelFont
@@ -43,7 +43,7 @@ The stock launcher only fills the battery icon. Add monospace text so the header
          w, _ = screen.measure_text(meter)
          screen.text(meter, pos[0] - w - 4, pos[1])
      ```
-     Full context to anchor your edit is in [`menu/ui.py`](https://github.com/badger/tufty/blob/main/badge/apps/menu/ui.py#L88-L114).
+   Full context to anchor your edit is in [`menu/ui.py`](https://github.com/badger/home/blob/main/badge/apps/menu/ui.py#L88-L114).
 3. **Save the file in VS Code**, eject the badger volume, and tap `Reset` to reload the launcher.
 
 ## Verify

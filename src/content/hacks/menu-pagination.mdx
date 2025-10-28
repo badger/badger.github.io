@@ -8,7 +8,7 @@ thumbnail: "/images/apps/app_icon.png"
 author: "Badger Team"
 date: "2025-10-27"
 hardware: ["Badger 2350"]
-github: "https://github.com/badger/tufty/tree/main/badge/apps/menu"
+github: "https://github.com/badger/home/tree/main/badge/apps/menu"
 ---
 
 # Paginate the Launcher
@@ -28,7 +28,7 @@ The conference badge ships without menu pagination, so the launcher hides any ap
 2. **Back up the current launcher file**
    - In Finder or File Explorer, duplicate `badger volume/apps/menu/__init__.py` and rename the duplicate to `__init__-backup.py` in the same folder (or drag a copy to your desktop).
 3. **Grab the paginated source from GitHub**
-   - In your browser, open [`badge/apps/menu/__init__.py`](https://github.com/badger/tufty/blob/main/badge/apps/menu/__init__.py).
+   - In your browser, open [`badge/apps/menu/__init__.py`](https://github.com/badger/home/blob/main/badge/apps/menu/__init__.py).
    - Click **Raw**, select all, and copy the contents.
 4. **Replace the launcher code in VS Code**
    - In VS Code, open `badger volume/apps/menu/__init__.py`.
@@ -50,7 +50,7 @@ if active >= len(icons):
         active = 0
 ```
 
-See the upstream file for the full implementation: [badge/apps/menu/__init__.py](https://github.com/badger/tufty/blob/main/badge/apps/menu/__init__.py#L31-L128).
+See the upstream file for the full implementation: [badge/apps/menu/__init__.py](https://github.com/badger/home/blob/main/badge/apps/menu/__init__.py#L31-L128).
 
 ## Verify
 
