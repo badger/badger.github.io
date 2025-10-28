@@ -154,7 +154,7 @@ const heroDescription = `Browse ${totalApps} badge apps. ${preloadedApps.length}
             Apps Directory Structure
           </h3>
           
-          <pre class="bg-background rounded-lg p-6 overflow-x-auto text-sm"><code>{`/Volumes/BADGER/
+          <pre class="bg-background rounded-lg p-6 overflow-x-auto text-sm max-w-full"><code class="block whitespace-pre overflow-x-auto">{`/Volumes/BADGER/
 ├── apps/
 │   ├── badge/
 │   │   ├── __init__.py
@@ -216,7 +216,7 @@ const heroDescription = `Browse ${totalApps} badge apps. ${preloadedApps.length}
             <p class="text-sm text-muted-foreground mb-3">
               Apps can be launched from the badge menu or inspected directly from the REPL:
             </p>
-            <pre class="bg-background rounded p-3 text-sm"><code>import os
+            <pre class="bg-background rounded p-3 text-sm overflow-x-auto max-w-full"><code class="block whitespace-pre overflow-x-auto">import os
 os.listdir('/apps')
 
 # example: run flappy from a REPL session
@@ -231,7 +231,7 @@ exec(open('/apps/flappy/__init__.py').read())</code></pre>
             <p class="text-sm text-muted-foreground mb-3">
               Most apps expose straight Python or asset files you can tweak while mounted:
             </p>
-            <pre class="bg-background rounded p-3 text-sm"><code># Edit via USB file access
+            <pre class="bg-background rounded p-3 text-sm overflow-x-auto max-w-full"><code class="block whitespace-pre overflow-x-auto"># Edit via USB file access
 # example: adjust Monapet UI text
 edit('/apps/monapet/ui.py')</code></pre>
           </div>
