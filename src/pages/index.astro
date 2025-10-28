@@ -10,6 +10,7 @@ import { getCollection } from 'astro:content'
 
 // Fetch all hacks from the content collection
 const allHacks = await getCollection('hacks')
+const totalHacks = allHacks.length
 
 // Filter and sort featured hacks
 const hacksWithFeature = allHacks.filter(hack => 
@@ -37,7 +38,8 @@ const featuredHacks = hacksWithFeature
 
 // Fetch all apps from the content collection
 const allApps = await getCollection('apps')
-const featuredApps = allApps // Show all apps
+const totalApps = allApps.length
+const preloadedApps = allApps.filter((app) => app.data.preloaded)
 ---
 
 <Layout title="Badger - 2350 Hacks & Projects">
@@ -54,33 +56,20 @@ const featuredApps = allApps // Show all apps
               Hack. Tinker. Repeat.
             </h1>
             <p class="font-mono text-base text-muted-foreground max-w-prose leading-relaxed">
-              A stripped-down catalog of experiments for the Badger 2350. No marketing fluff. Just code, hardware pins, and ways to bend them.
+              A catalog of apps and hacks for the Tufty Badger 2350. Experiment, learn, build and have fun.
             </p>
           </div>
 
-          <div class="flex flex-col sm:flex-row gap-4">
-            <Button asChild size="lg" client:load>
-              <a href="#preloaded-apps" class="inline-flex items-center gap-2.5 px-5 py-3 font-mono text-base uppercase tracking-[0.12em]">
-                <Grid3x3 className="h-5 w-5" />
-                <span>Apps</span>
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="lg" client:load>
-              <a href="/about-badge" class="inline-flex items-center gap-2.5 px-5 py-3 font-mono text-base uppercase tracking-[0.12em]">
-                <Zap className="h-5 w-5" />
-                <span>Hardware Map</span>
-              </a>
-            </Button>
-          </div>
+          
 
           <!-- Stats -->
           <div class="grid grid-cols-3 gap-8 pt-8 border-t border-border/30">
             <div class="text-center">
-              <div class="font-mono text-4xl font-semibold text-primary mb-2">{featuredApps.length}</div>
+              <div class="font-mono text-4xl font-semibold text-primary mb-2">{totalApps}</div>
               <div class="font-mono text-xs uppercase tracking-wider text-muted-foreground">apps</div>
             </div>
             <div class="text-center">
-              <div class="font-mono text-4xl font-semibold text-primary mb-2">{featuredHacks.length}+</div>
+              <div class="font-mono text-4xl font-semibold text-primary mb-2">{totalHacks}</div>
               <div class="font-mono text-xs uppercase tracking-wider text-muted-foreground">hacks</div>
             </div>
             <div class="text-center">
@@ -121,9 +110,8 @@ const featuredApps = allApps // Show all apps
 
       <div class="max-w-6xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {featuredApps.map((app) => (
+          {preloadedApps.map((app) => (
             <AppCard 
-              key={app.slug}
               title={app.data.title}
               description={app.data.description}
               icon={app.data.icon}

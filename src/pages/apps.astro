@@ -7,6 +7,7 @@ import { getCollection } from 'astro:content'
 
 // Fetch all apps from the content collection
 const allApps = await getCollection('apps')
+const totalApps = allApps.length
 
 const preloadedApps = allApps
   .filter((app) => app.data.preloaded)
@@ -20,13 +21,13 @@ const optionalCopy = optionalApps.length > 0
   ? `We also maintain ${optionalApps.length} sideloadable builds below when you want to expand the catalog.`
   : 'Ready to flash your own code? Drop an app folder into /apps/ and it shows up beside the built-ins.'
 
-const heroDescription = `Your Badger 2350 ships with ${preloadedApps.length} apps ready to boot. ${optionalCopy}`
+const heroDescription = `Browse ${totalApps} badge apps. ${preloadedApps.length} ship ready to boot. ${optionalCopy}`
 ---
 
-<Layout title="Preloaded Apps - Badger 2350 | Badger">
+<Layout title="Badge Apps - Badger 2350 | Badger">
   <ListingHero
     eyebrow="// READY TO USE"
-    title="Preloaded"
+    title="Badge"
     titleHighlight="Apps"
     description={heroDescription}
   />
@@ -42,7 +43,7 @@ const heroDescription = `Your Badger 2350 ships with ${preloadedApps.length} app
             </div>
           </div>
           <div>
-            <h3 class="font-semibold mb-1">Preloaded & Ready</h3>
+            <h3 class="font-semibold mb-1">Built-In & Ready</h3>
             <p class="text-sm text-muted-foreground">
               All apps come installed and configured on your badge from day one.
             </p>
@@ -84,7 +85,7 @@ const heroDescription = `Your Badger 2350 ships with ${preloadedApps.length} app
   <section id="preloaded-apps" class="py-24 bg-muted/50">
     <div class="container">
       <div class="max-w-6xl mx-auto">
-        <h2 class="text-3xl font-bold mb-8">Preloaded Apps</h2>
+        <h2 class="text-3xl font-bold mb-8">Built-In Apps</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {preloadedApps.map((app) => (

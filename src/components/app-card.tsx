@@ -40,10 +40,6 @@ export function AppCard({
   const iconFilename = icon.split('/').pop() || 'app-icon.png'
   const [iconSrc, setIconSrc] = React.useState(icon)
   const iconBgColor = APP_COLORS[iconFilename] || 'rgb(99, 102, 241)'
-  const statusLabel = preloaded ? 'PRELOADED' : 'MANUAL LOAD'
-  const statusClasses = preloaded
-    ? 'border-border/60 text-muted-foreground/80'
-    : 'border-primary/60 text-primary'
   
   React.useEffect(() => {
     // Check if actual image exists, otherwise use placeholder
@@ -80,9 +76,11 @@ export function AppCard({
           <h3 className="font-sans font-bold text-base tracking-tight group-hover:text-primary transition-colors normal-case">
             {title}
           </h3>
-          <span className={`font-mono text-[10px] uppercase tracking-[0.18em] px-2 py-[2px] rounded border ${statusClasses}`}>
-            {statusLabel}
-          </span>
+          {!preloaded && (
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] px-2 py-[2px] rounded border border-primary/60 text-primary">
+              MANUAL LOAD
+            </span>
+          )}
         </div>
         <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed">
           {description}
