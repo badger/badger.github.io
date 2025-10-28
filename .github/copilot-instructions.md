@@ -1,4 +1,4 @@
-# HackShelf UI Guidelines – Dark Hacker Aesthetic
+# Badger UI Guidelines – Dark Hacker Aesthetic
 
 All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitarian, terminal-inspired feel. Avoid marketing gradients, rounded blobby ornaments, sales language, or corporate sheen.
 

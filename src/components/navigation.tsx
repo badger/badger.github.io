@@ -1,4 +1,4 @@
-import { Home, BookOpen, Plus, Settings, Grid3x3, Terminal, Power } from 'lucide-react'
+import { Home, BookOpen, Plus, Settings, Grid3x3, Power } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
@@ -14,9 +14,11 @@ export function Navigation() {
         {/* Logo and Brand */}
         <div className="flex items-center space-x-2">
           <a href="/" className="flex items-center space-x-3 group">
-            <div className="h-12 w-12 rounded border border-border/40 bg-card flex items-center justify-center transition-colors group-hover:border-primary/60 group-hover:bg-primary/5">
-              <Terminal className="h-7 w-7 text-primary" />
-            </div>
+            <img
+              src="/favicon.svg"
+              alt="Badger"
+              className="h-12 w-12 transition-opacity group-hover:opacity-80"
+            />
             <span className="text-4xl font-display font-semibold tracking-tight">Badger</span>
           </a>
         </div>

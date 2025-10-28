@@ -1,58 +1,49 @@
-# HackShelf 🚀
+# Badger Catalog 🚀
 
-A beautiful, modern catalog of hacks and projects for the Badger 2350 device. Built with Astro, React, TypeScript, and Tailwind CSS.
-
-![HackShelf Preview](https://via.placeholder.com/800x400/6366f1/ffffff?text=HackShelf+Preview)
+A utilitarian catalog of hacks, apps, and documentation for the Badger 2350. Built with Astro, React, TypeScript, and Tailwind CSS for fast iteration and easy contributions.
 
 ## ✨ Features
 
-- **🎨 Beautiful UI** - Clean, modern design with dark/light mode support
-- **📚 Comprehensive Catalog** - Browse hacks by difficulty, duration, and tags
-- **📖 Detailed Tutorials** - Step-by-step guides with code snippets and copy functionality
-- **🎯 Interactive Badge Diagram** - Explore Badger 2350 features with tooltips
-- **� Easy Navigation** - Intuitive layout with responsive design
-- **📝 MDX Content** - Easy-to-edit content in Markdown with React components
-- **🚀 Static Site** - Fast, SEO-friendly, deployable to GitHub Pages
-- **♿ Accessible** - Built with accessibility best practices
+- **🎨 Purposeful UI** – Terminal-inspired dark theme with subtle neon accents
+- **📚 Comprehensive Catalog** – Browse hacks by difficulty, duration, and tags
+- **📖 Detailed Tutorials** – Step-by-step guides with runnable code snippets
+- **📝 MDX Content** – Markdown-first authoring with React components when needed
+- **🚀 Static Site** – Optimised for GitHub Pages or any static host
 
-## �️ Tech Stack
+## 🛠️ Tech Stack
 
-- **Framework**: [Astro](https://astro.build/) - Static Site Generator
-- **Frontend**: [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
+- **Framework**: [Astro](https://astro.build/)
+- **UI**: [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Components**: [ShadCN UI](https://ui.shadcn.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Content**: [MDX](https://mdxjs.com/) with frontmatter
-- **Deployment**: GitHub Pages ready
+- **Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **Icons**: [Lucide](https://lucide.dev/)
+- **Content**: [MDX](https://mdxjs.com/)
 
 ## 🚦 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 22+
 - npm or yarn
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/badger/hackshelf.git
-   cd hackshelf
+   git clone https://github.com/badger/badger.github.io.git
+   cd badger.github.io
    ```
-
 2. **Install dependencies**
    ```bash
    npm install
    ```
-
-3. **Start development server**
+3. **Start the development server**
    ```bash
    npm run dev
    ```
-
-4. **Open in browser**
+4. **Open the app**
    ```
-   http://localhost:4321/hackshelf
+   http://localhost:4321/
    ```
 
 ### Available Scripts
@@ -60,47 +51,48 @@ A beautiful, modern catalog of hacks and projects for the Badger 2350 device. Bu
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production
-npm run preview      # Preview production build
+npm run preview      # Preview the production build
 npm run astro        # Run Astro CLI commands
 ```
 
 ## 📁 Project Structure
 
 ```
-hackshelf/
+badger.github.io/
 ├── public/
 │   ├── images/          # Static images and assets
 │   └── favicon.svg
 ├── src/
 │   ├── components/      # React components
-│   │   ├── ui/         # ShadCN UI components
+│   │   ├── ui/          # shadcn/ui primitives
 │   │   ├── hack-card.tsx
 │   │   ├── navigation.tsx
 │   │   └── ...
-│   ├── content/        # MDX content files
-│   │   └── hacks/      # Individual hack tutorials
-│   ├── layouts/        # Astro layout components
-│   ├── lib/           # Utility functions
-│   ├── pages/         # Astro pages (routes)
-│   └── styles/        # Global styles
-├── astro.config.mjs   # Astro configuration
-├── tailwind.config.mjs # Tailwind CSS configuration
+│   ├── content/         # MDX content collections
+│   ├── layouts/         # Astro layouts
+│   ├── lib/             # Utilities
+│   ├── pages/           # Astro routes
+│   └── styles/          # Global styles
+├── astro.config.mjs
+├── tailwind.config.mjs
 └── package.json
 ```
 
 ## ✏️ Adding New Hacks
 
-### 1. Create a new MDX file
+1. **Create a new MDX file** in `src/content/hacks/your-hack-name.mdx`
+2. **Add assets** to `public/images/hacks/`
+3. **Preview locally** with `npm run dev`
 
-Create a new file in `src/content/hacks/your-hack-name.mdx`:
+Each MDX document supports frontmatter for metadata:
 
 ```mdx
 ---
 title: "Your Hack Title"
 description: "Brief description of what this hack does"
 difficulty: "easy" # easy | medium | hard
-duration: 30 # in minutes
-tags: ["LED", "WiFi", "Sensors"] # relevant tags
+duration: 30 # minutes
+tags: ["LED", "WiFi", "Sensors"]
 thumbnail: "/images/hacks/your-hack.jpg"
 author: "Your Name"
 date: "2025-01-15"
@@ -109,164 +101,52 @@ hardware:
   - "Additional components..."
 github: "https://github.com/your-repo/hack-code"
 ---
-
-# Your Hack Title
-
-Write your tutorial content here using Markdown and MDX syntax...
-
-## Step 1: Setup
-
-```python
-# Your code examples
-import badger2350
 ```
 
-## Step 2: Implementation
+## 🎨 Customising the Design
 
-More content...
-```
-
-### 2. Add images
-
-Place hack images in `public/images/hacks/` and reference them in your MDX file.
-
-### 3. Test locally
-
-Run `npm run dev` to see your new hack in the catalog.
-
-## 🎨 Customizing the Design
-
-### Colors & Themes
-
-Edit `tailwind.config.mjs` and `src/styles/globals.css` to customize:
-
-- Color schemes
-- Typography
-- Component styles
-- Dark/light mode variants
-
-### Components
-
-All UI components are in `src/components/ui/` using ShadCN UI. Customize or add new components as needed.
+- Update tokens in `tailwind.config.mjs`
+- Extend typography and utilities in `src/styles/globals.css`
+- Component overrides live in `src/components/ui/`
 
 ## 🚀 Deployment
 
 ### GitHub Pages
 
-1. **Configure Astro for GitHub Pages**
-   
-   Update `astro.config.mjs`:
+1. Configure Astro:
    ```js
    export default defineConfig({
-     site: 'https://your-username.github.io',
-     base: '/hackshelf',
-     // ... other config
+     site: 'https://badger.github.io',
+     base: '/',
+     // ...
    })
    ```
-
-2. **Build and deploy**
+2. Build the project:
    ```bash
    npm run build
    ```
-
-3. **Deploy to GitHub Pages**
-   - Push to your repository
-   - Enable GitHub Pages in repository settings
-   - Set source to GitHub Actions
-   - Site will be available at `https://your-username.github.io/hackshelf`
-
-### Other Platforms
-
-HackShelf can be deployed to any static hosting platform:
-- Netlify
-- Vercel  
-- Cloudflare Pages
-- AWS S3 + CloudFront
+3. Push to `main` (GitHub Pages is already wired for this repo).
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](src/pages/contribute.astro) for details on:
+1. Fork the repo: `https://github.com/badger/badger.github.io/fork`
+2. Create a feature branch: `git checkout -b feature/my-update`
+3. Make changes and run `npm run build`
+4. Commit, push, and open a pull request
 
-- Adding new hacks
-- Improving existing content
-- Bug fixes and features
-- Code style guidelines
+### Community Links
 
-### Development Workflow
+- 🐛 **Issues**: <https://github.com/badger/badger.github.io/issues>
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-hack`
-3. Make your changes
-4. Test locally: `npm run dev`
-5. Commit with descriptive messages
-6. Push and create a Pull Request
+## 📄 License
 
-## 📄 Content Guidelines
+MIT License. See [LICENSE](LICENSE).
 
-### Hack Tutorials Should Include:
+## 🙏 Acknowledgements
 
-- ✅ Clear title and description
-- ✅ Accurate difficulty and time estimates  
-- ✅ Complete component lists
-- ✅ Step-by-step instructions
-- ✅ Working code examples
-- ✅ Troubleshooting tips
-- ✅ Safety considerations
-- ✅ Photos or diagrams
-
-### Writing Style:
-
-- 📝 Use clear, beginner-friendly language
-- 🔧 Explain technical concepts simply
-- 🎯 Include practical tips and warnings
-- 📸 Add visual aids when helpful
-- 🔗 Link to relevant resources
-
-## 📊 Analytics & SEO
-
-The site includes:
-- Semantic HTML for accessibility
-- Meta tags for social sharing
-- Structured data for search engines
-- Optimized images and assets
-- Fast loading times
-
-## 🐛 Troubleshooting
-
-### Common Issues:
-
-**Build fails with "Cannot find module" error**
-- Run `npm install` to ensure all dependencies are installed
-- Check that all imports use correct paths
-
-**Images not displaying**  
-- Verify images are in `public/images/` directory
-- Check image paths start with `/images/`
-- Ensure image formats are web-compatible (jpg, png, webp)
-
-**Components not working**
-- Ensure client-side components have `client:load` directive
-- Check for TypeScript errors in the console
-
-## � Support & Community
-
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/badger/hackshelf/issues)
-- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/badger/hackshelf/discussions)  
-- 📚 **Documentation**: [Wiki](https://github.com/badger/hackshelf/wiki)
-- 💬 **Community**: [Discord](https://discord.gg/badger-community)
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Built for the amazing Badger 2350 community
-- Inspired by maker culture and open source collaboration
-- Thanks to all contributors and hack creators!
+- Built for the Badger 2350 community
+- Powered by open source contributors and hardware experimenters everywhere
 
 ---
 
-**Happy Hacking!** 🎉
-
-Built with ❤️ for the Badger 2350 community
+**Keep shipping badge hacks.**

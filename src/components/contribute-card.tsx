@@ -13,7 +13,7 @@ export function ContributeCard() {
 
   const handleGitHubClick = (e: React.MouseEvent) => {
     e.stopPropagation() // Prevent card click
-    window.open('https://github.com/badger/hackshelf', '_blank', 'noopener,noreferrer')
+  window.open('https://github.com/badger/badger.github.io', '_blank', 'noopener,noreferrer')
   }
 
   return (
