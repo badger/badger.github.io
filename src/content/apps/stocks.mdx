@@ -1,0 +1,125 @@
+---
+title: "Stock Tracker"
+description: "Real-time stock market tracker. Monitor S&P 500, Microsoft, Figma, and Apple stock prices with live market data."
+icon: "/images/apps/stocks.png"
+category: "utility"
+preloaded: false
+customizable: true
+fileLocation: "/apps/stocks"
+---
+
+# Stock Tracker
+
+Monitor real-time stock market prices on your Badger 2350. Track S&P 500 (VOO), Microsoft (MSFT), Figma (FIG), and Apple (AAPL) with live price updates and percentage changes.
+
+## Features
+
+- **Live Stock Prices**: Real-time market data from Yahoo Finance API
+- **Major Tech Stocks**: Track MSFT, AAPL, and FIG alongside S&P 500 index
+- **Price Movement**: Color-coded gains (green) and losses (red) with percentages
+- **Auto-Refresh**: Automatically updates prices every 60 seconds
+- **Manual Refresh**: Press B button to refresh prices on demand
+- **WiFi Integration**: Connects using credentials from `/secrets.py`
+- **Market-Ready UI**: Clean GitHub-themed interface with professional stock display
+
+## Tracked Stocks
+
+- **VOO**: Vanguard S&P 500 ETF (Market Index)
+- **MSFT**: Microsoft Corporation
+- **FIG**: Figma Inc.
+- **AAPL**: Apple Inc.
+
+## Controls
+
+- **B Button**: Manually refresh stock prices
+- Auto-refresh occurs every 60 seconds when connected
+
+## Install
+
+1. Copy the `stocks/` folder to `/apps/stocks/` on the BADGER drive while in USB storage mode
+2. Ensure `/secrets.py` is configured with WiFi credentials (see Configuration below)
+3. Eject, reboot, and launch Stock Tracker from the menu
+
+## File Layout
+
+```
+/apps/stocks/
+  ├── __init__.py   # Main app with market data integration
+  └── icon.png      # App icon for the launcher
+```
+
+## Configuration
+
+Create or edit `/secrets.py` on your badge:
+
+```python
+# WiFi credentials
+WIFI_SSID = "YourNetworkName"
+WIFI_PASSWORD = "YourPassword"
+
+# Your GitHub username (optional for this app)
+GITHUB_USERNAME = "yourusername"
+```
+
+**Required Variables:**
+- `WIFI_SSID`: Your WiFi network name
+- `WIFI_PASSWORD`: Your WiFi password
+
+## How It Works
+
+1. **WiFi Connection**: Connects to WiFi using credentials from `/secrets.py`
+2. **Market Data Fetching**: Queries Yahoo Finance API for each stock symbol
+3. **Real-time Display**: Shows current price, daily change, and percentage movement
+4. **Auto-refresh**: Updates every 60 seconds during market hours
+5. **Color Coding**: Green for gains, red for losses, gray for unchanged
+
+## Technical Details
+
+- Uses Yahoo Finance public API (no API key required)
+- Efficient memory management with garbage collection
+- 60-second WiFi connection timeout
+- Graceful error handling with clear status messages
+- Price formatting with appropriate decimal places
+- Displays after-hours prices when markets are closed
+
+## Market Hours Note
+
+Stock prices update in real-time during market hours (9:30 AM - 4:00 PM ET, Monday-Friday). Outside market hours, the app displays the most recent closing prices.
+
+## Troubleshooting
+
+**"No WiFi Config" message:**
+- Edit `/secrets.py` with your WiFi credentials
+- Ensure WIFI_SSID and WIFI_PASSWORD are set correctly
+
+**"Connection Failed" message:**
+- Verify WiFi credentials are correct
+- Check that your network is 2.4GHz (Badger 2350 doesn't support 5GHz)
+- Move closer to your WiFi router
+
+**Prices showing as $0.00:**
+- Check internet connection
+- Stock symbol may be invalid or delisted
+- API may be temporarily unavailable - press B to retry
+
+**Prices not updating:**
+- Markets may be closed (weekends, holidays, after-hours)
+- Press B button to manually refresh
+- Check WiFi connection status
+
+## Customization
+
+Edit the `STOCKS` list in `__init__.py` to track different stocks:
+
+```python
+STOCKS = [
+    ("GOOGL", "Google"),
+    ("TSLA", "Tesla"),
+    ("NVDA", "NVIDIA"),
+    ("META", "Meta")
+]
+```
+
+## Source
+
+GitHub repository: [Add your repository URL here]
