@@ -41,7 +41,7 @@ The stock launcher only fills the battery icon. Add monospace text so the header
          screen.font = battery_font
          meter = "chg" if is_charging() else f"{int(round(battery_level)):3d}%"
          w, _ = screen.measure_text(meter)
-         screen.text(meter, pos[0] - w - 4, pos[1])
+         screen.text(meter, pos[0] - w - 4, pos[1] - 2)
      ```
    Full context to anchor your edit is in [`menu/ui.py`](https://github.com/badger/home/blob/main/badge/apps/menu/ui.py#L88-L114).
 3. **Save the file in VS Code**, eject the badger volume, and tap `Reset` to reload the launcher.
