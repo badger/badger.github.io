@@ -481,7 +481,11 @@
 
 .prose :not(pre) > code {
   @apply relative rounded bg-muted px-2 py-1 text-sm font-mono text-foreground;
-  @apply before:content-['`'] after:content-['`'] before:text-muted-foreground after:text-muted-foreground;
+}
+
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  content: none;
 }
 
 .dark .prose :not(pre) > code {
