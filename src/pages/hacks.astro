@@ -4,135 +4,74 @@ import ListingHero from '@/components/listing-hero.astro'
 import { HackListItem } from '@/components/hack-list-item'
 import { getCollection } from 'astro:content'
 
-// Fetch all hacks
 const allHacks = await getCollection('hacks')
-
-// Sort by date (newest first)
-const sortedHacks = allHacks.sort((a, b) => 
-  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-)
+const sortedHacks = allHacks.sort((left, right) => new Date(right.data.date).getTime() - new Date(left.data.date).getTime())
+const counts = {
+  all: sortedHacks.length,
+  beginner: sortedHacks.filter((hack) => hack.data.difficulty === 'beginner').length,
+  intermediate: sortedHacks.filter((hack) => hack.data.difficulty === 'intermediate').length,
+  advanced: sortedHacks.filter((hack) => hack.data.difficulty === 'advanced').length,
+}
 ---
 
-<Layout title="All Hacks | Badger">
+<Layout title="Hacks / Badger 2350" description="Practical hardware and software experiments for the Badger 2350.">
   <ListingHero
-    eyebrow="// HACK DIRECTORY"
-    title="All"
-    titleHighlight="Hacks"
-    description="Browse every tutorial, firmware tweak, and hardware experiment. Use the filters to lock onto a build that matches your time and skill budget."
+    eyebrow="// FIELD NOTES"
+    description="Hardware and software notes for the Badger 2350. Filter by difficulty."
   />
 
-  <!-- Hacks Listing with Sidebar -->
-  <section class="py-12">
+  <section class="py-12 sm:py-16">
     <div class="container">
-      <div class="flex gap-8">
-        <!-- Sidebar Filters -->
-        <aside class="w-64 shrink-0 pr-8" style="border-right: 1px solid rgba(255, 255, 255, 0.2);">
-          <div class="sticky top-24 rounded-lg border border-border/40 bg-card/30 p-6">
-            <h3 class="font-mono text-xs uppercase tracking-[0.15em] text-muted-foreground mb-4 pb-3 border-b border-border/30">
-              Filter by Level
-            </h3>
-            <div class="flex flex-col gap-2.5" id="filter-controls">
-              <button 
-                class="px-3 py-2 rounded text-sm font-medium transition-all duration-150 filter-btn active text-left"
-                data-filter="all"
-                style="border: 2px solid #5FED83; box-shadow: 0 0 10px rgba(95, 237, 131, 0.4);"
-              >
-                All Hacks
-              </button>
-              <button 
-                class="px-3 py-2 rounded text-sm font-medium transition-all duration-150 filter-btn text-left text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/30"
-                data-filter="beginner"
-                style="border: 2px solid transparent;"
-              >
-                Beginner
-              </button>
-              <button 
-                class="px-3 py-2 rounded text-sm font-medium transition-all duration-150 filter-btn text-left text-amber-600 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/20 hover:bg-amber-200 dark:hover:bg-amber-900/30"
-                data-filter="intermediate"
-                style="border: 2px solid transparent;"
-              >
-                Intermediate
-              </button>
-              <button 
-                class="px-3 py-2 rounded text-sm font-medium transition-all duration-150 filter-btn text-left text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30"
-                data-filter="advanced"
-                style="border: 2px solid transparent;"
-              >
-                Advanced
-              </button>
+      <div class="grid gap-10 lg:grid-cols-[15rem_1fr]">
+        <aside>
+          <div class="surface sticky top-24 p-4">
+            <div class="mb-3 px-2 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-muted-foreground">Filter by level</div>
+            <div id="filter-controls" class="grid gap-1">
+              {(['all', 'beginner', 'intermediate', 'advanced'] as const).map((filter) => (
+                <button type="button" class="filter-btn flex items-center justify-between rounded-md px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-primary/5 hover:text-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary" data-filter={filter} data-active={filter === 'all'}>
+                  <span>{filter === 'all' ? 'All hacks' : filter}</span>
+                  <span class="font-mono text-xs">{counts[filter]}</span>
+                </button>
+              ))}
             </div>
           </div>
         </aside>
 
-        <!-- Hacks List -->
-        <div class="flex-1 min-w-0">
-          <div class="space-y-4" id="hacks-grid">
+        <div class="min-w-0">
+          <div class="mb-5 flex items-center justify-between gap-4 border-b border-border/70 pb-4">
+            <span class="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">{sortedHacks.length} experiments</span>
+            <span class="font-mono text-xs uppercase tracking-[0.14em] text-primary/70">newest first</span>
+          </div>
+          <div id="hacks-grid" class="grid gap-3">
             {sortedHacks.map((hack) => (
               <div class="hack-item" data-difficulty={hack.data.difficulty}>
-                <HackListItem 
-                  title={hack.data.title}
-                  description={hack.data.description}
-                  difficulty={hack.data.difficulty}
-                  duration={hack.data.duration}
-                  slug={hack.slug}
-                  client:load
-                />
+                <HackListItem title={hack.data.title} description={hack.data.description} difficulty={hack.data.difficulty} duration={hack.data.duration} slug={hack.slug} client:load />
               </div>
             ))}
           </div>
-
-          <!-- No results message -->
-          <div id="no-results" class="hidden text-center py-16">
-            <p class="text-muted-foreground font-mono text-sm">No hacks found for this difficulty level.</p>
-          </div>
+          <div id="no-results" class="hidden py-16 text-center font-mono text-sm text-muted-foreground">No experiments at this level yet.</div>
         </div>
       </div>
     </div>
   </section>
 
   <script>
-    // Client-side filtering
-    document.addEventListener('DOMContentLoaded', () => {
-      const filterButtons = document.querySelectorAll('.filter-btn')
-      const hackItems = document.querySelectorAll('.hack-item')
-      const noResults = document.getElementById('no-results')
-      
-      filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const filter = button.getAttribute('data-filter')
-          
-          // Update active button with inline styles
-          filterButtons.forEach(btn => {
-            btn.classList.remove('active')
-            const htmlBtn = btn as HTMLElement
-            htmlBtn.style.border = '2px solid transparent'
-            htmlBtn.style.boxShadow = 'none'
-          })
-          
-          button.classList.add('active')
-          const htmlButton = button as HTMLElement
-          htmlButton.style.border = '2px solid #5FED83'
-          htmlButton.style.boxShadow = '0 0 10px rgba(95, 237, 131, 0.4)'
-          
-          // Filter hacks
-          let visibleCount = 0
-          hackItems.forEach(item => {
-            const difficulty = item.getAttribute('data-difficulty')
-            if (filter === 'all' || difficulty === filter) {
-              item.classList.remove('hidden')
-              visibleCount++
-            } else {
-              item.classList.add('hidden')
-            }
-          })
-          
-          // Show/hide no results message
-          if (visibleCount === 0) {
-            noResults?.classList.remove('hidden')
-          } else {
-            noResults?.classList.add('hidden')
-          }
+    const filterButtons = document.querySelectorAll<HTMLButtonElement>('.filter-btn')
+    const hackItems = document.querySelectorAll<HTMLElement>('.hack-item')
+    const noResults = document.getElementById('no-results')
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter
+        let visibleCount = 0
+
+        filterButtons.forEach((item) => item.dataset.active = String(item === button))
+        hackItems.forEach((item) => {
+          const visible = filter === 'all' || item.dataset.difficulty === filter
+          item.classList.toggle('hidden', !visible)
+          if (visible) visibleCount += 1
         })
+        noResults?.classList.toggle('hidden', visibleCount > 0)
       })
     })
   </script>

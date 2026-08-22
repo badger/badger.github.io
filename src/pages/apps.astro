@@ -1,265 +1,90 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { AppCard } from '@/components/app-card'
 import ListingHero from '@/components/listing-hero.astro'
-import { Package, FileCode, Wrench, Info } from 'lucide-react'
+import { AppCard } from '@/components/app-card'
+import { FileCode2, Package, PlugZap, Wrench } from 'lucide-react'
 import { getCollection } from 'astro:content'
 
-// Fetch all apps from the content collection
 const allApps = await getCollection('apps')
-const totalApps = allApps.length
-
-const preloadedApps = allApps
-  .filter((app) => app.data.preloaded)
-  .sort((a, b) => a.data.title.localeCompare(b.data.title))
-
-const optionalApps = allApps
-  .filter((app) => !app.data.preloaded)
-  .sort((a, b) => a.data.title.localeCompare(b.data.title))
-
-const optionalCopy = optionalApps.length > 0
-  ? `We also maintain ${optionalApps.length} sideloadable builds below when you want to expand the catalog.`
-  : 'Ready to flash your own code? Drop an app folder into /apps/ and it shows up beside the built-ins.'
-
-const heroDescription = `Browse ${totalApps} badge apps. ${preloadedApps.length} ship ready to boot. ${optionalCopy}`
+const preloadedApps = allApps.filter((app) => app.data.preloaded).sort((left, right) => left.data.title.localeCompare(right.data.title))
+const optionalApps = allApps.filter((app) => !app.data.preloaded).sort((left, right) => left.data.title.localeCompare(right.data.title))
 ---
 
-<Layout title="Badge Apps - Badger 2350 | Badger">
+<Layout title="Apps / Badger 2350" description="Browse built-in and loadable apps for the Badger 2350.">
   <ListingHero
-    eyebrow="// READY TO USE"
-    title="Badge"
-    titleHighlight="Apps"
-    description={heroDescription}
+    eyebrow="// BADGE SOFTWARE"
+    description={`Built-in and loadable apps for the Badger 2350. ${preloadedApps.length} ship ready to run, and ${optionalApps.length} more are available from badger/home.`}
   />
 
-  <!-- Key Features Section -->
-  <section class="py-16 bg-background border-b">
+  <section class="border-b border-border/70 py-12">
     <div class="container">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="grid gap-6 md:grid-cols-3">
         <div class="flex gap-4">
-          <div class="flex-shrink-0">
-            <div class="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-              <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-          </div>
-          <div>
-            <h3 class="font-semibold mb-1">Built-In & Ready</h3>
-            <p class="text-sm text-muted-foreground">
-              All apps come installed and configured on your badge from day one.
-            </p>
-          </div>
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Package className="h-5 w-5" /></div>
+          <div><h2 class="text-base">Ready to boot</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Built-in apps are part of the badge experience from day one.</p></div>
         </div>
-
         <div class="flex gap-4">
-          <div class="flex-shrink-0">
-            <div class="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-              <Wrench className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-          <div>
-            <h3 class="font-semibold mb-1">Fully Customizable</h3>
-            <p class="text-sm text-muted-foreground">
-              Many apps can be customized through simple config files.
-            </p>
-          </div>
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Wrench className="h-5 w-5" /></div>
+          <div><h2 class="text-base">Easy to modify</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Most apps are plain Python and assets you can change with a text editor.</p></div>
         </div>
-
         <div class="flex gap-4">
-          <div class="flex-shrink-0">
-            <div class="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-              <FileCode className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-          <div>
-            <h3 class="font-semibold mb-1">Open Source Code</h3>
-            <p class="text-sm text-muted-foreground">
-              All source code is accessible and documented for learning and modification.
-            </p>
-          </div>
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><FileCode2 className="h-5 w-5" /></div>
+          <div><h2 class="text-base">Open source</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Read the implementation, copy the pattern, and send improvements upstream.</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Preloaded Apps Section -->
-  <section id="preloaded-apps" class="py-24 bg-muted/50">
+  <section class="py-20">
     <div class="container">
-      <div class="max-w-6xl mx-auto">
-        <h2 class="text-3xl font-bold mb-8">Built-In Apps</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {preloadedApps.map((app) => (
-            <AppCard 
-              title={app.data.title}
-              description={app.data.description}
-              icon={app.data.icon}
-              category={app.data.category}
-              preloaded={app.data.preloaded}
-              customizable={app.data.customizable}
-              slug={app.slug}
-              client:load
-            />
-          ))}
-        </div>
+      <div class="mb-8 flex items-end justify-between gap-4">
+        <div class="section-heading"><span class="section-kicker">01 / Built in</span><h2 class="text-3xl sm:text-4xl">Built-in Apps</h2><p>Apps included with the badge.</p></div>
+        <span class="hidden font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground sm:inline">{preloadedApps.length} apps</span>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {preloadedApps.map((app) => (
+          <AppCard title={app.data.title} description={app.data.description} icon={app.data.icon} category={app.data.category} preloaded={app.data.preloaded} customizable={app.data.customizable} slug={app.slug} client:load />
+        ))}
       </div>
     </div>
   </section>
 
   {optionalApps.length > 0 && (
-    <section class="py-20 bg-background border-t border-border/30">
+    <section class="border-t border-border/70 bg-muted/25 py-20">
       <div class="container">
-        <div class="max-w-4xl mx-auto text-center mb-12">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">Loadable Apps</h2>
-          <p class="text-base text-muted-foreground">
-            Copy these folders from the <a href="https://github.com/badger/home/tree/main/badge/apps" target="_blank" rel="noopener" class="underline decoration-dotted decoration-primary/60 hover:text-primary">badger/home repository</a> into `/apps/` on your badge to try additional community builds.
-          </p>
+        <div class="mb-8 flex items-end justify-between gap-4">
+          <div class="section-heading"><span class="section-kicker">02 / Loadable</span><h2 class="text-3xl sm:text-4xl">Loadable Apps</h2><p>Copy an app folder from <a href="https://github.com/badger/home/tree/main/badge/apps" target="_blank" rel="noopener" class="text-primary hover:text-primary/80">badger/home</a> into <code>/apps/</code> on the badge.</p></div>
+          <PlugZap className="hidden h-7 w-7 text-primary/60 sm:block" />
         </div>
-
-        <div class="max-w-6xl mx-auto">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {optionalApps.map((app) => (
-              <AppCard
-                title={app.data.title}
-                description={app.data.description}
-                icon={app.data.icon}
-                category={app.data.category}
-                preloaded={app.data.preloaded}
-                customizable={app.data.customizable}
-                slug={app.slug}
-                client:load
-              />
-            ))}
-          </div>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {optionalApps.map((app) => (
+            <AppCard title={app.data.title} description={app.data.description} icon={app.data.icon} category={app.data.category} preloaded={app.data.preloaded} customizable={app.data.customizable} slug={app.slug} client:load />
+          ))}
         </div>
       </div>
     </section>
   )}
 
-  <!-- Filesystem Guide Section -->
-  <section id="filesystem" class="py-24 bg-background">
+  <section class="border-t border-border/70 py-20">
     <div class="container">
-      <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            Badge Filesystem Structure
-          </h2>
-          <p class="text-xl text-muted-foreground">
-            Understanding where your apps live and how to access them.
-          </p>
-        </div>
+      <div class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+        <div class="section-heading"><span class="section-kicker">03 / Filesystem</span><h2 class="text-3xl sm:text-4xl">Know where things live</h2><p>The mounted drive is a simple filesystem. Keep the system folder intact, and work inside the app surface.</p></div>
+        <div class="surface overflow-hidden">
+          <div class="flex items-center justify-between border-b border-border/70 px-5 py-3"><span class="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">/Volumes/BADGER</span><span class="text-xs text-primary">editable</span></div>
+          <pre class="overflow-x-auto p-5 text-sm leading-7 text-foreground/85"><code>{`/apps/
+├── badge/
+│   ├── __init__.py
+│   └── icon.png
+├── gallery/
+├── monapet/
+├── snake/
+└── your-app/
 
-        <div class="bg-muted rounded-lg p-8 mb-8">
-          <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-            <FileCode className="h-5 w-5" />
-            Apps Directory Structure
-          </h3>
-          
-          <pre class="bg-background rounded-lg p-6 overflow-x-auto text-sm"><code>{`/Volumes/BADGER/
-├── apps/
-│   ├── badge/
-│   │   ├── __init__.py
-│   │   └── icon.png
-│   ├── commits/
-│   │   ├── __init__.py
-│   │   └── icon.png
-│   ├── flappy/
-│   │   ├── __init__.py
-│   │   ├── mona.py
-│   │   ├── obstacle.py
-│   │   └── assets/
-│   ├── gallery/
-│   │   ├── __init__.py
-│   │   ├── icon.png
-│   │   ├── images/
-│   │   └── thumbnails/
-│   ├── menu/
-│   │   ├── __init__.py
-│   │   ├── icon.py
-│   │   └── ui.py
-│   ├── monapet/
-│   │   ├── __init__.py
-│   │   ├── icon.png
-│   │   ├── mona.py
-│   │   ├── ui.py
-│   │   └── assets/
-│   ├── quest/
-│   │   ├── __init__.py
-│   │   ├── beacon.py
-│   │   ├── icon.png
-│   │   ├── ui.py
-│   │   └── assets/
-│   ├── sketch/
-│   │   ├── __init__.py
-│   │   ├── icon.png
-│   │   ├── ui.py
-│   │   └── assets/
-│   ├── snake/
-│   │   ├── __init__.py
-│   │   └── icon.png
-│   └── startup/
-│       ├── __init__.py
-│       └── frames/
-├── assets/
-│   ├── fonts/
-│   ├── icons.png
-│   └── mona-sprites/
-├── main.py
-└── secrets.py`}</code></pre>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div class="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-6">
-            <h4 class="font-semibold mb-3 flex items-center gap-2">
-              <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              Accessing Apps
-            </h4>
-            <p class="text-sm text-muted-foreground mb-3">
-              Apps can be launched from the badge menu or inspected directly from the REPL:
-            </p>
-            <pre class="bg-background rounded p-3 text-sm"><code>import os
-os.listdir('/apps')
-
-# example: run flappy from a REPL session
-exec(open('/apps/flappy/__init__.py').read())</code></pre>
-          </div>
-
-          <div class="bg-purple-50 dark:bg-purple-950/20 rounded-lg p-6">
-            <h4 class="font-semibold mb-3 flex items-center gap-2">
-              <Wrench className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              Customizing Apps
-            </h4>
-            <p class="text-sm text-muted-foreground mb-3">
-              Most apps expose straight Python or asset files you can tweak while mounted:
-            </p>
-            <pre class="bg-background rounded p-3 text-sm"><code># Edit via USB file access
-# example: adjust Monapet UI text
-edit('/apps/monapet/ui.py')</code></pre>
-          </div>
-        </div>
-
-        <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-lg p-8 border border-blue-200 dark:border-blue-800">
-          <h4 class="font-semibold mb-3 text-lg">💡 Pro Tips</h4>
-          <ul class="space-y-2 text-sm text-muted-foreground">
-            <li class="flex gap-2">
-              <span class="text-blue-600 dark:text-blue-400">•</span>
-              <span>Mount the badge drive (typically `/Volumes/BADGER`) to read and edit `/apps/` and shared assets</span>
-            </li>
-            <li class="flex gap-2">
-              <span class="text-blue-600 dark:text-blue-400">•</span>
-              <span>Always back up config files before making changes</span>
-            </li>
-            <li class="flex gap-2">
-              <span class="text-blue-600 dark:text-blue-400">•</span>
-              <span>Check each app's documentation page for detailed customization options</span>
-            </li>
-            <li class="flex gap-2">
-              <span class="text-blue-600 dark:text-blue-400">•</span>
-              <span>Use the badge's file manager app to browse and edit files on-device</span>
-            </li>
-          </ul>
+/assets/
+/main.py
+/secrets.py`}</code></pre>
         </div>
       </div>
     </div>
   </section>
-
 </Layout>

@@ -1,385 +1,58 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { 
-  Github, 
-  FileText, 
-  Upload, 
-  Users,
-  Lightbulb,
-  Code,
-  Camera,
-  GitPullRequest,
-  ExternalLink
-} from 'lucide-react'
+import { ArrowUpRight, Camera, FileCode2, Github, GitPullRequest, Wrench } from 'lucide-react'
 ---
 
-<Layout title="Contribute to Badger" description="Help grow the Badger 2350 community by contributing your own hacks, tutorials, and projects to Badger.">
-  <!-- Hero Section -->
-  <section class="py-20 bg-background relative overflow-hidden">
-    <div class="pointer-events-none absolute inset-0 opacity-25 [background-image:radial-gradient(circle_at_center,#5FED83_1px,transparent_1px)] [background-size:22px_22px]"></div>
+<Layout title="Contribute / Badger" description="Share apps, hacks, hardware notes, and experiments with the Badger community.">
+  <section class="relative overflow-hidden border-b border-border/70 py-20 sm:py-24">
+    <div class="grid-texture pointer-events-none absolute inset-0 opacity-30"></div>
     <div class="container relative">
-      <div class="max-w-4xl mx-auto text-center space-y-10">
-        <h1 class="font-display text-5xl lg:text-6xl tracking-tight leading-tight">
-          <span class="font-mono text-xs text-primary/70 block mb-3">// CONTRIBUTE</span>
-          Add Experiments
-        </h1>
-        <p class="font-mono text-sm text-muted-foreground max-w-2xl mx-auto">
-          Submit raw hacks, hardware notes, and code samples. Keep descriptions concise and technical. Screenshots or schematics welcome.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-5 justify-center">
-          <Button asChild size="lg" client:load>
-            <a href="https://github.com/badger/badger.github.io" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2">
-              <span class="font-mono">REPO</span>
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </Button>
-          <Button asChild variant="outline" size="lg" client:load>
-            <a href="#how-to-contribute" class="inline-flex items-center gap-2">
-              <span class="font-mono">GUIDE</span>
-              <Code className="h-4 w-4" />
-            </a>
-          </Button>
+      <div class="max-w-3xl space-y-6">
+        <span class="section-kicker">// OPEN BUILD LOG</span>
+        <h1 class="max-w-2xl text-5xl leading-[0.98] sm:text-6xl">Contribute</h1>
+        <p class="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">Share a build, document a fix, or add an app for the Badger 2350.</p>
+        <div class="flex flex-wrap gap-3 pt-2">
+          <a href="https://github.com/badger/badger.github.io" target="_blank" rel="noopener noreferrer" class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">Open the repo <ArrowUpRight className="h-4 w-4" /></a>
+          <a href="#workflow" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">Contribution flow <ArrowUpRight className="h-4 w-4" /></a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Removed marketing rationale section -->
-
-  <!-- How to Contribute Section -->
-  <section id="how-to-contribute" class="py-24 bg-muted/50">
+  <section id="workflow" class="py-20 sm:py-24">
     <div class="container">
-      <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            How to Contribute
-          </h2>
-          <p class="text-xl text-muted-foreground">
-            Follow these simple steps to share your hack with the community.
-          </p>
-        </div>
-
-        <div class="space-y-8">
-          <!-- Step 1 -->
-          <Card client:load>
-            <CardHeader>
-              <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-                  <span class="text-xl font-bold text-blue-600 dark:text-blue-400">1</span>
-                </div>
-                <div>
-                  <CardTitle class="text-xl">Create Your Hack</CardTitle>
-                  <CardDescription>Build something awesome with your Badger 2350</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent class="pl-16">
-              <div class="space-y-4">
-                <p class="text-muted-foreground">
-                  First, create your project! Whether it's a simple LED controller or a complex IoT application, 
-                  we welcome hacks of all skill levels and complexity.
-                </p>
-                <div class="flex flex-wrap gap-2">
-                  <Badge variant="outline" client:load>Test your code</Badge>
-                  <Badge variant="outline" client:load>Take photos/videos</Badge>
-                  <Badge variant="outline" client:load>Document components</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <!-- Step 2 -->
-          <Card client:load>
-            <CardHeader>
-              <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center shrink-0">
-                  <Github class="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <CardTitle class="text-xl">Fork the Repository</CardTitle>
-                  <CardDescription>Get your own copy of the Badger codebase</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent class="pl-16">
-              <div class="space-y-4">
-                <p class="text-muted-foreground">
-                  Visit our GitHub repository and click "Fork" to create your own copy. This allows you to 
-                  make changes without affecting the main repository.
-                </p>
-                <Button asChild variant="outline" client:load>
-                  <a href="https://github.com/badger/badger.github.io/fork" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
-                    <Github class="h-4 w-4" />
-                    Fork on GitHub
-                    <ExternalLink class="h-4 w-4" />
-                  </a>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <!-- Step 3 -->
-          <Card client:load>
-            <CardHeader>
-              <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center shrink-0">
-                  <FileText class="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <CardTitle class="text-xl">Write Your Tutorial</CardTitle>
-                  <CardDescription>Create a comprehensive guide using MDX format</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent class="pl-16">
-              <div class="space-y-4">
-                <p class="text-muted-foreground">
-                  Write your tutorial in MDX format (Markdown with React components). Include step-by-step 
-                  instructions, code snippets, troubleshooting tips, and photos of your build.
-                </p>
-                
-                <div class="bg-muted p-4 rounded-lg">
-                  <h4 class="font-semibold mb-2">Your tutorial should include:</h4>
-                  <ul class="text-sm text-muted-foreground space-y-1">
-                    <li>• Clear title and description</li>
-                    <li>• Difficulty level (easy/medium/hard)</li>
-                    <li>• Estimated completion time</li>
-                    <li>• Required hardware components</li>
-                    <li>• Step-by-step instructions</li>
-                    <li>• Code snippets with explanations</li>
-                    <li>• Photos or diagrams</li>
-                    <li>• Troubleshooting section</li>
-                    <li>• Ideas for improvements</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <!-- Step 4 -->
-          <Card client:load>
-            <CardHeader>
-              <div class="flex items-center gap-4">
-                <div class="h-12 w-12 rounded-full bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
-                  <Upload class="h-6 w-6 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div>
-                  <CardTitle class="text-xl">Submit Your Contribution</CardTitle>
-                  <CardDescription>Create a pull request to share your hack</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent class="pl-16">
-              <div class="space-y-4">
-                <p class="text-muted-foreground">
-                  Once your tutorial is ready, create a pull request to submit it to the main repository. 
-                  Our maintainers will review your contribution and help you polish it before publishing.
-                </p>
-                
-                <div class="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                  <GitPullRequest class="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                  <div class="text-sm">
-                    <p class="font-medium text-blue-800 dark:text-blue-200">Need help with Git/GitHub?</p>
-                    <p class="text-blue-700 dark:text-blue-300">
-                      Check out our contributor guide for detailed instructions on creating pull requests.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <div class="mb-10 section-heading"><span class="section-kicker">01 / Workflow</span><h2 class="text-3xl sm:text-4xl">Workflow</h2><p>Keep contributions small, clear, and reproducible.</p></div>
+      <div class="grid gap-4 md:grid-cols-2">
+        <article class="surface p-6 sm:p-8">
+          <div class="flex items-start gap-4"><div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Wrench className="h-5 w-5" /></div><div><span class="section-kicker">01</span><h3 class="mt-2 text-xl">Build the thing</h3><p class="mt-3 text-sm leading-6 text-muted-foreground">Try it on a real badge, keep the setup honest, and capture the version of firmware and hardware you used.</p></div></div>
+        </article>
+        <article class="surface p-6 sm:p-8">
+          <div class="flex items-start gap-4"><div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Camera className="h-5 w-5" /></div><div><span class="section-kicker">02</span><h3 class="mt-2 text-xl">Show the result</h3><p class="mt-3 text-sm leading-6 text-muted-foreground">A photo, short clip, wiring sketch, or terminal capture gives the idea a useful shape before anyone reads the code.</p></div></div>
+        </article>
+        <article class="surface p-6 sm:p-8">
+          <div class="flex items-start gap-4"><div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><FileCode2 className="h-5 w-5" /></div><div><span class="section-kicker">03</span><h3 class="mt-2 text-xl">Write the path</h3><p class="mt-3 text-sm leading-6 text-muted-foreground">Add a focused MDX page with requirements, steps, code, expected behavior, and the one gotcha you had to learn the hard way.</p></div></div>
+        </article>
+        <article class="surface p-6 sm:p-8">
+          <div class="flex items-start gap-4"><div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><GitPullRequest className="h-5 w-5" /></div><div><span class="section-kicker">04</span><h3 class="mt-2 text-xl">Send a pull request</h3><p class="mt-3 text-sm leading-6 text-muted-foreground">Fork the site, add the content in the existing collection shape, and open a pull request with a short note about what you tested.</p></div></div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- Content Guidelines -->
-  <section class="py-24 bg-background">
+  <section class="border-t border-border/70 bg-muted/25 py-20">
     <div class="container">
-      <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            Content Guidelines
-          </h2>
-          <p class="text-xl text-muted-foreground">
-            Help us maintain high-quality content by following these guidelines.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- Do's -->
-          <Card client:load>
-            <CardHeader>
-              <CardTitle class="text-xl text-green-600 dark:text-green-400 flex items-center gap-2">
-                ✓ Do's
-              </CardTitle>
-            </CardHeader>
-            <CardContent class="space-y-4">
-              <ul class="space-y-3 text-sm">
-                <li class="flex items-start gap-3">
-                  <span class="text-green-600 font-bold">•</span>
-                  <span>Test your code thoroughly before submitting</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-green-600 font-bold">•</span>
-                  <span>Include clear, high-quality photos</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-green-600 font-bold">•</span>
-                  <span>Write step-by-step instructions</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-green-600 font-bold">•</span>
-                  <span>Explain complex concepts simply</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-green-600 font-bold">•</span>
-                  <span>Include troubleshooting tips</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-green-600 font-bold">•</span>
-                  <span>Add safety warnings where needed</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-green-600 font-bold">•</span>
-                  <span>Credit any sources or inspiration</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <!-- Don'ts -->
-          <Card client:load>
-            <CardHeader>
-              <CardTitle class="text-xl text-red-600 dark:text-red-400 flex items-center gap-2">
-                ✗ Don'ts
-              </CardTitle>
-            </CardHeader>
-            <CardContent class="space-y-4">
-              <ul class="space-y-3 text-sm">
-                <li class="flex items-start gap-3">
-                  <span class="text-red-600 font-bold">•</span>
-                  <span>Submit untested or broken code</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-red-600 font-bold">•</span>
-                  <span>Use copyrighted images without permission</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-red-600 font-bold">•</span>
-                  <span>Skip safety considerations</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-red-600 font-bold">•</span>
-                  <span>Write overly complex explanations</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-red-600 font-bold">•</span>
-                  <span>Include inappropriate content</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-red-600 font-bold">•</span>
-                  <span>Plagiarize others' work</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-red-600 font-bold">•</span>
-                  <span>Promote commercial products excessively</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+      <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+        <div class="section-heading"><span class="section-kicker">02 / Guidelines</span><h2 class="text-3xl sm:text-4xl">Guidelines</h2><p>Be specific about what worked, what failed, and how to reproduce it.</p></div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="surface p-5"><h3 class="text-base">Include the setup</h3><p class="mt-2 text-sm leading-6 text-muted-foreground">Badge revision, firmware, parts, tools, and any files that need to be copied.</p></div>
+          <div class="surface p-5"><h3 class="text-base">Name the edges</h3><p class="mt-2 text-sm leading-6 text-muted-foreground">Mention memory limits, pin choices, power behavior, and the failure mode to watch for.</p></div>
+          <div class="surface p-5"><h3 class="text-base">Keep it reproducible</h3><p class="mt-2 text-sm leading-6 text-muted-foreground">Use short steps, tested commands, and images that show the actual result.</p></div>
+          <div class="surface p-5"><h3 class="text-base">Leave a next step</h3><p class="mt-2 text-sm leading-6 text-muted-foreground">Point to the obvious experiment someone can try after they reach the same working state.</p></div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Community Section -->
-  <section class="py-24 bg-muted/50">
-    <div class="container">
-      <div class="max-w-4xl mx-auto text-center space-y-8">
-        <h2 class="text-3xl lg:text-4xl font-bold">
-          Join Our Community
-        </h2>
-        <p class="text-xl text-muted-foreground">
-          Connect with other Badger 2350 enthusiasts, get help with your projects, 
-          and stay updated on the latest community contributions.
-        </p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card class="text-center" client:load>
-            <CardContent class="pt-6">
-              <Github class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 class="font-semibold mb-2">GitHub Discussions</h3>
-              <p class="text-sm text-muted-foreground mb-4">
-                Ask questions and discuss projects with the community.
-              </p>
-              <Button variant="outline" size="sm" asChild client:load>
-                <a href="https://github.com/badger/badger.github.io/discussions" target="_blank" rel="noopener noreferrer">
-                  Join Discussion
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card class="text-center" client:load>
-            <CardContent class="pt-6">
-              <FileText class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 class="font-semibold mb-2">Issues & Requests</h3>
-              <p class="text-sm text-muted-foreground mb-4">
-                Report bugs or request new features for Badger.
-              </p>
-              <Button variant="outline" size="sm" asChild client:load>
-                <a href="https://github.com/badger/badger.github.io/issues" target="_blank" rel="noopener noreferrer">
-                  View Issues
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card class="text-center" client:load>
-            <CardContent class="pt-6">
-              <Code class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 class="font-semibold mb-2">Developer Resources</h3>
-              <p class="text-sm text-muted-foreground mb-4">
-                Documentation and examples for contributing to Badger.
-              </p>
-              <Button variant="outline" size="sm" asChild client:load>
-                <a href="https://github.com/badger/badger.github.io/wiki" target="_blank" rel="noopener noreferrer">
-                  View Docs
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="py-24 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
-    <div class="container">
-      <div class="max-w-2xl mx-auto text-center space-y-8">
-        <h2 class="text-3xl font-bold">Ready to Contribute?</h2>
-        <p class="text-xl text-muted-foreground">
-          Your next great idea could inspire thousands of makers. Start contributing to Badger today!
-        </p>
-        
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" asChild client:load>
-            <a href="https://github.com/badger/badger.github.io" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
-              <Github class="h-5 w-5" />
-              Start Contributing
-            </a>
-          </Button>
-          <Button variant="outline" size="lg" asChild client:load>
-            <a href="/">
-              Browse Existing Hacks
-            </a>
-          </Button>
-        </div>
+      <div class="mt-12 flex flex-wrap gap-3 border-t border-border/70 pt-8">
+        <a href="https://github.com/badger/badger.github.io/fork" target="_blank" rel="noopener noreferrer" class="inline-flex h-10 items-center gap-2 rounded-md border border-border/90 px-4 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary"><Github className="h-4 w-4" /> Fork the site</a>
+        <a href="https://github.com/badger/badger.github.io/discussions" target="_blank" rel="noopener noreferrer" class="inline-flex h-10 items-center gap-2 rounded-md px-4 font-mono text-sm text-muted-foreground transition-colors hover:text-primary">Ask a question <ArrowUpRight className="h-4 w-4" /></a>
       </div>
     </div>
   </section>

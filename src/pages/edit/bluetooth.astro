@@ -1,0 +1,14 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import EditorTools from '@/components/editor-tools.astro'
+import { BluetoothEditor } from '@/components/bluetooth-editor'
+---
+
+<Layout title="Bluetooth Editor | Badger" description="Edit a Badger badge secrets.py directly over Web Bluetooth.">
+  <section class="py-14 sm:py-20">
+    <div class="container">
+      <EditorTools />
+      <BluetoothEditor client:only="react" />
+    </div>
+  </section>
+</Layout>

@@ -1,170 +1,136 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { HackCard } from '@/components/hack-card'
 import { AppCard } from '@/components/app-card'
-import { ContributeCard } from '@/components/contribute-card'
-import { Button } from '@/components/ui/button'
+import { HackCard } from '@/components/hack-card'
 import { OutlinedButton } from '@/components/outlined-button'
-import { Zap, BookOpen, Grid3x3 } from 'lucide-react'
 import { getCollection } from 'astro:content'
+import { ArrowUpRight, BookOpen, Grid3x3, PlugZap } from 'lucide-react'
 
-// Fetch all hacks from the content collection
 const allHacks = await getCollection('hacks')
-const totalHacks = allHacks.length
-
-// Filter and sort featured hacks
-const hacksWithFeature = allHacks.filter(hack => 
-  typeof hack.data.featured === 'number' && hack.data.featured >= 1 && hack.data.featured <= 3
-)
-
-// Validate: check for duplicate featured positions
-const featuredPositions = hacksWithFeature.map(h => h.data.featured as number)
-const duplicates = featuredPositions.filter((pos, index) => 
-  featuredPositions.indexOf(pos) !== index
-)
-
-if (duplicates.length > 0) {
-  throw new Error(`Build Error: Duplicate featured positions found: ${duplicates.join(', ')}. Each hack must have a unique featured position (1, 2, or 3).`)
-}
-
-// Sort by featured position and take exactly 3
-const featuredHacks = hacksWithFeature
-  .sort((a, b) => {
-    const posA = a.data.featured as number
-    const posB = b.data.featured as number
-    return posA - posB
-  })
-  .slice(0, 3)
-
-// Fetch all apps from the content collection
 const allApps = await getCollection('apps')
-const totalApps = allApps.length
+const featuredHacks = allHacks
+  .filter((hack) => typeof hack.data.featured === 'number' && hack.data.featured >= 1 && hack.data.featured <= 3)
+  .sort((left, right) => (left.data.featured ?? 0) - (right.data.featured ?? 0))
+  .slice(0, 3)
 const preloadedApps = allApps.filter((app) => app.data.preloaded)
 ---
 
-<Layout title="Badger - 2350 Hacks & Projects">
-  <!-- Hero Section -->
-    <!-- Hero Section -->
-  <section class="py-24 bg-background relative overflow-hidden">
-    <div class="pointer-events-none absolute inset-0 opacity-[0.25] [background-image:radial-gradient(circle_at_center,#5FED83_1px,transparent_1px)] [background-size:24px_24px]"></div>
-    <div class="container">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <!-- Content -->
-        <div class="space-y-12">
+<Layout title="Badger / 2026 Field Guide" description="A living field guide to apps, hacks, and hardware workflows for the Badger 2350.">
+  <section class="relative overflow-hidden border-b border-border/70 py-20 sm:py-28">
+    <div class="grid-texture pointer-events-none absolute inset-0 opacity-35"></div>
+    <div class="container relative">
+      <div class="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+        <div class="max-w-2xl space-y-8">
           <div class="space-y-5">
-            <h1 class="font-display text-6xl lg:text-7xl tracking-tight leading-[1.1]">
-              Hack. Tinker. Repeat.
+            <span class="section-kicker">// 2026 FIELD GUIDE / RP2350</span>
+            <h1 class="max-w-xl text-5xl leading-[0.98] sm:text-7xl">
+              Hack. Tinker. <span class="text-primary">Repeat.</span>
             </h1>
-            <p class="font-mono text-base text-muted-foreground max-w-prose leading-relaxed">
-              A catalog of apps and hacks for the Tufty Badger 2350. Experiment, learn, build and have fun.
+            <p class="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+              Apps, hacks, and hardware notes for the Badger 2350.
             </p>
           </div>
 
-          
+          <div class="flex flex-wrap gap-3">
+            <a href="/apps" class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
+              Browse apps
+              <Grid3x3 className="h-4 w-4" />
+            </a>
+            <a href="/edit" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
+              Edit a badge
+              <PlugZap className="h-4 w-4" />
+            </a>
+          </div>
 
-          <!-- Stats -->
-          <div class="grid grid-cols-3 gap-8 pt-8 border-t border-border/30">
-            <div class="text-center">
-              <div class="font-mono text-4xl font-semibold text-primary mb-2">{totalApps}</div>
-              <div class="font-mono text-xs uppercase tracking-wider text-muted-foreground">apps</div>
+          <div class="grid max-w-lg grid-cols-3 gap-6 border-t border-border/70 pt-6">
+            <div class="metric">
+              <div class="metric-value">{allApps.length}</div>
+              <div class="metric-label">apps in the catalog</div>
             </div>
-            <div class="text-center">
-              <div class="font-mono text-4xl font-semibold text-primary mb-2">{totalHacks}</div>
-              <div class="font-mono text-xs uppercase tracking-wider text-muted-foreground">hacks</div>
+            <div class="metric">
+              <div class="metric-value">{allHacks.length}</div>
+              <div class="metric-label">tested starting points</div>
             </div>
-            <div class="text-center">
-              <div class="font-mono text-4xl font-semibold text-primary mb-2">∞</div>
-              <div class="font-mono text-xs uppercase tracking-wider text-muted-foreground">ideas</div>
+            <div class="metric">
+              <div class="metric-value">USB</div>
+              <div class="metric-label">serial editing</div>
             </div>
           </div>
         </div>
 
-        <!-- Badge Image -->
-        <div class="order-first lg:order-last">
-          <div class="relative mx-auto max-w-sm">
-            <div class="aspect-square rounded-lg border border-border/50 bg-secondary/10 overflow-hidden shadow-[0_0_35px_rgba(255,255,255,0.25)]">
-              <img 
-                src="/images/hero.jpg" 
-                alt="Badger 2350 Hardware Badge" 
-                class="w-full h-full object-cover"
-              />
+        <div class="relative mx-auto w-full max-w-[28rem]">
+          <div class="surface overflow-hidden p-2">
+            <img src="/images/hero.jpg" alt="Badger 2350 hardware badge" class="aspect-square w-full rounded-lg object-cover" />
+          </div>
+          <div class="absolute -bottom-5 -left-5 surface hidden max-w-[15rem] gap-3 p-4 sm:flex">
+            <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary shadow-[0_0_12px_rgba(95,237,131,0.8)]"></span>
+            <div>
+              <div class="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-primary">Local by default</div>
+              <div class="mt-1 text-sm leading-5 text-muted-foreground">Python apps, physical controls, and a screen you can own.</div>
             </div>
-            <div class="absolute -inset-10 -z-10 opacity-40 blur-2xl bg-gradient-to-r from-white/25 via-white/12 to-transparent"></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Preloaded Apps Section -->
-  <section id="preloaded-apps" class="py-24 bg-background">
+  <section class="border-b border-border/70 py-16">
     <div class="container">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-          Preloaded Apps
-        </h2>
-        <p class="text-xl text-muted-foreground">
-          Your Badger 2350 comes with these apps ready to use. Explore, customize, and make them your own.
-        </p>
-      </div>
-
-      <div class="max-w-6xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {preloadedApps.map((app) => (
-            <AppCard 
-              title={app.data.title}
-              description={app.data.description}
-              icon={app.data.icon}
-              category={app.data.category}
-              preloaded={app.data.preloaded}
-              customizable={app.data.customizable}
-              slug={app.slug}
-              client:load
-            />
-          ))}
-        </div>
-      </div>
-
-      <div class="mt-12 flex justify-center">
-        <OutlinedButton href="/apps" client:load>
-          <Grid3x3 className="h-5 w-5" />
-          <span>All Apps</span>
-        </OutlinedButton>
+      <div class="grid gap-6 md:grid-cols-3">
+        <a href="/get-started" class="surface surface-hover group p-6">
+          <span class="section-kicker">01 / Start here</span>
+          <h2 class="mt-4 text-2xl">Get to first boot</h2>
+          <p class="mt-3 text-sm leading-6 text-muted-foreground">The short path from a box on your desk to a working badge, including power, USB, and firmware basics.</p>
+          <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">Open guide <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
+        </a>
+        <a href="/about-badge" class="surface surface-hover group p-6">
+          <span class="section-kicker">02 / Know the board</span>
+          <h2 class="mt-4 text-2xl">Read the hardware map</h2>
+          <p class="mt-3 text-sm leading-6 text-muted-foreground">See what is on the front and back before you wire a sensor, change a button, or write your own app.</p>
+          <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">View hardware <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
+        </a>
+        <a href="/contribute" class="surface surface-hover group p-6">
+          <span class="section-kicker">03 / Add to the signal</span>
+          <h2 class="mt-4 text-2xl">Share what you learn</h2>
+          <p class="mt-3 text-sm leading-6 text-muted-foreground">The best badge workflows are shared. Send back an app, a fix, a diagram, or a tiny discovery.</p>
+          <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">Contribute <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- Hacks Catalog Section -->
-  <section id="hacks" class="py-24 bg-muted/50">
+  <section class="py-20 sm:py-24">
     <div class="container">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-          Customize Your Badger
-        </h2>
-        <p class="text-xl text-muted-foreground">
-          Step-by-step tutorials to modify hardware behavior, wire custom features, and build your own apps. Each hack includes executable instructions and source code.
-        </p>
+      <div class="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div class="section-heading">
+          <span class="section-kicker">// READY TO RUN</span>
+          <h2 class="text-3xl sm:text-4xl">Apps</h2>
+          <p>Games, utilities, and experiments for the badge.</p>
+        </div>
+        <OutlinedButton href="/apps" client:load><span>All apps</span><Grid3x3 className="h-4 w-4" /></OutlinedButton>
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {featuredHacks.map((hack) => (
-          <HackCard 
-            title={hack.data.title}
-            description={hack.data.description}
-            difficulty={hack.data.difficulty}
-            duration={hack.data.duration}
-            thumbnail={hack.data.thumbnail}
-            slug={hack.slug}
-            client:load
-          />
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {preloadedApps.slice(0, 6).map((app) => (
+          <AppCard title={app.data.title} description={app.data.description} icon={app.data.icon} category={app.data.category} preloaded={app.data.preloaded} customizable={app.data.customizable} slug={app.slug} client:load />
         ))}
       </div>
+    </div>
+  </section>
 
-      <div class="mt-12 flex justify-center">
-        <OutlinedButton href="/hacks" client:load>
-          <BookOpen className="h-5 w-5" />
-          <span>All Hacks</span>
-        </OutlinedButton>
+  <section class="border-t border-border/70 bg-muted/25 py-20 sm:py-24">
+    <div class="container">
+      <div class="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div class="section-heading">
+          <span class="section-kicker">// FIELD NOTES</span>
+          <h2 class="text-3xl sm:text-4xl">Hacks</h2>
+          <p>Practical changes for the badge.</p>
+        </div>
+        <OutlinedButton href="/hacks" client:load><span>All hacks</span><BookOpen className="h-4 w-4" /></OutlinedButton>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {featuredHacks.map((hack) => (
+          <HackCard title={hack.data.title} description={hack.data.description} difficulty={hack.data.difficulty} duration={hack.data.duration} thumbnail={hack.data.thumbnail} slug={hack.slug} client:load />
+        ))}
       </div>
     </div>
   </section>

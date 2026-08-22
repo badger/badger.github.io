@@ -48,7 +48,7 @@ export function GitHubRepoBadge({ repo }: GitHubRepoBadgeProps) {
         href={`https://github.com/${repo}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+        className="inline-flex items-center gap-2 rounded-md border border-border/80 bg-card px-3 py-2 text-card-foreground transition-colors hover:border-primary/50 hover:text-primary"
       >
         <Github className="h-4 w-4" />
         <span className="text-sm font-medium">GitHub</span>
@@ -62,7 +62,7 @@ export function GitHubRepoBadge({ repo }: GitHubRepoBadgeProps) {
         href={`https://github.com/${repo}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+        className="inline-flex items-center gap-2 rounded-md border border-border/80 bg-card px-3 py-2 text-card-foreground transition-colors hover:border-primary/50 hover:text-primary"
       >
         <Github className="h-4 w-4" />
         <span className="text-sm font-medium">GitHub</span>
@@ -75,7 +75,7 @@ export function GitHubRepoBadge({ repo }: GitHubRepoBadgeProps) {
       href={`https://github.com/${repo}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center space-x-3 px-4 py-2 rounded-lg border bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground transition-colors shadow-sm"
+      className="inline-flex items-center gap-3 rounded-md border border-border/80 bg-card px-3 py-2 text-card-foreground transition-colors hover:border-primary/50 hover:text-primary"
     >
       <Github className="h-5 w-5" />
       <div className="flex flex-col min-w-0">

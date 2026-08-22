@@ -32,12 +32,12 @@ export function HackCard({
   
   return (
     <Card 
-      className="group overflow-hidden transition-all duration-200 cursor-pointer border-border/40 hover:border-primary/60 hover:shadow-[0_0_30px_rgba(95,237,131,0.3)]"
+      className="surface surface-hover group cursor-pointer overflow-hidden"
       onClick={handleCardClick}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="font-sans font-bold text-xl text-foreground group-hover:text-primary line-clamp-2 transition-colors normal-case tracking-tight">
+          <CardTitle className="line-clamp-2 font-sans text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary normal-case">
             {title}
           </CardTitle>
           <DifficultyBadge 
@@ -45,19 +45,19 @@ export function HackCard({
             className="shrink-0 text-xs"
           />
         </div>
-        <CardDescription className="text-base leading-6 text-muted-foreground/80 line-clamp-3">
+        <CardDescription className="line-clamp-3 text-sm leading-6 text-muted-foreground">
           {description}
         </CardDescription>
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+        <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground transition-colors group-hover:text-foreground">
           <Clock className="h-4 w-4" />
           <span>{formatDuration(duration)}</span>
         </div>
 
         <Button 
-          className="w-full group/button pointer-events-none group-hover:border-primary transition-colors"
+          className="pointer-events-none w-full group-hover:border-primary"
           variant="default"
         >
           Try this hack

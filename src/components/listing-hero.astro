@@ -1,5 +1,4 @@
 ---
-import { Button } from './ui/button'
 import { OutlinedButton } from './outlined-button'
 
 interface Action {
@@ -18,74 +17,35 @@ interface Props {
   actions?: Action[]
 }
 
-const {
-  eyebrow,
-  title,
-  titleHighlight,
-  description,
-  actions = [],
-} = Astro.props as Props
-
-const filteredActions = actions.filter(Boolean)
+const { eyebrow, title, titleHighlight, description, actions = [] } = Astro.props as Props
 ---
 
-<section class="relative overflow-hidden py-24 bg-background">
-  <div class="pointer-events-none absolute inset-0 opacity-[0.22] [background-image:radial-gradient(circle_at_center,#5FED83_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
+<section class="relative overflow-hidden border-b border-border/70 py-20 sm:py-24">
+  <div class="grid-texture pointer-events-none absolute inset-0 opacity-30"></div>
   <div class="container relative">
-    <div class="max-w-3xl mx-auto text-center space-y-6">
-      {eyebrow && (
-        <span class="inline-flex items-center justify-center px-4 py-2 font-mono text-xs uppercase tracking-[0.18em] text-primary/70 bg-primary/5 border border-primary/20 rounded-full">
-          {eyebrow}
-        </span>
-      )}
-
-      <h1 class="font-display text-5xl lg:text-6xl tracking-tight leading-tight">
+    <div class="max-w-3xl space-y-6">
+      {eyebrow && <span class="section-kicker">{eyebrow}</span>}
+      <h1 class="max-w-2xl text-5xl leading-[0.98] sm:text-6xl">
         {title}
-        {titleHighlight && (
-          <span class="block sm:inline bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent sm:ml-2">
-            {titleHighlight}
-          </span>
-        )}
+        {titleHighlight && <span class="text-primary"> {titleHighlight}</span>}
       </h1>
-
-      {description && (
-        <p class="font-mono text-sm text-muted-foreground/90 leading-relaxed max-w-2xl mx-auto">
-          {description}
-        </p>
-      )}
-
-      {filteredActions.length > 0 && (
-        <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          {filteredActions.map((action) => {
+      {description && <p class="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">{description}</p>}
+      {actions.length > 0 && (
+        <div class="flex flex-wrap gap-3 pt-2">
+          {actions.map((action) => {
             const Icon = action.icon
             if (action.variant === 'solid') {
               return (
-                <Button
-                  asChild
-                  size="lg"
-                  className="inline-flex items-center gap-2.5 px-5 py-3 font-mono text-base uppercase tracking-[0.12em]"
-                  client:load
-                >
-                  <a
-                    href={action.href}
-                    target={action.external ? '_blank' : undefined}
-                    rel={action.external ? 'noreferrer noopener' : undefined}
-                  >
-                    {Icon && <Icon className="h-5 w-5" />}
-                    <span>{action.label}</span>
-                  </a>
-                </Button>
+                <a href={action.href} target={action.external ? '_blank' : undefined} rel={action.external ? 'noreferrer noopener' : undefined} class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
+                    {Icon && <Icon className="h-4 w-4" />}
+                    {action.label}
+                </a>
               )
             }
-
             return (
-              <OutlinedButton
-                href={action.href}
-                className="gap-2.5"
-                client:load
-              >
-                {Icon && <Icon className="h-5 w-5" />}
-                <span>{action.label}</span>
+              <OutlinedButton href={action.href} client:load>
+                {Icon && <Icon className="h-4 w-4" />}
+                {action.label}
               </OutlinedButton>
             )
           })}

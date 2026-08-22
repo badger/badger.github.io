@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content'
 import type { GetStaticPaths } from 'astro'
 import Layout from '@/layouts/Layout.astro'
-import { Button } from '@/components/ui/button'
 import { ArrowLeft, FileCode } from 'lucide-react'
 
 export const getStaticPaths = (async () => {
@@ -35,19 +34,17 @@ const titleQualifier = app.data.preloaded ? 'Preloaded App' : 'Loadable App'
 
 <Layout title={`${app.data.title} - ${titleQualifier} | Badger`}>
   <!-- Back Navigation -->
-  <div class="border-b bg-background/95 backdrop-blur">
+  <div class="border-b border-border/70 bg-background/90 backdrop-blur">
     <div class="container py-4">
-      <Button variant="ghost" asChild client:load>
-        <a href="/apps" class="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Apps
-        </a>
-      </Button>
+      <a href="/apps" class="inline-flex items-center gap-2 font-mono text-sm text-muted-foreground transition-colors hover:text-primary">
+        <ArrowLeft className="h-4 w-4" />
+        Back to Apps
+      </a>
     </div>
   </div>
 
   <!-- App Header -->
-  <section class="py-16 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
+  <section class="border-b border-border/70 bg-muted/20 py-16">
     <div class="container">
       <div class="max-w-4xl mx-auto">
         <div class="flex flex-col md:flex-row gap-8 items-start">
