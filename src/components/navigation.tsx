@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, Grid3x3, Home, PlugZap, Power, Settings } from 'lucide-react'
+import { BookOpen, ContactRound, Grid3x3, Home, PlugZap, Power, Settings } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
 
@@ -9,6 +9,7 @@ const navItems = [
   { href: '/about-badge', label: 'Badge', icon: BookOpen },
   { href: '/apps', label: 'Apps', icon: Grid3x3 },
   { href: '/edit', label: 'Edit', icon: PlugZap },
+  { href: '/contacts', label: 'Contacts', icon: ContactRound },
   { href: '/hacks', label: 'Hacks', icon: Settings },
 ]
 
@@ -56,7 +57,7 @@ export function Navigation() {
           <span className="hidden sm:block"><GitHubRepoBadge repo="badger/home" /></span>
         </div>
       </div>
-      <div className="container grid grid-cols-6 gap-1 overflow-hidden border-t border-border/50 py-2 lg:hidden">
+      <div className="container grid grid-cols-7 gap-1 overflow-hidden border-t border-border/50 py-2 lg:hidden">
         {navItems.map(({ href, label }) => {
           const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
           return (
@@ -65,7 +66,7 @@ export function Navigation() {
               href={href}
               aria-current={active ? 'page' : undefined}
               data-active={active}
-              className="min-w-0 rounded-md px-1 py-1.5 text-center font-mono text-[0.58rem] uppercase tracking-[0.1em] text-muted-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+              className="min-w-0 rounded-md py-1.5 text-center font-mono text-[0.58rem] uppercase text-muted-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
             >
               {label}
             </a>

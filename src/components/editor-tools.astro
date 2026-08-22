@@ -1,15 +1,14 @@
 ---
-import { Bluetooth, ContactRound, Usb } from 'lucide-react'
+import { Bluetooth, Usb } from 'lucide-react'
 
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/'
 const tools = [
   { href: '/edit', label: 'USB and disk', detail: 'Apps and secrets.py', icon: Usb },
   { href: '/edit/bluetooth', label: 'Bluetooth', detail: 'Wireless secrets.py', icon: Bluetooth },
-  { href: '/edit/contacts', label: 'Contacts', detail: 'Profile and CSV', icon: ContactRound },
 ]
 ---
 
-<nav aria-label="Badge editor tools" class="mx-auto mb-6 grid max-w-6xl gap-2 sm:grid-cols-3">
+<nav aria-label="Badge editor tools" class="mx-auto mb-6 grid max-w-6xl gap-2 sm:grid-cols-2">
   {tools.map(({ href, label, detail, icon: Icon }) => {
     const active = pathname === href
     return (

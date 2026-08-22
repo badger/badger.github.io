@@ -1,0 +1,12 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { ContactsEditor } from '@/components/contacts-editor'
+---
+
+<Layout title="Contacts | Badger" description="Edit a Badger contact card and export collected contacts over Web Bluetooth.">
+  <section class="py-14 sm:py-20">
+    <div class="container">
+      <ContactsEditor client:only="react" />
+    </div>
+  </section>
+</Layout>

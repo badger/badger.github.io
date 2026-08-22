@@ -1,14 +1,19 @@
 ---
-import Layout from '@/layouts/Layout.astro'
-import EditorTools from '@/components/editor-tools.astro'
-import { ContactsEditor } from '@/components/contacts-editor'
+const destination = '/contacts'
 ---
 
-<Layout title="Contacts Editor | Badger" description="Edit a Badger contact card and export collected contacts over Web Bluetooth.">
-  <section class="py-14 sm:py-20">
-    <div class="container">
-      <EditorTools />
-      <ContactsEditor client:only="react" />
-    </div>
-  </section>
-</Layout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href="https://badger.github.io/contacts" />
+    <title>Contacts moved | Badger</title>
+    <script is:inline define:vars={{ destination }}>
+      window.location.replace(`${destination}${window.location.search}${window.location.hash}`)
+    </script>
+  </head>
+  <body>
+    <p>Contacts moved to <a href="/contacts">/contacts</a>.</p>
+  </body>
+</html>

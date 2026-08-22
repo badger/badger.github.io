@@ -2,7 +2,7 @@
 import Layout from '@/layouts/Layout.astro'
 import ListingHero from '@/components/listing-hero.astro'
 import { AppCard } from '@/components/app-card'
-import { FileCode2, Package, PlugZap, Wrench } from 'lucide-react'
+import { PlugZap } from 'lucide-react'
 import { getCollection } from 'astro:content'
 
 const allApps = await getCollection('apps')
@@ -13,32 +13,14 @@ const optionalApps = allApps.filter((app) => !app.data.preloaded).sort((left, ri
 <Layout title="Apps / Badger 2350" description="Browse built-in and loadable apps for the Badger 2350.">
   <ListingHero
     eyebrow="// BADGE SOFTWARE"
+    title="Apps"
     description={`Built-in and loadable apps for the Badger 2350. ${preloadedApps.length} ship ready to run, and ${optionalApps.length} more are available from badger/home.`}
   />
-
-  <section class="border-b border-border/70 py-12">
-    <div class="container">
-      <div class="grid gap-6 md:grid-cols-3">
-        <div class="flex gap-4">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Package className="h-5 w-5" /></div>
-          <div><h2 class="text-base">Ready to boot</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Built-in apps are part of the badge experience from day one.</p></div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Wrench className="h-5 w-5" /></div>
-          <div><h2 class="text-base">Easy to modify</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Most apps are plain Python and assets you can change with a text editor.</p></div>
-        </div>
-        <div class="flex gap-4">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><FileCode2 className="h-5 w-5" /></div>
-          <div><h2 class="text-base">Open source</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Read the implementation, copy the pattern, and send improvements upstream.</p></div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <section class="py-20">
     <div class="container">
       <div class="mb-8 flex items-end justify-between gap-4">
-        <div class="section-heading"><span class="section-kicker">01 / Built in</span><h2 class="text-3xl sm:text-4xl">Built-in Apps</h2><p>Apps included with the badge.</p></div>
+        <div class="section-heading"><span class="section-kicker">01 / Built in</span><h2 class="text-3xl sm:text-4xl">Built-in Apps</h2></div>
         <span class="hidden font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground sm:inline">{preloadedApps.length} apps</span>
       </div>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

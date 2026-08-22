@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Bluetooth, Check, CircleAlert, ContactRound, Download, RefreshCw, Save, Trash2 } from 'lucide-react'
+import { Bluetooth, Check, CircleAlert, Download, RefreshCw, Save, Trash2 } from 'lucide-react'
 import {
   decodeFrames,
   notificationBytes,
@@ -250,9 +250,8 @@ export function ContactsEditor() {
       <section className="surface overflow-hidden border-primary/20">
         <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
-            <p className="section-kicker flex items-center gap-2"><ContactRound className="h-4 w-4" /> Private contact card</p>
-            <h1 className="mt-2 text-3xl sm:text-4xl">Contacts editor</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">Open Contacts on the badge, show its setup QR, then pair here to edit your card or export contacts collected from other badges.</p>
+            <h1 className="text-3xl sm:text-4xl">Contacts editor</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">Open Contacts on the badge and show its setup QR.</p>
           </div>
           <button type="button" onClick={connected ? disconnect : connect} disabled={status === 'connecting'} className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.12em] text-primary transition-colors hover:bg-primary/15 disabled:opacity-50"><Bluetooth className="h-4 w-4" />{connected ? 'Disconnect' : status === 'connecting' ? 'Pairing…' : 'Connect Bluetooth'}</button>
         </div>
@@ -268,20 +267,16 @@ export function ContactsEditor() {
 
       <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <form onSubmit={save} className="surface p-6 sm:p-8">
-          <p className="section-kicker">My card</p>
-          <h2 className="mt-2 text-xl">What you share</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">Only these two fields are exchanged after both badge owners confirm on their devices.</p>
-          <div className="mt-6 space-y-5">
+          <div className="space-y-5">
             <label className="block text-sm font-medium text-foreground">Name<input value={profile.name} onChange={(event) => updateProfile('name', event.target.value)} placeholder="Mona Octocat" className="mt-2 block w-full rounded-lg border border-border bg-background/75 px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary/70 focus:ring-1 focus:ring-primary/30" /></label>
             <label className="block text-sm font-medium text-foreground">LinkedIn profile<input value={profile.linkedin} onChange={(event) => updateProfile('linkedin', event.target.value)} placeholder="https://www.linkedin.com/in/your-handle" autoCapitalize="off" autoCorrect="off" className="mt-2 block w-full rounded-lg border border-border bg-background/75 px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary/70 focus:ring-1 focus:ring-primary/30" /></label>
           </div>
           <button type="submit" disabled={!connected || saving} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.12em] text-primary transition-colors hover:bg-primary/15 disabled:opacity-40"><Save className="h-4 w-4" />{saving ? 'Saving…' : 'Save contact card'}</button>
-          <p className="mt-4 text-xs leading-6 text-muted-foreground">The card is stored through the badge State API, not secrets.py. The QR and pairing code authorize this browser session.</p>
         </form>
 
         <section className="surface p-6 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div><p className="section-kicker">contacts.csv</p><h2 className="mt-2 text-xl">Collected contacts</h2><p className="mt-2 text-sm text-muted-foreground">{contactCount} contact{contactCount === 1 ? '' : 's'} stored on this badge.</p></div>
+            <div><h2 className="text-xl">Collected contacts</h2><p className="mt-2 text-sm text-muted-foreground">{contactCount} contact{contactCount === 1 ? '' : 's'} stored on this badge.</p></div>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => void refresh()} disabled={!connected || loadingContacts} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 font-mono text-xs text-foreground hover:border-primary/60 disabled:opacity-40"><RefreshCw className={`h-4 w-4 ${loadingContacts ? 'animate-spin' : ''}`} />Refresh</button>
               <button type="button" onClick={download} disabled={!csv} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 font-mono text-xs text-foreground hover:border-primary/60 disabled:opacity-40"><Download className="h-4 w-4" />CSV</button>

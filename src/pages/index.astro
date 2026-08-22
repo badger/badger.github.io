@@ -62,13 +62,6 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
           <div class="surface overflow-hidden p-2">
             <img src="/images/hero.jpg" alt="Badger 2350 hardware badge" class="aspect-square w-full rounded-lg object-cover" />
           </div>
-          <div class="absolute -bottom-5 -left-5 surface hidden max-w-[15rem] gap-3 p-4 sm:flex">
-            <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary shadow-[0_0_12px_rgba(95,237,131,0.8)]"></span>
-            <div>
-              <div class="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-primary">Local by default</div>
-              <div class="mt-1 text-sm leading-5 text-muted-foreground">Python apps, physical controls, and a screen you can own.</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -80,19 +73,16 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
         <a href="/get-started" class="surface surface-hover group p-6">
           <span class="section-kicker">01 / Start here</span>
           <h2 class="mt-4 text-2xl">Get to first boot</h2>
-          <p class="mt-3 text-sm leading-6 text-muted-foreground">The short path from a box on your desk to a working badge, including power, USB, and firmware basics.</p>
           <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">Open guide <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
         </a>
         <a href="/about-badge" class="surface surface-hover group p-6">
           <span class="section-kicker">02 / Know the board</span>
           <h2 class="mt-4 text-2xl">Read the hardware map</h2>
-          <p class="mt-3 text-sm leading-6 text-muted-foreground">See what is on the front and back before you wire a sensor, change a button, or write your own app.</p>
           <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">View hardware <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
         </a>
         <a href="/contribute" class="surface surface-hover group p-6">
           <span class="section-kicker">03 / Add to the signal</span>
           <h2 class="mt-4 text-2xl">Share what you learn</h2>
-          <p class="mt-3 text-sm leading-6 text-muted-foreground">The best badge workflows are shared. Send back an app, a fix, a diagram, or a tiny discovery.</p>
           <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">Contribute <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
         </a>
       </div>
@@ -105,7 +95,6 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
         <div class="section-heading">
           <span class="section-kicker">// READY TO RUN</span>
           <h2 class="text-3xl sm:text-4xl">Apps</h2>
-          <p>Games, utilities, and experiments for the badge.</p>
         </div>
         <OutlinedButton href="/apps" client:load><span>All apps</span><Grid3x3 className="h-4 w-4" /></OutlinedButton>
       </div>
@@ -123,7 +112,6 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
         <div class="section-heading">
           <span class="section-kicker">// FIELD NOTES</span>
           <h2 class="text-3xl sm:text-4xl">Hacks</h2>
-          <p>Practical changes for the badge.</p>
         </div>
         <OutlinedButton href="/hacks" client:load><span>All hacks</span><BookOpen className="h-4 w-4" /></OutlinedButton>
       </div>
