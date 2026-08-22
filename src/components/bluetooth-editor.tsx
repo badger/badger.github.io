@@ -296,8 +296,7 @@ export function BluetoothEditor() {
       <section className="surface overflow-hidden border-primary/20">
         <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
-            <p className="section-kicker flex items-center gap-2"><Bluetooth className="h-4 w-4" /> Direct badge link</p>
-            <h1 className="mt-2 text-3xl sm:text-4xl">Bluetooth editor</h1>
+            <h1 className="text-3xl sm:text-4xl">Bluetooth editor</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">Open Editor (BT) on the badge, then connect.</p>
           </div>
           <button type="button" onClick={connected ? disconnect : connect} disabled={status === 'connecting'} className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.12em] text-primary transition-colors hover:bg-primary/15 disabled:opacity-50">

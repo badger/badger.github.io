@@ -1,6 +1,6 @@
 ---
 title: "Gallery"
-description: "Photo viewer with thumbnail carousel. 7-image preview strip. Auto-hiding UI after 2s inactivity."
+description: "Image viewer with thumbnails and an auto-hiding carousel."
 icon: "/images/apps/gallery_icon.png"
 category: "utility"
 preloaded: true
@@ -8,250 +8,25 @@ customizable: false
 fileLocation: "/apps/gallery"
 ---
 
-# Gallery
+## Controls
 
-An elegant photo viewer with thumbnail carousel and a jumping Mona companion! Browse your images with smooth scrolling thumbnails and auto-hiding UI.
+- A and C: move through images
+- B: show or hide thumbnails
 
-## Features
+## Add images
 
-- **Thumbnail Carousel**: Scrolling strip shows 7 thumbnails at once
-- **Smooth Scrolling**: Animated thumbnail navigation with easing
-- **Jumping Mona**: Animated Mona jumps as you browse
-- **Auto-Hide UI**: UI fades after 2 seconds of inactivity
-- **Full-Screen Images**: Main image displayed at full 160x120 resolution
-- **Image Titles**: Automatically derived from filenames
+Place a 160×120 PNG in `images/` and a matching 60×45 PNG in `thumbnails/`.
 
-## File Location
+## Files
 
-Gallery is located at `/apps/gallery` on your Badger 2350 filesystem.
-
-```
+```text
 /apps/gallery/
-    ├── __init__.py      # Main gallery app
-    ├── icon.png         # Launcher icon
-    ├── images/          # Full-size photos (160x120 PNG)
-    └── thumbnails/      # Thumbnail versions of photos
+├── __init__.py
+├── icon.png
+├── images/
+└── thumbnails/
 ```
 
-## How to Use
+## Source
 
-### Controls
-
-- **Button A**: Previous image
-- **Button C**: Next image  
-- **Button B**: Toggle UI visibility (show/hide thumbnails)
-- UI automatically hides after 2 seconds
-
-### Navigation
-
-**Thumbnail Carousel:**
-- 7 thumbnails visible at once (3 on each side of current)
-- Smooth scrolling animation between images
-- Current image highlighted with pulsing outline
-- 36-pixel spacing between thumbnails
-
-**Mona Animation:**
-- Mona jumps as thumbnails scroll
-- Jump height based on scroll position (sine wave)
-- Faces left when on right side, right when on left
-- 24x24 pixel sprite, mirrored as needed
-
-### Adding Photos
-
-1. **Put badge in disk mode** (tap RESET twice)
-2. **Add images** to `/apps/gallery/images/` folder
-3. **Add matching thumbnails** to `/apps/gallery/thumbnails/` folder
-4. **PNG format**, filenames must match exactly
-5. **Full images**: 160x120 pixels recommended
-6. **Thumbnails**: Smaller versions for carousel (any size)
-
-## Image Discovery
-
-The app automatically scans the `images/` directory:
-- Finds all `.png` files
-- Creates filename → title mapping (replaces "-" with spaces)
-- Loads matching thumbnails from `thumbnails/` folder
-- No manual configuration needed!
-
-```python
-files = []
-for file in os.listdir("images"):
-    name, ext = file.rsplit(".", 1)
-    if ext == "png":
-        files.append({
-            "name": file,
-            "title": name.replace("-", " ")
-        })
-```
-
-## Visual Effects
-
-**Thumbnail Highlighting:**
-- Active thumbnail has pulsing border
-- Brightness oscillates using `sin(time / 200)`
-- Drop shadows on all thumbnails (black, 50% opacity)
-
-**Mona Jump Animation:**
-- Height calculation: `sin(scroll_offset * π) * 20`
-- Creates smooth parabolic jump arc
-- Synchronized with thumbnail scrolling
-
-**UI Fade System:**
-- Sets `image_changed_at` timestamp on interaction
-- Hides UI after 2000ms of no input
-- Button B instantly toggles UI state
-
-## Technical Implementation
-
-**Smooth Scrolling:**
-```python
-if thumbnail_scroll < index:
-    thumbnail_scroll = min(thumbnail_scroll + 0.1, index)
-if thumbnail_scroll > index:
-    thumbnail_scroll = max(thumbnail_scroll - 0.1, index)
-```
-
-**Thumbnail Positioning:**
-- Loop from -3 to +3 (7 visible)
-- Calculate offset based on fractional scroll position
-- 36px spacing between thumbnails
-- Clamp to visible area (skip off-screen)
-
-## Tips for Best Results
-
-- **Match names**: Thumbnail filename must match image filename exactly
-- **PNG format**: Use PNG for best compatibility
-- **Keep it simple**: E-ink display works best with clear, high-contrast images
-- **Test thumbnails**: Make sure they're readable at small size
-- **Name wisely**: Hyphens become spaces in titles ("my-photo" → "my photo")
-
-## Source Code
-
-View the complete source code on GitHub:
-- [Main gallery app](https://github.com/badger/home/blob/main/badge/apps/gallery/__init__.py)
-
-## How to Use
-
-### Adding Photos
-
-1. Connect your Badger to your computer via USB
-2. Navigate to `/apps/gallery/photos/`
-3. Copy your images (must be .bmp or .jpg format)
-4. Images are automatically resized for the e-ink display
-
-### Browsing Photos
-
-- **Button A**: Previous photo
-- **Button C**: Next photo
-- **Button B**: Set current photo as badge display
-- **Button D**: Return to thumbnail view
-- **Button E**: Exit gallery
-
-### Setting a Photo as Display
-
-1. Browse to your desired photo
-2. Press Button B to set as badge display
-3. The photo will be shown when badge is idle
-4. Change anytime by selecting a different photo
-
-## Customization
-
-Edit `config.json` to customize gallery behavior:
-
-```json
-{
-  "autoRotate": false,
-  "rotationInterval": 300,
-  "defaultPhoto": "mona_default.bmp",
-  "showFilename": true,
-  "thumbnailSize": 64
-}
-```
-
-### Configuration Options
-
-- **autoRotate**: Automatically cycle through photos (`true`/`false`)
-- **rotationInterval**: Seconds between auto-rotation (default: 300)
-- **defaultPhoto**: Default image to show
-- **showFilename**: Display filename below image
-- **thumbnailSize**: Size of thumbnails in pixels (default: 64)
-
-## Image Requirements
-
-**Supported Formats:**
-- BMP (recommended for e-ink)
-- JPG/JPEG
-
-**Optimal Settings:**
-- Resolution: 296x128 pixels (native badge resolution)
-- Color depth: 1-bit (black and white) or 16-color
-- File size: Keep under 100KB for faster loading
-
-## Converting Images
-
-Use the included converter to prepare images:
-
-```bash
-# On your computer
-python /tools/convert_image.py input.jpg output.bmp
-```
-
-Or use online tools to convert to monochrome BMP format.
-
-## Tips & Tricks
-
-- Use high-contrast images for best e-ink display quality
-- Portraits and line art work better than photos
-- Name files descriptively for easy identification
-- Keep your gallery organized with subfolders
-- The badge can hold 50-100 photos depending on size
-
-## Code Example
-
-Here's how the gallery displays images:
-
-```python
-from badger2350 import Badger2350
-import os
-
-badge = Badger2350()
-
-class Gallery:
-    def __init__(self):
-        self.photos_dir = '/apps/gallery/photos/'
-        self.photos = self.load_photos()
-        self.current_index = 0
-    
-    def load_photos(self):
-        # List all image files
-        files = os.listdir(self.photos_dir)
-        return [f for f in files if f.endswith(('.bmp', '.jpg'))]
-    
-    def display_current(self):
-        if not self.photos:
-            badge.text("No photos found", 10, 60)
-            return
-        
-        photo_path = self.photos_dir + self.photos[self.current_index]
-        
-        # Load and display image
-        badge.image(photo_path, 0, 0)
-        badge.update()
-    
-    def next_photo(self):
-        self.current_index = (self.current_index + 1) % len(self.photos)
-        self.display_current()
-    
-    def prev_photo(self):
-        self.current_index = (self.current_index - 1) % len(self.photos)
-        self.display_current()
-    
-    def set_as_wallpaper(self):
-        current_photo = self.photos[self.current_index]
-        with open('/config/wallpaper.txt', 'w') as f:
-            f.write(current_photo)
-
-# Usage
-gallery = Gallery()
-gallery.display_current()
-```
+[View the Gallery app](https://github.com/badger/home/tree/main/badge/apps/gallery).

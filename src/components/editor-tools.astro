@@ -3,13 +3,13 @@ import { Bluetooth, Usb } from 'lucide-react'
 
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/'
 const tools = [
-  { href: '/edit', label: 'USB and disk', detail: 'Apps and secrets.py', icon: Usb },
-  { href: '/edit/bluetooth', label: 'Bluetooth', detail: 'Wireless secrets.py', icon: Bluetooth },
+  { href: '/edit', label: 'USB and disk', icon: Usb },
+  { href: '/edit/bluetooth', label: 'Bluetooth', icon: Bluetooth },
 ]
 ---
 
 <nav aria-label="Badge editor tools" class="mx-auto mb-6 grid max-w-6xl gap-2 sm:grid-cols-2">
-  {tools.map(({ href, label, detail, icon: Icon }) => {
+  {tools.map(({ href, label, icon: Icon }) => {
     const active = pathname === href
     return (
       <a
@@ -21,10 +21,7 @@ const tools = [
         ]}
       >
         <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="h-4 w-4" /></span>
-        <span class="min-w-0">
-          <span class="block text-sm font-medium text-foreground">{label}</span>
-          <span class="block font-mono text-[0.62rem] uppercase tracking-[0.12em] text-muted-foreground">{detail}</span>
-        </span>
+        <span class="text-sm font-medium text-foreground">{label}</span>
       </a>
     )
   })}

@@ -65,36 +65,33 @@ const tasks: Task[] = [
 
 <Layout title="Get Started" description="Core badge workflows, distilled.">
   <ListingHero
-    eyebrow="// BADGE OPS"
     title="Get"
     titleHighlight="Started"
   />
 
-  <section class="container pb-20 space-y-12">
-    <div class="grid gap-8 md:grid-cols-2">
+  <section class="py-12 sm:py-16">
+    <div class="container grid gap-5 md:grid-cols-2">
       {tasks.map((task: Task) => (
-        <article id={task.id} class="rounded-lg border border-border/40 bg-layer-mid/60 p-8 shadow-sm transition-colors hover:border-primary/60 scroll-mt-32 md:scroll-mt-40">
-          <div class="space-y-3 pb-4">
+        <article id={task.id} class="surface min-w-0 overflow-hidden scroll-mt-32 md:scroll-mt-40">
+          <header class="border-b border-border/70 px-6 py-5">
             <a
               href={`#${task.id}`}
-              class="font-mono text-base md:text-lg uppercase tracking-[0.18em] text-primary inline-flex items-center gap-2 transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60"
+              class="inline-flex font-mono text-sm uppercase tracking-[0.16em] text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60"
               aria-label={`Permalink to ${task.label}`}
             >
               <span>{task.label}</span>
             </a>
-          </div>
-          <div class="space-y-5">
-            <ol class="space-y-4 font-sans text-lg md:text-xl leading-8 text-foreground/90">
-              {task.steps.map((step: string, index: number) => (
-                <li class="flex gap-3">
-                  <span class="font-mono text-sm md:text-base uppercase tracking-[0.14em] text-primary/70 pt-1">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span class="text-base md:text-lg leading-8">{step}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
+          </header>
+          <ol class="divide-y divide-border/60">
+            {task.steps.map((step: string, index: number) => (
+              <li class="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 px-6 py-4">
+                <span class="pt-0.5 font-mono text-xs tracking-[0.14em] text-primary/70">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="text-sm leading-6 text-foreground/90 sm:text-base sm:leading-7">{step}</span>
+              </li>
+            ))}
+          </ol>
         </article>
       ))}
     </div>

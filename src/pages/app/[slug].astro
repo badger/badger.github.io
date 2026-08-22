@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content'
 import type { GetStaticPaths } from 'astro'
 import Layout from '@/layouts/Layout.astro'
 import { ArrowLeft, FileCode } from 'lucide-react'
+import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
 
 export const getStaticPaths = (async () => {
   const apps = await getCollection('apps')
@@ -14,6 +15,8 @@ export const getStaticPaths = (async () => {
 
 const { app } = Astro.props
 const { Content } = await app.render()
+const backHref = APP_CATALOG_PAGE_ENABLED ? '/apps' : '/'
+const backLabel = APP_CATALOG_PAGE_ENABLED ? 'Back to Apps' : 'Back home'
 
 // Bold background colors for app icons
 const APP_COLORS: Record<string, string> = {
@@ -36,9 +39,9 @@ const titleQualifier = app.data.preloaded ? 'Preloaded App' : 'Loadable App'
   <!-- Back Navigation -->
   <div class="border-b border-border/70 bg-background/90 backdrop-blur">
     <div class="container py-4">
-      <a href="/apps" class="inline-flex items-center gap-2 font-mono text-sm text-muted-foreground transition-colors hover:text-primary">
+      <a href={backHref} class="inline-flex items-center gap-2 font-mono text-sm text-muted-foreground transition-colors hover:text-primary">
         <ArrowLeft className="h-4 w-4" />
-        Back to Apps
+        {backLabel}
       </a>
     </div>
   </div>
@@ -70,10 +73,7 @@ const titleQualifier = app.data.preloaded ? 'Preloaded App' : 'Loadable App'
             <div class="flex flex-col sm:flex-row gap-3 pt-4">
               <div class="bg-muted rounded-lg px-4 py-3 flex items-center gap-3">
                 <FileCode className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <div class="text-xs text-muted-foreground">File Location</div>
-                  <div class="font-mono text-sm font-medium">{app.data.fileLocation}</div>
-                </div>
+                <div class="font-mono text-sm font-medium">{app.data.fileLocation}</div>
               </div>
             </div>
           </div>

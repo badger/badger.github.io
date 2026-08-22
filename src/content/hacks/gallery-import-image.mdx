@@ -1,6 +1,6 @@
 ---
 title: "Add Your Photo to Gallery"
-description: "Drop a custom PNG plus thumbnail into the Gallery app so it shows up in the carousel."
+description: "Add a PNG and thumbnail to Gallery."
 difficulty: "beginner"
 duration: 8
 tags: ["media", "filesystem"]
@@ -11,10 +11,6 @@ hardware: ["Badger 2350"]
 github: "https://github.com/badger/home/tree/main/badge/apps/gallery"
 featured: 2
 ---
-
-# Add Your Photo to Gallery
-
-The Gallery app scans its `images/` and `thumbnails/` folders at boot. Add a matching PNG pair to make your art appear in the reel.
 
 ## Prerequisites
 
@@ -39,7 +35,7 @@ The Gallery app scans its `images/` and `thumbnails/` folders at boot. Add a mat
   - In VS Code, open `badger volume/apps/gallery/` and make sure your two PNGs appear under `images/` and `thumbnails/` with matching names.
 6. **Eject and reset** the badge so Gallery refreshes its file list.
 
-## What the App Looks For
+## Files
 
 ```python
 files = []

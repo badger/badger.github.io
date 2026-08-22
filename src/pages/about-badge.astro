@@ -1,309 +1,95 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Cpu, 
-  Wifi, 
-  Battery, 
-  Zap, 
-  Monitor,
-  Usb
-} from 'lucide-react'
+import { Battery, Cpu, Monitor, Usb, Wifi, Zap } from 'lucide-react'
 ---
 
 <Layout title="Badger 2350 Hardware" description="Badger 2350 hardware map and specifications.">
-  <!-- Hero Section -->
-  <section class="py-20 bg-background relative overflow-hidden">
-    <div class="absolute inset-0 opacity-25 [background-image:radial-gradient(circle_at_center,#5FED83_1px,transparent_1px)] [background-size:22px_22px]"></div>
-    <div class="container relative">
-      <div class="max-w-4xl mx-auto text-center space-y-8">
-        <h1 class="font-display text-5xl lg:text-6xl tracking-tight leading-tight">
-          <span class="font-mono text-xs text-primary/70 block mb-3">// BADGER 2350 HARDWARE MAP</span>
-          System Breakdown
-        </h1>
-      </div>
+  <section class="border-b border-border/70 py-20 sm:py-24">
+    <div class="container">
+      <h1 class="text-5xl leading-[0.98] sm:text-6xl">System Breakdown</h1>
     </div>
   </section>
 
-  <!-- Interactive Diagram Section -->
-  <section class="py-24 bg-background">
-    <div class="container">
-      <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-            Badge Schematics
-          </h2>
-        </div>
-
-        <!-- Side by Side Images -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          <!-- Front Badge Schematic -->
+  <section class="py-20">
+    <div class="container space-y-16">
+      <div>
+        <h2 class="mb-8 text-3xl sm:text-4xl">Schematics</h2>
+        <div class="grid gap-8 lg:grid-cols-2">
           <div>
-            <h3 class="text-xl font-semibold mb-4 text-center">Front View</h3>
-            <a 
-              href="/images/badge-front.png" 
-              target="_blank"
-              class="block bg-card rounded-xl p-6 shadow-lg hover:shadow-xl transition-all group cursor-pointer"
-            >
-              <img 
-                src="/images/badge-front.png" 
-                alt="Badger 2350 Front Schematic" 
-                class="w-full h-auto rounded-lg group-hover:scale-105 transition-transform"
-              />
+            <h3 class="mb-4 text-xl">Front</h3>
+            <a href="/images/badge-front.png" target="_blank" class="surface block p-6">
+              <img src="/images/badge-front.png" alt="Badger 2350 front schematic" class="w-full rounded-lg" />
             </a>
           </div>
-
-          <!-- Back Badge Schematic -->
           <div>
-            <h3 class="text-xl font-semibold mb-4 text-center">Back View</h3>
-            <a 
-              href="/images/badge-back.png" 
-              target="_blank"
-              class="block bg-card rounded-xl p-6 shadow-lg hover:shadow-xl transition-all group cursor-pointer"
-            >
-              <img 
-                src="/images/badge-back.png" 
-                alt="Badger 2350 Back Schematic" 
-                class="w-full h-auto rounded-lg group-hover:scale-105 transition-transform"
-              />
+            <h3 class="mb-4 text-xl">Back</h3>
+            <a href="/images/badge-back.png" target="_blank" class="surface block p-6">
+              <img src="/images/badge-back.png" alt="Badger 2350 back schematic" class="w-full rounded-lg" />
             </a>
           </div>
         </div>
+      </div>
 
-        <!-- Component Details -->
-        <div class="space-y-8">
-          <h3 class="text-2xl font-semibold text-center mb-6">Component Details</h3>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Front Components -->
-            <div class="space-y-4">
-              <h4 class="font-sans font-semibold text-xl text-primary normal-case">Front Components</h4>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-sans text-xl font-semibold normal-case">Display</CardTitle>
-                </CardHeader>
-                <CardContent class="space-y-2">
-                  <div>
-                    <h5 class="font-sans font-semibold text-lg mb-1 normal-case">Full-Color TFT Display</h5>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-sans text-xl font-semibold normal-case">Control Buttons</CardTitle>
-                </CardHeader>
-                <CardContent class="space-y-3">
-                  <div>
-                    <h5 class="font-sans font-semibold text-lg mb-1 normal-case">Bottom Buttons (A, B, C)</h5>
-                  </div>
-                  <div>
-                    <h5 class="font-sans font-semibold text-lg mb-1 normal-case">Side Navigation (UP △, DOWN ▽)</h5>
-                  </div>
-                  
-                </CardContent>
-              </Card>
-            </div>
-
-            <!-- Back Components -->
-            <div class="space-y-4">
-              <h4 class="font-sans font-semibold text-xl text-primary normal-case">Back Components</h4>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-sans text-xl font-semibold normal-case">Power & Connectivity</CardTitle>
-                </CardHeader>
-                <CardContent class="space-y-2">
-                  <div>
-                    <h5 class="font-sans font-semibold text-lg mb-1 normal-case">USB-C Port</h5>
-                    <p class="font-sans text-lg leading-7 text-muted-foreground/90">For power, charging, and programming</p>
-                  </div>
-                  <div>
-                    <h5 class="font-sans font-semibold text-lg mb-1 normal-case">Battery Connector</h5>
-                    <p class="font-sans text-lg leading-7 text-muted-foreground/90">JST connector for Li-Po battery power</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-sans text-xl font-semibold normal-case">Expansion & GPIO</CardTitle>
-                </CardHeader>
-                <CardContent class="space-y-2">
-                  <div>
-                    <h5 class="font-sans font-semibold text-lg mb-1 normal-case">QWIIC Connector</h5>
-                    <p class="font-sans text-lg leading-7 text-muted-foreground/90">I2C connector (purple) for easy sensor and module attachment</p>
-                  </div>
-                  <div>
-                    <h5 class="font-sans font-semibold text-lg mb-1 normal-case">GPIO Pins</h5>
-                    <p class="font-sans text-lg leading-7 text-muted-foreground/90">6 pins: 3V, GP6, GP7, GP10, GP11, GND for hardware expansion</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-sans text-xl font-semibold normal-case">Processor & Info</CardTitle>
-                </CardHeader>
-                <CardContent class="space-y-2">
-                  <div>
-                    <h5 class="font-sans font-semibold text-lg mb-1 normal-case">RP2350B Chip</h5>
-                  </div>
-                  
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+      <div>
+        <h2 class="mb-8 text-3xl sm:text-4xl">Components</h2>
+        <div class="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle>Front</CardTitle></CardHeader>
+            <CardContent>
+              <dl class="grid gap-4 text-sm">
+                <div><dt class="font-medium">Display</dt><dd class="text-muted-foreground">Full-color TFT</dd></div>
+                <div><dt class="font-medium">Buttons</dt><dd class="text-muted-foreground">A, B, C, UP, DOWN</dd></div>
+              </dl>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle>Back</CardTitle></CardHeader>
+            <CardContent>
+              <dl class="grid gap-4 text-sm">
+                <div><dt class="font-medium">USB-C</dt><dd class="text-muted-foreground">Power, charging, programming</dd></div>
+                <div><dt class="font-medium">Battery</dt><dd class="text-muted-foreground">JST Li-Po connector</dd></div>
+                <div><dt class="font-medium">QWIIC</dt><dd class="text-muted-foreground">I2C connector</dd></div>
+                <div><dt class="font-medium">GPIO</dt><dd class="text-muted-foreground">3V, GP6, GP7, GP10, GP11, GND</dd></div>
+                <div><dt class="font-medium">Processor</dt><dd class="text-muted-foreground">RP2350B</dd></div>
+              </dl>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Features Grid -->
-  <section class="py-24 bg-muted/50">
+  <section class="border-t border-border/70 bg-muted/25 py-20">
     <div class="container">
-      <div class="max-w-2xl mx-auto text-center mb-16">
-        <h2 class="text-3xl lg:text-4xl font-bold mb-4">
-          Key Features & Specifications
-        </h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Processor -->
-        <Card class="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div class="flex items-center space-x-3">
-              <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                <Cpu class="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <CardTitle class="text-lg">RP2350B Processor</CardTitle>
-                <CardDescription>Dual-core ARM Cortex-M33</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div class="flex flex-wrap gap-2">
-              <Badge variant="secondary">150MHz</Badge>
-              <Badge variant="secondary">520KB RAM</Badge>
-              <Badge variant="secondary">4MB Flash</Badge>
-            </div>
-          </CardContent>
+      <h2 class="mb-8 text-3xl sm:text-4xl">Specifications</h2>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-3"><Cpu class="h-5 w-5 text-primary" />RP2350B</CardTitle></CardHeader>
+          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">150MHz</Badge><Badge variant="secondary">520KB RAM</Badge><Badge variant="secondary">4MB Flash</Badge></CardContent>
         </Card>
-
-        <!-- Display -->
-        <Card class="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div class="flex items-center space-x-3">
-              <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
-                <Monitor class="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <CardTitle class="text-lg">Full-Color TFT Display</CardTitle>
-                <CardDescription>Vivid color screen</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div class="flex flex-wrap gap-2">
-              <Badge variant="secondary">Full Color</Badge>
-              <Badge variant="secondary">TFT LCD</Badge>
-              <Badge variant="secondary">Vivid Graphics</Badge>
-            </div>
-          </CardContent>
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-3"><Monitor class="h-5 w-5 text-primary" />Display</CardTitle></CardHeader>
+          <CardContent><Badge variant="secondary">Full-color TFT</Badge></CardContent>
         </Card>
-
-        <!-- Connectivity -->
-        <Card class="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div class="flex items-center space-x-3">
-              <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-                <Wifi class="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <CardTitle class="text-lg">Wireless</CardTitle>
-                <CardDescription>WiFi & Bluetooth ready</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div class="flex flex-wrap gap-2">
-              <Badge variant="secondary">WiFi 4</Badge>
-              <Badge variant="secondary">Bluetooth 5.0</Badge>
-              <Badge variant="secondary">IoT Ready</Badge>
-            </div>
-          </CardContent>
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-3"><Wifi class="h-5 w-5 text-primary" />Wireless</CardTitle></CardHeader>
+          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">WiFi 4</Badge><Badge variant="secondary">Bluetooth 5.0</Badge></CardContent>
         </Card>
-
-        <!-- Power -->
-        <Card class="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div class="flex items-center space-x-3">
-              <div class="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/20">
-                <Battery class="h-6 w-6 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div>
-                <CardTitle class="text-lg">Power Options</CardTitle>
-                <CardDescription>Battery & USB powered</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div class="flex flex-wrap gap-2">
-              <Badge variant="secondary">USB-C</Badge>
-              <Badge variant="secondary">Li-Po Battery</Badge>
-              <Badge variant="secondary">Low Power</Badge>
-            </div>
-          </CardContent>
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-3"><Battery class="h-5 w-5 text-primary" />Power</CardTitle></CardHeader>
+          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">USB-C</Badge><Badge variant="secondary">Li-Po</Badge></CardContent>
         </Card>
-
-        <!-- GPIO -->
-        <Card class="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div class="flex items-center space-x-3">
-              <div class="p-2 rounded-lg bg-red-100 dark:bg-red-900/20">
-                <Zap class="h-6 w-6 text-red-600 dark:text-red-400" />
-              </div>
-              <div>
-                <CardTitle class="text-lg">GPIO Pins</CardTitle>
-                <CardDescription>Expandable I/O</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div class="flex flex-wrap gap-2">
-              <Badge variant="secondary">GPIO</Badge>
-              <Badge variant="secondary">I2C</Badge>
-              <Badge variant="secondary">SPI</Badge>
-            </div>
-          </CardContent>
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-3"><Zap class="h-5 w-5 text-primary" />GPIO</CardTitle></CardHeader>
+          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">GPIO</Badge><Badge variant="secondary">I2C</Badge><Badge variant="secondary">SPI</Badge></CardContent>
         </Card>
-
-        <!-- Programming -->
-        <Card class="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div class="flex items-center space-x-3">
-              <div class="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/20">
-                <Usb class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <div>
-                <CardTitle class="text-lg">Programming</CardTitle>
-                <CardDescription>Multiple languages supported</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div class="flex flex-wrap gap-2">
-              <Badge variant="secondary">Python</Badge>
-              <Badge variant="secondary">C++</Badge>
-              <Badge variant="secondary">MicroPython</Badge>
-            </div>
-          </CardContent>
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-3"><Usb class="h-5 w-5 text-primary" />Programming</CardTitle></CardHeader>
+          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">Python</Badge><Badge variant="secondary">C++</Badge><Badge variant="secondary">MicroPython</Badge></CardContent>
         </Card>
       </div>
     </div>
   </section>
-
 </Layout>

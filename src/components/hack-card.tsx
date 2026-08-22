@@ -1,7 +1,6 @@
-import { Clock, ExternalLink } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DifficultyBadge } from '@/components/difficulty-badge'
-import { Button } from '@/components/ui/button'
 import { formatDuration } from '@/lib/utils'
 import { getPlaceholderImage } from '@/lib/placeholder-images'
 
@@ -51,18 +50,10 @@ export function HackCard({
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground transition-colors group-hover:text-foreground">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground transition-colors group-hover:text-foreground">
           <Clock className="h-4 w-4" />
           <span>{formatDuration(duration)}</span>
         </div>
-
-        <Button 
-          className="pointer-events-none w-full group-hover:border-primary"
-          variant="default"
-        >
-          Try this hack
-          <ExternalLink className="h-4 w-4 ml-2" />
-        </Button>
       </CardContent>
     </Card>
   )

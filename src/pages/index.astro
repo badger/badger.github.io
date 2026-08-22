@@ -1,10 +1,12 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import { AppCard } from '@/components/app-card'
+import { AppCount } from '@/components/app-count'
 import { HackCard } from '@/components/hack-card'
 import { OutlinedButton } from '@/components/outlined-button'
 import { getCollection } from 'astro:content'
 import { ArrowUpRight, BookOpen, Grid3x3, PlugZap } from 'lucide-react'
+import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
 
 const allHacks = await getCollection('hacks')
 const allApps = await getCollection('apps')
@@ -22,7 +24,6 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
       <div class="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
         <div class="max-w-2xl space-y-8">
           <div class="space-y-5">
-            <span class="section-kicker">// 2026 FIELD GUIDE / RP2350</span>
             <h1 class="max-w-xl text-5xl leading-[0.98] sm:text-7xl">
               Hack. Tinker. <span class="text-primary">Repeat.</span>
             </h1>
@@ -32,10 +33,12 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
           </div>
 
           <div class="flex flex-wrap gap-3">
-            <a href="/apps" class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
-              Browse apps
-              <Grid3x3 className="h-4 w-4" />
-            </a>
+            {APP_CATALOG_PAGE_ENABLED && (
+              <a href="/apps" class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
+                Browse apps
+                <Grid3x3 className="h-4 w-4" />
+              </a>
+            )}
             <a href="/edit" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
               Edit a badge
               <PlugZap className="h-4 w-4" />
@@ -44,16 +47,16 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
 
           <div class="grid max-w-lg grid-cols-3 gap-6 border-t border-border/70 pt-6">
             <div class="metric">
-              <div class="metric-value">{allApps.length}</div>
-              <div class="metric-label">apps in the catalog</div>
+              <AppCount fallback={allApps.length} client:load />
+              <div class="metric-label">apps</div>
             </div>
             <div class="metric">
               <div class="metric-value">{allHacks.length}</div>
-              <div class="metric-label">tested starting points</div>
+              <div class="metric-label">hacks</div>
             </div>
             <div class="metric">
               <div class="metric-value">USB</div>
-              <div class="metric-label">serial editing</div>
+              <div class="metric-label">editor</div>
             </div>
           </div>
         </div>
@@ -69,21 +72,14 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
 
   <section class="border-b border-border/70 py-16">
     <div class="container">
-      <div class="grid gap-6 md:grid-cols-3">
+      <div class="grid gap-6 md:grid-cols-2">
         <a href="/get-started" class="surface surface-hover group p-6">
-          <span class="section-kicker">01 / Start here</span>
-          <h2 class="mt-4 text-2xl">Get to first boot</h2>
+          <h2 class="text-2xl">Get to first boot</h2>
           <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">Open guide <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
         </a>
         <a href="/about-badge" class="surface surface-hover group p-6">
-          <span class="section-kicker">02 / Know the board</span>
-          <h2 class="mt-4 text-2xl">Read the hardware map</h2>
+          <h2 class="text-2xl">Hardware map</h2>
           <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">View hardware <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
-        </a>
-        <a href="/contribute" class="surface surface-hover group p-6">
-          <span class="section-kicker">03 / Add to the signal</span>
-          <h2 class="mt-4 text-2xl">Share what you learn</h2>
-          <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">Contribute <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
         </a>
       </div>
     </div>
@@ -93,10 +89,9 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
     <div class="container">
       <div class="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div class="section-heading">
-          <span class="section-kicker">// READY TO RUN</span>
           <h2 class="text-3xl sm:text-4xl">Apps</h2>
         </div>
-        <OutlinedButton href="/apps" client:load><span>All apps</span><Grid3x3 className="h-4 w-4" /></OutlinedButton>
+        <OutlinedButton href="/edit" variant="subtle" client:load><span>Show more</span><PlugZap className="h-3.5 w-3.5" /></OutlinedButton>
       </div>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {preloadedApps.slice(0, 6).map((app) => (
@@ -110,10 +105,9 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
     <div class="container">
       <div class="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div class="section-heading">
-          <span class="section-kicker">// FIELD NOTES</span>
           <h2 class="text-3xl sm:text-4xl">Hacks</h2>
         </div>
-        <OutlinedButton href="/hacks" client:load><span>All hacks</span><BookOpen className="h-4 w-4" /></OutlinedButton>
+        <OutlinedButton href="/hacks" variant="subtle" client:load><span>All hacks</span><BookOpen className="h-3.5 w-3.5" /></OutlinedButton>
       </div>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {featuredHacks.map((hack) => (

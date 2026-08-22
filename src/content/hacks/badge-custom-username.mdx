@@ -1,6 +1,6 @@
 ---
 title: "Set Your GitHub Handle"
-description: "Edit secrets.py so the badge app pulls your live GitHub profile stats."
+description: "Set the GitHub username in secrets.py."
 difficulty: "beginner"
 duration: 5
 tags: ["networking", "badge-app"]
@@ -12,17 +12,10 @@ github: "https://github.com/badger/home/blob/main/badge/secrets.py"
 featured: 1
 ---
 
-# Set Your GitHub Handle
-
-The badge app refuses to fetch data until `GITHUB_USERNAME` and Wi-Fi credentials exist in `/secrets.py`. Fill them in so the stats screen lights up with your profile.
-
 ## Prerequisites
 
 - Wi-Fi SSID and password for a 2.4 GHz network
 - Your GitHub username (case-sensitive)
-
-Note that at the Universe event, there is a WiFi access point
-that you can connect to in the "Hack The Badge" area.
 
 ## Steps
 
@@ -36,7 +29,7 @@ that you can connect to in the "Hack The Badge" area.
    ```
 4. **Save the file**, eject the badger volume, and tap `Reset` once.
 
-## What the Badge Checks
+## Validation
 
 ```python
 from secrets import WIFI_PASSWORD, WIFI_SSID, GITHUB_USERNAME

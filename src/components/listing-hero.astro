@@ -10,21 +10,19 @@ interface Action {
 }
 
 interface Props {
-  eyebrow?: string
   title: string
   titleHighlight?: string
   description?: string
   actions?: Action[]
 }
 
-const { eyebrow, title, titleHighlight, description, actions = [] } = Astro.props as Props
+const { title, titleHighlight, description, actions = [] } = Astro.props as Props
 ---
 
 <section class="relative overflow-hidden border-b border-border/70 py-20 sm:py-24">
   <div class="grid-texture pointer-events-none absolute inset-0 opacity-30"></div>
   <div class="container relative">
     <div class="max-w-3xl space-y-6">
-      {eyebrow && <span class="section-kicker">{eyebrow}</span>}
       <h1 class="max-w-2xl text-5xl leading-[0.98] sm:text-6xl">
         {title}
         {titleHighlight && <span class="text-primary"> {titleHighlight}</span>}

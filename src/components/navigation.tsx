@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BookOpen, ContactRound, Grid3x3, Home, PlugZap, Power, Settings } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
+import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -11,7 +12,7 @@ const navItems = [
   { href: '/edit', label: 'Edit', icon: PlugZap },
   { href: '/contacts', label: 'Contacts', icon: ContactRound },
   { href: '/hacks', label: 'Hacks', icon: Settings },
-]
+].filter(({ href }) => APP_CATALOG_PAGE_ENABLED || href !== '/apps')
 
 export function Navigation() {
   const [pathname, setPathname] = useState('/')
@@ -47,17 +48,11 @@ export function Navigation() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <a
-            href="/contribute"
-            className="hidden rounded-md border border-primary/40 px-3 py-2 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-primary transition-colors hover:bg-primary/10 sm:inline-flex"
-          >
-            Contribute
-          </a>
           <ThemeToggle />
           <span className="hidden sm:block"><GitHubRepoBadge repo="badger/home" /></span>
         </div>
       </div>
-      <div className="container grid grid-cols-7 gap-1 overflow-hidden border-t border-border/50 py-2 lg:hidden">
+      <div className={`container grid ${APP_CATALOG_PAGE_ENABLED ? 'grid-cols-7' : 'grid-cols-6'} gap-1 overflow-hidden border-t border-border/50 py-2 lg:hidden`}>
         {navItems.map(({ href, label }) => {
           const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
           return (

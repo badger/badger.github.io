@@ -16,7 +16,6 @@ const counts = {
 
 <Layout title="Hacks / Badger 2350" description="Practical hardware and software experiments for the Badger 2350.">
   <ListingHero
-    eyebrow="// FIELD NOTES"
     title="Hacks"
   />
 
@@ -25,7 +24,6 @@ const counts = {
       <div class="grid gap-10 lg:grid-cols-[15rem_1fr]">
         <aside>
           <div class="surface sticky top-24 p-4">
-            <div class="mb-3 px-2 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-muted-foreground">Filter by level</div>
             <div id="filter-controls" class="grid gap-1">
               {(['all', 'beginner', 'intermediate', 'advanced'] as const).map((filter) => (
                 <button type="button" class="filter-btn flex items-center justify-between rounded-md px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-primary/5 hover:text-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary" data-filter={filter} data-active={filter === 'all'}>
@@ -38,10 +36,6 @@ const counts = {
         </aside>
 
         <div class="min-w-0">
-          <div class="mb-5 flex items-center justify-between gap-4 border-b border-border/70 pb-4">
-            <span class="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">{sortedHacks.length} experiments</span>
-            <span class="font-mono text-xs uppercase tracking-[0.14em] text-primary/70">newest first</span>
-          </div>
           <div id="hacks-grid" class="grid gap-3">
             {sortedHacks.map((hack) => (
               <div class="hack-item" data-difficulty={hack.data.difficulty}>

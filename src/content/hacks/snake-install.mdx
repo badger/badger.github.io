@@ -1,6 +1,6 @@
 ---
 title: "Install the Snake Game"
-description: "Copy the Snake app from the Tufty repo so you can merge green commits on your badge."
+description: "Install the Snake app."
 difficulty: "beginner"
 duration: 12
 tags: ["games", "filesystem"]
@@ -10,10 +10,6 @@ date: "2025-10-27"
 hardware: ["Badger 2350"]
 github: "https://github.com/badger/home/tree/main/badge/apps/snake"
 ---
-
-# Install the Snake Game
-
-Bring the GitHub-flavoured Snake minigame onto your badge by copying the upstream app folder and launching it from the menu.
 
 ## Prerequisites
 
@@ -34,7 +30,7 @@ Bring the GitHub-flavoured Snake minigame onto your badge by copying the upstrea
   - In VS Code, use **File → Open** and choose `badger volume/apps/snake/__init__.py` to confirm the file matches the upstream version (copy the contents from the Raw view on GitHub if you need to refresh it).
 4. **Eject the badger volume**, tap `Reset` once, and open the launcher. The menu should show a new Snake tile.
 
-## What You Added
+## Implementation
 
 Snake keeps state in RAM and wraps the grid when you cross an edge:
 

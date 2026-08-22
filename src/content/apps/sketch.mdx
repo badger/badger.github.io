@@ -1,6 +1,6 @@
 ---
 title: "Monasketch"
-description: "Etch-A-Sketch style drawing app. D-pad controls cursor for pixel art. Mona reacts to cursor position."
+description: "Pixel drawing with directional controls."
 icon: "/images/apps/sketch_icon.png"
 category: "fun"
 preloaded: true
@@ -8,189 +8,29 @@ customizable: false
 fileLocation: "/apps/sketch"
 ---
 
-# Monasketch
+## Controls
 
-An Etch-A-Sketch style drawing app with a twist - Mona runs away from your cursor! Create pixel art while Mona watches (and flees) from the sides.
+- A: left
+- C: right
+- UP and DOWN: vertical movement
 
 ## Features
 
-- **Pixel-by-Pixel Drawing**: Move cursor continuously to draw lines
-- **Interactive Mona**: Mona character reacts to your cursor position
-- **Animated Dials**: Visual feedback showing cursor position
-- **Continuous Drawing**: Hold buttons to draw smooth lines
-- **Canvas Area**: Dedicated drawing space with Mona sidebars
-- **Real-Time Rendering**: Instant visual feedback
+- Continuous pixel drawing
+- Diagonal input
+- Saved sketches
+- Mona reacts to the cursor
 
-## File Location
+## Files
 
-Monasketch is located at `/apps/sketch` on your Badger 2350 filesystem.
-
-```
+```text
 /apps/sketch/
-    ├── __init__.py      # Main drawing app
-    ├── icon.png         # Launcher icon
-    ├── ui.py            # User interface and Mona rendering
-    └── assets/          # Mona sprites and UI graphics
+├── __init__.py
+├── ui.py
+├── icon.png
+└── assets/
 ```
 
-## How to Draw
+## Source
 
-### Controls
-
-- **Button A**: Move cursor left
-- **Button C**: Move cursor right  
-- **Button UP (D-pad)**: Move cursor up
-- **Button DOWN (D-pad)**: Move cursor down
-- Hold buttons to draw continuously
-
-### Drawing Mechanism
-
-The app draws as your cursor moves:
-- **Cursor update rate**: 20ms between movements when buttons held
-- **Drawing color**: Gray pixels (105, 105, 105)
-- **Pixel size**: 1x1 pixels
-- **Canvas bounds**: Cursor is clamped within the drawing area
-
-### Interactive Elements
-
-**Mona's Behavior:**
-- **Left side presence**: When cursor is on the left (x < 30), Mona runs to the right
-- **Right side presence**: When cursor is on the right (x > canvas_width - 30), Mona runs to the left
-- **Smooth movement**: Mona animates to her target position pixel by pixel
-- **Direction indicator**: Mona faces the direction she's heading
-
-**Visual Feedback:**
-- **Animated dials**: Two dials at bottom corners rotate based on cursor position
-  - Left dial: rotates based on horizontal position (-cursor.x * 3 degrees)
-  - Right dial: rotates based on vertical position (cursor.y * 3 degrees)
-
-## Drawing Canvas
-
-**Canvas Specifications:**
-- Canvas is an off-screen Image buffer
-- Rendered to screen at position defined in `ui.canvas_area`
-- Cursor starts at center of canvas
-- Drawing persists as long as app is running (no save/load functionality)
-
-## Tips for Drawing
-
-- **Smooth lines**: Hold buttons down for continuous drawing
-- **Keep Mona around**: Draw near the center to keep her visible
-- **Chase Mona**: Move your cursor to make her run away
-- **Watch the dials**: They show your cursor position at a glance
-- **Precision**: Move slowly for detailed work
-- **Speed**: Hold buttons longer for quick sketches
-
-## Technical Details
-
-**Canvas System:**
-```python
-canvas = Image(0, 0, canvas_width, canvas_height)
-cursor = (canvas_width / 2, canvas_height / 2)
-```
-
-**Drawing Logic:**
-- Cursor updates every 20ms when buttons held
-- Draws 1x1 rectangle at cursor position if cursor moved
-- Canvas is blitted to screen each frame
-- Cursor position clamped to canvas bounds
-
-**Mona AI:**
-- Target position changes based on cursor proximity
-- Moves 1 pixel per frame toward target
-- Direction flips based on screen position
-- Smoothly animated movement
-
-## Source Code
-
-View the complete source code on GitHub:
-- [Main app and drawing logic](https://github.com/badger/home/blob/main/badge/apps/sketch/__init__.py)
-- [UI and Mona rendering](https://github.com/badger/home/blob/main/badge/apps/sketch/ui.py)
-
-## How to Draw
-
-### Controls
-
-- **Button A (Up)**: Draw upward
-- **Button B (Left)**: Draw left
-- **Button C (Right)**: Draw right
-- **Button D (Down)**: Draw downward
-- **Button E**: Menu (save, clear, exit)
-
-### Drawing Techniques
-
-**Straight Lines:**
-- Hold a single direction button to draw straight lines
-- Release to stop drawing
-
-**Diagonal Lines:**
-- Press **Up + Left** for top-left diagonal
-- Press **Up + Right** for top-right diagonal
-- Press **Down + Left** for bottom-left diagonal
-- Press **Down + Right** for bottom-right diagonal
-
-### Menu Options
-
-Press Button E to access:
-- **Save**: Save your current sketch
-- **Load**: Load a previously saved sketch
-- **Clear**: Clear the canvas and start fresh
-- **Exit**: Return to app menu
-
-## Drawing Tips
-
-- Start with simple shapes before complex drawings
-- Use diagonal combinations for more natural curves
-- Take advantage of the e-ink display's high contrast
-- Save your work frequently
-- Experiment with different line patterns
-
-## Creative Ideas
-
-- Draw pixel art characters
-- Create patterns and designs
-- Make your own badge artwork
-- Design mazes or puzzles
-- Sketch diagrams and notes
-
-## Code Example
-
-Here's how the drawing system works:
-
-```python
-from badger2350 import Badger2350
-
-badge = Badger2350()
-
-class Canvas:
-    def __init__(self):
-        self.x = badge.width // 2
-        self.y = badge.height // 2
-        self.drawing = False
-    
-    def draw_pixel(self):
-        badge.set_pen(0)
-        badge.pixel(self.x, self.y)
-    
-    def move(self, dx, dy):
-        self.x = max(0, min(badge.width - 1, self.x + dx))
-        self.y = max(0, min(badge.height - 1, self.y + dy))
-        if self.drawing:
-            self.draw_pixel()
-    
-    def handle_input(self):
-        # Check button states
-        dx, dy = 0, 0
-        
-        if badge.pressed(badge.BUTTON_A):  # Up
-            dy = -1
-        if badge.pressed(badge.BUTTON_D):  # Down
-            dy = 1
-        if badge.pressed(badge.BUTTON_B):  # Left
-            dx = -1
-        if badge.pressed(badge.BUTTON_C):  # Right
-            dx = 1
-        
-        if dx != 0 or dy != 0:
-            self.move(dx, dy)
-```
+[View the Monasketch app](https://github.com/badger/home/tree/main/badge/apps/sketch).

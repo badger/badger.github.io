@@ -95,10 +95,6 @@
     background-color: hsl(var(--card) / 0.96);
   }
 
-  .section-kicker {
-    @apply font-mono text-[0.68rem] font-medium uppercase tracking-[0.2em] text-primary/80;
-  }
-
   .section-heading {
     @apply max-w-2xl space-y-3;
   }
@@ -169,6 +165,32 @@
 
 .badge-edit-root button[class*="border-red"]:hover {
   background-color: hsl(353 32% 14%) !important;
+}
+
+.badge-edit-root button.badge-edit-dropzone {
+  background-color: hsl(var(--background) / 0.34) !important;
+}
+
+.badge-edit-root button.badge-edit-dropzone:hover,
+.badge-edit-root button.badge-edit-dropzone[data-dragging="true"] {
+  background-color: hsl(var(--primary) / 0.06) !important;
+}
+
+.badge-edit-root button.badge-edit-ghost {
+  background-color: transparent !important;
+}
+
+.badge-edit-root button.badge-edit-ghost:hover {
+  background-color: hsl(var(--muted) / 0.55) !important;
+}
+
+.badge-edit-root button.badge-edit-primary {
+  color: hsl(var(--primary-foreground)) !important;
+  background-color: hsl(var(--primary)) !important;
+}
+
+.badge-edit-root button.badge-edit-primary:hover {
+  background-color: hsl(var(--primary) / 0.86) !important;
 }
 
 .prose {

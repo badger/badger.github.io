@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { CopyCodeBlock } from '@/components/copy-code-block'
 import { getDifficultyColor, formatDuration } from '@/lib/utils'
 import { getPlaceholderImage } from '@/lib/placeholder-images'
@@ -11,20 +11,14 @@ import {
   ArrowLeft, 
   ExternalLink,
   CheckCircle,
-  AlertTriangle,
-  Info,
-  Lightbulb
+  AlertTriangle
 } from 'lucide-react'
 
 const hackData = {
   title: "LED Pattern Controller",
-  description: "Create mesmerizing LED patterns with your Badger 2350. Control brightness, colors, and timing.",
+  description: "Control RGB LEDs with PWM and badge buttons.",
   difficulty: "easy" as const,
   duration: 15,
-  tags: ["LED", "Patterns", "Beginner"],
-  thumbnail: "/images/hacks/led-pattern.jpg",
-  author: "Badger Team",
-  date: "2025-01-15",
   hardware: [
     "Badger 2350",
     "5mm RGB LEDs (x3)",
@@ -79,14 +73,6 @@ const imageSrc = getPlaceholderImage('led-pattern.jpg')
             </p>
           </div>
 
-          <div class="flex flex-wrap gap-2">
-            {hackData.tags.map((tag) => (
-              <Badge key={tag} variant="outline" client:load>
-                {tag}
-              </Badge>
-            ))}
-          </div>
-
           <div class="flex flex-col sm:flex-row gap-4">
             <a href={hackData.github} target="_blank" rel="noopener noreferrer" class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
                 <Github class="h-5 w-5" />
@@ -120,12 +106,6 @@ const imageSrc = getPlaceholderImage('led-pattern.jpg')
         <h2 class="text-2xl font-bold mb-8">Hardware Requirements</h2>
         
         <Card client:load>
-          <CardHeader>
-            <CardTitle class="flex items-center gap-2">
-              <CheckCircle class="h-5 w-5 text-green-600" />
-              Components Needed
-            </CardTitle>
-          </CardHeader>
           <CardContent>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               {hackData.hardware.map((item, index) => (
@@ -148,12 +128,7 @@ const imageSrc = getPlaceholderImage('led-pattern.jpg')
         
         <!-- Introduction -->
         <div class="prose prose-lg dark:prose-invert max-w-none">
-          <h2>What You'll Build</h2>
-          <p>
-            Transform your Badger 2350 into a mesmerizing light show controller! This beginner-friendly project 
-            will teach you how to control multiple LEDs and create stunning visual patterns.
-          </p>
-          <p>In this hack, you'll create a system that can:</p>
+          <h2>Behavior</h2>
           <ul>
             <li>Control multiple RGB LEDs independently</li>
             <li>Generate various light patterns (fade, pulse, rainbow)</li>
@@ -165,10 +140,6 @@ const imageSrc = getPlaceholderImage('led-pattern.jpg')
         <!-- Step 1 -->
         <div class="space-y-6">
           <h2 class="text-3xl font-bold">Step 1: Set Up Your Development Environment</h2>
-          <p class="text-lg text-muted-foreground">
-            First, make sure you have the Badger 2350 firmware and development tools installed:
-          </p>
-          
           <CopyCodeBlock 
             code={`# Install required libraries
 import badger2350
@@ -178,27 +149,11 @@ import math`}
             client:load
           />
 
-          <!-- Development Tip -->
-          <div class="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-              <Info class="h-5 w-5 text-blue-600 shrink-0 mt-1" />
-              <div>
-                <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-2">Development Tip</h4>
-                <p class="text-blue-700 dark:text-blue-300 mb-0">
-                  Make sure your Badger 2350 is connected via USB and recognized by your system before proceeding.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Step 2 -->
         <div class="space-y-6">
           <h2 class="text-3xl font-bold">Step 2: Initialize the Hardware</h2>
-          <p class="text-lg text-muted-foreground">
-            Create the basic setup code to initialize your LEDs and display:
-          </p>
-
           <CopyCodeBlock 
             code={`import badger2350 as badger
 from machine import Pin, PWM
@@ -229,10 +184,7 @@ print("LED Pattern Controller initialized!")`}
             <div class="flex items-start gap-3">
               <AlertTriangle class="h-5 w-5 text-amber-600 shrink-0 mt-1" />
               <div>
-                <h4 class="font-semibold text-amber-800 dark:text-amber-200 mb-2">Important Safety Note</h4>
-                <p class="text-amber-700 dark:text-amber-300 mb-0">
-                  Always check your wiring before powering on. Incorrect connections can damage your components.
-                </p>
+                <p class="text-amber-700 dark:text-amber-300 mb-0">Check the wiring before applying power.</p>
               </div>
             </div>
           </div>
@@ -241,10 +193,6 @@ print("LED Pattern Controller initialized!")`}
         <!-- Step 3 -->
         <div class="space-y-6">
           <h2 class="text-3xl font-bold">Step 3: Create Pattern Functions</h2>
-          <p class="text-lg text-muted-foreground">
-            Now let's create different lighting patterns that will make your LEDs come alive:
-          </p>
-
           <CopyCodeBlock 
             code={`def pattern_fade():
     """Smooth fade in/out pattern"""
@@ -275,18 +223,6 @@ def pattern_rainbow():
             client:load
           />
 
-          <!-- Pro Tip -->
-          <div class="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-              <Lightbulb class="h-5 w-5 text-green-600 shrink-0 mt-1" />
-              <div>
-                <h4 class="font-semibold text-green-800 dark:text-green-200 mb-2">Pro Tip</h4>
-                <p class="text-green-700 dark:text-green-300 mb-0">
-                  Experiment with different sleep delays to change the speed of your patterns. Shorter delays create faster effects!
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Testing Section -->
@@ -295,7 +231,6 @@ def pattern_rainbow():
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
               <h3 class="text-xl font-semibold">1. Upload the Code</h3>
-              <p class="text-muted-foreground">Transfer your code to the Badger 2350 using your preferred method.</p>
             </div>
             
             <div class="space-y-4">
@@ -321,10 +256,7 @@ def pattern_rainbow():
 
         <!-- Next Steps -->
         <div class="space-y-6">
-          <h2 class="text-3xl font-bold">What's Next?</h2>
-          <p class="text-lg text-muted-foreground mb-6">
-            Congratulations! You've built your first LED pattern controller. Here are some ideas to expand your project:
-          </p>
+          <h2 class="text-3xl font-bold">Extensions</h2>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="p-4 rounded-lg border bg-card">
@@ -352,20 +284,4 @@ def pattern_rainbow():
     </div>
   </section>
 
-  <!-- Footer CTA -->
-  <section class="border-t border-border/70 bg-muted/20 py-16">
-    <div class="container">
-      <div class="max-w-2xl mx-auto text-center space-y-8">
-        <h2 class="text-3xl font-bold">Ready for Your Next Challenge?</h2>
-        <p class="text-xl text-muted-foreground">
-          Explore more hacks and projects to push your Badger 2350 to its limits.
-        </p>
-        
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/hacks" class="inline-flex h-11 items-center justify-center rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">Browse More Hacks</a>
-          <a href="/contribute" class="inline-flex h-11 items-center justify-center rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">Share Your Creation</a>
-        </div>
-      </div>
-    </div>
-  </section>
 </Layout>

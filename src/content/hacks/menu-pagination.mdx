@@ -1,6 +1,6 @@
 ---
 title: "Paginate the Launcher"
-description: "Replace the menu launcher with the paginated build so every installed app is reachable."
+description: "Install the paginated launcher."
 difficulty: "intermediate"
 duration: 10
 tags: ["system", "launcher"]
@@ -10,10 +10,6 @@ date: "2025-10-27"
 hardware: ["Badger 2350"]
 github: "https://github.com/badger/home/tree/main/badge/apps/menu"
 ---
-
-# Paginate the Launcher
-
-The conference badge ships without menu pagination, so the launcher hides any app past slot six. Swap in the paginated `menu/__init__.py` from the Tufty repo to unlock scrolling.
 
 ## Prerequisites
 
@@ -35,7 +31,7 @@ The conference badge ships without menu pagination, so the launcher hides any ap
    - Select the existing contents, paste the code you copied from the Raw view, and save the file.
 5. **Eject the badger volume**, tap `Reset`, and let the badge reboot into the updated launcher.
 
-## What Changed
+## Implementation
 
 The patched launcher keeps a moving window of six icons per page and wraps input between pages:
 

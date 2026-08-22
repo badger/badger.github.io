@@ -1,6 +1,5 @@
 ---
 import '@/styles/globals.css'
-import { ViewTransitions } from 'astro:transitions'
 import { AppNavigation } from '@/components/app-navigation'
 import Footer from '@/components/Footer.astro'
 
@@ -21,7 +20,6 @@ const { title, description = 'Badger 2350 hack index: code, hardware notes, exam
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-    <ViewTransitions />
   </head>
   <body class="min-h-screen bg-background font-sans antialiased">
     <AppNavigation client:load />

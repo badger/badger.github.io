@@ -276,7 +276,7 @@ export function ContactsEditor() {
 
         <section className="surface p-6 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div><h2 className="text-xl">Collected contacts</h2><p className="mt-2 text-sm text-muted-foreground">{contactCount} contact{contactCount === 1 ? '' : 's'} stored on this badge.</p></div>
+            <h2 className="text-xl">Collected contacts <span className="text-sm font-normal text-muted-foreground">({contactCount})</span></h2>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => void refresh()} disabled={!connected || loadingContacts} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 font-mono text-xs text-foreground hover:border-primary/60 disabled:opacity-40"><RefreshCw className={`h-4 w-4 ${loadingContacts ? 'animate-spin' : ''}`} />Refresh</button>
               <button type="button" onClick={download} disabled={!csv} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 font-mono text-xs text-foreground hover:border-primary/60 disabled:opacity-40"><Download className="h-4 w-4" />CSV</button>

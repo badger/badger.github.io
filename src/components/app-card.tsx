@@ -1,5 +1,6 @@
 import React from 'react'
 import { getPlaceholderImage } from '@/lib/placeholder-images'
+import { APP_DETAIL_LINKS_ENABLED } from '@/config/features'
 
 export interface AppCardProps {
   title: string
@@ -50,13 +51,14 @@ export function AppCard({
   }, [icon, iconFilename])
   
   const handleCardClick = () => {
+    if (!APP_DETAIL_LINKS_ENABLED) return
     window.location.href = `/app/${slug}`
   }
   
   return (
     <div
-      className="surface surface-hover group flex cursor-pointer items-start gap-4 p-4"
-      onClick={handleCardClick}
+      className={`surface flex items-start gap-4 p-4 ${APP_DETAIL_LINKS_ENABLED ? 'surface-hover group cursor-pointer' : ''}`}
+      onClick={APP_DETAIL_LINKS_ENABLED ? handleCardClick : undefined}
     >
       {/* App Icon */}
       <div 

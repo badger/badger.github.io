@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, CircleAlert, Eye, EyeOff, FileCode2, FolderUp, LoaderCircle, LogOut, PlugZap, RefreshCw, RotateCcw, ShoppingBag, Trash2, Upload, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { SERIAL_CONNECTION_MODE_ENABLED } from '@/config/features'
+import { fetchInstallableAppFolders } from '@/lib/github-app-catalog'
 
 declare module 'react' {
   interface InputHTMLAttributes<T> {
@@ -87,10 +89,10 @@ declare global {
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
 
-const appsTreeUrl = 'https://api.github.com/repos/badger/home/git/trees/main?recursive=1'
 const serialAppsRoot = '/apps'
-const launcherStart = '\n_BADGER_WEB_APPS_V2 = True\n'
-const launcherEnd = '\n_BADGER_WEB_APPS_V2_END = True\n'
+const launcherStart = '\n_BADGER_WEB_MENU_V4 = True\n'
+const launcherEnd = '\n_BADGER_WEB_MENU_V4_END = True\n'
+const launcherBootMarker = '__BADGER_WRITABLE_APPS_READY__'
 
 function titleForApp(name: string) {
   return name.replace(/[-_]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
@@ -176,7 +178,7 @@ export function BadgeManager() {
   const [diskRoot, setDiskRoot] = useState<DiskDirectoryHandle | null>(null)
   const [connected, setConnected] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [status, setStatus] = useState('Connect a badge running MicroPython.')
+  const [status, setStatus] = useState(SERIAL_CONNECTION_MODE_ENABLED ? 'Connect a badge running MicroPython.' : 'Open the BADGER disk to edit your badge.')
   const [output, setOutput] = useState('')
   const [apps, setApps] = useState<DeviceApp[]>([])
   const [legacyApps, setLegacyApps] = useState<string[]>([])
@@ -189,9 +191,10 @@ export function BadgeManager() {
   const [secretsDirty, setSecretsDirty] = useState(false)
   const [autosaveState, setAutosaveState] = useState<AutosaveState>('saved')
   const [secretsVisible, setSecretsVisible] = useState(false)
-  const [showAppsPrompt, setShowAppsPrompt] = useState(false)
   const [dragging, setDragging] = useState(false)
   const [result, setResult] = useState<OperationResult | null>(null)
+  const [uploadResult, setUploadResult] = useState<OperationResult | null>(null)
+  const [removeResult, setRemoveResult] = useState<OperationResult | null>(null)
   const outputRef = useRef('')
   const serialResponseRef = useRef('')
   const secretsRef = useRef('')
@@ -199,8 +202,8 @@ export function BadgeManager() {
   const failedSecretsRef = useRef<string | null>(null)
   const readerRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null)
   const abortReaderRef = useRef(false)
+  const serialInterruptedRef = useRef(false)
   const pickerRef = useRef<HTMLInputElement>(null)
-  const appStoreRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     return () => {
@@ -235,12 +238,14 @@ export function BadgeManager() {
     setApps([])
     setLegacyApps([])
     setRemoveQueue([])
+    setResult(null)
+    setUploadResult(null)
+    setRemoveResult(null)
     setSecrets('')
     setInitialSecrets('')
     setSecretsDirty(false)
     setAutosaveState('saved')
     setSecretsVisible(false)
-    setShowAppsPrompt(false)
     setOutput('')
     outputRef.current = ''
     serialResponseRef.current = ''
@@ -281,9 +286,14 @@ export function BadgeManager() {
   async function releaseSerial(statusMessage: string, activePort = portRef.current) {
     abortReaderRef.current = true
     if (activePort?.writable && portRef.current === activePort) {
+      const wasInterrupted = serialInterruptedRef.current
       const writer = activePort.writable.getWriter()
       try {
-        await writer.write(encoder.encode('\u0004'))
+        await writer.write(encoder.encode('\u0003\u0004'))
+        if (wasInterrupted) {
+          await new Promise((resolve) => window.setTimeout(resolve, 350))
+          await writer.write(encoder.encode('\u0002\u0004'))
+        }
       } catch {
         setStatus(statusMessage)
       } finally {
@@ -292,6 +302,7 @@ export function BadgeManager() {
       await new Promise((resolve) => window.setTimeout(resolve, 150))
     }
     portRef.current = null
+    serialInterruptedRef.current = false
     await readerRef.current?.cancel().catch(() => undefined)
     readerRef.current = null
     await activePort?.close().catch(() => undefined)
@@ -313,19 +324,8 @@ export function BadgeManager() {
 
   async function loadStore() {
     try {
-      const response = await fetch(appsTreeUrl)
-      if (!response.ok) throw new Error()
-      const payload = await response.json() as { tree?: Array<{ path: string; type: string }> }
-      const folders = new Map<string, string[]>()
-      for (const entry of payload.tree ?? []) {
-        if (entry.type !== 'blob' || !entry.path.startsWith('badge/apps/')) continue
-        if (entry.path.includes('/__pycache__/') || entry.path.endsWith('.pyc') || entry.path.endsWith('/.DS_Store')) continue
-        const [, , name, ...filePath] = entry.path.split('/')
-        if (!name || !filePath.length || name === 'menu' || name === 'startup') continue
-        folders.set(name, [...(folders.get(name) ?? []), filePath.join('/')])
-      }
-      const loadedApps = [...folders.entries()]
-        .filter(([, files]) => files.includes('__init__.py'))
+      const folders = await fetchInstallableAppFolders()
+      const loadedApps = folders
         .map(([name, files]) => ({
           name,
           title: titleForApp(name),
@@ -379,24 +379,38 @@ export function BadgeManager() {
   }
 
   async function rawExec(code: string, timeout = 7000) {
-    serialResponseRef.current = ''
-    await write('\r\u0002\u0003\u0003')
-    await new Promise((resolve) => window.setTimeout(resolve, 100))
-    serialResponseRef.current = ''
-    await write('\r\u0001')
     try {
-      await waitForSerial((response) => response.includes('raw REPL') && response.includes('>'))
-    } catch {
-      throw new Error('Chrome opened the serial port, but MicroPython did not answer. Reboot the badge normally instead of using disk mode, then reconnect serial.')
+      serialInterruptedRef.current = true
+      serialResponseRef.current = ''
+      await write('\r\u0002\u0003\u0003')
+      await new Promise((resolve) => window.setTimeout(resolve, 100))
+      serialResponseRef.current = ''
+      await write('\r\u0001')
+      try {
+        await waitForSerial((response) => response.includes('raw REPL') && response.includes('>'))
+      } catch {
+        throw new Error('Chrome opened the serial port, but MicroPython did not answer. Reboot the badge normally instead of using disk mode, then reconnect serial.')
+      }
+      serialResponseRef.current = ''
+      const preparedCode = `import sys;sys.path[:]=[p for p in sys.path if p is not None]\n${code}`
+      await write(`${preparedCode.endsWith('\n') ? preparedCode : `${preparedCode}\n`}\u0004`)
+      const response = await waitForSerial((value) => value.split('\u0004').length >= 3, timeout)
+      const body = response.replace(/^OK/, '')
+      const [stdout = '', stderr = ''] = body.split('\u0004')
+      if (stderr.trim()) throw new Error(stderr.trim())
+      return stdout.trim()
+    } catch (error) {
+      await restartSerialBadge().catch(() => undefined)
+      throw error
     }
-    serialResponseRef.current = ''
-    const preparedCode = `import sys;sys.path[:]=[p for p in sys.path if p is not None]\n${code}`
-    await write(`${preparedCode.endsWith('\n') ? preparedCode : `${preparedCode}\n`}\u0004`)
-    const response = await waitForSerial((value) => value.split('\u0004').length >= 3, timeout)
-    const body = response.replace(/^OK/, '')
-    const [stdout = '', stderr = ''] = body.split('\u0004')
-    if (stderr.trim()) throw new Error(stderr.trim())
-    return stdout.trim()
+  }
+
+  async function appendSerialText(path: string, value: string) {
+    const bytes = encoder.encode(value)
+    for (let offset = 0; offset < bytes.length; offset += 384) {
+      const chunk = bytes.subarray(offset, offset + 384)
+      await rawExec(`import ubinascii;f=open(${JSON.stringify(path)},'ab');f.write(ubinascii.a2b_base64('${base64(chunk)}'));f.close()`)
+    }
   }
 
   async function readSerialText(path: string) {
@@ -407,30 +421,68 @@ export function BadgeManager() {
   }
 
   async function writeSerialText(path: string, value: string) {
-    const bytes = encoder.encode(value)
     await rawExec(`f=open(${JSON.stringify(path)},'wb');f.close()`)
-    for (let offset = 0; offset < bytes.length; offset += 384) {
-      const chunk = bytes.subarray(offset, offset + 384)
-      await rawExec(`import ubinascii;f=open(${JSON.stringify(path)},'ab');f.write(ubinascii.a2b_base64('${base64(chunk)}'));f.close()`)
-    }
+    await appendSerialText(path, value)
+    const size = encoder.encode(value).length
     const verification = await rawExec(`import os\ntry: os.sync()\nexcept Exception: pass\nprint('__BADGER_SIZE__'+str(os.stat(${JSON.stringify(path)})[6]))`)
-    const verifiedSize = verification.split(/\r?\n/).find((line) => line.startsWith('__BADGER_SIZE__'))?.slice('__BADGER_SIZE__'.length)
-    if (verifiedSize !== String(bytes.length)) throw new Error(`${path} did not verify after writing.`)
+    if (!verification.includes(`__BADGER_SIZE__${size}`)) throw new Error(`${path} did not verify after writing.`)
   }
 
   async function ensureWritableLauncher() {
+    const status = await rawExec(`import os\ntry:\n s=os.stat('/apps/menu/__init__.py')[6];f=open('/apps/menu/__init__.py','rb');f.seek(max(0,s-256));t=f.read();f.close();print('__BADGER_MENU_READY__'+('1' if ${JSON.stringify(launcherEnd.trim())} in t.decode() else '0'))\nexcept OSError: print('__BADGER_MENU_READY__0')`)
+    if (!status.includes('__BADGER_MENU_READY__1')) {
+      const injection = `${launcherStart}_badger_disabled=[]\ntry:\n _badger_file=open('/apps/.disabled','r');_badger_disabled=[_name.strip() for _name in _badger_file.readlines() if _name.strip()];_badger_file.close()\nexcept OSError: pass\n_badger_writable=[]\ntry: _badger_entries=os.listdir('/apps')\nexcept OSError: _badger_entries=[]\nfor _badger_name in _badger_entries:\n if _badger_name not in ('menu','startup') and _badger_name not in _badger_disabled:\n  _badger_path='/apps/'+_badger_name\n  if is_dir(_badger_path) and file_exists(_badger_path+'/__init__.py'): _badger_writable.append((_badger_name,_badger_path))\n_badger_names=[_item[0] for _item in _badger_writable]\napps=[_item for _item in apps if _item[0] not in _badger_disabled and _item[0] not in _badger_names]\napps.extend(_badger_writable)\ndef _badger_app_path(_item):\n return _item[1] if _item[1].startswith('/') else '/system/apps/'+_item[1]\n_badger_icons_base=load_page_icons\ndef _badger_icons(_page):\n _icons=_badger_icons_base(_page);_start=_page*APPS_PER_PAGE;_end=min(_start+APPS_PER_PAGE,len(apps))\n for _index in range(_start,_end):\n  _item=apps[_index];_path=_badger_app_path(_item)\n  if _path.startswith('/apps/'):\n   _slot=_index-_start;_icon_path=_path+'/icon.png'\n   if file_exists(_icon_path): _icons.append(Icon((_slot%3*48+33,math.floor(_slot/3)*48+42),_item[0],_slot%APPS_PER_PAGE,Image.load(_icon_path)))\n return _icons\n_badger_update_base=update\ndef _badger_update():\n if io.BUTTON_B in io.pressed:\n  _index=current_page*APPS_PER_PAGE+active\n  if _index<len(apps):\n   _path=_badger_app_path(apps[_index])\n   if _path.startswith('/apps/') and is_dir(_path) and file_exists(_path+'/__init__.py'): return _path\n return _badger_update_base()\nload_page_icons=_badger_icons\nupdate=_badger_update\ntotal_pages=max(1,math.ceil(len(apps)/APPS_PER_PAGE))\ncurrent_page=0\nicons=load_page_icons(0)\nprint('${launcherBootMarker}')${launcherEnd}`
+      let committed = false
+      try {
+        await rawExec("import os\ntry: os.mkdir('/apps')\nexcept OSError: pass\ntry: os.mkdir('/apps/menu')\nexcept OSError: pass\nsource='/apps/menu/__init__.py'\ntry: os.stat(source)\nexcept OSError: source='/system/apps/menu/__init__.py'\ns=open(source,'rb');d=open('/.badger-menu-upload.py','wb')\nwhile True:\n b=s.read(512)\n if not b: break\n d.write(b)\ns.close();d.close()\ntry: os.stat('/apps/menu/__init__.py.badger-backup')\nexcept OSError:\n s=open(source,'rb');d=open('/apps/menu/__init__.py.badger-backup','wb')\n while True:\n  b=s.read(512)\n  if not b: break\n  d.write(b)\n s.close();d.close()")
+        await appendSerialText('/.badger-menu-upload.py', injection)
+        const validation = await rawExec("f=open('/.badger-menu-upload.py','r');s=f.read();f.close();compile(s,'/apps/menu/__init__.py','exec');print('__BADGER_MENU_VALID__')")
+        if (!validation.includes('__BADGER_MENU_VALID__')) throw new Error('The writable launcher update did not pass validation.')
+        const appValidation = await rawExec("import os,gc\nfrom badgeware import is_dir,file_exists,Image\nfor n in os.listdir('/apps'):\n if n not in ('.disabled','menu','startup'):\n  p='/apps/'+n\n  if is_dir(p) and file_exists(p+'/__init__.py'):\n   if not file_exists(p+'/icon.png'): raise OSError('missing icon: '+n)\n   x=Image.load(p+'/icon.png');del x;gc.collect()\nprint('__BADGER_APPS_VALID__')")
+        if (!appValidation.includes('__BADGER_APPS_VALID__')) throw new Error('The uploaded apps did not pass launcher validation.')
+        const commit = await rawExec("import os\ntry: os.remove('/apps/menu/__init__.py')\nexcept OSError: pass\nos.rename('/.badger-menu-upload.py','/apps/menu/__init__.py')\ntry: os.sync()\nexcept Exception: pass\nprint('__BADGER_MENU_OK__')")
+        if (!commit.includes('__BADGER_MENU_OK__')) throw new Error('The writable launcher update could not be committed.')
+        committed = true
+        const installed = await rawExec(`import os\ns=os.stat('/apps/menu/__init__.py')[6];f=open('/apps/menu/__init__.py','rb');f.seek(max(0,s-256));t=f.read();f.close();print('__BADGER_MENU_INSTALLED__'+('1' if ${JSON.stringify(launcherEnd.trim())} in t.decode() else '0'))`)
+        if (!installed.includes('__BADGER_MENU_INSTALLED__1')) throw new Error('The writable launcher update did not verify after installation.')
+        const runtime = await rawExec("import os,sys\nos.chdir('/')\nfor n in ('ui','icon'):\n try: del sys.modules[n]\n except KeyError: pass\nm=__import__('/apps/menu')\nprint('__BADGER_MENU_RUNTIME__'+('1' if hasattr(m,'_BADGER_WEB_MENU_V4') else '0'))", 12000)
+        if (!runtime.includes('__BADGER_MENU_RUNTIME__1')) throw new Error('The writable launcher did not load correctly.')
+      } catch (error) {
+        if (committed) {
+          await restoreWritableLauncher().catch(() => undefined)
+          await restartSerialBadge().catch(() => undefined)
+          throw new Error('The launcher update failed verification, so the previous launcher was restored.')
+        }
+        throw error
+      }
+    }
     let main = await readSerialText('/main.py')
     if (main === null) main = await readSerialText('/system/main.py')
     if (main === null) throw new Error('The badge launcher could not be read.')
-    if (main.includes(launcherStart.trim())) return
-    const marker = 'app = run(menu.update)'
-    if (!main.includes(marker)) throw new Error('This badge has an unsupported main.py launcher.')
-    const injection = `${launcherStart}try:\n _disabled=[]\n try:\n  _f=open('/apps/.disabled','r');_disabled=[_x.strip() for _x in _f.readlines() if _x.strip()];_f.close()\n except OSError: pass\n _writable=[]\n try: _entries=os.listdir('/apps')\n except OSError: _entries=[]\n for _entry in _entries:\n  if _entry not in ('menu','startup') and _entry not in _disabled:\n   try:\n    os.stat('/apps/'+_entry+'/__init__.py');_writable.append((_entry,'../../apps/'+_entry))\n   except OSError: pass\n _names=[_item[0] for _item in _writable]\n menu.apps=[_item for _item in menu.apps if _item[0] not in _disabled and _item[0] not in _names]\n menu.apps.extend(_writable)\n menu.total_pages=max(1,menu.math.ceil(len(menu.apps)/menu.APPS_PER_PAGE))\n menu.current_page=0\n menu.icons=menu.load_page_icons(0)\nexcept Exception as _error:\n print('Writable app discovery failed:',_error)${launcherEnd}`
-    const patchedMain = main.replace(marker, `${injection}${marker}`)
-    if (await readSerialText('/main.py.badger-backup') === null) await writeSerialText('/main.py.badger-backup', main)
-    await writeSerialText('/.badger-main-upload.py', patchedMain)
-    const commit = await rawExec(`import os\ntry: os.remove('/main.py')\nexcept OSError: pass\nos.rename('/.badger-main-upload.py','/main.py')\nos.stat('/main.py')\nprint('__BADGER_MAIN_OK__')`)
-    if (!commit.includes('__BADGER_MAIN_OK__')) throw new Error('The writable launcher update could not be committed.')
+    if (main.includes('__import__("/apps/menu")')) return
+    const redirectedMain = main.replace('__import__("/system/apps/menu")', '__import__("/apps/menu")')
+    if (redirectedMain === main) throw new Error('This badge has an unsupported main.py launcher.')
+    await writeSerialText('/main.py.badger-backup', main)
+    await writeSerialText('/.badger-main-upload.py', redirectedMain)
+    const validation = await rawExec("f=open('/.badger-main-upload.py','r');s=f.read();f.close();compile(s,'/main.py','exec');print('__BADGER_MAIN_VALID__')")
+    if (!validation.includes('__BADGER_MAIN_VALID__')) throw new Error('The launcher redirect did not pass validation.')
+    const commit = await rawExec("import os\ntry: os.remove('/main.py')\nexcept OSError: pass\nos.rename('/.badger-main-upload.py','/main.py')\ntry: os.sync()\nexcept Exception: pass\nprint('__BADGER_MAIN_OK__')")
+    if (!commit.includes('__BADGER_MAIN_OK__')) throw new Error('The launcher redirect could not be committed.')
+    const installedMain = await readSerialText('/main.py')
+    if (installedMain !== redirectedMain) {
+      await restoreMainLauncher().catch(() => undefined)
+      throw new Error('The launcher redirect failed verification, so the previous launcher was restored.')
+    }
+  }
+
+  async function restoreWritableLauncher() {
+    const response = await rawExec("import os\ns=open('/apps/menu/__init__.py.badger-backup','rb');d=open('/.badger-menu-restore.py','wb')\nwhile True:\n b=s.read(512)\n if not b: break\n d.write(b)\ns.close();d.close()\ntry: os.remove('/apps/menu/__init__.py')\nexcept OSError: pass\nos.rename('/.badger-menu-restore.py','/apps/menu/__init__.py')\ntry: os.sync()\nexcept Exception: pass\nprint('__BADGER_MENU_RESTORED__')")
+    if (!response.includes('__BADGER_MENU_RESTORED__')) throw new Error('The previous badge launcher could not be restored.')
+  }
+
+  async function restoreMainLauncher() {
+    const response = await rawExec("import os\ns=open('/main.py.badger-backup','rb');d=open('/.badger-main-restore.py','wb')\nwhile True:\n b=s.read(512)\n if not b: break\n d.write(b)\ns.close();d.close()\ntry: os.remove('/main.py')\nexcept OSError: pass\nos.rename('/.badger-main-restore.py','/main.py')\ntry: os.sync()\nexcept Exception: pass\nprint('__BADGER_MAIN_RESTORED__')")
+    if (!response.includes('__BADGER_MAIN_RESTORED__')) throw new Error('The previous main.py could not be restored.')
   }
 
   async function setFirmwareAppDisabled(name: string, disabled: boolean) {
@@ -439,27 +491,37 @@ export function BadgeManager() {
 
   async function restartSerialBadge() {
     serialResponseRef.current = ''
-    await write('\u0004')
-    await new Promise((resolve) => window.setTimeout(resolve, 700))
+    try {
+      await write('\r\u0003\u0003\u0004')
+      await new Promise((resolve) => window.setTimeout(resolve, 350))
+      await write('\u0002\u0004')
+    } finally {
+      serialInterruptedRef.current = false
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 1000))
   }
 
-  async function run(task: () => Promise<void>) {
+  async function run(task: () => Promise<void>, setLocalResult?: (result: OperationResult) => void) {
     setBusy(true)
+    setResult(null)
     try {
       await task()
       return true
     } catch (error) {
       const message = error instanceof Error ? error.message : 'The badge operation failed.'
-      setStatus(message)
-      setResult({ tone: 'error', message })
+      const operationResult: OperationResult = { tone: 'error', message }
+      setResult(operationResult)
+      setLocalResult?.(operationResult)
       return false
     } finally {
+      if (serialInterruptedRef.current && portRef.current) await restartSerialBadge().catch(() => undefined)
       setBusy(false)
     }
   }
 
   async function connect() {
     await run(async () => {
+      if (!SERIAL_CONNECTION_MODE_ENABLED) throw new Error('Serial mode is temporarily unavailable.')
       if (!navigator.serial) throw new Error('Web Serial is available in Chromium browsers over HTTPS or localhost.')
       const selectedPort = await navigator.serial.requestPort()
       try {
@@ -522,7 +584,7 @@ export function BadgeManager() {
   }
 
   async function readSerialBadge() {
-    const appPayload = await rawExec(`import os\ndisabled=[]\ntry:\n f=open('/apps/.disabled','r');disabled=[x.strip() for x in f.readlines() if x.strip()];f.close()\nexcept OSError: pass\nfor root,kind in (('/system/apps','I'),('/apps','U')):\n try: entries=os.listdir(root)\n except OSError: entries=[]\n for n in entries:\n  if isinstance(n,str) and not (kind=='I' and n in disabled):\n   try:\n    os.stat(root+'/'+n+'/__init__.py')\n    print('__BADGER_APP__'+kind+':'+n)\n   except OSError: pass\ntry:\n f=open('/main.py','r');m=f.read();f.close();print('__BADGER_LAUNCHER__'+('1' if ${JSON.stringify(launcherStart.trim())} in m else '0'))\nexcept OSError: print('__BADGER_LAUNCHER__0')`)
+    const appPayload = await rawExec(`import os\ndisabled=[]\ntry:\n f=open('/apps/.disabled','r');disabled=[x.strip() for x in f.readlines() if x.strip()];f.close()\nexcept OSError: pass\nfor root,kind in (('/system/apps','I'),('/apps','U')):\n try: entries=os.listdir(root)\n except OSError: entries=[]\n for n in entries:\n  if isinstance(n,str) and n!='menu' and not (kind=='I' and n in disabled):\n   try:\n    os.stat(root+'/'+n+'/__init__.py')\n    print('__BADGER_APP__'+kind+':'+n)\n   except OSError: pass\ntry:\n s=os.stat('/apps/menu/__init__.py')[6];f=open('/apps/menu/__init__.py','rb');f.seek(max(0,s-256));t=f.read();f.close();f=open('/main.py','r');m=f.read();f.close();print('__BADGER_LAUNCHER__'+('1' if ${JSON.stringify(launcherEnd.trim())} in t.decode() and '__import__("/apps/menu")' in m else '0'))\nexcept OSError: print('__BADGER_LAUNCHER__0')`)
     const secretPayload = await rawExec("import ubinascii;\ntry:\n f=open('/secrets.py','rb');print(ubinascii.b2a_base64(f.read()).decode().strip());f.close()\nexcept OSError: print('')")
     const found = new Map<string, DeviceApp>()
     const writable = new Set<string>()
@@ -575,6 +637,7 @@ export function BadgeManager() {
   }
 
   function stageFiles(files: AppFile[]) {
+    setUploadResult(null)
     const additions = makePendingApps(files)
     const occupied = new Set([...apps.map((app) => app.name), ...legacyApps])
     const duplicates = additions.filter((app) => occupied.has(app.name)).map((app) => app.name)
@@ -587,18 +650,18 @@ export function BadgeManager() {
     })
     if (duplicates.length) {
       const message = `${duplicates.join(', ')} ${duplicates.length === 1 ? 'is' : 'are'} already on the badge and cannot be uploaded again.`
-      setStatus(message)
       setResult({ tone: 'error', message })
       return
     }
     if (incomplete.length) {
       const message = `${incomplete.join(', ')} ${incomplete.length === 1 ? 'is' : 'are'} missing __init__.py.`
-      setStatus(message)
       setResult({ tone: 'error', message })
       return
     }
     setResult(null)
-    setStatus(`${accepted.length} app${accepted.length === 1 ? '' : 's'} ready to upload.`)
+    setStatus(connected
+      ? `${accepted.length} app${accepted.length === 1 ? '' : 's'} ready to upload.`
+      : `${accepted.length} app${accepted.length === 1 ? '' : 's'} selected. ${SERIAL_CONNECTION_MODE_ENABLED ? 'Connect your badge over serial' : 'Open the BADGER disk'} to upload.`)
   }
 
   function addFiles(files: FileList | File[]) {
@@ -606,6 +669,7 @@ export function BadgeManager() {
   }
 
   async function addStoreApp(app: StoreApp) {
+    setUploadResult(null)
     if (apps.some((installed) => installed.name === app.name) || legacyApps.includes(app.name)) {
       throw new Error(`${app.title} is already on this badge.`)
     }
@@ -617,10 +681,13 @@ export function BadgeManager() {
       return { file: new File([contents], path.split('/').at(-1) ?? path), relativePath: `${app.name}/${path}` }
     }))
     setPendingApps((current) => [...current.filter((item) => item.name !== app.name), { name: app.name, files }])
-    setStatus(`${app.title} is ready to upload.`)
+    setStatus(connected
+      ? `${app.title} is ready to upload.`
+      : `${app.title} is selected. ${SERIAL_CONNECTION_MODE_ENABLED ? 'Connect your badge over serial' : 'Open the BADGER disk'} to upload it.`)
   }
 
   async function installApps() {
+    setUploadResult(null)
     await run(async () => {
       if (!pendingApps.length) return
       const occupied = new Set([...apps.map((app) => app.name), ...legacyApps])
@@ -660,7 +727,9 @@ export function BadgeManager() {
         await readDiskBadge(diskRoot)
         const message = `${appCount} app${appCount === 1 ? '' : 's'} installed and verified. Eject BADGER, then restart it to refresh the launcher.`
         setStatus(message)
-        setResult({ tone: 'success', message })
+        const operationResult: OperationResult = { tone: 'success', message }
+        setResult(operationResult)
+        setUploadResult(operationResult)
         return
       }
       await rawExec("import os\ntry: os.mkdir('/apps')\nexcept OSError: pass")
@@ -704,11 +773,14 @@ export function BadgeManager() {
       await restartSerialBadge()
       const message = `${appCount} app${appCount === 1 ? '' : 's'} installed and verified. The badge restarted with the updated launcher.`
       setStatus(message)
-      setResult({ tone: 'success', message })
-    })
+      const operationResult: OperationResult = { tone: 'success', message }
+      setResult(operationResult)
+      setUploadResult(operationResult)
+    }, setUploadResult)
   }
 
   async function removeApps() {
+    setRemoveResult(null)
     await run(async () => {
       if (!removeQueue.length) return
       if (diskRoot) {
@@ -719,7 +791,9 @@ export function BadgeManager() {
         await readDiskBadge(diskRoot)
         const message = `${removedCount} app${removedCount === 1 ? '' : 's'} removed and verified. Eject BADGER, then restart it to refresh the launcher.`
         setStatus(message)
-        setResult({ tone: 'success', message })
+        const operationResult: OperationResult = { tone: 'success', message }
+        setResult(operationResult)
+        setRemoveResult(operationResult)
         return
       }
       const removed = [...removeQueue]
@@ -735,19 +809,27 @@ export function BadgeManager() {
       await restartSerialBadge()
       const message = `${removed.length} app${removed.length === 1 ? '' : 's'} removed and verified. The badge restarted with the updated launcher.`
       setStatus(message)
-      setResult({ tone: 'success', message })
-    })
+      const operationResult: OperationResult = { tone: 'success', message }
+      setResult(operationResult)
+      setRemoveResult(operationResult)
+    }, setRemoveResult)
   }
 
   async function recoverLegacyApps() {
     await run(async () => {
       if (!legacyApps.length || !portRef.current) return
+      const recovered = [...legacyApps]
       const recoveredCount = legacyApps.length
       setStatus('Updating the writable badge launcher…')
       await ensureWritableLauncher()
-      await readSerialBadge()
       await restartSerialBadge()
-      const message = `${recoveredCount} old upload${recoveredCount === 1 ? '' : 's'} added to the launcher. The badge restarted.`
+      setApps((current) => {
+        const installed = new Map(current.map((app) => [app.name, app]))
+        for (const name of recovered) installed.set(name, { name, size: 0, firmware: false })
+        return [...installed.values()].sort((left, right) => left.name.localeCompare(right.name))
+      })
+      setLegacyApps([])
+      const message = `${recoveredCount} old upload${recoveredCount === 1 ? '' : 's'} added to the launcher. The badge restarted. Press any badge button after the intro appears.`
       setStatus(message)
       setResult({ tone: 'success', message })
     })
@@ -766,6 +848,7 @@ export function BadgeManager() {
 
   async function saveSecrets(value = secretsRef.current) {
     setBusy(true)
+    setResult(null)
     setAutosaveState('saving')
     try {
       await writeSecrets(value)
@@ -775,39 +858,42 @@ export function BadgeManager() {
       const stillDirty = secretsRef.current !== value
       setSecretsDirty(stillDirty)
       setAutosaveState(stillDirty ? 'pending' : 'saved')
-      setShowAppsPrompt(true)
-      setStatus('Secrets saved automatically. Add any new apps, then upload them to finish.')
+      setStatus('Saved secrets.py.')
     } catch (error) {
       failedSecretsRef.current = value
       setAutosaveState('error')
       const message = error instanceof Error ? error.message : 'Could not save secrets.py automatically.'
-      setStatus(message)
       setResult({ tone: 'error', message })
     } finally {
       setBusy(false)
     }
   }
 
+  const displayedStatus = result?.tone === 'error'
+    ? diskRoot
+      ? 'BADGER disk connected.'
+      : connected
+        ? 'Badge connected over serial.'
+        : 'No badge connected.'
+    : status
+
   return (
     <div className="badge-edit-root mx-auto max-w-6xl space-y-6">
       <section className="rounded-2xl border border-primary/20 bg-card/80 p-6 shadow-lg backdrop-blur sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="mb-2 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-primary"><PlugZap className="h-4 w-4" /> Device link</div>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Badger Edit</h1>
-          </div>
-          {connected ? diskRoot ? <Button onClick={() => ejectDisk()} variant="outline"><LogOut /> Eject</Button> : <Button onClick={disconnect} variant="outline">Disconnect</Button> : <div className="flex flex-wrap gap-2"><Button onClick={connect} disabled={busy}><PlugZap /> Connect serial</Button><Button onClick={connectDisk} variant="outline" disabled={busy}><FolderUp /> Open BADGER disk</Button></div>}
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Badger Edit</h1>
+          {connected ? diskRoot ? <Button onClick={() => ejectDisk()} variant="outline"><LogOut /> Eject</Button> : <Button onClick={disconnect} variant="outline">Disconnect</Button> : <div className="flex flex-wrap gap-2">{SERIAL_CONNECTION_MODE_ENABLED && <Button onClick={connect} disabled={busy}><PlugZap /> Connect serial</Button>}<Button onClick={connectDisk} variant="outline" disabled={busy}><FolderUp /> Open BADGER disk</Button></div>}
         </div>
         <div className="mt-6 flex flex-wrap items-center gap-3 rounded-lg bg-background/70 px-4 py-3 font-mono text-sm">
           <span className={`h-2.5 w-2.5 rounded-full ${connected ? 'bg-primary shadow-[0_0_12px_rgba(95,237,131,0.9)]' : 'bg-muted-foreground'}`} />
-          <span className="min-w-0 flex-1">{status}</span>
+          <span className="flex min-h-6 min-w-0 flex-1 items-center">{displayedStatus}</span>
           {connected && <span className="rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs text-primary">{diskRoot ? 'Disk mode' : 'Serial mode'}</span>}
         </div>
-        {result && <div role={result.tone === 'error' ? 'alert' : 'status'} className={`mt-3 flex gap-3 rounded-lg border px-4 py-3 text-sm ${result.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-100'}`}>{result.tone === 'success' ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{result.message}</span><button type="button" onClick={() => setResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss message"><X className="h-4 w-4" /></button></div>}
+        {result && <div role={result.tone === 'error' ? 'alert' : 'status'} className={`mt-3 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${result.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-100'}`}>{result.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{result.message}</span><button type="button" onClick={() => setResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss message"><X className="h-4 w-4" /></button></div>}
       </section>
 
       <div className={`grid gap-6 ${connected ? 'lg:grid-cols-[1.05fr_0.95fr]' : ''}`}>
-        <section ref={appStoreRef} className="rounded-2xl border border-border/50 bg-card/80 p-6 shadow-lg">
+        <section className="rounded-2xl border border-border/50 bg-card/80 p-6 shadow-lg">
           <div className="flex items-start justify-between gap-4">
             <div><h2 className="text-xl font-semibold">App store</h2><p className="mt-1 text-sm text-muted-foreground">{storeMessage}</p></div>
             <Button size="sm" variant="outline" onClick={() => void loadStore()} disabled={busy}><RefreshCw /> Reload</Button>
@@ -821,18 +907,35 @@ export function BadgeManager() {
             })}
           </div>
           <input ref={pickerRef} type="file" className="hidden" multiple webkitdirectory="" onChange={(event) => event.target.files && addFiles(event.target.files)} />
-          <p className="mt-6 text-sm text-muted-foreground">Or add your own app source.</p>
-          <button onClick={() => pickerRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true) }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); void collectDroppedFiles(event.dataTransfer).then(stageFiles) }} className={`mt-5 flex w-full flex-col items-center justify-center rounded-xl border border-dashed px-5 py-9 text-center transition ${dragging ? 'border-primary bg-primary/10' : 'border-border/70 bg-background/40 hover:border-primary/60'}`}>
-            <FolderUp className="mb-3 h-7 w-7 text-primary" />
-            <span className="font-mono text-sm">Drop an app folder here</span><span className="mt-1 text-xs text-muted-foreground">or select its source files</span>
-          </button>
-          {pendingApps.length > 0 && <div className="mt-5 space-y-2">{pendingApps.map((app) => <div key={app.name} className="flex items-center justify-between rounded-lg bg-background/60 px-3 py-2 text-sm"><span className="flex items-center gap-2"><FileCode2 className="h-4 w-4 text-primary" />{app.name}<span className="text-muted-foreground">Ready to upload</span></span><button onClick={() => setPendingApps((current) => current.filter((item) => item.name !== app.name))} className="text-muted-foreground hover:text-foreground">Remove</button></div>)}</div>}
-          <Button className="mt-5 w-full" onClick={installApps} disabled={!connected || !pendingApps.length || busy}><Upload /> Upload {pendingApps.length ? `${pendingApps.length} app${pendingApps.length === 1 ? '' : 's'}` : 'staged apps'}</Button>
+          <div className="mt-6 border-t border-border/40 pt-5">
+            <div className="flex items-center justify-between gap-4">
+              <h3 className="text-sm font-medium">Local app</h3>
+              {pendingApps.length > 0 && <button type="button" onClick={() => pickerRef.current?.click()} className="badge-edit-ghost inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"><FolderUp className="h-3.5 w-3.5" />Add folder</button>}
+            </div>
+            {pendingApps.length === 0 ? <button type="button" data-dragging={dragging} onClick={() => pickerRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true) }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); void collectDroppedFiles(event.dataTransfer).then(stageFiles) }} className="badge-edit-dropzone mt-3 flex w-full items-center justify-center gap-3 rounded-xl border border-dashed border-border/70 px-5 py-6 text-center transition-colors hover:border-primary/60">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary/5"><FolderUp className="h-4 w-4 text-primary" /></span>
+              <span className="text-left"><span className="block text-sm text-foreground">Choose an app folder</span><span className="mt-0.5 block text-xs text-muted-foreground">or drop it here</span></span>
+            </button> : <>
+              <div className="mt-3 space-y-2">
+                {pendingApps.map((app) => <div key={app.name} className="flex min-w-0 items-center gap-3 rounded-xl border border-border/50 bg-background/35 p-3">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10"><FileCode2 className="h-4 w-4 text-primary" /></span>
+                  <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-foreground">{app.name}</span><span className="mt-0.5 block text-xs text-muted-foreground">{app.files.length} file{app.files.length === 1 ? '' : 's'}</span></span>
+                  <button type="button" onClick={() => setPendingApps((current) => current.filter((item) => item.name !== app.name))} className="badge-edit-ghost grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:text-foreground" aria-label={`Remove ${app.name}`} title={`Remove ${app.name}`}><X className="h-4 w-4" /></button>
+                </div>)}
+              </div>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="flex items-center gap-2 text-xs text-muted-foreground">{connected ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <PlugZap className="h-4 w-4 shrink-0 text-primary" />}{connected ? 'Ready to upload' : 'Connect a badge to upload'}</p>
+                {connected && <Button className="badge-edit-primary shrink-0" onClick={installApps} disabled={busy}><Upload />Upload {pendingApps.length} app{pendingApps.length === 1 ? '' : 's'}</Button>}
+              </div>
+            </>}
+          </div>
+          {uploadResult && <div role={uploadResult.tone === 'error' ? 'alert' : 'status'} className={`mt-4 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${uploadResult.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-100'}`}>{uploadResult.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{uploadResult.message}</span><button type="button" onClick={() => setUploadResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss upload message"><X className="h-4 w-4" /></button></div>}
           {connected && <div className="mt-7 border-t border-border/40 pt-5">
-            <div className="flex items-center justify-between gap-3"><div><h3 className="text-sm font-medium">Installed apps</h3><p className="mt-1 text-xs text-muted-foreground">Uploaded apps live in writable storage. Removing a firmware app hides it from the launcher. Menu and Startup stay protected.</p></div><Button size="sm" variant="outline" onClick={() => void refresh()} disabled={busy}><RefreshCw /> Refresh</Button></div>
+            <div className="flex items-center justify-between gap-3"><div><h3 className="text-sm font-medium">Installed apps</h3><p className="mt-1 text-xs text-muted-foreground">Removing firmware apps hides them. Menu and Startup are protected.</p></div><Button size="sm" variant="outline" onClick={() => void refresh()} disabled={busy}><RefreshCw /> Refresh</Button></div>
             {legacyApps.length > 0 && !diskRoot && <div className="mt-4 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4"><div className="flex gap-3"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" /><div><p className="text-sm font-medium">Old uploads need repair</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{legacyApps.join(', ')} {legacyApps.length === 1 ? 'is' : 'are'} in writable storage, but this badge launcher does not index that location yet.</p></div></div><Button className="mt-3" size="sm" variant="outline" onClick={recoverLegacyApps} disabled={busy}>Update launcher</Button></div>}
-            <div className="mt-3 space-y-2">{apps.length ? apps.map((app) => <label key={app.name} className="flex cursor-pointer items-center justify-between rounded-lg bg-background/45 px-3 py-2 text-sm"><span>{app.name} <span className="text-muted-foreground">{app.size ? `${Math.ceil(app.size / 1024)} KB` : app.firmware ? 'Firmware' : 'Uploaded'}</span></span><input type="checkbox" aria-label={`Select ${app.name} for removal`} checked={removeQueue.includes(app.name)} onChange={() => setRemoveQueue((current) => current.includes(app.name) ? current.filter((name) => name !== app.name) : [...current, app.name])} /></label>) : <p className="text-sm text-muted-foreground">No removable apps found.</p>}</div>
+            <div className="mt-3 space-y-2">{apps.length ? apps.map((app) => <label key={app.name} className="flex cursor-pointer items-center justify-between rounded-lg bg-background/45 px-3 py-2 text-sm"><span>{app.name} <span className="text-muted-foreground">{app.size ? `${Math.ceil(app.size / 1024)} KB` : app.firmware ? 'Firmware' : 'Uploaded'}</span></span><input type="checkbox" aria-label={`Select ${app.name} for removal`} checked={removeQueue.includes(app.name)} onChange={() => { setRemoveResult(null); setRemoveQueue((current) => current.includes(app.name) ? current.filter((name) => name !== app.name) : [...current, app.name]) }} /></label>) : <p className="text-sm text-muted-foreground">No removable apps found.</p>}</div>
             <Button className="mt-4 w-full" variant="destructive" onClick={removeApps} disabled={!removeQueue.length || busy}><Trash2 /> Remove {removeQueue.length || ''} selected</Button>
+            {removeResult && <div role={removeResult.tone === 'error' ? 'alert' : 'status'} className={`mt-4 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${removeResult.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-100'}`}>{removeResult.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{removeResult.message}</span><button type="button" onClick={() => setRemoveResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss removal message"><X className="h-4 w-4" /></button></div>}
           </div>}
         </section>
 
@@ -843,7 +946,6 @@ export function BadgeManager() {
             <span className={`flex items-center gap-2 font-mono text-xs ${autosaveState === 'error' ? 'text-red-300' : 'text-muted-foreground'}`}>{autosaveState === 'saving' ? <LoaderCircle className="h-4 w-4 animate-spin text-primary" /> : autosaveState === 'error' ? <CircleAlert className="h-4 w-4" /> : <Check className="h-4 w-4 text-primary" />}{autosaveState === 'pending' ? 'Saving shortly…' : autosaveState === 'saving' ? 'Saving automatically…' : autosaveState === 'error' ? 'Autosave failed' : 'Saved automatically'}</span>
             <div className="flex gap-2">{autosaveState === 'error' && <Button size="sm" variant="outline" onClick={retrySecrets} disabled={busy}>Retry</Button>}<Button size="sm" variant="outline" onClick={revertSecrets} disabled={secrets === initialSecrets || autosaveState === 'saving'} title="Restore secrets.py to the version loaded when this badge connected"><RotateCcw /> Revert</Button></div>
           </div>
-          {showAppsPrompt && <div className="mt-5 rounded-lg border border-primary/25 bg-primary/5 p-4"><p className="text-sm font-medium text-foreground">Add apps</p><Button className="mt-3" size="sm" variant="outline" onClick={() => appStoreRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><Upload /> Choose apps</Button></div>}
           {diskRoot && <div className="mt-5 flex gap-3 rounded-lg bg-primary/5 p-4 text-sm text-muted-foreground"><CircleAlert className="h-5 w-5 shrink-0 text-primary" /><p>All writes are closed before the editor releases BADGER. Use your computer’s eject control before unplugging the USB cable.</p></div>}
         </section>}
       </div>
