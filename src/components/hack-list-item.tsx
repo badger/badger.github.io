@@ -24,11 +24,21 @@ export function HackListItem({
   const handleClick = () => {
     window.location.href = `/hack/${slug}`
   }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleClick()
+    }
+  }
   
   return (
     <div 
-      className="surface surface-hover group cursor-pointer p-5"
+      className="surface surface-hover group cursor-pointer p-5 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="link"
+      tabIndex={0}
     >
       {/* Difficulty and Duration */}
       <div className="mb-3 flex items-center gap-3">

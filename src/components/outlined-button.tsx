@@ -14,7 +14,7 @@ export function OutlinedButton({ href, children, className = '', variant = 'defa
   return (
     <a
       href={href}
-      className={`inline-flex items-center font-mono uppercase tracking-[0.12em] transition-all duration-150 ${subtle ? 'h-10 gap-2 rounded-md bg-primary/5 px-4 py-2 text-xs text-primary hover:bg-primary/10' : 'h-12 gap-2.5 rounded-lg bg-transparent px-5 py-3 text-base hover:bg-primary/5'} ${className}`}
+      className={`inline-flex items-center font-mono uppercase tracking-[0.12em] transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${subtle ? 'h-10 gap-2 rounded-md bg-primary/5 px-4 py-2 text-xs text-primary hover:bg-primary/10' : 'h-12 gap-2.5 rounded-lg bg-transparent px-5 py-3 text-base hover:bg-primary/5'} ${className}`}
       style={{
         border: '1px solid',
         borderColor: subtle ? (isHovered ? 'hsl(var(--primary) / 0.6)' : 'hsl(var(--primary) / 0.35)') : (isHovered ? '#5FED83' : 'white'),

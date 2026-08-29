@@ -34,7 +34,7 @@ const { title, titleHighlight, description, actions = [] } = Astro.props as Prop
             const Icon = action.icon
             if (action.variant === 'solid') {
               return (
-                <a href={action.href} target={action.external ? '_blank' : undefined} rel={action.external ? 'noreferrer noopener' : undefined} class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
+                <a href={action.href} target={action.external ? '_blank' : undefined} rel={action.external ? 'noreferrer noopener' : undefined} class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground outline-none transition-colors hover:bg-primary/85 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
                     {Icon && <Icon className="h-4 w-4" />}
                     {action.label}
                 </a>

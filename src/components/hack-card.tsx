@@ -28,11 +28,21 @@ export function HackCard({
   const handleCardClick = () => {
     window.location.href = `/hack/${slug}`
   }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleCardClick()
+    }
+  }
   
   return (
     <Card 
-      className="surface surface-hover group cursor-pointer overflow-hidden"
+      className="surface surface-hover group cursor-pointer overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
+      role="link"
+      tabIndex={0}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">

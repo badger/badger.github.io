@@ -54,11 +54,21 @@ export function AppCard({
     if (!APP_DETAIL_LINKS_ENABLED) return
     window.location.href = `/app/${slug}`
   }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleCardClick()
+    }
+  }
   
   return (
     <div
-      className={`surface flex items-start gap-4 p-4 ${APP_DETAIL_LINKS_ENABLED ? 'surface-hover group cursor-pointer' : ''}`}
+      className={`surface flex items-start gap-4 p-4 ${APP_DETAIL_LINKS_ENABLED ? 'surface-hover group cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background' : ''}`}
       onClick={APP_DETAIL_LINKS_ENABLED ? handleCardClick : undefined}
+      onKeyDown={APP_DETAIL_LINKS_ENABLED ? handleKeyDown : undefined}
+      role={APP_DETAIL_LINKS_ENABLED ? 'link' : undefined}
+      tabIndex={APP_DETAIL_LINKS_ENABLED ? 0 : undefined}
     >
       {/* App Icon */}
       <div 
