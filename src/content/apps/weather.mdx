@@ -1,0 +1,143 @@
+---
+title: "Weather"
+description: "Real-time weather information with auto-location detection. Displays temperature, humidity, wind speed, and current conditions."
+icon: "/images/apps/weather.png"
+category: "utility"
+preloaded: false
+customizable: true
+fileLocation: "/apps/weather"
+---
+
+# Weather
+
+Get real-time weather information on your Badger 2350. Automatically detects your location and displays current temperature, humidity, wind speed, and weather conditions.
+
+## Features
+
+- **Auto-Location Detection**: Automatically detects your location from IP address
+- **Current Weather**: Real-time temperature, humidity, and wind speed
+- **Weather Conditions**: Clear descriptions of current weather (Clear, Cloudy, Rain, etc.)
+- **No API Key Required**: Uses free Open-Meteo weather API
+- **Auto-Refresh**: Updates weather data every 60 seconds
+- **Manual Refresh**: Press B button to refresh weather on demand
+- **WiFi Integration**: Connects using credentials from `/secrets.py`
+- **Clean Display**: GitHub-themed interface with color-coded weather info
+
+## Weather Data
+
+- **Temperature**: Displayed in Fahrenheit
+- **Humidity**: Relative humidity percentage
+- **Wind Speed**: Current wind speed in mph
+- **Conditions**: Weather description (Clear, Cloudy, Rain, Snow, etc.)
+- **Location**: Auto-detected city name
+
+## Controls
+
+- **B Button**: Manually refresh weather data
+- Auto-refresh occurs every 60 seconds when connected
+
+## Install
+
+1. Copy the `weather/` folder to `/apps/weather/` on the BADGER drive while in USB storage mode
+2. Ensure `/secrets.py` is configured with WiFi credentials (see Configuration below)
+3. Eject, reboot, and launch Weather from the menu
+
+## File Layout
+
+```
+/apps/weather/
+  ├── __init__.py   # Main app with weather API and location detection
+  └── icon.png      # App icon for the launcher
+```
+
+## Configuration
+
+Create or edit `/secrets.py` on your badge:
+
+```python
+# WiFi credentials
+WIFI_SSID = "YourNetworkName"
+WIFI_PASSWORD = "YourPassword"
+
+# Your GitHub username (optional for this app)
+GITHUB_USERNAME = "yourusername"
+```
+
+**Required Variables:**
+- `WIFI_SSID`: Your WiFi network name
+- `WIFI_PASSWORD`: Your WiFi password
+
+## How It Works
+
+1. **WiFi Connection**: Connects to WiFi using credentials from `/secrets.py`
+2. **Location Detection**: Automatically detects location from IP using ipapi.co
+3. **Weather Fetching**: Queries Open-Meteo API with detected coordinates
+4. **Real-time Display**: Shows temperature, humidity, wind, and conditions
+5. **Auto-refresh**: Updates every 60 seconds automatically
+6. **Fallback Location**: Defaults to San Francisco if detection fails
+
+## Technical Details
+
+- Uses Open-Meteo free weather API (no API key required)
+- Location detection via ipapi.co (free IP geolocation)
+- WMO (World Meteorological Organization) weather codes
+- Temperature in Fahrenheit, wind speed in mph
+- Efficient memory management with garbage collection
+- 60-second WiFi connection timeout
+- Graceful error handling with status messages
+
+## Weather Conditions
+
+The app interprets WMO weather codes to display clear conditions:
+- **Clear**: Clear skies
+- **Partly Cloudy**: Some cloud cover
+- **Cloudy**: Overcast
+- **Fog**: Foggy conditions
+- **Drizzle/Rain**: Light or heavy rain
+- **Snow**: Snow or freezing conditions
+- **Thunderstorm**: Stormy weather
+
+## Location Detection
+
+The app automatically detects your location using your IP address. This means:
+- ✅ No manual configuration needed
+- ✅ Works anywhere with WiFi
+- ✅ Updates if you travel to a new location
+- ⚠️ May be less accurate than GPS (usually city-level accuracy)
+- ⚠️ Falls back to San Francisco if detection fails
+
+## Troubleshooting
+
+**"No Configuration" message:**
+- Edit `/secrets.py` with your WiFi credentials
+- Ensure WIFI_SSID and WIFI_PASSWORD are set correctly
+
+**"Location detection failed":**
+- App will default to San Francisco weather
+- Check internet connection
+- Press B button to retry
+
+**Weather data not displaying:**
+- Check WiFi connection
+- Verify internet connectivity
+- API may be temporarily unavailable - wait and refresh
+
+**Wrong location detected:**
+- Location is based on IP address (VPN may affect this)
+- You can manually edit the code to set LATITUDE/LONGITUDE
+
+## Customization
+
+To use a specific location instead of auto-detection, edit `__init__.py`:
+
+```python
+# Set your desired location
+LATITUDE = 40.7128   # New York City
+LONGITUDE = -74.0060
+LOCATION_NAME = "New York"
+location_detected = True  # Skip auto-detection
+```
+
+## Source
+
+GitHub repository: [Add your repository URL here]

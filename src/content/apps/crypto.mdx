@@ -1,0 +1,102 @@
+---
+title: "Crypto Tracker"
+description: "Real-time cryptocurrency price tracker. Displays Bitcoin, Ethereum, Dogecoin, and Ripple prices with live updates."
+icon: "/images/apps/crypto.png"
+category: "utility"
+preloaded: false
+customizable: true
+fileLocation: "/apps/crypto"
+---
+
+# Crypto Tracker
+
+Track real-time cryptocurrency prices directly on your Badger 2350. Displays live prices for Bitcoin (BTC), Ethereum (ETH), Dogecoin (DOGE), and Ripple (XRP) with price changes and percentage movements.
+
+## Features
+
+- **Live Price Updates**: Real-time cryptocurrency prices from Yahoo Finance API
+- **Four Major Cryptos**: Bitcoin, Ethereum, Dogecoin, and Ripple tracking
+- **Price Change Indicators**: Green for gains, red for losses with percentage changes
+- **Auto-Refresh**: Automatically updates prices every 60 seconds
+- **Manual Refresh**: Press B button to refresh prices on demand
+- **WiFi Integration**: Connects to WiFi using credentials from `/secrets.py`
+- **Clean UI**: GitHub-themed dark interface with color-coded price movements
+
+## Tracked Cryptocurrencies
+
+- **Bitcoin (BTC-USD)**: The original cryptocurrency
+- **Ethereum (ETH-USD)**: Smart contract platform
+- **Dogecoin (DOGE-USD)**: The people's crypto
+- **Ripple (XRP-USD)**: Digital payment protocol
+
+## Controls
+
+- **B Button**: Manually refresh cryptocurrency prices
+- Auto-refresh occurs every 60 seconds when connected
+
+## Install
+
+1. Copy the `crypto/` folder to `/apps/crypto/` on the BADGER drive while in USB storage mode
+2. Ensure `/secrets.py` is configured with WiFi credentials (see Configuration below)
+3. Eject, reboot, and launch Crypto Tracker from the menu
+
+## File Layout
+
+```
+/apps/crypto/
+  ├── __init__.py   # Main app with API integration and price display
+  └── icon.png      # App icon for the launcher
+```
+
+## Configuration
+
+Create or edit `/secrets.py` on your badge:
+
+```python
+# WiFi credentials
+WIFI_SSID = "YourNetworkName"
+WIFI_PASSWORD = "YourPassword"
+
+# Your GitHub username (optional for this app)
+GITHUB_USERNAME = "yourusername"
+```
+
+**Required Variables:**
+- `WIFI_SSID`: Your WiFi network name
+- `WIFI_PASSWORD`: Your WiFi password
+
+## How It Works
+
+1. **WiFi Connection**: Connects to WiFi using credentials from `/secrets.py`
+2. **Price Fetching**: Queries Yahoo Finance API for each cryptocurrency
+3. **Real-time Display**: Shows current price, daily change, and percentage movement
+4. **Auto-refresh**: Updates every 60 seconds automatically
+5. **Color Coding**: Green text for positive changes, red for negative, gray for no change
+
+## Technical Details
+
+- Uses Yahoo Finance public API (no API key required)
+- Implements efficient memory management with garbage collection
+- 60-second WiFi connection timeout
+- Handles network errors gracefully with error messages
+- Price formatting adapts based on crypto value (more decimals for sub-$1 coins)
+
+## Troubleshooting
+
+**"No WiFi Config" message:**
+- Edit `/secrets.py` with your WiFi credentials
+- Ensure WIFI_SSID and WIFI_PASSWORD are set correctly
+
+**"Connection Failed" message:**
+- Verify WiFi credentials are correct
+- Check that your network is 2.4GHz (Badger 2350 doesn't support 5GHz)
+- Move closer to your WiFi router
+
+**Prices showing as $0.00:**
+- Check internet connection
+- API may be temporarily unavailable - wait and refresh
+- Press B button to manually retry fetching
+
+## Source
+
+GitHub repository: [Add your repository URL here]
