@@ -1,0 +1,28 @@
+---
+import { Bluetooth, Usb } from 'lucide-react'
+
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/'
+const tools = [
+  { href: '/edit', label: 'USB and disk', icon: Usb },
+  { href: '/edit/bluetooth', label: 'Bluetooth', icon: Bluetooth },
+]
+---
+
+<nav aria-label="Badge editor tools" class="mx-auto mb-6 grid max-w-6xl gap-2 sm:grid-cols-2">
+  {tools.map(({ href, label, icon: Icon }) => {
+    const active = pathname === href
+    return (
+      <a
+        href={href}
+        aria-current={active ? 'page' : undefined}
+        class:list={[
+          'surface surface-hover flex items-center gap-3 px-4 py-3 no-underline',
+          active && 'border-primary/60 bg-primary/10',
+        ]}
+      >
+        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="h-4 w-4" /></span>
+        <span class="text-sm font-medium text-foreground">{label}</span>
+      </a>
+    )
+  })}
+</nav>

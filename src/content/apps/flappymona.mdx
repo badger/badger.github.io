@@ -1,6 +1,6 @@
 ---
 title: "Flappy Mona"
-description: "Flappy Bird clone with gravity physics. Parallax scrolling backgrounds. Procedural obstacle generation."
+description: "Flappy Bird-style game with parallax backgrounds and generated obstacles."
 icon: "/images/apps/flappymona_icon.png"
 category: "game"
 preloaded: true
@@ -8,225 +8,28 @@ customizable: false
 fileLocation: "/apps/flappy"
 ---
 
-# Flappy Mona
+## Controls
 
-The classic Flappy Bird game with Mona! Features beautiful parallax scrolling backgrounds, smooth physics, and three game states: intro, playing, and game over.
+- A: flap or restart
 
 ## Features
 
-- **Smooth Physics**: Gravity-based movement with flap mechanics
-- **Parallax Scrolling**: Multi-layer background with grass and clouds
-- **Obstacle System**: Procedurally spawned obstacles with gaps
-- **Score Tracking**: Points earned for each obstacle passed
-- **Game States**: Intro screen → Playing → Game Over loop
-- **Ghost Mode**: When Mona dies, she becomes a ghost sprite
+- Gravity and collision physics
+- Parallax backgrounds
+- Generated obstacles
+- Score tracking
 
-## File Location
+## Files
 
-Flappy Mona lives in `/apps/flappy` when the badge is mounted.
-
-```
+```text
 /apps/flappy/
-    ├── __init__.py      # Main game loop and state machine
-    ├── mona.py          # Mona character physics and collision
-    ├── obstacle.py      # Obstacle spawning and movement
-    ├── icon.png         # Launcher icon
-    └── assets/          # Background layers and sprites
+├── __init__.py
+├── mona.py
+├── obstacle.py
+├── icon.png
+└── assets/
 ```
 
-## How to Play
+## Source
 
-### Controls
-
-- **Button A**: Jump/Flap (in intro, playing, and restart)
-
-### Game States
-
-**1. INTRO State:**
-- Shows "FLAPPY MONA" title
-- Blinking "Press A to start" message
-- Background scrolls continuously
-- Press A to begin
-
-**2. PLAYING State:**
-- Press A to make Mona jump
-- Avoid obstacles (top and bottom barriers)
-- Score increases as you pass obstacles
-- Background parallax scrolls at different speeds
-- Obstacles spawn every 500ms after first spawn
-
-**3. GAME OVER State:**
-- Shows "GAME OVER!" and final score
-- Blinking "Press A to restart" message
-- Background stops scrolling
-- Press A to return to intro
-
-### Scoring
-
-Points are earned by passing obstacles. The longer you survive, the higher your score!
-
-## Visual Elements
-
-**Background Layers (Parallax):**
-1. **Sky**: Bright blue background (73, 219, 255)
-2. **Distant background**: Mountains/hills, scrolls at 1/8 speed
-3. **Clouds**: Cloud layer, scrolls at 1/8 speed
-4. **Grass**: Foreground grass, scrolls at 1/4 speed (fastest)
-
-All layers scroll continuously in intro and playing states, creating depth.
-
-**Fonts:**
-- **Large font**: "ziplock.ppf" for titles
-- **Small font**: "nope.ppf" for score and messages
-
-## Game Mechanics
-
-**Mona Character:**
-- Starts at center of screen
-- Affected by gravity
-- Jump/flap on Button A press
-- Collision detection with obstacles
-- When dies: becomes ghost sprite, falls to bottom
-- `is_dead()` and `is_done_dying()` methods control game flow
-
-**Obstacles:**
-- Spawn timer controlled by `Obstacle.next_spawn_time`
-- Move from right to left across screen
-- Top and bottom barriers with gap in middle
-- Static obstacle class manages all active obstacles
-- Collision detection with Mona's position
-
-## Tips & Tricks
-
-- **Timing is everything**: Learn the rhythm of tapping
-- **Watch the parallax**: Use background scrolling to gauge speed
-- **Stay centered**: Avoid top and bottom edges
-- **Practice jumps**: Each tap gives consistent upward force
-- **Death is learning**: Ghost animation shows your final moments!
-
-## Technical Implementation
-
-**State Machine:**
-```python
-class GameState:
-    INTRO = 1
-    PLAYING = 2
-    GAME_OVER = 3
-```
-
-**Background Scrolling:**
-- Offset increments each frame
-- Modulo arithmetic for seamless looping
-- Different scroll speeds create parallax effect
-
-## Source Code
-
-View the complete source code on GitHub:
-- [Main game loop](https://github.com/badger/home/blob/main/badge/apps/flappy/__init__.py)
-- [Mona physics](https://github.com/badger/home/blob/main/badge/apps/flappy/mona.py)
-- [Obstacle system](https://github.com/badger/home/blob/main/badge/apps/flappy/obstacle.py)
-
-## How to Play
-
-### Controls
-
-- **Button A**: Flap (make Mona fly up)
-- **Button E**: Restart / Return to menu
-
-### Gameplay
-
-1. Mona falls down automatically due to gravity
-2. Tap Button A to flap and fly upward
-3. Navigate through the gaps between pipes
-4. Each pipe you pass scores 1 point
-5. Game ends if Mona hits a pipe or the ground
-
-### Scoring
-
-- **1 point** per pipe successfully passed
-- Your high score is automatically saved
-- Try to beat your personal best!
-
-## Tips & Tricks
-
-- **Timing is Everything**: Don't flap too early or too late
-- **Find Your Rhythm**: Regular tapping works better than frantic mashing
-- **Watch Ahead**: Look at the next pipe while passing the current one
-- **Stay Centered**: Try to keep Mona in the middle of the screen
-- **Practice Makes Perfect**: The more you play, the better you'll get
-- **Start Small**: Focus on passing 5 pipes, then 10, then 20+
-
-## Difficulty Progression
-
-- **0-10 pipes**: Beginner - Wide gaps, slow speed
-- **11-20 pipes**: Intermediate - Narrower gaps
-- **21+ pipes**: Expert - Fast speed, requires precision
-
-## High Scores
-
-Your scores are saved locally:
-
-```json
-// scores.json
-{
-  "highScore": 42,
-  "lastScore": 18,
-  "totalGames": 156,
-  "totalPipes": 847
-}
-```
-
-## Code Example
-
-Here's how the flappy mechanics work:
-
-```python
-from badger2350 import Badger2350
-import time
-
-badge = Badger2350()
-
-class FlappyMona:
-    def __init__(self):
-        self.y = badge.height // 2
-        self.velocity = 0
-        self.gravity = 0.5
-        self.flap_strength = -8
-    
-    def flap(self):
-        self.velocity = self.flap_strength
-    
-    def update(self):
-        # Apply gravity
-        self.velocity += self.gravity
-        self.y += self.velocity
-        
-        # Keep on screen
-        if self.y < 0:
-            self.y = 0
-            self.velocity = 0
-        elif self.y > badge.height:
-            return False  # Game over
-        
-        return True
-    
-    def draw(self):
-        badge.set_pen(0)
-        # Draw Mona sprite
-        badge.circle(20, int(self.y), 8)
-
-# Main game loop
-mona = FlappyMona()
-while True:
-    if badge.pressed(badge.BUTTON_A):
-        mona.flap()
-    
-    if not mona.update():
-        break  # Game over
-    
-    badge.set_pen(15)
-    badge.clear()
-    mona.draw()
-    badge.update()
-    time.sleep(0.03)
-```
+[View the Flappy Mona app](https://github.com/badger/home/tree/main/badge/apps/flappy).

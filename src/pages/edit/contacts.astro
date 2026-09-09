@@ -1,0 +1,19 @@
+---
+const destination = '/contacts'
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href="https://badger.github.io/contacts" />
+    <title>Contacts moved | Badger</title>
+    <script is:inline define:vars={{ destination }}>
+      window.location.replace(`${destination}${window.location.search}${window.location.hash}`)
+    </script>
+  </head>
+  <body>
+    <p>Contacts moved to <a href="/contacts">/contacts</a>.</p>
+  </body>
+</html>

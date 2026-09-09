@@ -1,62 +1,43 @@
 ---
-// Footer component for all pages
+import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
 ---
 
-<footer class="bg-background border-t">
+<footer class="border-t border-border/80 bg-background/80">
   <div class="container py-12">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-      <div class="space-y-4">
-  <h3 class="text-lg font-semibold">Badger</h3>
-        <p class="text-sm text-muted-foreground">
-          A community-driven catalog of hacks and projects for the Badger 2350.
-        </p>
+    <div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div class="max-w-xs">
+        <div class="flex items-center gap-3">
+          <img src="/favicon.svg" alt="" class="h-8 w-8" />
+          <h2 class="font-display text-xl">Badger</h2>
+        </div>
       </div>
-      
-      <div class="space-y-4">
-        <h4 class="font-semibold">Learn</h4>
-        <ul class="space-y-2 text-sm">
-          <li><a href="/apps" class="text-muted-foreground hover:text-foreground transition-colors">Preloaded Apps</a></li>
-          <li><a href="/hacks" class="text-muted-foreground hover:text-foreground transition-colors">Browse Hacks</a></li>
-          <li><a href="/about-badge" class="text-muted-foreground hover:text-foreground transition-colors">About Badger 2350</a></li>
-          <li><a href="/contribute" class="text-muted-foreground hover:text-foreground transition-colors">Get Started</a></li>
+
+      <div>
+        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Guides</h3>
+        <ul class="space-y-2 text-sm text-muted-foreground">
+          <li><a href="/get-started" class="transition-colors hover:text-primary">Get started</a></li>
+          {APP_CATALOG_PAGE_ENABLED && <li><a href="/apps" class="transition-colors hover:text-primary">Browse apps</a></li>}
+          <li><a href="/hacks" class="transition-colors hover:text-primary">Browse hacks</a></li>
         </ul>
       </div>
-      
-      <div class="space-y-4">
-        <h4 class="font-semibold">Community</h4>
-        <ul class="space-y-2 text-sm">
-          <li><a href="/contribute" class="text-muted-foreground hover:text-foreground transition-colors">Contribute</a></li>
-          <li><a href="https://github.com/badger/badger.github.io" class="text-muted-foreground hover:text-foreground transition-colors" target="_blank" rel="noopener">GitHub</a></li>
-          <li><a href="https://github.com/badger/badger.github.io/discussions" class="text-muted-foreground hover:text-foreground transition-colors" target="_blank" rel="noopener">Discussions</a></li>
+
+      <div>
+        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Tools</h3>
+        <ul class="space-y-2 text-sm text-muted-foreground">
+          <li><a href="/about-badge" class="transition-colors hover:text-primary">Hardware map</a></li>
+          <li><a href="/edit" class="transition-colors hover:text-primary">USB and disk editor</a></li>
+          <li><a href="/edit/bluetooth" class="transition-colors hover:text-primary">Bluetooth editor</a></li>
+          <li><a href="/contacts" class="transition-colors hover:text-primary">Contacts</a></li>
+          <li><a href="https://github.com/badger/home" target="_blank" rel="noopener" class="transition-colors hover:text-primary">Firmware repo</a></li>
         </ul>
       </div>
-      
-      <div class="space-y-4">
-        <h4 class="font-semibold">Resources</h4>
-        <ul class="space-y-2 text-sm">
-          <li><a href="/about-badge" class="text-muted-foreground hover:text-foreground transition-colors">Documentation</a></li>
-          <li><a href="/about-badge" class="text-muted-foreground hover:text-foreground transition-colors">Hardware Guide</a></li>
-          <li><a href="https://github.com/badger/home" class="text-muted-foreground hover:text-foreground transition-colors" target="_blank" rel="noopener">Official Repo</a></li>
+
+      <div>
+        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Community</h3>
+        <ul class="space-y-2 text-sm text-muted-foreground">
+          <li><a href="https://github.com/badger/badger.github.io" target="_blank" rel="noopener" class="transition-colors hover:text-primary">Site source</a></li>
+          <li><a href="https://github.com/badger/badger.github.io/discussions" target="_blank" rel="noopener" class="transition-colors hover:text-primary">Discussions</a></li>
         </ul>
-      </div>
-    </div>
-    
-    <div class="mt-8 pt-8 border-t">
-      <div class="flex flex-col items-center space-y-3 text-center">
-        <p class="text-sm text-muted-foreground">
-          © 2025 GitHub, Inc.
-        </p>
-        <p class="text-sm text-muted-foreground">
-          Built with ❤️ for the Badger 2350 community. Built with GitHub Copilot. Open source on
-          <a
-            href="https://github.com/badger/badger.github.io"
-            class="text-primary hover:text-primary/80 transition-colors px-1"
-            target="_blank"
-            rel="noopener"
-          >
-            badger.github.io
-          </a>
-        </p>
       </div>
     </div>
   </div>

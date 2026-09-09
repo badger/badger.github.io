@@ -5,7 +5,6 @@ import ListingHero from '@/components/listing-hero.astro'
 interface Task {
   id: string
   label: string
-  summary: string
   steps: string[]
 }
 
@@ -13,16 +12,14 @@ const tasks: Task[] = [
   {
     id: 'power-on',
     label: 'Power On',
-    summary: 'Boot MonaOS and reach the launcher.',
     steps: [
-      'Press RESET on the back of your badger ONLY once. MonaOS runs the Universe 25 intro animation.',
-      'Press the HOME button on the back of your badger ONLY once. This starts the app launcher.'
+      'Press RESET on the back of your badge once. MonaOS runs the launch animation.',
+      'Press the HOME button on the back of your badge once. This starts the app launcher.'
     ],
   },
   {
     id: 'sleep',
     label: 'Sleep Mode',
-    summary: 'Drop the badge into low-power standby.',
     steps: [
       'Press and hold the RESET button on the back for roughly three seconds.',
       'Wake up by pressing RESET again only once or pressing any front button.',
@@ -31,7 +28,6 @@ const tasks: Task[] = [
   {
     id: 'power-off',
     label: 'Power Off',
-    summary: 'Shutdown the badge completely.',
     steps: [
       'Simultaneously press and hold UP, DOWN, and RESET button for about three seconds until the display and LEDs turn off.',
       'Verify by pressing any front button to ensure the badge does not power on.',
@@ -40,7 +36,6 @@ const tasks: Task[] = [
   {
     id: 'charging',
     label: 'Charge Battery',
-    summary: 'Top up a Li-Po using the onboard charger.',
     steps: [
       'Connect USB-C power (5 V). The onboard charger auto-detects the pack.',
       'Watch the rear CHG LED which lights up when charging.',
@@ -49,7 +44,6 @@ const tasks: Task[] = [
   {
     id: 'usb-disk',
     label: 'USB Disk Mode',
-    summary: 'Expose `BADGER` mass storage for quick file copies.',
     steps: [
       'Double-press RESET quickly. The RP2350 bootloader mounts as `BADGER`.',
       'Copy apps or assets onto the drive. Keep filenames ≤31 characters for FAT.',
@@ -59,7 +53,6 @@ const tasks: Task[] = [
   {
     id: 'flash',
     label: 'Flash Firmware',
-    summary: 'Load the latest MonaOS UF2 build.',
     steps: [
       'Download the newest `.uf2` release to your computer from here: https://github.com/badger/home/releases',
       'Hold HOME, tap RESET once, then release HOME when the `RP2350` drive appears.',
@@ -72,38 +65,33 @@ const tasks: Task[] = [
 
 <Layout title="Get Started" description="Core badge workflows, distilled.">
   <ListingHero
-    eyebrow="// BADGE OPS"
     title="Get"
     titleHighlight="Started"
-    description="Follow the core badge procedures without flipping through the README. Each flow is tuned for bench-side execution."
   />
 
-  <section class="container pb-20 space-y-12">
-    <div class="grid gap-8 md:grid-cols-2">
+  <section class="py-12 sm:py-16">
+    <div class="container grid gap-5 md:grid-cols-2">
       {tasks.map((task: Task) => (
-        <article id={task.id} class="rounded-lg border border-border/40 bg-layer-mid/60 p-8 shadow-sm transition-colors hover:border-primary/60 scroll-mt-32 md:scroll-mt-40">
-          <div class="space-y-3 pb-4">
+        <article id={task.id} class="surface min-w-0 overflow-hidden scroll-mt-32 md:scroll-mt-40">
+          <header class="border-b border-border/70 px-6 py-5">
             <a
               href={`#${task.id}`}
-              class="font-mono text-base md:text-lg uppercase tracking-[0.18em] text-primary inline-flex items-center gap-2 transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60"
+              class="inline-flex font-mono text-sm uppercase tracking-[0.16em] text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60"
               aria-label={`Permalink to ${task.label}`}
             >
               <span>{task.label}</span>
             </a>
-            <p class="font-sans text-lg md:text-xl text-muted-foreground/90 leading-relaxed">{task.summary}</p>
-          </div>
-          <div class="space-y-5">
-            <ol class="space-y-4 font-sans text-lg md:text-xl leading-8 text-foreground/90">
-              {task.steps.map((step: string, index: number) => (
-                <li class="flex gap-3">
-                  <span class="font-mono text-sm md:text-base uppercase tracking-[0.14em] text-primary/70 pt-1">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span class="text-base md:text-lg leading-8">{step}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
+          </header>
+          <ol class="divide-y divide-border/60">
+            {task.steps.map((step: string, index: number) => (
+              <li class="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 px-6 py-4">
+                <span class="pt-0.5 font-mono text-xs tracking-[0.14em] text-primary/70">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="text-sm leading-6 text-foreground/90 sm:text-base sm:leading-7">{step}</span>
+              </li>
+            ))}
+          </ol>
         </article>
       ))}
     </div>

@@ -24,11 +24,11 @@ const { Content } = await hack.render()
 
 <Layout title={`${hack.data.title} - Badger`} description={hack.data.description}>
   <!-- Hero Section -->
-  <section class="py-12 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
+  <section class="border-b border-border/70 bg-muted/20 py-16">
     <div class="container">
       <div class="max-w-4xl mx-auto">
         <!-- Content -->
-        <div class="space-y-6 text-white">
+        <div class="space-y-6">
           <div class="space-y-4">
             <div class="flex items-center gap-3 text-white">
               <DifficultyBadge 
@@ -36,7 +36,7 @@ const { Content } = await hack.render()
                 className="text-sm"
                 client:load
               />
-              <div class="flex items-center gap-2 text-white">
+              <div class="flex items-center gap-2 text-muted-foreground">
                 <Clock className="h-4 w-4" />
                 <span class="font-mono tracking-wide uppercase text-xs">{formatDuration(hack.data.duration)}</span>
               </div>

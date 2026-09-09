@@ -1,0 +1,78 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import ListingHero from '@/components/listing-hero.astro'
+import { AppCard } from '@/components/app-card'
+import { PlugZap } from 'lucide-react'
+import { getCollection } from 'astro:content'
+import type { GetStaticPaths } from 'astro'
+import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
+
+export const getStaticPaths = (() => {
+  if (!APP_CATALOG_PAGE_ENABLED) return []
+
+  return [{ params: { catalog: undefined } }]
+}) satisfies GetStaticPaths
+
+const allApps = await getCollection('apps')
+const preloadedApps = allApps.filter((app) => app.data.preloaded).sort((left, right) => left.data.title.localeCompare(right.data.title))
+const optionalApps = allApps.filter((app) => !app.data.preloaded).sort((left, right) => left.data.title.localeCompare(right.data.title))
+---
+
+<Layout title="Apps / Badger 2350" description="Browse built-in and loadable apps for the Badger 2350.">
+  <ListingHero
+    title="Apps"
+  />
+
+  <section class="py-20">
+    <div class="container">
+      <div class="mb-8 flex items-end justify-between gap-4">
+        <div class="section-heading"><h2 class="text-3xl sm:text-4xl">Built-in Apps</h2></div>
+        <span class="hidden font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground sm:inline">{preloadedApps.length} apps</span>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {preloadedApps.map((app) => (
+          <AppCard title={app.data.title} description={app.data.description} icon={app.data.icon} category={app.data.category} preloaded={app.data.preloaded} customizable={app.data.customizable} slug={app.slug} client:load />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {optionalApps.length > 0 && (
+    <section class="border-t border-border/70 bg-muted/25 py-20">
+      <div class="container">
+        <div class="mb-8 flex items-end justify-between gap-4">
+          <div class="section-heading"><h2 class="text-3xl sm:text-4xl">Loadable Apps</h2><p>Copy an app folder from <a href="https://github.com/badger/home/tree/main/badge/apps" target="_blank" rel="noopener" class="text-primary hover:text-primary/80">badger/home</a> into <code>/apps/</code>.</p></div>
+          <PlugZap className="hidden h-7 w-7 text-primary/60 sm:block" />
+        </div>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {optionalApps.map((app) => (
+            <AppCard title={app.data.title} description={app.data.description} icon={app.data.icon} category={app.data.category} preloaded={app.data.preloaded} customizable={app.data.customizable} slug={app.slug} client:load />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="border-t border-border/70 py-20">
+    <div class="container">
+      <div class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+        <div class="section-heading"><h2 class="text-3xl sm:text-4xl">Filesystem</h2><p>Leave <code>/system</code> unchanged.</p></div>
+        <div class="surface overflow-hidden">
+          <div class="flex items-center justify-between border-b border-border/70 px-5 py-3"><span class="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">/Volumes/BADGER</span><span class="text-xs text-primary">editable</span></div>
+          <pre class="overflow-x-auto p-5 text-sm leading-7 text-foreground/85"><code>{`/apps/
+├── badge/
+│   ├── __init__.py
+│   └── icon.png
+├── gallery/
+├── monapet/
+├── snake/
+└── your-app/
+
+/assets/
+/main.py
+/secrets.py`}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

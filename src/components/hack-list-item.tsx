@@ -24,14 +24,24 @@ export function HackListItem({
   const handleClick = () => {
     window.location.href = `/hack/${slug}`
   }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleClick()
+    }
+  }
   
   return (
     <div 
-      className="group p-5 rounded-lg border border-border/40 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(95,237,131,0.2)] transition-all duration-200 cursor-pointer bg-card/30"
+      className="surface surface-hover group cursor-pointer p-5 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="link"
+      tabIndex={0}
     >
       {/* Difficulty and Duration */}
-      <div className="flex items-center gap-3 mb-3">
+      <div className="mb-3 flex items-center gap-3">
         <DifficultyBadge 
           difficulty={difficulty}
           className="text-xs"
@@ -43,12 +53,12 @@ export function HackListItem({
       </div>
       
       {/* Title */}
-      <h3 className="font-sans font-bold text-lg text-foreground group-hover:text-primary transition-colors normal-case tracking-tight mb-2">
+      <h3 className="mb-2 font-sans text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary normal-case">
         {title}
       </h3>
       
       {/* Description */}
-      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+      <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
         {description}
       </p>
     </div>

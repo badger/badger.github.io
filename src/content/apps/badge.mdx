@@ -1,6 +1,6 @@
 ---
 title: "Badge"
-description: "Digital conference badge from GitHub profile. Live API data: followers, repos, contributions. WiFi required."
+description: "GitHub profile badge with followers, repositories, and contributions. Requires Wi-Fi."
 icon: "/images/apps/badge_icon.png"
 category: "utility"
 preloaded: true
@@ -8,153 +8,31 @@ customizable: true
 fileLocation: "/apps/badge"
 ---
 
-# Badge
-
-A digital conference badge featuring your GitHub profile! Displays your contribution graph, avatar, stats (followers/repos/contributions), and username with beautiful animations.
-
 ## Features
 
-- **Contribution Graph**: Scrolling GitHub contribution heatmap background
-- **Animated Avatar Loading**: Spinning squircle animation while fetching
-- **Three Key Stats**: Followers, total contributions, and public repos
-- **WiFi Integration**: Fetches live data from GitHub's API
-- **Offline Cache**: Works offline after initial data fetch
-- **Auto-Configuration**: Reads credentials from `/secrets.py`
-- **Force Refresh**: Hold A+C to re-fetch all data
+- GitHub contribution graph, avatar, and username
+- Followers, public repositories, and contributions
+- Offline cache after the first sync
+- Hold A+C to refresh
 
-## File Location
+## Files
 
-Badge ships in `/apps/badge` when the badge is mounted over USB.
-
-```
+```text
 /apps/badge/
-   ├── __init__.py      # Main badge app with WiFi and API logic
-   └── icon.png         # Menu icon shown in the launcher
-```
-
-After the first successful sync the app also drops cached data at the root of the drive:
-
-```
-/contrib_data.json     # Contribution graph cache
-/user_data.json        # Profile metadata cache
-/avatar.png            # Resized GitHub avatar
+├── __init__.py
+└── icon.png
 ```
 
 ## Configuration
 
-Create or edit `/secrets.py` on your badge:
+Set these values in `/secrets.py`:
 
 ```python
-# WiFi credentials
-WIFI_SSID = "YourNetworkName"
-WIFI_PASSWORD = "YourPassword"
-
-# Your GitHub username
-GITHUB_USERNAME = "octocat"
+WIFI_SSID = "network-name"
+WIFI_PASSWORD = "network-password"
+GITHUB_USERNAME = "github-handle"
 ```
 
-**Required Variables:**
-- `WIFI_SSID`: Your WiFi network name
-- `WIFI_PASSWORD`: Your WiFi password
-- `GITHUB_USERNAME`: Your GitHub username
+## Source
 
-## Setup Process
-
-1. **Put badge in disk mode** (tap RESET twice)
-2. **Edit `/secrets.py`** with your credentials
-3. **Reload the badge** (press RESET once)
-4. **Launch Badge app** from menu
-5. **Wait for data fetch** (~60 second timeout)
-
-The app will:
-1. Connect to WiFi
-2. Fetch user data from `https://api.github.com/users/{username}`
-3. Fetch contribution graph from `https://github.com/{username}.contribs`
-4. Download avatar from `https://wsrv.nl/?url=https://github.com/{username}.png&w=75`
-5. Cache everything locally for offline use
-
-## Visual Elements
-
-**Contribution Graph Background:**
-- 53 weeks × 7 days grid
-- 5 contribution levels with green gradient colors
-- Horizontal scrolling animation (sine wave pattern)
-- Each cell is a 15×15px rounded rectangle with 2px spacing
-
-**Stats Display:**
-- Large font for numbers (phosphor color: rgb(211, 250, 55))
-- Small font for labels  
-- Three stats positioned vertically on right side
-- Falls back to random numbers if data not loaded yet
-
-**Avatar:**
-- 75×75px image loaded from wsrv.nl (image resize service)
-- Positioned at (5, 37) on screen
-- While loading: animated spinning squircle pattern
-- Four rotating squircles with scaling effect
-
-**Status Messages:**
-- "fetching user data..." → "fetching contribs..." → "fetching avatar..."
-- "connecting..." when WiFi not ready
-- Username displayed at top center when ready
-
-## Data Fetching
-
-**Three Async Operations:**
-1. **User Data**: `GET /users/{username}` → `/user_data.json`
-   - Name, login, followers, public_repos
-2. **Contributions**: `GET /{username}.contribs` → `/contrib_data.json`
-   - 53 weeks of contribution data with levels (0-4)
-3. **Avatar**: Download PNG → `/avatar.png`
-   - Resized to 75px via wsrv.nl service
-
-Each operation is a generator function using `yield` for async-like behavior without blocking.
-
-## Colors
-
-```python
-phosphor = brushes.color(211, 250, 55, 150)  # Bright lime
-white = brushes.color(235, 245, 255)         # Off-white
-faded = brushes.color(235, 245, 255, 100)    # Faded white
-
-# Contribution levels (green gradient)
-levels = [
-    (21/2, 27/2, 35/2),    # Level 0 - darkest
-    (3/2, 58/2, 22/2),     # Level 1
-    (25/2, 108/2, 46/2),   # Level 2
-    (46/2, 160/2, 67/2),   # Level 3
-    (86/2, 211/2, 100/2),  # Level 4 - brightest
-]
-```
-
-## Error Handling
-
-**No Secrets File:**
-- Shows "Missing Details!" screen
-- Instructions to edit secrets.py
-- Three-step setup guide
-
-**Connection Failed:**
-- Shows "Connection Failed!" screen
-- WiFi troubleshooting steps
-- Retry instructions
-
-## Force Refresh
-
-Hold **Button A + Button C** together to:
-- Clear cached data
-- Re-fetch everything from GitHub
-- Useful after updating your profile
-
-## Technical Details
-
-- **WiFi Timeout**: 60 seconds to connect
-- **Streaming Downloads**: Uses chunked 512-byte buffers
-- **State Persistence**: Checks for cached files on startup
-- **Generator Pattern**: Non-blocking data fetching
-- **Image Optimization**: Uses 2x antialiasing
-
-## Source Code
-
-View the complete source code on GitHub:
-- [Main badge app](https://github.com/badger/home/blob/main/badge/apps/badge/__init__.py) - Complete WiFi, API, and rendering logic
+[View the Badge app](https://github.com/badger/home/tree/main/badge/apps/badge).

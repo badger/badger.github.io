@@ -1,7 +1,6 @@
-import { Clock, ExternalLink } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DifficultyBadge } from '@/components/difficulty-badge'
-import { Button } from '@/components/ui/button'
 import { formatDuration } from '@/lib/utils'
 import { getPlaceholderImage } from '@/lib/placeholder-images'
 
@@ -29,15 +28,25 @@ export function HackCard({
   const handleCardClick = () => {
     window.location.href = `/hack/${slug}`
   }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleCardClick()
+    }
+  }
   
   return (
     <Card 
-      className="group overflow-hidden transition-all duration-200 cursor-pointer border-border/40 hover:border-primary/60 hover:shadow-[0_0_30px_rgba(95,237,131,0.3)]"
+      className="surface surface-hover group cursor-pointer overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
+      role="link"
+      tabIndex={0}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="font-sans font-bold text-xl text-foreground group-hover:text-primary line-clamp-2 transition-colors normal-case tracking-tight">
+          <CardTitle className="line-clamp-2 font-sans text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary normal-case">
             {title}
           </CardTitle>
           <DifficultyBadge 
@@ -45,24 +54,16 @@ export function HackCard({
             className="shrink-0 text-xs"
           />
         </div>
-        <CardDescription className="text-base leading-6 text-muted-foreground/80 line-clamp-3">
+        <CardDescription className="line-clamp-3 text-sm leading-6 text-muted-foreground">
           {description}
         </CardDescription>
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground transition-colors group-hover:text-foreground">
           <Clock className="h-4 w-4" />
           <span>{formatDuration(duration)}</span>
         </div>
-
-        <Button 
-          className="w-full group/button pointer-events-none group-hover:border-primary transition-colors"
-          variant="default"
-        >
-          Try this hack
-          <ExternalLink className="h-4 w-4 ml-2" />
-        </Button>
       </CardContent>
     </Card>
   )

@@ -1,5 +1,6 @@
 import React from 'react'
 import { getPlaceholderImage } from '@/lib/placeholder-images'
+import { APP_DETAIL_LINKS_ENABLED } from '@/config/features'
 
 export interface AppCardProps {
   title: string
@@ -50,17 +51,28 @@ export function AppCard({
   }, [icon, iconFilename])
   
   const handleCardClick = () => {
+    if (!APP_DETAIL_LINKS_ENABLED) return
     window.location.href = `/app/${slug}`
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleCardClick()
+    }
   }
   
   return (
-    <div 
-      className="group flex items-start gap-4 p-4 rounded-xl hover:bg-muted/50 transition-all duration-200 cursor-pointer"
-      onClick={handleCardClick}
+    <div
+      className={`surface flex items-start gap-4 p-4 ${APP_DETAIL_LINKS_ENABLED ? 'surface-hover group cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background' : ''}`}
+      onClick={APP_DETAIL_LINKS_ENABLED ? handleCardClick : undefined}
+      onKeyDown={APP_DETAIL_LINKS_ENABLED ? handleKeyDown : undefined}
+      role={APP_DETAIL_LINKS_ENABLED ? 'link' : undefined}
+      tabIndex={APP_DETAIL_LINKS_ENABLED ? 0 : undefined}
     >
       {/* App Icon */}
       <div 
-        className="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"
+        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-[1.03]"
         style={{ backgroundColor: iconBgColor }}
       >
         <img 
@@ -72,8 +84,8 @@ export function AppCard({
 
       {/* App Info */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1.5">
-          <h3 className="font-sans font-bold text-base tracking-tight group-hover:text-primary transition-colors normal-case">
+        <div className="mb-1.5 flex items-center gap-2">
+          <h3 className="font-sans text-base font-semibold tracking-tight transition-colors group-hover:text-primary normal-case">
             {title}
           </h3>
           {!preloaded && (
@@ -82,7 +94,7 @@ export function AppCard({
             </span>
           )}
         </div>
-        <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed">
+        <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">
           {description}
         </p>
       </div>
