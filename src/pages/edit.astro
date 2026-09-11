@@ -5,6 +5,8 @@ import EditorTools from '@/components/editor-tools.astro'
 import { getCollection } from 'astro:content'
 
 const apps = await getCollection('apps')
+// Catalog folders from badger/home are matched by content slug and by the badge
+// folder name in fileLocation (for example quest for monaquest).
 const appDescriptions = Object.fromEntries(
   apps.flatMap((app) => {
     const folder = app.data.fileLocation.split('/').filter(Boolean).at(-1)
