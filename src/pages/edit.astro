@@ -2,13 +2,22 @@
 import Layout from '@/layouts/Layout.astro'
 import { BadgeManager } from '@/components/badge-manager'
 import EditorTools from '@/components/editor-tools.astro'
+import { getCollection } from 'astro:content'
+
+const apps = await getCollection('apps')
+const appDescriptions = Object.fromEntries(
+  apps.flatMap((app) => {
+    const folder = app.data.fileLocation.split('/').filter(Boolean).at(-1)
+    return [app.slug, ...(folder ? [folder] : [])].map((key) => [key, app.data.description])
+  })
+)
 ---
 
 <Layout title="Badger Edit">
   <section class="py-14 sm:py-20">
     <div class="container">
       <EditorTools />
-      <BadgeManager client:load />
+      <BadgeManager appDescriptions={appDescriptions} client:load />
     </div>
   </section>
 </Layout>

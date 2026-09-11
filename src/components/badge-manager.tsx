@@ -57,6 +57,7 @@ type StoreApp = {
   title: string
   files: string[]
   iconUrl?: string
+  description?: string
 }
 
 type AutosaveState = 'saved' | 'pending' | 'saving' | 'error'
@@ -172,7 +173,7 @@ async function collectDroppedFiles(dataTransfer: DataTransfer) {
   return (await Promise.all(entries.map((entry) => visit(entry)))).flat()
 }
 
-export function BadgeManager() {
+export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Record<string, string> }) {
   const [port, setPort] = useState<SerialPortLike | null>(null)
   const portRef = useRef<SerialPortLike | null>(null)
   const [diskRoot, setDiskRoot] = useState<DiskDirectoryHandle | null>(null)
@@ -331,6 +332,7 @@ export function BadgeManager() {
           title: titleForApp(name),
           files: files.sort(),
           iconUrl: files.includes('icon.png') ? `https://raw.githubusercontent.com/badger/home/main/badge/apps/${name}/icon.png` : undefined,
+          description: appDescriptions[name],
         }))
         .sort((left, right) => left.title.localeCompare(right.title))
       setStoreApps(loadedApps)
@@ -903,7 +905,7 @@ export function BadgeManager() {
               const queued = pendingApps.some((item) => item.name === app.name)
               const installed = apps.some((item) => item.name === app.name)
               const needsRepair = legacyApps.includes(app.name)
-              return <div key={app.name} className="rounded-xl border border-border/50 bg-background/45 p-3"><div className="flex items-center justify-between gap-3"><div className="flex min-w-0 items-center gap-3">{app.iconUrl ? <img src={app.iconUrl} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" /> : <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary/10"><FileCode2 className="h-5 w-5 text-primary" /></div>}<h3 className="text-sm font-medium">{app.title}</h3></div><Button size="sm" variant={queued || installed ? 'secondary' : 'outline'} onClick={() => void run(() => addStoreApp(app))} disabled={busy || installed || needsRepair}>{installed ? <><Check /> Installed</> : needsRepair ? <><CircleAlert /> Repair first</> : queued ? <><Check /> Added</> : <><ShoppingBag /> Add</>}</Button></div></div>
+              return <div key={app.name} className="rounded-xl border border-border/50 bg-background/45 p-3"><div className="flex items-center justify-between gap-3"><div className="flex min-w-0 items-center gap-3">{app.iconUrl ? <img src={app.iconUrl} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" /> : <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary/10"><FileCode2 className="h-5 w-5 text-primary" /></div>}<h3 className="text-sm font-medium">{app.title}</h3></div><Button size="sm" variant={queued || installed ? 'secondary' : 'outline'} onClick={() => void run(() => addStoreApp(app))} disabled={busy || installed || needsRepair}>{installed ? <><Check /> Installed</> : needsRepair ? <><CircleAlert /> Repair first</> : queued ? <><Check /> Added</> : <><ShoppingBag /> Add</>}</Button></div>{app.description && <p className="mt-2 text-xs leading-5 text-muted-foreground">{app.description}</p>}</div>
             })}
           </div>
           <input ref={pickerRef} type="file" className="hidden" multiple webkitdirectory="" onChange={(event) => event.target.files && addFiles(event.target.files)} />
