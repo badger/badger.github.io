@@ -1,0 +1,20 @@
+export const appDescriptions: Record<string, string> = {
+  '30_minutes_to_alpha_centauri': 'Pilot your ship through space to deliver your cargo.',
+  bee_amazed: 'Navigate your bee through the maze.',
+  clock: 'Clock with multiple styles, time zones, and more.',
+  demos: 'Collection of graphics for your badge. Shapes, text, sprites, and more.',
+  extend_a_squirrel: 'Snake-style game with a squirrel.',
+  ghost_signal: 'Follow the wave pattern as accurately as you can.',
+  hydrate: 'Have you had enough water today? Track it with this app!',
+  input_test: 'Hardware testing for badge inputs.',
+  iss_tracker: "Track the International Space Station's location in this app.",
+  life: "Conway's classic 'Game of Life' now on your badge.",
+  mass_storage: 'Use your badge as a USB storage device.',
+  plucky_cluck: 'Guide your chicken through obstacles in this Flappy Bird-style game.',
+  rogue: 'Turn-based dungeon crawler for your badge.',
+  sense: 'Sensor dashboard to display temp, humidity, pressure, light, and motion.',
+  sketchy_sketch: 'Draw on your badge with this app!',
+  snarky_sciuridae: 'A virtual pet for your badge.',
+  tennis: 'Battle back and forth in this Pong-style game.',
+  tomato: 'Pomodoro timer to help you focus.'
+}
