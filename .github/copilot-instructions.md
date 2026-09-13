@@ -12,6 +12,13 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 7. Honest UI: If data is missing, show placeholder monospace text (e.g. `--` or `/path/not/found`).
 8. Component Modularity: Always componentize reusable UI patterns. Never inline complex markup or styles. If a component doesn't exist, create it first, then use it. Keep everything modular and DRY (Don't Repeat Yourself).
 
+## App Content
+
+- Every app must have a one-sentence description that states what it does.
+- Add the description to the app content frontmatter when the app has a local entry in `src/content/apps/`.
+- Add the app folder name and description to `src/content/app-descriptions.ts` when the app comes from the external `badger/home` catalog.
+- Keep external catalog keys aligned with the folder names used under `badge/apps/`.
+
 ## Color Tokens (Dark Only)
 ```
 background: #010409
