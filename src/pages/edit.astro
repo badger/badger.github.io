@@ -3,6 +3,7 @@ import Layout from '@/layouts/Layout.astro'
 import { BadgeManager } from '@/components/badge-manager'
 import EditorTools from '@/components/editor-tools.astro'
 import { getCollection } from 'astro:content'
+import { appDescriptions as catalogDescriptions } from '@/content/app-descriptions'
 
 const apps = await getCollection('apps')
 // Catalog folders from badger/home are matched by content slug and by the badge
@@ -13,6 +14,7 @@ const appDescriptions = Object.fromEntries(
     return [app.slug, ...(folder ? [folder] : [])].map((key) => [key, app.data.description])
   })
 )
+Object.assign(appDescriptions, catalogDescriptions)
 ---
 
 <Layout title="Badger Edit">
