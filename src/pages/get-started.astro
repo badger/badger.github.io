@@ -45,8 +45,8 @@ const tasks: Task[] = [
     id: 'usb-disk',
     label: 'USB Disk Mode',
     steps: [
-      'Double-press RESET quickly. The RP2350 bootloader mounts as `BADGER`.',
-      'Copy apps or assets onto the drive. Keep filenames ≤31 characters for FAT.',
+      'Double-press RESET quickly. The bootloader mounts as `BADGER` or 'TUFTY' and a message on the badge screen will let you know you're in disk mode.',
+      'Connect your badge to your computer and copy apps or assets onto the drive. Keep filenames ≤31 characters for FAT.',
       'Eject the drive from your OS, then tap RESET once to reboot into MonaOS.',
     ],
   },
@@ -54,9 +54,10 @@ const tasks: Task[] = [
     id: 'flash',
     label: 'Flash Firmware',
     steps: [
-      'Download the newest `.uf2` release to your computer from here: https://github.com/badger/home/releases',
-      'Hold HOME, tap RESET once, then release HOME when the `RP2350` drive appears.',
-      'Drag the UF2 onto the `RP2350` volume. The badge reboots automatically after flashing.',
+      'Download the newest `.uf2` release to your computer from here: https://github.com/badger/home/releases. Be sure to pick the right one: the one ending in `micropython-with-filesystem.uf2` will wipe your whole badge and install firmware, while `micropython.uf2` will keep all your files and apps and only upgrade firmware.',
+      'Plug your badge into your computer.'
+      'Hold HOME, tap RESET once, then release HOME when the `RP2350` drive appears in your Finder window or File Explorer. Your badge screen will go dark.',
+      'Drag the .uf2 file onto the `RP2350` volume. The badge reboots automatically after flashing.',
     ],
   },
 ]
