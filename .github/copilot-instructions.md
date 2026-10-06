@@ -12,6 +12,18 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 7. Honest UI: If data is missing, show placeholder monospace text (e.g. `--` or `/path/not/found`).
 8. Component Modularity: Always componentize reusable UI patterns. Never inline complex markup or styles. If a component doesn't exist, create it first, then use it. Keep everything modular and DRY (Don't Repeat Yourself).
 
+## App Store Descriptions
+
+- The `/edit/` app store's description source is `app-descriptions.json` in `badger/badgerfactory`.
+- When adding an installable app to the store, add its description to that source file in the same badgerfactory change. Use the exact `badger/home/badge/apps/` folder name as the key, write one concise plain-text sentence, and keep every installable store app covered.
+- Only the approved description file may be copied from that private repository.
+- After source changes are reviewed and merged, run `npm run sync:app-descriptions` on a website branch.
+- `src/data/app-descriptions.json` is generated; do not edit it by hand or maintain a second description list.
+- Preserve approved app description wording, including exclamation marks; app descriptions are an exception to the punctuation rule for labels and instructions.
+- Keep app downloads in `badger/home`; builds and browser code must not need private-repository access.
+- The store and description coverage exclude `menu`, `startup`, and `quest` through the shared catalog helper.
+- Local app content descriptions still serve `/apps/` and individual app pages.
+
 ## Color Tokens (Dark Only)
 ```
 background: #010409
@@ -80,7 +92,7 @@ Use existing CSS variables mapped to these.
 - Use imperative verbs: “Flash firmware”, “Wire LED to GP6”.
 - Avoid aspirational phrases.
 - Single period or no terminal punctuation for short labels.
-- No exclamation marks.
+- No exclamation marks in labels or instructions. Approved app descriptions may use them.
 
 ## Review Checklist
 - [ ] Dark-only; no conditional light tokens
