@@ -38,6 +38,11 @@ test('rejects invalid description document shapes', () => {
   }
 })
 
+test('preserves exclamation marks in approved descriptions', () => {
+  const descriptions = { monapet: 'Care for your very own Mona!' }
+  assert.deepEqual(validateDescriptions(descriptions, catalog('monapet')), descriptions)
+})
+
 test('rejects blank, untrimmed, multiline, control-character, and non-string descriptions', () => {
   for (const value of ['', ' ', ' text', 'text ', 'two\nlines', 'text\u0000', null, 3, {}, []]) {
     assert.throws(() => validateDescriptions({ flappy: value }, catalog('flappy')), /Invalid description entries: flappy/)

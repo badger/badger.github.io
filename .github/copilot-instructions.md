@@ -18,6 +18,7 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 - Only the approved description file may be copied from that private repository.
 - After source changes are reviewed and merged, run `npm run sync:app-descriptions` on a website branch.
 - `src/data/app-descriptions.json` is generated; do not edit it by hand or maintain a second description list.
+- Preserve approved app description wording, including exclamation marks; app descriptions are an exception to the punctuation rule for labels and instructions.
 - Match descriptions by exact installable `badger/home/badge/apps/` folder names, not content slugs or display titles.
 - Keep app downloads in `badger/home`; builds and browser code must not need private-repository access.
 - The store and description coverage exclude `menu`, `startup`, and `quest` through the shared catalog helper.
@@ -91,7 +92,7 @@ Use existing CSS variables mapped to these.
 - Use imperative verbs: “Flash firmware”, “Wire LED to GP6”.
 - Avoid aspirational phrases.
 - Single period or no terminal punctuation for short labels.
-- No exclamation marks.
+- No exclamation marks in labels or instructions. Approved app descriptions may use them.
 
 ## Review Checklist
 - [ ] Dark-only; no conditional light tokens

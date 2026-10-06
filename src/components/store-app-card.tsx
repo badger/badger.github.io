@@ -14,7 +14,7 @@ type StoreAppCardProps = {
 
 export function StoreAppCard({ title, iconUrl, description, queued, installed, needsRepair, busy, onAdd }: StoreAppCardProps) {
   return (
-    <div className="rounded-lg border border-border/50 bg-background/45 p-3">
+    <div className="rounded-lg border border-border/50 bg-card p-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {iconUrl

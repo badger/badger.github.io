@@ -23,7 +23,7 @@ A utilitarian catalog of hacks, apps, and documentation for the Badger 2350. Bui
 
 ### Prerequisites
 
-- Node.js 22+
+- Node.js 22.6.0 or newer
 - npm or yarn
 
 ### Installation
@@ -71,8 +71,8 @@ To update descriptions:
 4. Run `npm run test:app-descriptions` and `npm run build`, then submit the saved
    website changes through a pull request.
 
-The update command requires Node.js 22+, the `gh` CLI, and a GitHub login with
-read access to badgerfactory. It reads the source from `main` and checks coverage
+The update command requires Node.js 22.6.0 or newer, the `gh` CLI, and a GitHub
+login with read access to badgerfactory. It reads the source from `main` and checks coverage
 against the current `badger/home` store. Invalid or incomplete updates fail with
 a clear error and leave the last good copy unchanged.
 
