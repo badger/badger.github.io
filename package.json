@@ -6,6 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "sync:app-descriptions": "node --experimental-strip-types scripts/sync-app-descriptions.mjs",
+    "test:app-descriptions": "node --experimental-strip-types --test scripts/sync-app-descriptions.test.mjs",
     "astro": "astro"
   },
   "dependencies": {
