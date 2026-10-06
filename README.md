@@ -55,6 +55,32 @@ npm run preview      # Preview the production build
 npm run astro        # Run Astro CLI commands
 ```
 
+## App store descriptions
+
+The `/edit/` app store uses descriptions from `app-descriptions.json` in
+`badger/badgerfactory`. That file is approved public text. App downloads still
+come from `badger/home`; `/apps/` and individual app pages are not changed.
+The store excludes the `menu` and `startup` system apps and the `quest` app.
+
+To update descriptions:
+
+1. Edit the source file in badgerfactory using exact store folder names and one
+   plain-text sentence per app. Cover every installable store app.
+2. Review and merge the source change through a pull request.
+3. On a website working branch, run `npm run sync:app-descriptions`.
+4. Run `npm run test:app-descriptions` and `npm run build`, then submit the saved
+   website changes through a pull request.
+
+The update command requires Node.js 22+, the `gh` CLI, and a GitHub login with
+read access to badgerfactory. It reads the source from `main` and checks coverage
+against the current `badger/home` store. Invalid or incomplete updates fail with
+a clear error and leave the last good copy unchanged.
+
+Do not edit `src/data/app-descriptions.json` by hand. It is the generated website
+copy. Normal builds and deployment use this saved file without private-repository
+access. A newly added store app remains installable and shows
+`Description not available` until the descriptions are updated.
+
 ## 📁 Project Structure
 
 ```

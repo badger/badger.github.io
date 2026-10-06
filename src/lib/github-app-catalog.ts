@@ -12,7 +12,7 @@ export function getInstallableAppFolders(tree: GitHubTreeEntry[]) {
     if (entry.type !== 'blob' || !entry.path.startsWith('badge/apps/')) continue
     if (entry.path.includes('/__pycache__/') || entry.path.endsWith('.pyc') || entry.path.endsWith('/.DS_Store')) continue
     const [, , name, ...filePath] = entry.path.split('/')
-    if (!name || !filePath.length || name === 'menu' || name === 'startup') continue
+    if (!name || !filePath.length || ['menu', 'startup', 'quest'].includes(name)) continue
     folders.set(name, [...(folders.get(name) ?? []), filePath.join('/')])
   }
 

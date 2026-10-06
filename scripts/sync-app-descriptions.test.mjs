@@ -3,6 +3,7 @@ import { mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promise
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
+import { getInstallableAppFolders } from '../src/lib/github-app-catalog.ts'
 import { CATALOG_ENDPOINT, SOURCE_ENDPOINT, syncAppDescriptions, validateDescriptions } from './sync-app-descriptions.mjs'
 
 function catalog(...names) {
@@ -15,20 +16,20 @@ function catalog(...names) {
 test('sorts exact folder keys and accepts factory-only entries', () => {
   const descriptions = {
     sketchy_sketch: 'Draw with the directional controls.',
-    quest: 'Find infrared beacons.',
+    commits: 'Break bricks with a paddle.',
     flappy: 'Guide Mona past obstacles.',
     sketch: 'Draw in the factory app.',
   }
-  const validated = validateDescriptions(descriptions, catalog('flappy', 'quest', 'sketchy_sketch'))
-  assert.deepEqual(Object.keys(validated), ['flappy', 'quest', 'sketch', 'sketchy_sketch'])
+  const validated = validateDescriptions(descriptions, catalog('flappy', 'commits', 'sketchy_sketch'))
+  assert.deepEqual(Object.keys(validated), ['commits', 'flappy', 'sketch', 'sketchy_sketch'])
   assert.equal(validated.sketch, descriptions.sketch)
   assert.equal(validated.sketchy_sketch, descriptions.sketchy_sketch)
 })
 
 test('does not match content slugs or similar folder names', () => {
   assert.throws(() => validateDescriptions({
-    flappymona: 'A game.', monaquest: 'A hunt.', sketch: 'A drawing app.',
-  }, catalog('flappy', 'quest', 'sketchy_sketch')), /flappy, quest, sketchy_sketch/)
+    flappymona: 'A game.', sketch: 'A drawing app.',
+  }, catalog('flappy', 'sketchy_sketch')), /flappy, sketchy_sketch/)
 })
 
 test('rejects invalid description document shapes', () => {
@@ -71,6 +72,12 @@ test('uses the store rules for system apps, non-app files, and cached files', ()
   assert.deepEqual(validateDescriptions({ flappy: 'A game.' }, tree), { flappy: 'A game.' })
 })
 
+test('excludes quest from both the store list and description coverage', () => {
+  const tree = catalog('flappy', 'quest', 'menu', 'startup')
+  assert.deepEqual(getInstallableAppFolders(tree.tree), [['flappy', ['__init__.py']]])
+  assert.deepEqual(validateDescriptions({ flappy: 'A game.' }, tree), { flappy: 'A game.' })
+})
+
 async function temporaryOutput(t) {
   const directory = await mkdtemp(join(tmpdir(), 'badger-descriptions-'))
   t.after(() => rm(directory, { recursive: true, force: true }))
@@ -89,10 +96,10 @@ test('writes sorted JSON and does not rewrite an unchanged copy', async (t) => {
   const { directory, outputPath } = await temporaryOutput(t)
   const options = {
     outputPath,
-    readGitHub: reader({ quest: 'A hunt.', flappy: 'A game.' }, catalog('quest', 'flappy')),
+    readGitHub: reader({ flappy: 'A game.', commits: 'Break bricks.' }, catalog('flappy', 'commits')),
   }
   assert.deepEqual(await syncAppDescriptions(options), { changed: true, count: 2 })
-  assert.equal(await readFile(outputPath, 'utf8'), '{\n  "flappy": "A game.",\n  "quest": "A hunt."\n}\n')
+  assert.equal(await readFile(outputPath, 'utf8'), '{\n  "commits": "Break bricks.",\n  "flappy": "A game."\n}\n')
   const before = await stat(outputPath)
   assert.deepEqual(await syncAppDescriptions(options), { changed: false, count: 2 })
   assert.equal((await stat(outputPath)).mtimeMs, before.mtimeMs)
@@ -115,8 +122,8 @@ test('failed downloads and validation preserve the last good copy', async (t) =>
   }
   await assert.rejects(syncAppDescriptions({
     outputPath,
-    readGitHub: reader({ flappy: 'A game.' }, catalog('flappy', 'quest')),
-  }), /Missing descriptions.*quest/)
+    readGitHub: reader({ flappy: 'A game.' }, catalog('flappy', 'commits')),
+  }), /Missing descriptions.*commits/)
   assert.equal(await readFile(outputPath, 'utf8'), previous)
   assert.deepEqual(await readdir(directory), ['app-descriptions.json'])
 })

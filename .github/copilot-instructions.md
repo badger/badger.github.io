@@ -12,6 +12,17 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 7. Honest UI: If data is missing, show placeholder monospace text (e.g. `--` or `/path/not/found`).
 8. Component Modularity: Always componentize reusable UI patterns. Never inline complex markup or styles. If a component doesn't exist, create it first, then use it. Keep everything modular and DRY (Don't Repeat Yourself).
 
+## App Store Descriptions
+
+- The `/edit/` app store's description source is `app-descriptions.json` in `badger/badgerfactory`.
+- Only the approved description file may be copied from that private repository.
+- After source changes are reviewed and merged, run `npm run sync:app-descriptions` on a website branch.
+- `src/data/app-descriptions.json` is generated; do not edit it by hand or maintain a second description list.
+- Match descriptions by exact installable `badger/home/badge/apps/` folder names, not content slugs or display titles.
+- Keep app downloads in `badger/home`; builds and browser code must not need private-repository access.
+- The store and description coverage exclude `menu`, `startup`, and `quest` through the shared catalog helper.
+- Local app content descriptions still serve `/apps/` and individual app pages.
+
 ## Color Tokens (Dark Only)
 ```
 background: #010409
