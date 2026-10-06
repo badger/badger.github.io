@@ -15,11 +15,11 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 ## App Store Descriptions
 
 - The `/edit/` app store's description source is `app-descriptions.json` in `badger/badgerfactory`.
+- When adding an installable app to the store, add its description to that source file in the same badgerfactory change. Use the exact `badger/home/badge/apps/` folder name as the key, write one concise plain-text sentence, and keep every installable store app covered.
 - Only the approved description file may be copied from that private repository.
 - After source changes are reviewed and merged, run `npm run sync:app-descriptions` on a website branch.
 - `src/data/app-descriptions.json` is generated; do not edit it by hand or maintain a second description list.
 - Preserve approved app description wording, including exclamation marks; app descriptions are an exception to the punctuation rule for labels and instructions.
-- Match descriptions by exact installable `badger/home/badge/apps/` folder names, not content slugs or display titles.
 - Keep app downloads in `badger/home`; builds and browser code must not need private-repository access.
 - The store and description coverage exclude `menu`, `startup`, and `quest` through the shared catalog helper.
 - Local app content descriptions still serve `/apps/` and individual app pages.
