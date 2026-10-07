@@ -76,7 +76,7 @@ const specifications = [
 ]
 ---
 
-<Layout title="2026 Badger 2350 Hardware" description="2026 Badger 2350 hardware specifications, new sensors, and changes to GPIO access.">
+<Layout title="2026 Badger 2350 Hardware" description="2026 Badger 2350 hardware specifications, components, and connections.">
   <section class="border-b border-border/70 py-20 sm:py-24">
     <div class="container">
       <h1 class="text-5xl leading-[0.98] sm:text-6xl">System Breakdown</h1>
@@ -85,36 +85,9 @@ const specifications = [
   </section>
 
   <section class="py-20">
-    <div class="container space-y-16">
-      <div>
-        <h2 class="mb-8 text-3xl sm:text-4xl">Badge Image</h2>
-        <BadgeImagePlaceholder />
-      </div>
-
-      <div>
-        <h2 class="mb-8 text-3xl sm:text-4xl">Changes for 2026</h2>
-        <div class="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader><CardTitle><h3 class="font-mono text-base uppercase tracking-[0.12em]">New sensors</h3></CardTitle></CardHeader>
-            <CardContent>
-              <dl class="grid gap-4 text-sm">
-                <div><dt class="font-mono">Accelerometer</dt><dd class="text-muted-foreground">Added to the 2026 badge.</dd></div>
-                <div><dt class="font-mono">Capacitive touch</dt><dd class="text-muted-foreground">8 touch sensors added to the 2026 badge.</dd></div>
-              </dl>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle><h3 class="font-mono text-base uppercase tracking-[0.12em]">GPIO access changed</h3></CardTitle></CardHeader>
-            <CardContent>
-              <p class="text-sm text-muted-foreground">
-                The four GPIO pins and power through-hole solder pads are no longer exposed
-                on the top PCB. They remain on the main board, but the top-board access
-                available on the 2025 badge has been removed.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+    <div class="container">
+      <h2 class="mb-8 text-3xl sm:text-4xl">Badge Image</h2>
+      <BadgeImagePlaceholder />
     </div>
   </section>
 
