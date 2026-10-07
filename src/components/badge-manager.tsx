@@ -729,7 +729,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         }
         setPendingApps([])
         await readDiskBadge(diskRoot)
-        const message = `${appCount} app${appCount === 1 ? '' : 's'} installed and verified. Eject BADGER, then restart it to refresh the launcher.`
+        const message = `${appCount} app${appCount === 1 ? '' : 's'} installed and verified. Eject BADGER on your machine, then restart it to refresh the launcher.`
         setStatus(message)
         const operationResult: OperationResult = { tone: 'success', message }
         setResult(operationResult)
@@ -793,7 +793,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         const removedCount = removeQueue.length
         setRemoveQueue([])
         await readDiskBadge(diskRoot)
-        const message = `${removedCount} app${removedCount === 1 ? '' : 's'} removed and verified. Eject BADGER, then restart it to refresh the launcher.`
+        const message = `${removedCount} app${removedCount === 1 ? '' : 's'} removed and verified. Eject BADGER on your machine, then restart it to refresh the launcher.`
         setStatus(message)
         const operationResult: OperationResult = { tone: 'success', message }
         setResult(operationResult)
