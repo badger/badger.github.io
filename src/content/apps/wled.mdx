@@ -1,0 +1,72 @@
+---
+title: "WLED"
+description: "Controller for a WLED device: power, color presets, effects, brightness, live WiFi/device status, resilient error handling."
+icon: "/images/apps/wled_icon.png"
+category: "utility"
+preloaded: false
+customizable: true
+fileLocation: "/apps/wled"
+---
+
+# WLED
+
+Controller for a WLED device (e.g. Octolamp). Manage power, colors, effects, brightness, and inspect live WiFi / device status directly from the badge.
+
+## Features
+
+- **Status Monitor**: Real‑time WiFi + WLED connectivity with clear state messages
+- **Power Toggle**: Immediate on/off control with confirmation
+- **Color Presets**: 10 presets (WHITE, RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, ORANGE, PURPLE, PINK)
+- **Effect Picker**: Popular WLED effects (SOLID, BLINK, BREATHE, RAINBOW, RAINBOW CYCLE, SCAN, FLOW, PACIFICA, SUNRISE)
+- **Brightness Control**: 0–100% slider (maps to 0–255 raw value)
+
+## Controls
+
+### Status View
+- **A**: Enter Control Menu (when WLED reachable)
+- **B**: Refresh status (retry WiFi / device)
+- **C**: Skip pending WLED queries (continue without device)
+- **UP / DOWN**: (no action in status view)
+- **HOME**: Exit to launcher
+
+### Control Menu
+- **UP / DOWN**: Navigate items
+- **A**: Select item
+- **HOME**: Back to launcher
+
+### Pickers (Color / Effect / Brightness)
+- **UP / DOWN**: Cycle options / adjust level
+- **A**: Apply selection
+- **HOME**: Exit to launcher
+
+## Install
+
+1. Copy the `badge/apps/wled/` folder from [`badger/home`](https://github.com/badger/home/tree/main/badge/apps/wled).
+2. Paste into `/apps/wled/` on the BADGER drive in USB disk mode.
+3. Eject badge, reboot, launch WLED from menu.
+
+## File Layout
+
+```
+/apps/wled/
+  ├── __init__.py   # Main app: UI modes, HTTP requests, parsing, rendering
+  ├── README.md     # Detailed usage + troubleshooting (upstream)
+  └── icon.png      # Launcher icon
+```
+
+## Configuration (`/secrets.py`)
+
+Add required variables to the root-level `secrets.py`:
+
+```python
+# WiFi credentials (required)
+WIFI_SSID = "YourNetworkName"
+WIFI_PASSWORD = "YourNetworkPassword"
+
+# WLED device IP (required)
+WLED_IP = "192.168.1.100"  # Replace with your device's IP
+```
+
+## Source
+
+- [WLED controller app](https://github.com/badger/home/blob/main/badge/apps/wled/__init__.py)
