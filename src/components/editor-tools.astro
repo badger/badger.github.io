@@ -1,14 +1,15 @@
 ---
 import { Bluetooth, Usb } from 'lucide-react'
+import { BLUETOOTH_EDITOR_ENABLED } from '@/config/features'
 
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/'
 const tools = [
-  { href: '/edit', label: 'USB and disk', icon: Usb },
+  { href: '/edit', label: 'Disk editor', icon: Usb },
   { href: '/edit/bluetooth', label: 'Bluetooth', icon: Bluetooth },
 ]
 ---
 
-<nav aria-label="Badge editor tools" class="mx-auto mb-6 grid max-w-6xl gap-2 sm:grid-cols-2">
+{BLUETOOTH_EDITOR_ENABLED && <nav aria-label="Badge editor tools" class="mx-auto mb-6 grid max-w-6xl gap-2 sm:grid-cols-2">
   {tools.map(({ href, label, icon: Icon }) => {
     const active = pathname === href
     return (
@@ -25,4 +26,4 @@ const tools = [
       </a>
     )
   })}
-</nav>
+</nav>}
