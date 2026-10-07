@@ -1,0 +1,22 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import EditorTools from '@/components/editor-tools.astro'
+import { BluetoothEditor } from '@/components/bluetooth-editor'
+import type { GetStaticPaths } from 'astro'
+import { BLUETOOTH_EDITOR_ENABLED } from '@/config/features'
+
+export const getStaticPaths = (() => {
+  if (!BLUETOOTH_EDITOR_ENABLED) return []
+
+  return [{ params: { bluetooth: 'bluetooth' } }]
+}) satisfies GetStaticPaths
+---
+
+<Layout title="Bluetooth Editor | Badger" description="Edit a Badger badge secrets.py directly over Web Bluetooth.">
+  <section class="py-14 sm:py-20">
+    <div class="container">
+      <EditorTools />
+      <BluetoothEditor client:only="react" />
+    </div>
+  </section>
+</Layout>

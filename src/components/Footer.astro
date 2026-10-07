@@ -1,5 +1,5 @@
 ---
-import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
+import { APP_CATALOG_PAGE_ENABLED, BLUETOOTH_EDITOR_ENABLED } from '@/config/features'
 ---
 
 <footer class="border-t border-border/80 bg-background/80">
@@ -26,6 +26,7 @@ import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
         <ul class="space-y-2 text-sm text-muted-foreground">
           <li><a href="/about-badge" class="transition-colors hover:text-primary">Hardware map</a></li>
           <li><a href="/edit" class="transition-colors hover:text-primary">Disk editor</a></li>
+          {BLUETOOTH_EDITOR_ENABLED && <li><a href="/edit/bluetooth" class="transition-colors hover:text-primary">Bluetooth editor</a></li>}
           <li><a href="/contacts" class="transition-colors hover:text-primary">Contacts</a></li>
           <li><a href="https://github.com/badger/home" target="_blank" rel="noopener" class="transition-colors hover:text-primary">Firmware repo</a></li>
         </ul>
