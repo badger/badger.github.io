@@ -180,7 +180,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
   const [diskRoot, setDiskRoot] = useState<DiskDirectoryHandle | null>(null)
   const [connected, setConnected] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [status, setStatus] = useState(SERIAL_CONNECTION_MODE_ENABLED ? 'Connect a badge running MicroPython.' : 'Open the BADGER disk to edit your badge.')
+  const [status, setStatus] = useState(SERIAL_CONNECTION_MODE_ENABLED ? 'Connect a badge running MicroPython.' : 'Open the BADGER disk to add apps to your badge.')
   const [output, setOutput] = useState('')
   const [apps, setApps] = useState<DeviceApp[]>([])
   const [legacyApps, setLegacyApps] = useState<string[]>([])
@@ -729,7 +729,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         }
         setPendingApps([])
         await readDiskBadge(diskRoot)
-        const message = `${appCount} app${appCount === 1 ? '' : 's'} installed and verified. Eject BADGER, then restart it to refresh the launcher.`
+        const message = `${appCount} app${appCount === 1 ? '' : 's'} installed and verified. Eject BADGER on your machine, then restart it to refresh the launcher.`
         setStatus(message)
         const operationResult: OperationResult = { tone: 'success', message }
         setResult(operationResult)
@@ -793,7 +793,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         const removedCount = removeQueue.length
         setRemoveQueue([])
         await readDiskBadge(diskRoot)
-        const message = `${removedCount} app${removedCount === 1 ? '' : 's'} removed and verified. Eject BADGER, then restart it to refresh the launcher.`
+        const message = `${removedCount} app${removedCount === 1 ? '' : 's'} removed and verified. Eject BADGER on your machine, then restart it to refresh the launcher.`
         setStatus(message)
         const operationResult: OperationResult = { tone: 'success', message }
         setResult(operationResult)
@@ -885,7 +885,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     <div className="badge-edit-root mx-auto max-w-6xl space-y-6">
       <section className="rounded-2xl border border-primary/20 bg-card/80 p-6 shadow-lg backdrop-blur sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Badger Edit</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Badger Apps</h1>
           {connected ? diskRoot ? <Button onClick={() => ejectDisk()} variant="outline"><LogOut /> Eject</Button> : <Button onClick={disconnect} variant="outline">Disconnect</Button> : <div className="flex flex-wrap gap-2">{SERIAL_CONNECTION_MODE_ENABLED && <Button onClick={connect} disabled={busy}><PlugZap /> Connect serial</Button>}<Button onClick={connectDisk} variant="outline" disabled={busy}><FolderUp /> Open BADGER disk</Button></div>}
         </div>
         <div className="mt-6 flex flex-wrap items-center gap-3 rounded-lg bg-background/70 px-4 py-3 font-mono text-sm">

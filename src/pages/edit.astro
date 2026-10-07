@@ -1,15 +1,22 @@
 ---
-import Layout from '@/layouts/Layout.astro'
-import { BadgeManager } from '@/components/badge-manager'
-import EditorTools from '@/components/editor-tools.astro'
-import appDescriptions from '@/data/app-descriptions.json'
+import '@/styles/globals.css'
+
+const destination = '/apps'
 ---
 
-<Layout title="Badger Edit">
-  <section class="py-14 sm:py-20">
-    <div class="container">
-      <EditorTools />
-      <BadgeManager appDescriptions={appDescriptions} client:load />
-    </div>
-  </section>
-</Layout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="canonical" href="https://badger.github.io/apps" />
+    <title>Apps moved | Badger</title>
+    <script is:inline define:vars={{ destination }}>
+      window.location.replace(`${destination}${window.location.search}${window.location.hash}`)
+    </script>
+  </head>
+  <body>
+    <p>Apps moved to <a href="/apps">/apps</a>.</p>
+  </body>
+</html>

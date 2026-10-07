@@ -12,9 +12,9 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 7. Honest UI: If data is missing, show placeholder monospace text (e.g. `--` or `/path/not/found`).
 8. Component Modularity: Always componentize reusable UI patterns. Never inline complex markup or styles. If a component doesn't exist, create it first, then use it. Keep everything modular and DRY (Don't Repeat Yourself).
 
-## App Store Descriptions
+## App Store Descriptions and Navigation
 
-- The `/edit/` app store's description source is `app-descriptions.json` in `badger/badgerfactory`.
+- The `/apps/` app store's description source is `app-descriptions.json` in `badger/badgerfactory`.
 - When adding an installable app to the store, add its description to that source file in the same badgerfactory change. Use the exact `badger/home/badge/apps/` folder name as the key, write one concise plain-text sentence, and keep every installable store app covered.
 - Only the approved description file may be copied from that private repository.
 - After source changes are reviewed and merged, run `npm run sync:app-descriptions` on a website branch.
@@ -22,7 +22,12 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 - Preserve approved app description wording, including exclamation marks; app descriptions are an exception to the punctuation rule for labels and instructions.
 - Keep app downloads in `badger/home`; builds and browser code must not need private-repository access.
 - The store and description coverage exclude `menu`, `startup`, and `quest` through the shared catalog helper.
-- Local app content descriptions still serve `/apps/` and individual app pages.
+- Local app content descriptions still serve `/browse-apps/` and individual app pages.
+- The global **Apps** tab opens the app store and USB/disk tools at `/apps`.
+- `/edit` is a legacy address that redirects to `/apps`; update links to use `/apps`.
+- The separate optional app-browsing catalog uses `/browse-apps` and `APP_CATALOG_PAGE_ENABLED`.
+- The Bluetooth editor is disabled by default through `BLUETOOTH_EDITOR_ENABLED`; keep its page and footer link gated by that flag, and do not show it under Apps.
+- Do not change badge filesystem paths such as `/apps/example/` in app instructions or content.
 
 ## Color Tokens (Dark Only)
 ```

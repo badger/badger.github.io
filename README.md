@@ -10,6 +10,12 @@ A utilitarian catalog of hacks, apps, and documentation for the Badger 2350. Bui
 - **📝 MDX Content** – Markdown-first authoring with React components when needed
 - **🚀 Static Site** – Optimised for GitHub Pages or any static host
 
+## App store and editor routes
+
+The **Apps** tab opens `/apps`, which contains the app store and USB/disk tools.
+Old `/edit` links redirect to `/apps`. The optional app-browsing catalog lives at
+`/browse-apps`. The Bluetooth editor is disabled by default.
+
 ## 🛠️ Tech Stack
 
 - **Framework**: [Astro](https://astro.build/)
@@ -57,9 +63,10 @@ npm run astro        # Run Astro CLI commands
 
 ## App store descriptions
 
-The `/edit/` app store uses descriptions from `app-descriptions.json` in
+The `/apps/` app store uses descriptions from `app-descriptions.json` in
 `badger/badgerfactory`. That file is approved public text. App downloads still
-come from `badger/home`; `/apps/` and individual app pages are not changed.
+come from `badger/home`; descriptions on `/browse-apps/` and individual app
+pages still come from local app content.
 The store excludes the `menu` and `startup` system apps and the `quest` app.
 
 To update descriptions:

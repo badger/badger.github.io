@@ -1,0 +1,13 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { BadgeManager } from '@/components/badge-manager'
+import appDescriptions from '@/data/app-descriptions.json'
+---
+
+<Layout title="Badger Apps">
+  <section class="py-14 sm:py-20">
+    <div class="container">
+      <BadgeManager appDescriptions={appDescriptions} client:load />
+    </div>
+  </section>
+</Layout>
