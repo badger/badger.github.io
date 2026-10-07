@@ -1,0 +1,396 @@
+---
+title: "Show a Contact QR Card"
+description: "Generate a badge-friendly QR contact card for a profile link, vCard URL, WeChat invite, or any other contact URL."
+difficulty: "beginner"
+duration: 15
+tags: ["identity", "media", "filesystem"]
+thumbnail: "/images/apps/badge_icon.png"
+author: "Linus Shyu"
+date: "2026-07-14"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/badger.github.io/blob/main/src/content/hacks/contact-qr-card.mdx"
+---
+
+# Show a Contact QR Card
+
+Turn your Badger into a small contact card: a profile row at the top and a large QR code underneath. The QR can point at a WeChat contact URL, vCard, Linktree, GitHub profile, personal site, or any other URL that a phone camera can open.
+
+The app itself does not need Wi-Fi. You generate the PNG assets on your computer, copy them to the badge, then the badge only has to display `card.png`.
+
+## Prerequisites
+
+- Badger mounted as the `BADGER` volume
+- Python 3 on your computer
+- Pillow and qrcode on your computer:
+
+```bash
+python3 -m pip install "pillow" "qrcode[pil]"
+```
+
+## Steps
+
+1. **Create the app folder**
+   - Put the badge in USB storage mode by double-tapping `Reset`.
+   - Create `apps/contact_qr/` on the `BADGER` volume.
+
+2. **Create `apps/contact_qr/__init__.py`**
+
+```python
+import sys
+import os
+
+sys.path.insert(0, "/system/apps/contact_qr")
+os.chdir("/system/apps/contact_qr")
+
+from badgeware import brushes, file_exists, Image, io, PixelFont, run, screen, shapes
+
+
+CARD_PATH = "/system/apps/contact_qr/card.png"
+QR_PATH = "/system/apps/contact_qr/qr.png"
+QR_SIZE = 120
+QR_X = 20
+QR_Y = 0
+
+black = brushes.color(0, 0, 0)
+white = brushes.color(255, 255, 255)
+muted = brushes.color(160, 170, 180)
+
+small_font = PixelFont.load("/system/assets/fonts/ark.ppf")
+large_font = PixelFont.load("/system/assets/fonts/absolute.ppf")
+
+card_image = None
+qr_image = None
+card_error = None
+qr_error = None
+show_full_qr = False
+
+
+def clear(brush=black):
+    screen.brush = brush
+    screen.draw(shapes.rectangle(0, 0, 160, 120))
+
+
+def center_text(text, y, font, brush):
+    screen.font = font
+    screen.brush = brush
+    width, _ = screen.measure_text(text)
+    screen.text(text, 80 - (width / 2), y)
+
+
+def draw_message(title, lines):
+    clear()
+    center_text(title, 8, large_font, white)
+    screen.font = small_font
+
+    y = 36
+    for line in lines:
+        width, _ = screen.measure_text(line)
+        screen.brush = muted
+        screen.text(line, 80 - (width / 2), y)
+        y += 14
+
+
+def load_image(path, label):
+    if not file_exists(path):
+        return None, "missing"
+
+    try:
+        return Image.load(path), None
+    except Exception as err:
+        print("Could not load", label, err)
+        return None, "load failed"
+
+
+def load_card():
+    global card_image, card_error
+
+    if card_image is not None or card_error is not None:
+        return card_image
+
+    card_image, card_error = load_image(CARD_PATH, "card.png")
+    return card_image
+
+
+def load_qr():
+    global qr_image, qr_error
+
+    if qr_image is not None or qr_error is not None:
+        return qr_image
+
+    qr_image, qr_error = load_image(QR_PATH, "qr.png")
+    return qr_image
+
+
+def draw_card(image):
+    if image.width == 160 and image.height == 120:
+        screen.blit(image, 0, 0)
+    else:
+        clear(white)
+        screen.scale_blit(image, 0, 0, 160, 120)
+
+
+def draw_qr(image):
+    if image.width != image.height:
+        draw_message("Bad QR", ["Use a square qr.png", "or rerun the generator"])
+        return
+
+    clear(white)
+    if image.width == QR_SIZE and image.height == QR_SIZE:
+        screen.blit(image, QR_X, QR_Y)
+    else:
+        screen.scale_blit(image, QR_X, QR_Y, QR_SIZE, QR_SIZE)
+
+
+def update():
+    global show_full_qr
+
+    if io.BUTTON_B in io.pressed:
+        show_full_qr = not show_full_qr
+
+    if show_full_qr:
+        qr = load_qr()
+        if qr is not None:
+            draw_qr(qr)
+            return None
+
+    card = load_card()
+    if card is not None:
+        draw_card(card)
+        return None
+
+    draw_message("Contact QR", ["Run the generator", "then copy assets here"])
+    return None
+
+
+if __name__ == "__main__":
+    run(update)
+```
+
+3. **Create `apps/contact_qr/prepare_contact_qr.py`**
+
+Run this script on your computer, not on the badge firmware.
+
+```python
+#!/usr/bin/env python3
+from argparse import ArgumentParser
+from pathlib import Path
+
+from PIL import Image, ImageDraw, ImageFont
+import qrcode
+
+
+DISPLAY_SIZE = (160, 120)
+CARD_QR_SIZE = 96
+FULL_QR_SIZE = 120
+QR_TOP = 24
+QR_BORDER_MODULES = 2
+
+try:
+    RESAMPLE = Image.Resampling.LANCZOS
+    NEAREST = Image.Resampling.NEAREST
+    DITHER_NONE = Image.Dither.NONE
+except AttributeError:
+    RESAMPLE = Image.LANCZOS
+    NEAREST = Image.NEAREST
+    DITHER_NONE = Image.NONE
+
+
+def load_font(candidates, size):
+    for path in candidates:
+        try:
+            return ImageFont.truetype(path, size)
+        except Exception:
+            pass
+    return ImageFont.load_default()
+
+
+NAME_FONT = load_font(
+    [
+        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    ],
+    10,
+)
+SUBTITLE_FONT = load_font(
+    [
+        "/System/Library/Fonts/Supplemental/Arial.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ],
+    8,
+)
+
+
+def generated_qr(data, size):
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        border=QR_BORDER_MODULES,
+        box_size=1,
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+    image = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    return image.resize((size, size), NEAREST)
+
+
+def save_badger_png(image, output, colors=64):
+    image = image.convert("RGB").quantize(colors=colors, dither=DITHER_NONE)
+    palette = image.getpalette()
+    if palette:
+        image.putpalette(palette + ([0] * (768 - len(palette))))
+    image.save(output, optimize=True)
+
+
+def fit_text(draw, text, font, max_width):
+    if draw.textlength(text, font=font) <= max_width:
+        return text
+
+    while text and draw.textlength(text + "...", font=font) > max_width:
+        text = text[:-1]
+    return text + "..." if text else "..."
+
+
+def square_avatar(path, size=21):
+    image = Image.open(path).convert("RGB")
+    side = min(image.size)
+    left = (image.width - side) // 2
+    top = (image.height - side) // 2
+    image = image.crop((left, top, left + side, top + side))
+    return image.resize((size, size), RESAMPLE)
+
+
+def draw_default_avatar(draw):
+    draw.rounded_rectangle((18, 2, 39, 23), radius=4, fill=(23, 25, 34))
+    draw.ellipse((25, 7, 32, 14), fill=(235, 235, 235))
+    draw.arc((22, 11, 35, 27), 205, 335, fill=(235, 235, 235), width=2)
+
+
+def make_card(qr_image, name, subtitle, avatar_path=None):
+    card = Image.new("RGB", DISPLAY_SIZE, "white")
+    draw = ImageDraw.Draw(card)
+
+    if avatar_path:
+        card.paste(square_avatar(avatar_path), (18, 2))
+    else:
+        draw_default_avatar(draw)
+
+    name = fit_text(draw, name, NAME_FONT, 96)
+    subtitle = fit_text(draw, subtitle, SUBTITLE_FONT, 96)
+    draw.text((45, 3), name, font=NAME_FONT, fill=(15, 15, 15))
+    draw.text((45, 15), subtitle, font=SUBTITLE_FONT, fill=(165, 165, 165))
+
+    card.paste(qr_image, ((DISPLAY_SIZE[0] - CARD_QR_SIZE) // 2, QR_TOP))
+    return card
+
+
+def make_icon():
+    icon = Image.new("RGBA", (24, 24), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(icon)
+    draw.rounded_rectangle((1, 1, 22, 22), radius=4, fill=(13, 17, 23, 255), outline=(211, 250, 55, 255))
+    for x, y in [(5, 5), (14, 5), (5, 14)]:
+        draw.rectangle((x, y, x + 5, y + 5), fill=(255, 255, 255, 255))
+        draw.rectangle((x + 2, y + 2, x + 3, y + 3), fill=(13, 17, 23, 255))
+    for x, y in [(14, 14), (20, 14), (14, 20), (17, 17), (20, 20), (11, 11), (8, 20), (20, 8)]:
+        draw.rectangle((x, y, x + 1, y + 1), fill=(211, 250, 55, 255))
+    return icon
+
+
+def main():
+    parser = ArgumentParser(description="Generate Badger contact QR card assets.")
+    parser.add_argument("data", help="URL or text to encode in the QR code")
+    parser.add_argument("--name", default="Your Name", help="Name shown in the top row")
+    parser.add_argument("--subtitle", default="Scan to connect", help="Subtitle shown below the name")
+    parser.add_argument("--avatar", help="Optional square-ish avatar image")
+    parser.add_argument("--out", default=".", help="Output directory, normally apps/contact_qr")
+    args = parser.parse_args()
+
+    output_dir = Path(args.out).expanduser()
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    full_qr = generated_qr(args.data, FULL_QR_SIZE)
+    card_qr = generated_qr(args.data, CARD_QR_SIZE)
+    card = make_card(card_qr, args.name, args.subtitle, args.avatar)
+
+    save_badger_png(full_qr, output_dir / "qr.png", colors=2)
+    save_badger_png(card, output_dir / "card.png", colors=64)
+    make_icon().save(output_dir / "icon.png", optimize=True)
+
+    print(f"Wrote {output_dir / 'qr.png'}")
+    print(f"Wrote {output_dir / 'card.png'}")
+    print(f"Wrote {output_dir / 'icon.png'}")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+4. **Generate the assets**
+
+Replace the URL and profile text with your own values:
+
+```bash
+python3 /Volumes/BADGER/apps/contact_qr/prepare_contact_qr.py \
+  "https://example.com/contact" \
+  --name "Your Name" \
+  --subtitle "Scan to connect" \
+  --out /Volumes/BADGER/apps/contact_qr
+```
+
+If you have an avatar image:
+
+```bash
+python3 /Volumes/BADGER/apps/contact_qr/prepare_contact_qr.py \
+  "https://example.com/contact" \
+  --name "Your Name" \
+  --subtitle "Your City" \
+  --avatar ~/Pictures/avatar.png \
+  --out /Volumes/BADGER/apps/contact_qr
+```
+
+5. **Eject and reset**
+   - Eject the `BADGER` volume.
+   - Tap `Reset` once.
+   - Open **contact_qr** from the launcher.
+
+## What the Generator Does
+
+The badge image loader is happiest with palette PNGs, matching the stock Gallery app images. The generator quantizes `card.png` and `qr.png` before saving:
+
+```python
+def save_badger_png(image, output, colors=64):
+    image = image.convert("RGB").quantize(colors=colors, dither=DITHER_NONE)
+    palette = image.getpalette()
+    if palette:
+        image.putpalette(palette + ([0] * (768 - len(palette))))
+    image.save(output, optimize=True)
+```
+
+The contact card keeps the QR large enough to scan while leaving a small profile row:
+
+- Screen: `160x120`
+- Card QR: `96x96`
+- Full QR fallback: `120x120`
+- Press `B` in the app to toggle the full QR view if a phone camera struggles with the card layout.
+
+## Verify
+
+- `apps/contact_qr/card.png` should be `160x120`.
+- `apps/contact_qr/qr.png` should be `120x120`.
+- Both should be PNGs with a colormap/palette. You can check on a computer:
+
+```bash
+python3 - <<'PY'
+from PIL import Image
+for path in ["card.png", "qr.png"]:
+    image = Image.open(path)
+    print(path, image.size, image.mode)
+PY
+```
+
+Expected mode is `P`.
+
+## Troubleshooting
+
+- **QR Load Error:** Regenerate the assets with the script so `card.png` and `qr.png` are palette PNGs.
+- **The app does not appear:** Install the paginated launcher hack or replace the menu with a launcher that discovers more than six apps.
+- **Phone camera cannot scan it:** Press `B` for the full QR view, increase screen brightness, or shorten the encoded URL with a trusted redirect you control.
+- **Do not commit personal QR links:** Keep generated `card.png`, `qr.png`, and any private contact URL on your own badge unless you explicitly want it public.
