@@ -34,13 +34,13 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
 
           <div class="flex flex-wrap gap-3">
             {APP_CATALOG_PAGE_ENABLED && (
-              <a href="/apps" class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
+              <a href="/browse-apps" class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
                 Browse apps
                 <Grid3x3 className="h-4 w-4" />
               </a>
             )}
-            <a href="/edit" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
-              Edit a badge
+            <a href="/apps" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
+              Manage apps
               <PlugZap className="h-4 w-4" />
             </a>
           </div>
@@ -91,7 +91,7 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
         <div class="section-heading">
           <h2 class="text-3xl sm:text-4xl">Apps</h2>
         </div>
-        <OutlinedButton href="/edit" variant="subtle" client:load><span>Show more</span><PlugZap className="h-3.5 w-3.5" /></OutlinedButton>
+        <OutlinedButton href="/apps" variant="subtle" client:load><span>Show more</span><PlugZap className="h-3.5 w-3.5" /></OutlinedButton>
       </div>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {preloadedApps.slice(0, 6).map((app) => (

@@ -15,7 +15,7 @@ export const getStaticPaths = (async () => {
 
 const { app } = Astro.props
 const { Content } = await app.render()
-const backHref = APP_CATALOG_PAGE_ENABLED ? '/apps' : '/'
+const backHref = APP_CATALOG_PAGE_ENABLED ? '/browse-apps' : '/'
 const backLabel = APP_CATALOG_PAGE_ENABLED ? 'Back to Apps' : 'Back home'
 
 // Bold background colors for app icons

@@ -16,7 +16,7 @@ import { APP_CATALOG_PAGE_ENABLED, BLUETOOTH_EDITOR_ENABLED } from '@/config/fea
         <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Guides</h3>
         <ul class="space-y-2 text-sm text-muted-foreground">
           <li><a href="/get-started" class="transition-colors hover:text-primary">Get started</a></li>
-          {APP_CATALOG_PAGE_ENABLED && <li><a href="/apps" class="transition-colors hover:text-primary">Browse apps</a></li>}
+          {APP_CATALOG_PAGE_ENABLED && <li><a href="/browse-apps" class="transition-colors hover:text-primary">Browse apps</a></li>}
           <li><a href="/hacks" class="transition-colors hover:text-primary">Browse hacks</a></li>
         </ul>
       </div>
@@ -25,7 +25,7 @@ import { APP_CATALOG_PAGE_ENABLED, BLUETOOTH_EDITOR_ENABLED } from '@/config/fea
         <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Tools</h3>
         <ul class="space-y-2 text-sm text-muted-foreground">
           <li><a href="/about-badge" class="transition-colors hover:text-primary">Hardware map</a></li>
-          <li><a href="/edit" class="transition-colors hover:text-primary">Disk editor</a></li>
+          <li><a href="/apps" class="transition-colors hover:text-primary">Apps and USB editor</a></li>
           {BLUETOOTH_EDITOR_ENABLED && <li><a href="/edit/bluetooth" class="transition-colors hover:text-primary">Bluetooth editor</a></li>}
           <li><a href="/contacts" class="transition-colors hover:text-primary">Contacts</a></li>
           <li><a href="https://github.com/badger/home" target="_blank" rel="noopener" class="transition-colors hover:text-primary">Firmware repo</a></li>

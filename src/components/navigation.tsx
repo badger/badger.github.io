@@ -8,11 +8,11 @@ const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/get-started', label: 'Start', icon: Power },
   { href: '/about-badge', label: 'Badge', icon: BookOpen },
-  { href: '/apps', label: 'Apps', icon: Grid3x3 },
-  { href: '/edit', label: 'Edit', icon: PlugZap },
+  { href: '/apps', label: 'Apps', icon: PlugZap },
+  ...(APP_CATALOG_PAGE_ENABLED ? [{ href: '/browse-apps', label: 'Browse', icon: Grid3x3 }] : []),
   { href: '/contacts', label: 'Contacts', icon: ContactRound },
   { href: '/hacks', label: 'Hacks', icon: Settings },
-].filter(({ href }) => APP_CATALOG_PAGE_ENABLED || href !== '/apps')
+]
 
 export function Navigation() {
   const [pathname, setPathname] = useState('/')
@@ -20,6 +20,10 @@ export function Navigation() {
   useEffect(() => {
     setPathname(window.location.pathname)
   }, [])
+
+  const isActive = (href: string) => href === '/'
+    ? pathname === '/'
+    : pathname.startsWith(href)
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/90 backdrop-blur-xl">
@@ -31,7 +35,7 @@ export function Navigation() {
 
         <div className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex">
           {navItems.map(({ href, label, icon: Icon }) => {
-            const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+            const active = isActive(href)
             return (
               <a
                 key={href}
@@ -54,7 +58,7 @@ export function Navigation() {
       </div>
       <div className={`container grid ${APP_CATALOG_PAGE_ENABLED ? 'grid-cols-7' : 'grid-cols-6'} gap-1 overflow-hidden border-t border-border/50 py-2 lg:hidden`}>
         {navItems.map(({ href, label }) => {
-          const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+          const active = isActive(href)
           return (
             <a
               key={href}
