@@ -1,0 +1,155 @@
+---
+title: "WiFi Settings"
+description: "View and manage WiFi connection settings. Displays network name, connection status, and credentials from secrets.py."
+icon: "/images/apps/wifi.png"
+category: "utility"
+preloaded: false
+customizable: false
+fileLocation: "/apps/wifi"
+---
+
+# WiFi Settings
+
+A utility app for viewing and managing WiFi connection settings on your Badger 2350. Displays your network configuration, connection status, and provides real-time connection monitoring.
+
+## Features
+
+- **Settings Display**: View configured WiFi SSID and password (masked)
+- **Connection Status**: Real-time WiFi connection status monitoring
+- **GitHub Username**: Displays configured GitHub username
+- **Password Masking**: Securely displays password with masking (first 2 and last 2 chars visible)
+- **Auto-Connect**: Automatically attempts to connect to configured network
+- **Retry Logic**: Smart retry with 15-second delays after failed attempts
+- **Status Indicators**: Color-coded connection status (green=connected, red=failed)
+- **Configuration Helper**: Guides you to edit settings via USB mode
+
+## Display Information
+
+- **Network**: Configured WiFi SSID (network name)
+- **Password**: Masked password display (e.g., "ab******89")
+- **GitHub User**: Configured GitHub username
+- **Status**: Current connection state with color indicators
+
+## Connection States
+
+- **Connected** (Green): Successfully connected to WiFi
+- **Connecting...** (Yellow/Phosphor): Connection attempt in progress
+- **Connection failed** (Red): Connection attempt timed out
+- **Retry in Xs** (Gray): Waiting before next connection attempt
+- **Not Connected** (Gray): No connection attempt yet
+
+## Install
+
+1. Copy the `wifi/` folder to `/apps/wifi/` on the BADGER drive while in USB storage mode
+2. Ensure `/secrets.py` is configured with WiFi credentials (see Configuration below)
+3. Eject, reboot, and launch WiFi Settings from the menu
+
+## File Layout
+
+```
+/apps/wifi/
+  ├── __init__.py   # WiFi settings viewer and connection monitor
+  └── icon.png      # App icon for the launcher
+```
+
+## Configuration
+
+Create or edit `/secrets.py` on your badge:
+
+```python
+# WiFi credentials
+WIFI_SSID = "YourNetworkName"
+WIFI_PASSWORD = "YourPassword"
+
+# Your GitHub username
+GITHUB_USERNAME = "yourusername"
+```
+
+**Required Variables:**
+- `WIFI_SSID`: Your WiFi network name
+- `WIFI_PASSWORD`: Your WiFi password
+- `GITHUB_USERNAME`: Your GitHub username (optional)
+
+## How It Works
+
+1. **Settings Loading**: Reads WiFi credentials from `/secrets.py`
+2. **Display**: Shows network name, masked password, and GitHub username
+3. **Connection Monitoring**: Continuously checks WiFi connection status
+4. **Auto-Connect**: Attempts to connect if not already connected
+5. **Smart Retry**: Waits 15 seconds between failed connection attempts
+6. **Status Updates**: Real-time color-coded status display
+
+## Technical Details
+
+- Password masking for security (shows first/last 2 chars only)
+- 15-second timeout per connection attempt
+- 15-second retry delay after failed attempts
+- Text wrapping for long messages
+- Centered text rendering for clean UI
+- Color-coded status indicators
+- SSID truncation for long network names (20 char max display)
+
+## Use Cases
+
+**Check Configuration:**
+- Verify WiFi settings are loaded correctly
+- Check GitHub username configuration
+- See which network the badge is configured for
+
+**Monitor Connection:**
+- Watch connection status in real-time
+- Troubleshoot connection issues
+- Verify successful connection before using WiFi apps
+
+**Configuration Guide:**
+- Provides instructions if `/secrets.py` is missing
+- Guides users to edit settings via USB disk mode
+
+## Security Note
+
+The WiFi Settings app masks your password for security:
+- Passwords under 4 characters: fully masked (****)
+- Longer passwords: shows first 2 and last 2 chars (ab****89)
+- This prevents shoulder-surfing while confirming settings
+
+## Troubleshooting
+
+**"No Configuration" message:**
+- `/secrets.py` file is missing from the badge
+- Mount badge in USB mode
+- Create `/secrets.py` with WiFi credentials
+
+**"Connection failed" status:**
+- Verify WiFi password is correct
+- Check that SSID matches your network name exactly
+- Ensure network is 2.4GHz (Badger doesn't support 5GHz)
+- Check WiFi router is powered on and in range
+
+**"Retry in Xs" displayed:**
+- Previous connection attempt failed
+- App is waiting before retrying automatically
+- Wait for countdown or restart app to retry immediately
+
+**Long SSID cut off:**
+- SSIDs longer than 20 characters are truncated with "..."
+- This is display-only; full SSID is used for connection
+
+## Best Practices
+
+1. **Use USB Mode to Edit**: Always edit `/secrets.py` via USB disk mode
+2. **Double-Check Credentials**: Verify SSID and password are exact
+3. **Test After Changes**: Launch WiFi Settings app after editing secrets
+4. **Monitor Connection**: Watch the status to confirm successful connection
+5. **Use with Other Apps**: Check WiFi Settings before using weather, stocks, or crypto apps
+
+## Related Apps
+
+WiFi Settings is designed to work alongside WiFi-dependent apps:
+- **Crypto Tracker**: Requires WiFi for price data
+- **Stock Tracker**: Requires WiFi for market data
+- **Weather**: Requires WiFi for weather data
+- **Badge**: Requires WiFi for GitHub profile data
+
+## Source
+
+GitHub repository: [Add your repository URL here]
