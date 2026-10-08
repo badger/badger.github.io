@@ -1,63 +1,93 @@
 ---
 import Layout from '@/layouts/Layout.astro'
+import BadgeImage from '@/components/badge-image.astro'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Battery, Cpu, Monitor, Usb, Wifi, Zap } from 'lucide-react'
+import { Battery, Cpu, Hand, Monitor, Radio, Shield, Usb, Wifi } from 'lucide-react'
+
+const specifications = [
+  {
+    title: 'Processor and memory',
+    icon: Cpu,
+    details: [
+      ['Processor', 'RP2350 dual-core ARM Cortex-M33 @ 200MHz'],
+      ['Memory', '512kB SRAM'],
+      ['Storage', '16MB QSPI XiP flash'],
+    ],
+  },
+  {
+    title: 'Display',
+    icon: Monitor,
+    details: [
+      ['Screen', '320x240 full-color IPS display'],
+      ['Backlight', '4-zone LED backlight'],
+    ],
+  },
+  {
+    title: 'Wireless',
+    icon: Wifi,
+    details: [
+      ['WiFi', '2.4GHz WiFi'],
+      ['Bluetooth', 'Bluetooth 5'],
+    ],
+  },
+  {
+    title: 'Power',
+    icon: Battery,
+    details: [
+      ['Battery', '1000mAh rechargeable battery'],
+      ['Runtime', 'Up to 8 hours'],
+      ['Monitoring', 'Battery voltage monitoring and charge status'],
+    ],
+  },
+  {
+    title: 'Controls and sensors',
+    icon: Hand,
+    details: [
+      ['Buttons', 'Five front-facing buttons'],
+      ['Motion', 'Accelerometer'],
+      ['Touch', '8 capacitive touch sensors'],
+    ],
+  },
+  {
+    title: 'Ports and programming',
+    icon: Usb,
+    details: [
+      ['USB-C', 'Charging and programming'],
+      ['Expansion and debug', 'Qw/ST and SWD ports for accessories and debugging'],
+      ['Board controls', 'RESET / BOOTSEL buttons'],
+    ],
+  },
+  {
+    title: 'Infrared',
+    icon: Radio,
+    details: [
+      ['Hardware', 'IR receiver and transmitter'],
+      ['Uses', 'Beacon hunting and remote control'],
+    ],
+  },
+  {
+    title: 'Case',
+    icon: Shield,
+    details: [
+      ['Material', 'Durable polycarbonate case'],
+      ['Attachment', 'Lanyard fixings'],
+    ],
+  },
+]
 ---
 
-<Layout title="Badger 2350 Hardware" description="Badger 2350 hardware map and specifications.">
+<Layout title="2026 Badger 2350 Hardware" description="2026 Badger 2350 hardware specifications, components, and connections.">
   <section class="border-b border-border/70 py-20 sm:py-24">
     <div class="container">
       <h1 class="text-5xl leading-[0.98] sm:text-6xl">System Breakdown</h1>
+      <p class="mt-6 max-w-prose text-muted-foreground">Hardware specifications for the 2026 Badger 2350 badge.</p>
     </div>
   </section>
 
   <section class="py-20">
-    <div class="container space-y-16">
-      <div>
-        <h2 class="mb-8 text-3xl sm:text-4xl">Schematics</h2>
-        <div class="grid gap-8 lg:grid-cols-2">
-          <div>
-            <h3 class="mb-4 text-xl">Front</h3>
-            <a href="/images/badge-front.png" target="_blank" class="surface block p-6">
-              <img src="/images/badge-front.png" alt="Badger 2350 front schematic" class="w-full rounded-lg" />
-            </a>
-          </div>
-          <div>
-            <h3 class="mb-4 text-xl">Back</h3>
-            <a href="/images/badge-back.png" target="_blank" class="surface block p-6">
-              <img src="/images/badge-back.png" alt="Badger 2350 back schematic" class="w-full rounded-lg" />
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h2 class="mb-8 text-3xl sm:text-4xl">Components</h2>
-        <div class="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader><CardTitle>Front</CardTitle></CardHeader>
-            <CardContent>
-              <dl class="grid gap-4 text-sm">
-                <div><dt class="font-medium">Display</dt><dd class="text-muted-foreground">Full-color TFT</dd></div>
-                <div><dt class="font-medium">Buttons</dt><dd class="text-muted-foreground">A, B, C, UP, DOWN</dd></div>
-              </dl>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle>Back</CardTitle></CardHeader>
-            <CardContent>
-              <dl class="grid gap-4 text-sm">
-                <div><dt class="font-medium">USB-C</dt><dd class="text-muted-foreground">Power, charging, programming</dd></div>
-                <div><dt class="font-medium">Battery</dt><dd class="text-muted-foreground">JST Li-Po connector</dd></div>
-                <div><dt class="font-medium">QWIIC</dt><dd class="text-muted-foreground">I2C connector</dd></div>
-                <div><dt class="font-medium">GPIO</dt><dd class="text-muted-foreground">3V, GP6, GP7, GP10, GP11, GND</dd></div>
-                <div><dt class="font-medium">Processor</dt><dd class="text-muted-foreground">RP2350B</dd></div>
-              </dl>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+    <div class="container">
+      <h2 class="mb-8 text-3xl sm:text-4xl">Badge Image</h2>
+      <BadgeImage />
     </div>
   </section>
 
@@ -65,30 +95,28 @@ import { Battery, Cpu, Monitor, Usb, Wifi, Zap } from 'lucide-react'
     <div class="container">
       <h2 class="mb-8 text-3xl sm:text-4xl">Specifications</h2>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-3"><Cpu class="h-5 w-5 text-primary" />RP2350B</CardTitle></CardHeader>
-          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">150MHz</Badge><Badge variant="secondary">520KB RAM</Badge><Badge variant="secondary">4MB Flash</Badge></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-3"><Monitor class="h-5 w-5 text-primary" />Display</CardTitle></CardHeader>
-          <CardContent><Badge variant="secondary">Full-color TFT</Badge></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-3"><Wifi class="h-5 w-5 text-primary" />Wireless</CardTitle></CardHeader>
-          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">WiFi 4</Badge><Badge variant="secondary">Bluetooth 5.0</Badge></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-3"><Battery class="h-5 w-5 text-primary" />Power</CardTitle></CardHeader>
-          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">USB-C</Badge><Badge variant="secondary">Li-Po</Badge></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-3"><Zap class="h-5 w-5 text-primary" />GPIO</CardTitle></CardHeader>
-          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">GPIO</Badge><Badge variant="secondary">I2C</Badge><Badge variant="secondary">SPI</Badge></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-3"><Usb class="h-5 w-5 text-primary" />Programming</CardTitle></CardHeader>
-          <CardContent class="flex flex-wrap gap-2"><Badge variant="secondary">Python</Badge><Badge variant="secondary">C++</Badge><Badge variant="secondary">MicroPython</Badge></CardContent>
-        </Card>
+        {specifications.map(({ title, icon: Icon, details }) => (
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                <h3 class="flex items-center gap-3 font-mono text-sm uppercase tracking-[0.12em]">
+                  <Icon className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                  {title}
+                </h3>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <dl class="grid gap-4 text-sm">
+                {details.map(([label, value]) => (
+                  <div>
+                    <dt class="font-mono">{label}</dt>
+                    <dd class="text-muted-foreground">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   </section>
