@@ -30,7 +30,7 @@ export function BadgeSetupGuide() {
         <section>
           <h2 className="font-mono text-xs uppercase tracking-[0.14em] text-foreground">Edit Secrets</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 marker:text-primary">
-            <li>In <code className="text-primary">secrets.py</code>, select Show secrets to view and edit settings such as Wi-Fi details and your GitHub username. Keep the Python setting names and quotation marks intact.</li>
+            <li>In <code className="text-primary">secrets.py</code>, select the eye button to show and edit settings such as Wi-Fi details and your GitHub username. Keep the Python setting names and quotation marks intact.</li>
             <li>Changes save automatically. Wait until the status says <strong className="font-medium text-foreground">Saved automatically</strong>. If it says Autosave failed, fix the problem or select Retry before disconnecting.</li>
             <li><code className="text-primary">secrets.py</code> contains private, plain-text settings. Do not share its contents or commit it to Git.</li>
           </ul>
@@ -40,7 +40,7 @@ export function BadgeSetupGuide() {
           <h2 className="font-mono text-xs uppercase tracking-[0.14em] text-foreground">Finish safely</h2>
           <ol className="mt-3 list-decimal space-y-2 pl-5 marker:text-primary">
             <li>Wait for all uploads and saves to finish.</li>
-            <li>Select <strong className="font-medium text-foreground">Eject</strong> on this site. Then use Finder or File Explorer to eject the badge drive before unplugging the cable.</li>
+            <li>Select <strong className="font-medium text-foreground">Eject</strong> on this site. Then use your operating system’s eject control (for example, Finder or File Explorer) before unplugging the cable.</li>
             <li>Press RESET once to restart the badge and return to its launcher.</li>
           </ol>
           <p className="mt-3">If the drive does not appear, check the USB-C data cable and press RESET twice again. If the disk picker is missing, use current desktop Chrome or Edge and open this site over HTTPS or a local development address.</p>
