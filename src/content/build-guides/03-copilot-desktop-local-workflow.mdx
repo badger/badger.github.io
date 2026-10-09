@@ -1,0 +1,95 @@
+# Route 3: Build in the GitHub Copilot desktop app
+
+Use this route if you want to work with Copilot in its separate desktop app
+instead of in VS Code. Copilot edits a local folder on the laptop. You then
+copy that app folder to the badge with Windows File Explorer.
+
+You do not need a GitHub repository. You do need a local folder and Git for
+Windows installed, as required by the Copilot app.
+
+## 1. Make a local folder
+
+1. In File Explorer, create `Documents\Badge Projects\my-app`.
+2. Open the GitHub Copilot app and sign in.
+3. Under **Projects**, choose **Add project > Local folder or repository**.
+4. Select the `my-app` folder on the laptop.
+5. Start an **Interactive** session for this local project.
+
+If Git for Windows is not installed, ask booth staff for help or use the
+VS Code route. You do not need to create or publish a repository just to save
+the app files in this local folder.
+
+Choose a local session, not a cloud session. A cloud session runs on another
+computer and cannot see the badge connected to this laptop. If the Copilot
+app creates a separate local work folder, note where it is saving changes.
+
+## 2. Ask Copilot to build the app
+
+Tell Copilot to use the badge-builder skill already installed for the booth.
+Tell it to make a complete app in the open local folder, without expecting a
+repository or pre-existing project files.
+
+Example:
+
+> Use the badge-builder skill already available to you. I am at a booth and
+> there is no project repository. Build a small Universe 2026 badge app in
+> this local folder. Create the app entry file, a 24 x 24 `icon.png`, and any
+> required assets. Use the skill's current badge API. Do not add passwords,
+> change firmware, or assume you can reach the physical badge yet. Tell me
+> which files you made and how to test them.
+
+Review every changed file in the app's **Changes** view before keeping it.
+Confirm that the app source and all required assets are saved under the local
+`my-app` folder.
+
+## 3. Check the app
+
+Ask Copilot to review the app using the badge skill. If the skill includes a
+checker that can run on a standalone folder, use it. If it needs a repository
+that you do not have, skip it; do not clone a repository or run a made-up
+command.
+
+For a quick visual check, you can also paste `__init__.py` into the
+[Badgeware Web Simulator](https://pimoroni.github.io/badgeware-web-simulator/)
+and upload the app's image files. This can check screens and buttons, but not
+physical sensors, wireless, IR, battery, or exact timing.
+
+## 4. Install the app from the local folder
+
+1. Close other programs that may be using the badge's serial port.
+2. Connect the badge with a data-capable USB cable.
+3. Double-tap RESET and wait for USB Disk Mode.
+4. In File Explorer, open the badge drive and confirm its app folder. The
+   common 2026 layout is `BADGER\system\apps`.
+5. Copy the `my-app` folder from the Copilot app's local workspace into that
+   `apps` folder. Use an app name that is not already on the badge. Do not
+   overwrite or delete an existing app; ask booth staff if the name is already
+   in use.
+6. Safely eject the badge drive in Windows and wait for its confirmation.
+7. Press RESET once if needed, open the app from the badge menu, and test it.
+
+If Copilot's local sandbox will not let the agent access the badge drive,
+copy the folder yourself in File Explorer. Do not turn off broad safety
+settings just to copy one app.
+
+If the badge drive is named differently or does not contain `system\apps`,
+stop and ask booth staff to confirm the correct app path. Do not guess. Do
+not copy app files to the `RP2350` firmware-update drive.
+
+## 5. When something fails
+
+Photograph or copy the full error, including the file name and line number.
+Ask Copilot to verify the API for the badge's actual firmware and inspect
+every place the failing call is used. Do not assume a method exists because
+it works on a different badge or in the simulator.
+
+Serial connections can reset or interrupt the running app. Use one serial
+program at a time, and wait until it is finished before asking someone to
+test a movement or button.
+
+## Helpful links
+
+- [GitHub Copilot app quickstart](https://docs.github.com/en/copilot/get-started/quickstart-copilot-app)
+- [Adding skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills)
+- [Badgeware Web Simulator](https://pimoroni.github.io/badgeware-web-simulator/)
+- [Safely eject a USB device in Windows](https://support.microsoft.com/en-us/windows/hardware/safely-remove-hardware-in-windows)

@@ -1,0 +1,148 @@
+# Route 1: Build in VS Code and copy the app by hand
+
+This is the simplest booth route. Start with an empty folder on the laptop,
+ask Copilot to build one small badge app, then copy the finished app folder to
+the badge in Windows File Explorer.
+
+You do not need a GitHub repository, a team folder, or command-line tools for
+this route. The badge-builder skill is already available to Copilot.
+
+## Before you start
+
+- Use a Windows 11 laptop with VS Code, GitHub Copilot, and an internet
+  connection.
+- Use a data-capable USB cable and any adapter needed to connect the badge.
+- Make sure GitHub Copilot is signed in to the attendee's account.
+- Keep the badge connected only when you are ready to test or copy files.
+- Do not update firmware during an app-building session.
+
+A charge-only cable will power the badge but may not transfer files.
+
+## 1. Make a local folder for the app
+
+1. Open File Explorer with `Windows key + E`.
+2. Create a folder in Documents named `Badge Projects`.
+3. Inside it, create one folder for the app, for example `star-counter`.
+4. Open VS Code.
+5. Choose **File > Open Folder** and select the `star-counter` folder.
+
+This folder is the whole app. Do not create a repository or clone a sample
+project.
+
+## 2. Ask Copilot to create the app
+
+Open Copilot Chat in VS Code. Ask it to use the badge-builder skill that is
+already installed. Tell it that there is no repository and that the open
+folder is the app folder.
+
+Example:
+
+> Use the badge-builder skill already available to you. I am at a booth and
+> do not have a repository. Build a small Universe 2026 badge app in the
+> currently open folder. Create the files needed to run it, including
+> `__init__.py`, a 24 x 24 `icon.png`, and any assets. Use the skill's current
+> badge API. Do not ask me to clone a repo, do not use repo-specific paths,
+> do not change firmware, and do not add passwords. Explain how I can copy
+> this app to the badge.
+
+Ask for a small first version. A simple screen and one button action are
+easier to test at a booth than networking or sensor features.
+
+## 3. Review the files before copying
+
+In the VS Code Explorer, confirm that the app folder contains:
+
+```text
+star-counter
+├── __init__.py
+├── icon.png
+└── assets
+```
+
+The `assets` folder is optional. If the app needs images or other files, keep
+them inside this app folder and ask Copilot to use paths relative to the app.
+The `icon.png` should be 24 x 24 pixels.
+Use **View > Show > File name extensions** in File Explorer if you need to
+check that the entry file is named `__init__.py`, not `__init__.py.txt`.
+
+Ask Copilot to review the app against the badge-builder skill. If the skill
+offers a checker that works without a project repository, ask it to run that
+checker. If a check requires a repository or a script that is not present,
+do not let Copilot invent a command; continue with the browser and physical
+checks below.
+
+## 4. Copy the app to the badge
+
+1. Close any serial monitor, REPL, or other program that is connected to the
+   badge.
+2. Connect the badge with the data-capable USB cable.
+3. Double-tap the badge's RESET button. Wait for its USB Disk Mode screen.
+4. In File Explorer, open **This PC** and open the new badge drive.
+5. Before copying, check the drive name and folders. The common 2026 layout is
+   a `BADGER` drive containing `system\apps`.
+6. Copy the `star-counter` folder itself from Documents.
+7. Paste it into `BADGER\system\apps`.
+
+Choose an app name that is not already on the badge. Do not overwrite or
+delete an existing app; ask booth staff if the name is already in use.
+
+The result should look like this:
+
+```text
+BADGER
+└── system
+    └── apps
+        └── star-counter
+            ├── __init__.py
+            ├── icon.png
+            └── assets
+```
+
+Do not copy the whole `Badge Projects` folder, a ZIP file, or a `.uf2` file.
+The `RP2350` drive is for a deliberate firmware update, not for installing an
+app.
+
+Badge firmware can change the drive name or folder layout. If you do not see
+`system\apps`, stop and ask booth staff where apps belong on that badge. Do
+not guess. Some badge and firmware combinations may show a different name or
+layout, such as `TUFTY\apps`.
+
+## 5. Eject and test
+
+1. In Windows, use **Safely Remove Hardware and Eject Media** in the taskbar,
+   or right-click the badge drive in File Explorer and choose **Eject**.
+2. Wait for Windows to say the device is safe to remove or for the drive to
+   disappear.
+3. Press RESET once if the badge does not return to its launcher.
+4. Open the new app from the badge menu.
+5. Try each screen and button. If the app saves data, exit and reopen it to
+   check that the data is still there.
+
+## 6. If the app shows an error
+
+Take a clear photo of the entire error, including the file name and line
+number. Give that error to Copilot and ask it to check the exact API and all
+places where the same API is used. Fix related calls together, then copy the
+app again and retest.
+
+Do not assume every badge has the same firmware just because it has the same
+case. A serial connection can stop or reset the running app. If booth staff
+uses a serial tool to read the firmware, wait until its command finishes
+before testing a button or movement.
+
+## Physical test rules for any badge app
+
+- Check the actual badge API before changing code. A method that seems
+  reasonable may not exist on the installed firmware.
+- Check every use of a failing call, not only the first line in the error.
+- Test that one button press cannot trigger two actions across screens.
+- Motion thresholds are not universal. Test sensor behavior on the actual
+  badge instead of copying another app's values.
+- A successful simulator or file-copy step does not prove that the physical
+  badge works. Open and test the app on the badge.
+
+## Helpful links
+
+- [GitHub Copilot in VS Code](https://code.visualstudio.com/docs/setup/copilot)
+- [Universe badge simulator](https://pimoroni.github.io/badgeware-web-simulator/)
+- [Safely eject a USB device in Windows](https://support.microsoft.com/en-us/windows/hardware/safely-remove-hardware-in-windows)
