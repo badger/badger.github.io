@@ -57,7 +57,7 @@ export function Navigation() {
           <span className="hidden sm:block"><GitHubRepoBadge repo="badger/home" /></span>
         </div>
       </div>
-      <div className={`container grid grid-cols-4 ${APP_CATALOG_PAGE_ENABLED ? 'sm:grid-cols-8' : 'sm:grid-cols-7'} gap-1 border-t border-border/50 py-2 xl:hidden`}>
+      <div className={`container grid grid-cols-4 ${APP_CATALOG_PAGE_ENABLED ? 'sm:grid-cols-8' : 'sm:grid-cols-7'} gap-1 border-t border-border/50 py-2 xl:hidden [&>a]:flex [&>a]:min-h-11 [&>a]:items-center [&>a]:justify-center`}>
         {navItems.map(({ href, label }) => {
           const active = isActive(href)
           return (

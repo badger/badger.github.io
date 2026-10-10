@@ -60,16 +60,16 @@ When the screen is ready for a real test:
 1. Close serial tools and connect the badge with a data-capable USB cable.
 2. Double-tap RESET and wait for the badge's USB Disk Mode screen.
 3. Open **This PC** in File Explorer and open the badge drive.
-4. Check that the drive contains `system\apps`. The common 2026 layout is
-   `BADGER\system\apps`.
-5. Copy the whole local `my-app` folder into `system\apps`. Do not copy the
+4. Check that the drive contains an `apps` folder at its root. The common
+   layout is `BADGER\apps`.
+5. Copy the whole local `my-app` folder into `apps`. Do not copy the
    `Badge Projects` parent folder. Use an app name that is not already on the
    badge. Do not overwrite or delete an existing app; ask booth staff if the
    name is already in use.
 6. Safely eject the drive from Windows. Wait for the safe-to-remove message.
 7. Press RESET once if needed, open the app, and test it on the badge.
 
-If the drive does not contain `system\apps`, stop and ask booth staff to
+If the drive does not contain a root `apps` folder, stop and ask booth staff to
 confirm the correct path for that badge. Do not copy to a guessed folder.
 Do not use the `RP2350` firmware-update drive to install an app.
 

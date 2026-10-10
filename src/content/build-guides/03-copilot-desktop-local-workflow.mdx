@@ -59,8 +59,8 @@ physical sensors, wireless, IR, battery, or exact timing.
 1. Close other programs that may be using the badge's serial port.
 2. Connect the badge with a data-capable USB cable.
 3. Double-tap RESET and wait for USB Disk Mode.
-4. In File Explorer, open the badge drive and confirm its app folder. The
-   common 2026 layout is `BADGER\system\apps`.
+4. In File Explorer, open the badge drive and confirm that it contains an
+   `apps` folder at its root. The common layout is `BADGER\apps`.
 5. Copy the `my-app` folder from the Copilot app's local workspace into that
    `apps` folder. Use an app name that is not already on the badge. Do not
    overwrite or delete an existing app; ask booth staff if the name is already
@@ -72,9 +72,9 @@ If Copilot's local sandbox will not let the agent access the badge drive,
 copy the folder yourself in File Explorer. Do not turn off broad safety
 settings just to copy one app.
 
-If the badge drive is named differently or does not contain `system\apps`,
-stop and ask booth staff to confirm the correct app path. Do not guess. Do
-not copy app files to the `RP2350` firmware-update drive.
+If the badge drive is named differently or does not contain a root `apps`
+folder, stop and ask booth staff to confirm the correct app path. Do not guess.
+Do not copy app files to the `RP2350` firmware-update drive.
 
 ## 5. When something fails
 
