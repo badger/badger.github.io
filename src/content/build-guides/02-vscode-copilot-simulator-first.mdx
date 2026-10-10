@@ -1,0 +1,95 @@
+# Route 2: Build in VS Code, preview in the browser, copy once
+
+This repo-free route is useful when the app has several screens or images.
+You try the screen and button flow in a browser simulator first, then copy the
+app to the badge when it is ready for a physical test.
+
+You do not need a repository, Python, Git, or a deployment script.
+
+## 1. Create a local app folder
+
+1. In File Explorer, create `Documents\Badge Projects\my-app`.
+2. Open VS Code.
+3. Choose **File > Open Folder** and select `my-app`.
+4. Open Copilot Chat and ask it to use the badge-builder skill that is already
+   available.
+
+Tell Copilot that this is a new, standalone app folder, not a repository:
+
+> Use the badge-builder skill already available to you. This is a booth
+> project with no GitHub repository or sample code. Build a small Universe
+> 2026 badge app in the open folder. Create the app entry file, a 24 x 24
+> `icon.png`, and any images or other assets it needs. Use the skill's
+> current badge API. Do not invent missing APIs, add passwords, or update
+> firmware. Keep each update non-blocking and explain how to try every screen.
+
+## 2. Keep the local files as the source copy
+
+Review the files VS Code shows in its Explorer. Keep the app code and all its
+assets in the `my-app` folder. Do not copy code only into the web simulator;
+the local folder is the copy you will later transfer to the badge.
+
+Ask Copilot to check the app against its badge skill. If the skill has a
+standalone checker, it can use it. If a check expects a repository that is
+not available, skip that check instead of cloning a project just to get a
+validator.
+
+## 3. Try the screen in the browser simulator
+
+1. Open the [Pimoroni Badgeware Web Simulator](https://pimoroni.github.io/badgeware-web-simulator/).
+2. Copy the app's `__init__.py` from VS Code into the simulator editor.
+3. If the app uses image or data files, upload them with the simulator's
+   **Files** panel.
+4. Run the app. Press buttons in the simulator to try its screens and
+   controls.
+5. When you change the app in VS Code, copy the updated source and upload any
+   changed assets again.
+
+Keep all lasting changes in VS Code, not only in the browser. Do not paste
+passwords, Wi-Fi credentials, or other private information into the simulator.
+
+The simulator is a screen and control preview. It does not prove that IMU,
+Bluetooth, GPIO, IR, charging, battery, or real badge timing works. If the
+simulator lacks an API, do not ask Copilot to fake it just to make the
+simulator run. Ask the skill how to test that feature on the real badge.
+
+## 4. Copy the app to the real badge
+
+When the screen is ready for a real test:
+
+1. Close serial tools and connect the badge with a data-capable USB cable.
+2. Double-tap RESET and wait for the badge's USB Disk Mode screen.
+3. Open **This PC** in File Explorer and open the badge drive.
+4. Check that the drive contains an `apps` folder at its root. The common
+   layout is `BADGER\apps`.
+5. Copy the whole local `my-app` folder into `apps`. Do not copy the
+   `Badge Projects` parent folder. Use an app name that is not already on the
+   badge. Do not overwrite or delete an existing app; ask booth staff if the
+   name is already in use.
+6. Safely eject the drive from Windows. Wait for the safe-to-remove message.
+7. Press RESET once if needed, open the app, and test it on the badge.
+
+If the drive does not contain a root `apps` folder, stop and ask booth staff to
+confirm the correct path for that badge. Do not copy to a guessed folder.
+Do not use the `RP2350` firmware-update drive to install an app.
+
+## 5. A quick test list
+
+- Does the app open from the badge menu?
+- Can you move through every screen?
+- Do the buttons do what the app says they do?
+- Does it still work after you exit and open it again?
+- Do any sensor, wireless, sound, or other hardware features work on the real
+  badge?
+
+If the badge shows an error, take a photo of the full message and ask Copilot
+to check the actual firmware API and all uses of the failing call. Serial
+access can interrupt the running app; wait for any serial command to finish
+before trying a physical gesture.
+
+## Helpful links
+
+- [Universe badge simulator](https://pimoroni.github.io/badgeware-web-simulator/)
+- [GitHub Copilot in VS Code](https://code.visualstudio.com/docs/setup/copilot)
+- [VS Code agent skills](https://code.visualstudio.com/docs/agent-customization/agent-skills)
+- [Safely eject a USB device in Windows](https://support.microsoft.com/en-us/windows/hardware/safely-remove-hardware-in-windows)

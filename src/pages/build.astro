@@ -1,0 +1,37 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import ListingHero from '@/components/listing-hero.astro'
+import ManualBuildGuide from '@/content/build-guides/01-vscode-manual-build-and-copy.mdx'
+import SimulatorBuildGuide from '@/content/build-guides/02-vscode-copilot-simulator-first.mdx'
+import CopilotDesktopGuide from '@/content/build-guides/03-copilot-desktop-local-workflow.mdx'
+
+const guides = [
+  { title: 'Build in VS Code and copy by hand', Content: ManualBuildGuide },
+  { title: 'Build in VS Code and preview in the simulator', Content: SimulatorBuildGuide },
+  { title: 'Build in the GitHub Copilot desktop app', Content: CopilotDesktopGuide },
+]
+---
+
+<Layout title="Build" description="Choose a workflow to build and test an app for your badge.">
+  <ListingHero
+    title="Build"
+    description="Choose a workflow, then follow its steps to build and test an app for your badge."
+  />
+  <section class="container py-10 sm:py-14">
+    <div class="mx-auto max-w-4xl space-y-3">
+      {guides.map(({ title, Content }) => (
+        <details class="group rounded-lg border border-border/60 bg-card/70 open:border-primary/40">
+          <summary class="cursor-pointer list-none px-5 py-4 font-mono text-sm uppercase tracking-[0.08em] text-foreground outline-none transition-colors marker:hidden hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset sm:px-6">
+            <span class="flex items-center justify-between gap-4">
+              {title}
+              <span aria-hidden="true" class="text-primary transition-transform group-open:rotate-45">+</span>
+            </span>
+          </summary>
+          <article class="prose prose-invert max-w-none border-t border-border/50 px-5 py-5 prose-headings:font-display prose-headings:tracking-tight prose-a:text-primary prose-code:text-primary prose-pre:border prose-pre:border-border/60 prose-pre:bg-background sm:px-6">
+            <Content />
+          </article>
+        </details>
+      ))}
+    </div>
+  </section>
+</Layout>
