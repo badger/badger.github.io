@@ -1,0 +1,302 @@
+{
+  "revision": "26f4f142efa9b437eec0d56b7751d77a3cc4dcc1",
+  "apps": [
+    {
+      "name": "30_minutes_to_alpha_centauri",
+      "title": "30 Minutes To Alpha Centauri",
+      "files": [
+        "__init__.py",
+        "assets/cargo.png",
+        "assets/game_over.png",
+        "assets/hud.png",
+        "assets/hyperion_bg.png",
+        "assets/hyperion_obst.png",
+        "assets/hyperion_wall.png",
+        "assets/intercom.png",
+        "assets/level_hyperion.png",
+        "assets/package_load.png",
+        "assets/player.png",
+        "assets/title.png",
+        "assets/win.png",
+        "cutscene.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "badge",
+      "title": "Badge",
+      "files": [
+        "__init__.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "bee_amazed",
+      "title": "Bee Amazed",
+      "files": [
+        "__init__.py",
+        "assets/background.png",
+        "assets/bee-down.png",
+        "assets/bee-left.png",
+        "assets/bee-right.png",
+        "assets/bee-up.png",
+        "assets/flower.png",
+        "assets/hedge.png",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "clock",
+      "title": "Clock",
+      "files": [
+        "__init__.py",
+        "assets/digital_dots.png",
+        "assets/digital_dots_invert.png",
+        "assets/digital_num.png",
+        "assets/digital_num_invert.png",
+        "assets/icons.png",
+        "assets/nixie_bg.png",
+        "assets/nixie_fg.png",
+        "assets/nixie_num.png",
+        "daylightsaving.py",
+        "icon.png",
+        "usermessage.py"
+      ]
+    },
+    {
+      "name": "commits",
+      "title": "Commits",
+      "files": [
+        "__init__.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "demos",
+      "title": "Demos",
+      "files": [
+        "__init__.py",
+        "demos/__init__.py",
+        "demos/blur.py",
+        "demos/blur_brush.py",
+        "demos/circles.py",
+        "demos/dither.py",
+        "demos/erase_brush.py",
+        "demos/fill_rules.py",
+        "demos/gradient.py",
+        "demos/image_brush.py",
+        "demos/intersect.py",
+        "demos/joins_caps.py",
+        "demos/lighten_darken.py",
+        "demos/line_clip.py",
+        "demos/lines.py",
+        "demos/pattern.py",
+        "demos/pixelate.py",
+        "demos/raycast.py",
+        "demos/shape.py",
+        "demos/sprites.py",
+        "demos/stroke.py",
+        "demos/text.py",
+        "demos/text_align.py",
+        "demos/transform_sprite.py",
+        "demos/triangles.py",
+        "demos/vector_shapes.py",
+        "demos/vector_text.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "extend_a_squirrel",
+      "title": "Extend A Squirrel",
+      "files": [
+        "__init__.py",
+        "assets/acorn10.png",
+        "assets/acorn15.png",
+        "assets/acorn_multi.png",
+        "assets/bg.png",
+        "assets/gameover.png",
+        "assets/sqirl.png",
+        "assets/title.png",
+        "draw_tufty.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "flappy",
+      "title": "Flappy",
+      "files": [
+        "__init__.py",
+        "assets/background.png",
+        "assets/cloud.png",
+        "assets/grass.png",
+        "assets/mona.png",
+        "assets/obstacles.png",
+        "icon.png",
+        "mona.py",
+        "obstacle.py"
+      ]
+    },
+    {
+      "name": "gallery",
+      "title": "Gallery",
+      "files": [
+        "__init__.py",
+        "icon.png",
+        "images/duck.png"
+      ]
+    },
+    {
+      "name": "ghost_signal",
+      "title": "Ghost Signal",
+      "files": [
+        "__init__.py"
+      ]
+    },
+    {
+      "name": "hydrate",
+      "title": "Hydrate",
+      "files": [
+        "__init__.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "input_test",
+      "title": "Input Test",
+      "files": [
+        "__init__.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "iss_tracker",
+      "title": "Iss Tracker",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "life",
+      "title": "Life",
+      "files": [
+        "__init__.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "mass_storage",
+      "title": "Mass Storage",
+      "files": [
+        "__init__.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "monapet",
+      "title": "Monapet",
+      "files": [
+        "__init__.py",
+        "assets/arrows.png",
+        "assets/icons.png",
+        "assets/mona-sprites/mona-code.png",
+        "assets/mona-sprites/mona-dance.png",
+        "assets/mona-sprites/mona-dead.png",
+        "assets/mona-sprites/mona-default.png",
+        "assets/mona-sprites/mona-eating.png",
+        "assets/mona-sprites/mona-heart.png",
+        "assets/mona-sprites/mona-love.png",
+        "assets/mona-sprites/mona-notify.png",
+        "assets/portrait.png",
+        "icon.png",
+        "mona.py",
+        "ui.py"
+      ]
+    },
+    {
+      "name": "plucky_cluck",
+      "title": "Plucky Cluck",
+      "files": [
+        "__init__.py",
+        "assets/background.png",
+        "assets/chicken.png",
+        "assets/cloud.png",
+        "assets/grass.png",
+        "assets/obstacles.png",
+        "chicken.py",
+        "icon.png",
+        "obstacle.py"
+      ]
+    },
+    {
+      "name": "rogue",
+      "title": "Rogue",
+      "files": [
+        "__init__.py"
+      ]
+    },
+    {
+      "name": "sense",
+      "title": "Sense",
+      "files": [
+        "__init__.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "sketchy_sketch",
+      "title": "Sketchy Sketch",
+      "files": [
+        "__init__.py",
+        "assets/nope.ppf",
+        "icon.png",
+        "ui.py"
+      ]
+    },
+    {
+      "name": "snarky_sciuridae",
+      "title": "Snarky Sciuridae",
+      "files": [
+        "__init__.py",
+        "assets/background/background_day.png",
+        "assets/background/background_dusk.png",
+        "assets/background/background_night.png",
+        "assets/squirrel-sprites/clean.png",
+        "assets/squirrel-sprites/dance.png",
+        "assets/squirrel-sprites/dead.png",
+        "assets/squirrel-sprites/dig.png",
+        "assets/squirrel-sprites/eat.png",
+        "assets/squirrel-sprites/idle.png",
+        "assets/squirrel-sprites/lick.png",
+        "assets/squirrel-sprites/notify.png",
+        "assets/squirrel-sprites/run.png",
+        "assets/squirrel-sprites/sleep.png",
+        "assets/squirrel-sprites/tail.png",
+        "assets/ui/buttons_48x14.png",
+        "assets/ui/icons.png",
+        "assets/ui/overlay_scanlines.png",
+        "assets/ui/tufty_frame_beige.png",
+        "icon.png",
+        "ui.py",
+        "vpet.py"
+      ]
+    },
+    {
+      "name": "tennis",
+      "title": "Tennis",
+      "files": [
+        "__init__.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "tomato",
+      "title": "Tomato",
+      "files": [
+        "__init__.py",
+        "icon.png"
+      ]
+    }
+  ]
+}

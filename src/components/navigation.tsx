@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, ContactRound, Grid3x3, Home, PlugZap, Power, Settings } from 'lucide-react'
+import { BookOpen, Code2, ContactRound, Grid3x3, Home, PlugZap, Power, Settings } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
 import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
@@ -9,6 +9,7 @@ const navItems = [
   { href: '/get-started', label: 'Start', icon: Power },
   { href: '/about-badge', label: 'Badge', icon: BookOpen },
   { href: '/apps', label: 'Apps', icon: PlugZap },
+  { href: '/editor', label: 'Editor', icon: Code2 },
   ...(APP_CATALOG_PAGE_ENABLED ? [{ href: '/browse-apps', label: 'Browse', icon: Grid3x3 }] : []),
   { href: '/contacts', label: 'Contacts', icon: ContactRound },
   { href: '/hacks', label: 'Hacks', icon: Settings },
@@ -23,7 +24,7 @@ export function Navigation() {
 
   const isActive = (href: string) => href === '/'
     ? pathname === '/'
-    : pathname.startsWith(href)
+    : pathname === href || pathname.startsWith(`${href}/`)
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/90 backdrop-blur-xl">
@@ -56,7 +57,7 @@ export function Navigation() {
           <span className="hidden sm:block"><GitHubRepoBadge repo="badger/home" /></span>
         </div>
       </div>
-      <div className={`container grid ${APP_CATALOG_PAGE_ENABLED ? 'grid-cols-7' : 'grid-cols-6'} gap-1 overflow-hidden border-t border-border/50 py-2 lg:hidden`}>
+      <div className={`container grid ${APP_CATALOG_PAGE_ENABLED ? 'grid-cols-8' : 'grid-cols-7'} gap-1 overflow-hidden border-t border-border/50 py-2 lg:hidden`}>
         {navItems.map(({ href, label }) => {
           const active = isActive(href)
           return (

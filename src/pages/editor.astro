@@ -1,0 +1,157 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2 } from 'lucide-react'
+---
+
+<Layout title="Editor / Badger" description="Write Python, test it in the browser, and upload your app to a Badger badge.">
+  <section class="container py-10 sm:py-14">
+    <h1 class="mb-6 text-4xl sm:text-5xl">Editor</h1>
+
+    <div id="badge-editor" class="surface overflow-hidden">
+      <div class="border-b border-border/70 bg-muted/20 px-4 py-3">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
+          <h2 class="flex items-center gap-2 text-xs"><Usb size={15} className="text-primary" /> Edit apps on your badge</h2>
+          <span id="disk-status" role="status" class="text-[0.65rem] text-muted-foreground">No badge connected</span>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex min-w-0 max-w-full flex-wrap items-center gap-3">
+            <button id="connect-disk" class="editor-button"><FolderOpen size={15} /> Connect badge</button>
+            <button id="release-disk" class="editor-button" hidden>Disconnect</button>
+            <ArrowRight size={14} className="hidden shrink-0 text-muted-foreground sm:block" aria-hidden="true" />
+            <div id="device-browser" class="flex min-w-0 max-w-full items-center gap-2">
+              <label class="sr-only" for="device-app">Badge app to edit</label>
+              <select id="device-app" disabled class="editor-select"><option value="">Choose an app to edit</option></select>
+              <button id="refresh-badge" class="editor-icon-button" aria-label="Refresh badge files" title="Refresh badge files" disabled><RefreshCw size={14} /></button>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="upload-path" class="upload-destination font-mono text-[0.65rem] text-muted-foreground">/apps/my-app/</span>
+            <button id="upload-code" class="editor-button editor-button-primary" disabled><Upload size={15} /> Upload</button>
+          </div>
+        </div>
+        <details id="usb-help" class="mt-2 text-xs text-muted-foreground">
+          <summary class="w-fit cursor-pointer font-mono text-[0.65rem] hover:text-foreground">USB setup</summary>
+          <p class="mt-2 max-w-2xl leading-relaxed">Connect over USB, double tap the reset button to open disk mode, then choose the BADGER volume with Connect badge. Select an app to edit its files.</p>
+        </details>
+        <label id="overwrite-option" class="mt-3 flex items-center gap-2 text-xs" hidden><input id="overwrite" type="checkbox" /><span>Replace this app’s files with this project.</span></label>
+        <p id="upload-message" role="status" class="mt-3 text-sm" hidden></p>
+      </div>
+      <div class="editor-toolbar flex flex-wrap items-center gap-3 border-b border-border/70 px-4 py-3">
+        <label class="flex items-center gap-2 font-mono text-xs text-muted-foreground"><Code2 size={16} /><span class="sr-only">App folder name</span><input id="app-name" value="my-app" maxlength="48" pattern="[a-z0-9][a-z0-9_-]*" class="w-28 rounded border border-border bg-background px-2 py-1.5 text-foreground" aria-label="App folder name" /></label>
+        <label class="min-w-0 max-w-full"><span class="sr-only">Load an example</span><select aria-label="Load an example" id="example" disabled class="editor-select"><option value="">Examples</option><option value="" disabled>Loading apps…</option></select></label>
+        <button id="new-project" class="editor-button"><Code2 size={15} /> New app</button>
+        <div class="flex items-center gap-2" role="group" aria-label="File actions">
+          <button id="open-file" class="editor-icon-button" aria-label="Open Python file" title="Open Python file"><FolderOpen size={15} /></button>
+          <button id="download" class="editor-icon-button" aria-label="Download current file" title="Download current file"><Download size={15} /></button>
+        </div>
+        <div class="flex items-center gap-2 border-l border-border pl-3" role="group" aria-label="Edit history">
+          <button id="undo" class="editor-icon-button" aria-label="Undo" title="Undo (Ctrl / ⌘ + Z)" disabled><Undo2 size={15} /></button>
+          <button id="redo" class="editor-icon-button" aria-label="Redo" title="Redo (Ctrl / ⌘ + Shift + Z)" disabled><Redo2 size={15} /></button>
+        </div>
+        <input id="file-input" type="file" accept=".py,text/x-python,text/plain" hidden />
+      </div>
+
+      <div id="editor-split" class="editor-split">
+        <div id="code-pane" class="min-w-0 border-b border-border/70 lg:border-b-0">
+          <div class="code-workspace grid grid-cols-[110px_minmax(0,1fr)] sm:grid-cols-[180px_minmax(0,1fr)]">
+            <aside class="file-sidebar min-w-0 border-r border-border/70 bg-muted/20" aria-label="Project files">
+              <div class="flex items-center justify-between border-b border-border/70 px-3 py-3 font-mono text-xs"><span>Files</span><button id="add-file" title="Add Python file" aria-label="Add Python file" class="text-primary">+</button></div>
+              <form id="new-file-form" class="border-b border-border/70 p-2" hidden><label class="sr-only" for="new-file-path">New file path</label><input id="new-file-path" class="w-full rounded border border-border bg-background px-2 py-1 text-xs" placeholder="helpers.py" /><button class="mt-2 text-xs text-primary" type="submit">Create file</button></form>
+              <div id="project-files" class="min-h-0 flex-1 overflow-auto py-2"></div>
+            </aside>
+            <div class="code-content flex min-w-0 flex-col">
+          <div class="flex items-center justify-between border-b border-border/70 px-3 py-3 text-[0.65rem]"><span class="flex min-w-0 items-center gap-2 font-mono"><Code2 size={14} className="shrink-0 text-primary" /><span id="active-file" class="truncate">__init__.py</span></span><span id="draft-status" role="status" class="ml-2 shrink-0 text-muted-foreground">Saved in this browser</span></div>
+          <div id="code-editor" class="min-h-0 flex-1" aria-label="Python code editor"></div>
+          <div id="asset-preview" class="min-h-0 flex-1 overflow-auto p-5 font-mono text-xs text-muted-foreground" hidden></div>
+          <div class="flex flex-wrap items-center justify-between gap-1 border-t border-border/70 px-5 py-2 font-mono text-[0.65rem] text-muted-foreground"><span id="cursor-position">Ln 1, Col 1</span><span>Python · UTF-8 · Ctrl / ⌘ + Enter to run</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="editor-divider" role="separator" tabindex="0" aria-label="Resize code editor and simulator" aria-controls="code-pane simulator-pane" aria-orientation="vertical" aria-valuemin="25" aria-valuemax="75" aria-valuenow="57" title="Drag to resize. Arrow keys adjust. Double-click or Enter resets."></div>
+
+        <div id="simulator-pane" class="min-w-0 bg-muted/15">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-4 py-3 text-xs">
+            <span class="flex items-center gap-2 font-mono"><Cpu size={14} className="text-primary" /> Simulator</span>
+            <div class="flex items-center gap-2">
+              <label class="mr-1 flex items-center gap-2 font-mono text-[0.65rem] text-muted-foreground" title="Restart the simulation automatically after edits"><input id="live-preview" type="checkbox" checked /> Auto-run</label>
+              <button id="stop" class="editor-icon-button" aria-label="Stop simulation" title="Stop simulation" disabled><Square size={14} /></button>
+              <button id="run" class="editor-button editor-button-primary" title="Run simulation (F5)"><Play size={14} /> Run</button>
+            </div>
+          </div>
+          <div class="px-6 py-7">
+            <div class="mx-auto max-w-[380px] rounded-2xl border border-border bg-[#0d1117] p-5 shadow-xl">
+              <div class="mb-4 flex items-center justify-between text-[#c9d1d9]"><span class="flex items-center gap-2 font-mono text-sm"><Github size={20} /> GitHub</span><span class="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-[#8b949e]">Badger / dev</span></div>
+              <div class="relative overflow-hidden rounded-md border border-[#30363d] bg-black">
+                <canvas id="badge-screen" width="320" height="240" tabindex="0" aria-label="Simulated badge display. Focus to use arrow keys, Space for B, and Escape for Home."></canvas>
+                <div id="screen-placeholder" class="pointer-events-none absolute inset-0 grid place-content-center gap-2 text-center"><Code2 size={28} className="mx-auto text-primary" /><span class="font-mono text-xs text-[#8b949e]">Your code starts here.</span></div>
+              </div>
+              <div class="mt-4 flex items-center justify-between gap-2">
+                <div class="flex gap-2">{[['A',16],['B',8],['C',4]].map(([label,bit]) => <button class="badge-key" data-button={bit} aria-label={`Badge button ${label}`}>{label}</button>)}</div>
+                <div class="flex gap-2">{[['↑',2],['↓',1],['⌂',32]].map(([label,bit]) => <button class="badge-key" data-button={bit} aria-label={bit === 32 ? 'Badge Home button' : bit === 2 ? 'Badge Up button' : 'Badge Down button'}>{label}</button>)}</div>
+              </div>
+            </div>
+          </div>
+          <div class="border-t border-border/70">
+            <div class="flex items-center justify-between px-5 py-3 text-xs"><span class="flex items-center gap-2 font-mono"><Terminal size={14} /> Output <span id="runtime-status" role="status" class="ml-2 text-[0.65rem] text-muted-foreground">Ready to run</span></span><button id="clear-output" class="text-muted-foreground hover:text-foreground">Clear</button></div>
+            <pre id="console-output" tabindex="0" aria-label="Simulator output" aria-live="polite" class="h-36 overflow-auto whitespace-pre-wrap break-words px-5 pb-4 font-mono text-xs leading-5 text-muted-foreground">Starting MicroPython…</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="editor-height-divider" role="separator" tabindex="0" aria-label="Resize workspace height" aria-controls="code-pane simulator-pane" aria-orientation="horizontal" aria-valuemin="320" aria-valuemax="1600" aria-valuenow="620" title="Drag up or down to resize height. Arrow keys adjust. Double-click or Enter resets."></div>
+    </div>
+
+  </section>
+</Layout>
+
+<script>
+  import { initBadgeEditor } from '@/lib/badge-editor'
+  initBadgeEditor()
+</script>
+
+<style>
+  .editor-split { display: grid; }
+  #code-pane, #simulator-pane { height: var(--workspace-height, 620px); min-height: 0; }
+  #code-pane { overflow: hidden; }
+  #simulator-pane { overflow: auto; }
+  .code-workspace { height: 100%; min-height: 0; }
+  .file-sidebar { display: flex; flex-direction: column; min-height: 0; }
+  .code-content { min-height: 0; }
+  .code-content > div:first-child, .code-content > div:last-child, .file-sidebar > div:first-child { flex-shrink: 0; }
+  #code-editor { overflow: hidden; }
+  #editor-height-divider { position: relative; height: 14px; cursor: row-resize; touch-action: none; background: hsl(var(--border) / 0.25); outline-offset: -2px; }
+  #editor-height-divider::after { content: ''; position: absolute; top: 6px; left: calc(50% - 20px); width: 40px; height: 2px; border-radius: 2px; background: hsl(var(--muted-foreground)); }
+  #editor-height-divider:hover, #editor-height-divider:focus-visible { background: hsl(var(--primary) / 0.2); outline: 1px solid hsl(var(--primary)); }
+  #editor-height-divider:hover::after, #editor-height-divider:focus-visible::after { background: hsl(var(--primary)); }
+  #badge-editor[data-resizing-height='true'] { cursor: row-resize; user-select: none; }
+  #editor-divider { display: none; }
+  @media (min-width: 1024px) {
+    .editor-split { grid-template-columns: minmax(300px, var(--code-share, 56.5fr)) 8px minmax(280px, var(--simulator-share, 43.5fr)); }
+    #editor-divider { display: block; position: relative; cursor: col-resize; touch-action: none; background: hsl(var(--border) / 0.25); outline-offset: -2px; }
+    #editor-divider::after { content: ''; position: absolute; top: 50%; left: 3px; width: 2px; height: 32px; border-radius: 2px; background: hsl(var(--muted-foreground)); }
+    #editor-divider:hover, #editor-divider:focus-visible, .editor-split[data-resizing='true'] #editor-divider { background: hsl(var(--primary) / 0.2); outline: 1px solid hsl(var(--primary)); }
+    #editor-divider:hover::after, #editor-divider:focus-visible::after { background: hsl(var(--primary)); }
+    .editor-split[data-resizing='true'] { cursor: col-resize; user-select: none; }
+  }
+  .editor-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; background: hsl(var(--background)); padding: 0.55rem 0.8rem; font-size: 0.7rem; line-height: 1.2; }
+  .editor-select { width: auto; max-width: 100%; min-width: 0; flex-shrink: 1; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; background: hsl(var(--background)); padding: 0.5rem 0.6rem; font-family: ui-monospace, monospace; font-size: 0.7rem; }
+  .editor-select:disabled { opacity: 0.4; }
+  .editor-icon-button { display: inline-flex; align-items: center; justify-content: center; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; background: hsl(var(--background)); width: 2rem; height: 2rem; }
+  .editor-icon-button:disabled { opacity: 0.4; cursor: not-allowed; }
+  #badge-editor input[type='checkbox'] { accent-color: hsl(var(--primary)); }
+  .upload-destination { display: none; }
+  #badge-editor[data-connected='true'] .upload-destination { display: inline; }
+  .editor-button:hover { border-color: hsl(var(--primary) / 0.6); }
+  #project-files :global(.project-file) { display: block; width: 100%; border-left: 2px solid transparent; padding: 0.45rem 0.7rem; text-align: left; font-family: ui-monospace, monospace; font-size: 0.65rem; color: hsl(var(--muted-foreground)); overflow-wrap: anywhere; }
+  #project-files :global(.project-file:hover) { background: hsl(var(--primary) / 0.05); color: hsl(var(--foreground)); }
+  #project-files :global(.project-file[aria-current="true"]) { border-left-color: hsl(var(--primary)); background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); }
+  .editor-button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .editor-button-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: hsl(var(--primary)); }
+  .badge-key { width: 2.3rem; height: 2rem; border: 1px solid #30363d; border-radius: 0.35rem; background: #161b22; color: #c9d1d9; font-size: 0.75rem; touch-action: none; user-select: none; }
+  .badge-key:active, .badge-key[data-pressed='true'] { color: #5fed83; border-color: #5fed83; background: #163321; }
+  #badge-screen { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; image-rendering: pixelated; outline-offset: -3px; }
+  #badge-screen:focus-visible { outline: 2px solid hsl(var(--primary)); }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 3px; }
+  [hidden] { display: none !important; }
+</style>
