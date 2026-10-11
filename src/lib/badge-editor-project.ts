@@ -13,6 +13,7 @@ export type EditorProject = {
   origin: 'new' | 'example' | 'badge'
   activePath: string
   checkpoint?: { name: string; paths: string[] }
+  diskPaths?: string[]
 }
 
 export type EditorCatalogApp = { name: string; title: string; files: string[] }
@@ -40,7 +41,13 @@ export function projectFile(path: string, data: Uint8Array): ProjectFile {
 }
 
 export function fileBytes(file: ProjectFile) {
-  return file.text === null ? file.data : encoder.encode(file.text)
+  if (file.text === null) return file.data
+  const data = encoder.encode(file.text)
+  if (file.data[0] !== 0xef || file.data[1] !== 0xbb || file.data[2] !== 0xbf) return data
+  const withBom = new Uint8Array(data.length + 3)
+  withBom.set([0xef, 0xbb, 0xbf])
+  withBom.set(data, 3)
+  return withBom
 }
 
 export function bytesEqual(left: Uint8Array, right: Uint8Array) {
@@ -49,6 +56,32 @@ export function bytesEqual(left: Uint8Array, right: Uint8Array) {
 
 export function projectCheckpoint(project: EditorProject) {
   return { name: project.name, paths: project.files.map(file => file.path) }
+}
+
+export function projectUploadBaseline(project: EditorProject) {
+  if (project.origin !== 'badge' || project.name !== project.sourceName) return undefined
+  const paths = project.diskPaths || project.checkpoint?.paths
+  return new Map(project.files.filter(file => paths ? paths.includes(file.path) : file.data.length > 0).map(file => [file.path, file.data]))
+}
+
+export function editedProjectFiles(project: EditorProject) {
+  const paths = project.checkpoint?.paths
+  return project.files.filter(file => !paths || !paths.includes(file.path) || !bytesEqual(file.data, fileBytes(file)))
+}
+
+export function uploadProjectFiles(project: EditorProject, existing: boolean) {
+  return !existing || project.origin === 'new' ? project.files : editedProjectFiles(project)
+}
+
+export function recordProjectUpload(project: EditorProject, snapshot: EditorProject, verified: Map<string, Uint8Array>) {
+  project.origin = 'badge'
+  project.sourceName = snapshot.name
+  for (const file of project.files) {
+    const data = verified.get(file.path)
+    if (data) file.data = data
+  }
+  project.diskPaths = [...verified.keys()]
+  project.checkpoint = projectCheckpoint(snapshot)
 }
 
 export function hasProjectChanges(project: EditorProject) {
@@ -87,7 +120,7 @@ export async function readBadgeProject(root: DiskDirectory, name: string): Promi
   }
   await visit(appRoot)
   if (!files.some(file => file.path === '__init__.py')) throw new Error('This app has no editable __init__.py source file.')
-  return { name, sourceName: name, files: files.sort((a, b) => a.path.localeCompare(b.path)), origin: 'badge', activePath: '__init__.py' }
+  return { name, sourceName: name, files: files.sort((a, b) => a.path.localeCompare(b.path)), origin: 'badge', activePath: '__init__.py', diskPaths: files.map(file => file.path) }
 }
 
 export async function listBadgeApps(root: DiskDirectory) {

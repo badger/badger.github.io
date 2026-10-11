@@ -1,4 +1,4 @@
-import { bytesEqual, fileBytes, validateFilePath, validateProjectLocation, type EditorProject } from './badge-editor-project'
+import { bytesEqual, fileBytes, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorProject } from './badge-editor-project'
 
 export type DiskFile = {
   getFile: () => Promise<File>
@@ -15,7 +15,7 @@ export type DiskDirectory = {
 
 export class ExistingAppError extends Error {
   constructor() {
-    super('This app already exists. Choose a new name, or enable replacement and click Upload again.')
+    super('This app already exists. Open it from the badge to edit, or allow updating this app and click Upload again.')
   }
 }
 
@@ -79,7 +79,7 @@ export async function uploadEditorApp(root: DiskDirectory, value: string, code: 
 }
 
 
-export async function uploadEditorProject(root: DiskDirectory, project: EditorProject, options: { replace?: boolean; expected?: Map<string, Uint8Array> } = {}) {
+export async function uploadEditorProject(root: DiskDirectory, project: EditorProject, options: { replace?: boolean; expected?: Map<string, Uint8Array>; onProgress?: (progress: { path: string; completed: number; total: number }) => void } = {}) {
   const name = validateAppName(project.name)
   validateProjectLocation(project)
   if (!project.files.some(file => file.path === '__init__.py' && file.text !== null)) throw new Error('The app needs an editable __init__.py.')
@@ -97,6 +97,8 @@ export async function uploadEditorProject(root: DiskDirectory, project: EditorPr
   if (appRoot && !options.replace && !options.expected) throw new ExistingAppError()
   if (!appRoot && options.expected) throw new Error('The app was removed from the badge. Refresh the badge files before uploading.')
   const created = !appRoot
+  const candidates = uploadProjectFiles(project, !created)
+  const verified = new Map(options.expected)
   appRoot ??= await appsRoot.getDirectoryHandle(name, { create: true })
   const directory = async (path: string, create: boolean) => {
     const parts = path.split('/')
@@ -131,19 +133,29 @@ export async function uploadEditorProject(root: DiskDirectory, project: EditorPr
   const plan: { path: string; data: Uint8Array; before: Uint8Array | null }[] = []
   const attempted: typeof plan = []
   try {
-    for (const file of project.files) {
+    for (const file of candidates) {
       const data = fileBytes(file)
       const baseline = options.expected?.get(file.path)
       if (options.expected && baseline && bytesEqual(baseline, data)) continue
       const before = await read(file.path)
-      if (options.expected && (baseline ? !before || !bytesEqual(baseline, before) : before !== null)) {
-        throw new Error(`${file.path} changed on the badge since it was opened. Refresh and reload the app before uploading.`)
+      if (before && bytesEqual(before, data)) {
+        verified.set(file.path, data)
+        continue
+      }
+      if (options.expected) {
+        if (baseline ? !before || !bytesEqual(baseline, before) : before !== null && !project.checkpoint?.paths.includes(file.path)) {
+          throw new Error(`${file.path} changed on the badge since it was opened. Refresh and reload the app before uploading.`)
+        }
+        if (!baseline && before && !bytesEqual(before, file.data) && !options.replace) throw new ExistingAppError()
       }
       if (!before || !bytesEqual(before, data)) plan.push({ path: file.path, data, before })
     }
     for (const item of plan.sort((a, b) => Number(a.path === '__init__.py') - Number(b.path === '__init__.py'))) {
+      options.onProgress?.({ path: item.path, completed: attempted.length, total: plan.length })
       attempted.push(item)
       await write(item.path, item.data)
+      verified.set(item.path, item.data)
+      options.onProgress?.({ path: item.path, completed: attempted.length, total: plan.length })
     }
   } catch (error) {
     try {
@@ -160,5 +172,5 @@ export async function uploadEditorProject(root: DiskDirectory, project: EditorPr
     } catch { throw new Error('Upload failed and rollback could not finish. Check the app files on BADGER before restarting.') }
     throw error
   }
-  return { path: `/apps/${name}`, written: plan.length }
+  return { path: `/apps/${name}`, written: plan.length, created, verified }
 }

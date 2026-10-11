@@ -26,14 +26,14 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
           </div>
           <div class="flex items-center gap-3">
             <span id="upload-path" class="upload-destination font-mono text-[0.65rem] text-muted-foreground">/apps/my-app/</span>
-            <button id="upload-code" class="editor-button editor-button-primary" disabled><Upload size={15} /> Upload</button>
+            <button id="upload-code" class="editor-button editor-button-primary" disabled><Upload size={15} /> <span id="upload-label">Upload</span></button>
           </div>
         </div>
         <details id="usb-help" class="mt-2 text-xs text-muted-foreground">
           <summary class="w-fit cursor-pointer font-mono text-[0.65rem] hover:text-foreground">USB setup</summary>
           <p class="mt-2 max-w-2xl leading-relaxed">Connect over USB, double tap the reset button to open disk mode, then choose the BADGER volume with Connect badge. Select an app to edit its files.</p>
         </details>
-        <label id="overwrite-option" class="mt-3 flex items-center gap-2 text-xs" hidden><input id="overwrite" type="checkbox" /><span>Replace this app’s files with this project.</span></label>
+        <label id="overwrite-option" class="mt-3 flex items-center gap-2 text-xs" hidden><input id="overwrite" type="checkbox" /><span>Allow updating this existing app.</span></label>
         <p id="upload-message" role="status" class="mt-3 text-sm" hidden></p>
       </div>
       <div class="editor-toolbar flex flex-wrap items-center gap-3 border-b border-border/70 px-4 py-3">

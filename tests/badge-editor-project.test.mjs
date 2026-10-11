@@ -7,8 +7,8 @@ async function loadModule(path) {
   const compiled = await build({ entryPoints: [new URL(path, import.meta.url).pathname], bundle: true, format: 'esm', platform: 'node', write: false })
   return import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`)
 }
-const { projectFile, projectCheckpoint, hasProjectChanges, readBadgeProject, listBadgeApps, simulationRequest, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
-const { uploadEditorProject } = await loadModule('../src/lib/badge-editor-upload.ts')
+const { projectFile, projectCheckpoint, fileBytes, hasProjectChanges, projectUploadBaseline, recordProjectUpload, readBadgeProject, listBadgeApps, simulationRequest, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
+const { uploadEditorProject, ExistingAppError } = await loadModule('../src/lib/badge-editor-upload.ts')
 const { getInstallableAppFolders } = await loadModule('../src/lib/github-app-catalog.ts')
 const bytes = text => new TextEncoder().encode(text)
 
@@ -22,6 +22,7 @@ function fakeDisk(initial, failPath = '', corrupt = false) {
   }
   let failureUsed = false
   const writes = []
+  const reads = []
   function directory(path) {
     return {
       name: path.split('/').at(-1) || 'BADGER',
@@ -46,7 +47,7 @@ function fakeDisk(initial, failPath = '', corrupt = false) {
         if (directories.has(key)) throw new DOMException('Is a directory', 'TypeMismatchError')
         if (!files.has(key) && !options?.create) throw new DOMException('Missing file', 'NotFoundError')
         return {
-          async getFile() { return new File([files.get(key) || new Uint8Array()], name) },
+          async getFile() { reads.push(key); return new File([files.get(key) || new Uint8Array()], name) },
           async createWritable() {
             let pending
             return {
@@ -71,12 +72,147 @@ function fakeDisk(initial, failPath = '', corrupt = false) {
       },
     }
   }
-  return { root: directory(''), files, directories, writes }
+  return { root: directory(''), files, directories, writes, reads }
 }
 
 function project(name = 'new-app') {
   return { name, sourceName: name, origin: 'example', activePath: '__init__.py', files: [projectFile('__init__.py', bytes('print("hello")')), projectFile('helpers.py', bytes('value = 42')), projectFile('assets/icon.png', new Uint8Array([0, 255, 128]))] }
 }
+
+async function flappyProject() {
+  const catalog = JSON.parse(await readFile(new URL('../public/editor-apps/catalog.json', import.meta.url)))
+  const app = catalog.apps.find(app => app.name === 'flappy')
+  const files = await Promise.all(app.files.map(async path => projectFile(path, new Uint8Array(await readFile(new URL(`../public/editor-apps/flappy/${path}`, import.meta.url))))))
+  const current = { name: 'flappy', sourceName: 'flappy', origin: 'example', activePath: '__init__.py', files }
+  current.checkpoint = projectCheckpoint(current)
+  return current
+}
+
+test('a one-line example edit updates one file in a nine-file app without reading or replacing its other files', async () => {
+  const current = await flappyProject()
+  const initial = Object.fromEntries(current.files.map(file => [`apps/flappy/${file.path}`, new Uint8Array(file.data)]))
+  initial['apps/flappy/icon.png'] = bytes('different installed icon')
+  const disk = fakeDisk(initial)
+  current.files.find(file => file.path === '__init__.py').text += '\nvalue = 1\n'
+  const progress = []
+  const snapshot = structuredClone(current)
+  const result = await uploadEditorProject(disk.root, snapshot, { replace: true, onProgress: item => progress.push(item) })
+  assert.equal(result.written, 1)
+  assert.equal(result.created, false)
+  assert.deepEqual(disk.writes, ['apps/flappy/__init__.py'])
+  assert.deepEqual(disk.reads, ['apps/flappy/__init__.py', 'apps/flappy/__init__.py'])
+  for (const [path, data] of Object.entries(initial)) if (!path.endsWith('/__init__.py')) assert.deepEqual(disk.files.get(path), data)
+  assert.deepEqual(progress, [{ path: '__init__.py', completed: 0, total: 1 }, { path: '__init__.py', completed: 1, total: 1 }])
+  recordProjectUpload(current, snapshot, result.verified)
+  assert.deepEqual(current.diskPaths, ['__init__.py'])
+  const restored = structuredClone(current)
+  restored.files.find(file => file.path === 'mona.py').text += '\nvalue = 2\n'
+  disk.reads.length = 0
+  disk.writes.length = 0
+  const nextSnapshot = structuredClone(restored)
+  const next = await uploadEditorProject(disk.root, nextSnapshot, { expected: projectUploadBaseline(restored) })
+  assert.equal(next.written, 1)
+  assert.deepEqual(disk.writes, ['apps/flappy/mona.py'])
+  assert.deepEqual(disk.reads, ['apps/flappy/mona.py', 'apps/flappy/mona.py'])
+  recordProjectUpload(restored, nextSnapshot, next.verified)
+  disk.reads.length = 0
+  disk.writes.length = 0
+  const unchanged = await uploadEditorProject(disk.root, restored, { expected: projectUploadBaseline(restored) })
+  assert.equal(unchanged.written, 0)
+  assert.deepEqual(disk.writes, [])
+  assert.deepEqual(disk.reads, [])
+})
+
+test('first install copies all nine required files even when only one example file was edited', async () => {
+  const current = await flappyProject()
+  current.files[0].text += '\nvalue = 1\n'
+  const disk = fakeDisk({})
+  const result = await uploadEditorProject(disk.root, current)
+  assert.equal(result.created, true)
+  assert.equal(result.written, 9)
+  assert.equal(result.verified.size, 9)
+  assert.equal(disk.writes.at(-1), 'apps/flappy/__init__.py')
+  for (const file of current.files) assert.deepEqual(disk.files.get(`apps/flappy/${file.path}`), fileBytes(file))
+})
+
+test('restored badge drafts retain their upload baseline and write only the edited file', async () => {
+  const current = await flappyProject()
+  const disk = fakeDisk(Object.fromEntries(current.files.map(file => [`apps/flappy/${file.path}`, file.data])))
+  const opened = await readBadgeProject(disk.root, 'flappy')
+  opened.checkpoint = projectCheckpoint(opened)
+  opened.files.find(file => file.path === '__init__.py').text += '\nvalue = 1\n'
+  const restored = structuredClone(opened)
+  disk.reads.length = 0
+  const result = await uploadEditorProject(disk.root, restored, { expected: projectUploadBaseline(restored) })
+  assert.equal(result.written, 1)
+  assert.deepEqual(disk.writes, ['apps/flappy/__init__.py'])
+  assert.deepEqual(disk.reads, ['apps/flappy/__init__.py', 'apps/flappy/__init__.py'])
+})
+
+test('unchanged UTF-8 BOM files remain byte-identical and are skipped', async () => {
+  const bomBytes = text => new Uint8Array([0xef, 0xbb, 0xbf, ...bytes(text)])
+  const disk = fakeDisk({ 'apps/demo/__init__.py': bomBytes('value = 1\r\n'), 'apps/demo/helpers.py': bomBytes('value = 2\r\n') })
+  const current = await readBadgeProject(disk.root, 'demo')
+  current.checkpoint = projectCheckpoint(current)
+  assert.equal(hasProjectChanges(current), false)
+  current.files.find(file => file.path === '__init__.py').text = 'value = 3\r\n'
+  disk.reads.length = 0
+  const result = await uploadEditorProject(disk.root, current, { expected: projectUploadBaseline(current) })
+  assert.equal(result.written, 1)
+  assert.deepEqual(disk.writes, ['apps/demo/__init__.py'])
+  assert.deepEqual(disk.reads, ['apps/demo/__init__.py', 'apps/demo/__init__.py'])
+  assert.deepEqual(disk.files.get('apps/demo/__init__.py'), bomBytes('value = 3\r\n'))
+  assert.deepEqual(disk.files.get('apps/demo/helpers.py'), bomBytes('value = 2\r\n'))
+})
+
+test('new empty files are uploaded once and tracked separately from untouched example files', async () => {
+  const current = project('demo')
+  current.checkpoint = projectCheckpoint(current)
+  current.origin = 'badge'
+  current.diskPaths = ['__init__.py']
+  current.files.push(projectFile('empty.py', new Uint8Array()))
+  const disk = fakeDisk({ 'apps/demo/__init__.py': current.files[0].data })
+  const snapshot = structuredClone(current)
+  const result = await uploadEditorProject(disk.root, snapshot, { expected: projectUploadBaseline(snapshot) })
+  assert.deepEqual(disk.writes, ['apps/demo/empty.py'])
+  assert.equal(disk.files.get('apps/demo/empty.py').length, 0)
+  assert.equal(result.verified.has('helpers.py'), false)
+  recordProjectUpload(current, snapshot, result.verified)
+  disk.writes.length = 0
+  assert.equal((await uploadEditorProject(disk.root, current, { expected: projectUploadBaseline(current) })).written, 0)
+})
+
+test('partial updates do not mark unverified companion modules as saved on the badge', async () => {
+  const current = project('demo')
+  current.checkpoint = projectCheckpoint(current)
+  current.files[0].text = 'print("first update")'
+  const disk = fakeDisk({ 'apps/demo/__init__.py': 'old source', 'apps/demo/helpers.py': 'different installed helper' })
+  const snapshot = structuredClone(current)
+  const result = await uploadEditorProject(disk.root, snapshot, { replace: true })
+  recordProjectUpload(current, snapshot, result.verified)
+  current.files[1].text = 'value = 99'
+  const expected = projectUploadBaseline(current)
+  assert.equal(expected.has('helpers.py'), false)
+  disk.writes.length = 0
+  await assert.rejects(uploadEditorProject(disk.root, current, { expected }), ExistingAppError)
+  assert.deepEqual(disk.writes, [])
+  const next = await uploadEditorProject(disk.root, current, { expected, replace: true })
+  assert.equal(next.written, 1)
+  assert.deepEqual(disk.writes, ['apps/demo/helpers.py'])
+})
+
+test('a changed file already matching the badge is accepted without another write', async () => {
+  const current = project('demo')
+  current.origin = 'badge'
+  current.checkpoint = projectCheckpoint(current)
+  current.files[0].text = 'print("already applied")'
+  const disk = fakeDisk({ 'apps/demo/__init__.py': fileBytes(current.files[0]) })
+  const result = await uploadEditorProject(disk.root, current, { expected: projectUploadBaseline(current) })
+  assert.equal(result.written, 0)
+  assert.deepEqual(disk.writes, [])
+  assert.deepEqual(disk.reads, ['apps/demo/__init__.py'])
+  assert.deepEqual(result.verified.get('__init__.py'), fileBytes(current.files[0]))
+})
 
 test('every current bundled app uses the same inclusion rules as /apps', async () => {
   const catalog = JSON.parse(await readFile(new URL('../public/editor-apps/catalog.json', import.meta.url)))
@@ -176,9 +312,12 @@ test('legacy drafts without a checkpoint are protected conservatively', () => {
 
 test('edits made after an upload snapshot remain dirty', () => {
   const current = project()
+  current.files[0].text = 'print("uploaded")'
   const snapshot = structuredClone(current)
   current.files[0].text = 'print("typed while uploading")'
-  current.checkpoint = projectCheckpoint(snapshot)
+  recordProjectUpload(current, snapshot, new Map(snapshot.files.map(file => [file.path, fileBytes(file)])))
+  assert.equal(current.files[0].text, 'print("typed while uploading")')
+  assert.deepEqual(current.files[0].data, bytes('print("uploaded")'))
   assert.equal(hasProjectChanges(current), true)
 })
 

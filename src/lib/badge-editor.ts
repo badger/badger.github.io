@@ -1,6 +1,6 @@
 import { ExistingAppError, uploadEditorProject, validateAppName, type DiskDirectory } from './badge-editor-upload'
 import { initEditorSplit } from './badge-editor-split'
-import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, loadExampleProject, projectCheckpoint, projectFile, readBadgeProject, readProjectDraft, saveProjectDraft, simulationRequest, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject } from './badge-editor-project'
+import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, loadExampleProject, projectCheckpoint, projectFile, projectUploadBaseline, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject } from './badge-editor-project'
 import { basicSetup } from 'codemirror'
 import { EditorView, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
@@ -56,8 +56,7 @@ export async function initBadgeEditor() {
   let draftTimer: number | undefined
   let buttons = 0
   let disk: DiskDirectory | null = null
-  let boundDisk: DiskDirectory | null = null
-  let baseline: Map<string, Uint8Array> | undefined
+  let badgeAppNames: string[] = []
   let busy = false
   let errorReported = false
   let previewUrl: string | null = null
@@ -179,6 +178,7 @@ export async function initBadgeEditor() {
       button.addEventListener('click', () => openProjectFile(file.path))
       fileList.append(button)
     }
+    updateUploadButton()
   }
 
   function openProjectFile(path: string) {
@@ -225,7 +225,7 @@ export async function initBadgeEditor() {
     return decision
   }
 
-  async function openProject(next: EditorProject, device: DiskDirectory | null = null, expected?: Map<string, Uint8Array>, restored = false) {
+  async function openProject(next: EditorProject, restored = false) {
     if (initialized && hasProjectChanges(project) && !await confirmReplacement()) {
       return false
     }
@@ -233,8 +233,6 @@ export async function initBadgeEditor() {
     stopWorker()
     project = next
     initialized = true
-    boundDisk = device
-    baseline = expected
     states = new Map()
     currentEditorPath = null
     appName.value = project.name
@@ -362,13 +360,21 @@ export async function initBadgeEditor() {
     element('upload-path').textContent = `/apps/${project.name}/`
     overwrite.checked = false
     overwriteOption.hidden = true
+    updateUploadButton()
     saveDraft()
+  }
+
+  function updateUploadButton() {
+    const existing = badgeAppNames.includes(project.name)
+    const count = uploadProjectFiles(project, existing).length
+    uploadButton.disabled = busy || !disk || count === 0
+    element('upload-label').textContent = !disk ? 'Upload' : count === 0 ? 'No changes' : `${existing ? 'Upload' : 'Install'} ${count} ${count === 1 ? 'file' : 'files'}`
   }
 
   function setBusy(value: boolean) {
     busy = value
     for (const id of ['connect-disk', 'release-disk', 'new-project', 'open-file', 'add-file']) element<HTMLButtonElement>(id).disabled = value
-    uploadButton.disabled = value || !disk
+    updateUploadButton()
     appName.disabled = value
     overwrite.disabled = value
     example.disabled = value || !catalog
@@ -376,13 +382,18 @@ export async function initBadgeEditor() {
     element<HTMLButtonElement>('refresh-badge').disabled = value || !disk
   }
 
+  function renderDeviceApps() {
+    deviceApp.replaceChildren(new Option(badgeAppNames.length ? 'Choose an app to edit' : 'No Python apps found', ''))
+    badgeAppNames.forEach(name => deviceApp.add(new Option(name, name)))
+    element('badge-editor').dataset.connected = 'true'
+    element('disk-status').textContent = `BADGER · ${badgeAppNames.length} apps`
+    updateUploadButton()
+  }
+
   async function refreshDeviceApps() {
     if (!disk) return
-    const names = await listBadgeApps(disk)
-    deviceApp.replaceChildren(new Option(names.length ? 'Choose an app to edit' : 'No Python apps found', ''))
-    names.forEach(name => deviceApp.add(new Option(name, name)))
-    element('badge-editor').dataset.connected = 'true'
-    element('disk-status').textContent = `BADGER · ${names.length} apps`
+    badgeAppNames = await listBadgeApps(disk)
+    renderDeviceApps()
   }
 
   connectButton.addEventListener('click', async () => {
@@ -406,8 +417,7 @@ export async function initBadgeEditor() {
 
   releaseButton.addEventListener('click', () => {
     disk = null
-    boundDisk = null
-    baseline = undefined
+    badgeAppNames = []
     releaseButton.hidden = true
     connectButton.hidden = false
     deviceApp.replaceChildren(new Option('Choose an app to edit', ''))
@@ -432,7 +442,7 @@ export async function initBadgeEditor() {
     setBusy(true)
     try {
       const loaded = await readBadgeProject(root, name)
-      if (await openProject(loaded, root, new Map(loaded.files.map(file => [file.path, new Uint8Array(file.data)])))) showMessage(`Opened /apps/${name}/ from BADGER.`)
+      if (await openProject(loaded)) showMessage(`Opened /apps/${name}/ from BADGER.`)
     } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not read this app.', true) } finally { deviceApp.value = ''; setBusy(false) }
   })
 
@@ -440,30 +450,27 @@ export async function initBadgeEditor() {
     if (busy || !disk) return
     const root = disk
     const snapshot = structuredClone(project)
-    const expected = boundDisk === root && snapshot.name === snapshot.sourceName ? baseline : undefined
+    const expected = projectUploadBaseline(snapshot)
     setBusy(true)
     try {
       element('disk-status').textContent = 'Uploading…'
-      const result = await uploadEditorProject(root, snapshot, { replace: overwrite.checked && !overwriteOption.hidden, expected })
-      boundDisk = root
-      baseline = new Map(snapshot.files.map(file => [file.path, fileBytes(file)]))
-      project.origin = 'badge'
-      project.sourceName = project.name
-      for (const file of project.files) {
-        const uploaded = snapshot.files.find(item => item.path === file.path)
-        if (uploaded) file.data = fileBytes(uploaded)
-      }
-      project.checkpoint = projectCheckpoint(snapshot)
+      const result = await uploadEditorProject(root, snapshot, {
+        replace: overwrite.checked && !overwriteOption.hidden,
+        expected,
+        onProgress: ({ path, completed, total }) => { element('disk-status').textContent = `${completed}/${total} files · ${path}` },
+      })
+      recordProjectUpload(project, snapshot, result.verified)
       overwriteOption.hidden = true
       overwrite.checked = false
       renderFiles()
       saveDraft()
-      showMessage(`${result.written} files uploaded and verified in ${result.path}/. Eject BADGER, then restart it.`)
-      await refreshDeviceApps()
+      if (result.written === 0) showMessage('No changed files to upload.')
+      else showMessage(`${result.created ? 'Installed app with' : 'Uploaded'} ${result.written} ${result.written === 1 ? 'file' : 'files'} in ${result.path}/, verified. Eject BADGER, then restart it.`)
+      if (!badgeAppNames.includes(snapshot.name)) badgeAppNames = [...badgeAppNames, snapshot.name].sort()
     } catch (error) {
       if (error instanceof ExistingAppError) overwriteOption.hidden = false
       showMessage(error instanceof Error ? error.message : 'Upload failed. Check the USB connection and try again.', true)
-    } finally { setBusy(false) }
+    } finally { renderDeviceApps(); setBusy(false) }
   })
 
   example.addEventListener('change', async () => {
@@ -562,6 +569,6 @@ export async function initBadgeEditor() {
       }
     }
   } catch { draftStatus.textContent = 'Browser storage unavailable' }
-  await openProject(project, null, undefined, restored)
+  await openProject(project, restored)
   setBusy(false)
 }
