@@ -102,6 +102,17 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
       <div id="editor-height-divider" role="separator" tabindex="0" aria-label="Resize workspace height" aria-controls="code-pane simulator-pane" aria-orientation="horizontal" aria-valuemin="320" aria-valuemax="1600" aria-valuenow="620" title="Drag up or down to resize height. Arrow keys adjust. Double-click or Enter resets."></div>
     </div>
 
+    <dialog id="replace-project" aria-labelledby="replace-project-title" aria-describedby="replace-project-description" class="max-w-md rounded-xl border border-border bg-background p-6 text-foreground shadow-xl">
+      <form method="dialog">
+        <h2 id="replace-project-title" class="text-xl">Replace this edited project?</h2>
+        <p id="replace-project-description" class="mt-3 text-sm leading-relaxed text-muted-foreground">Its draft will be replaced, including added files. Keep editing to download the files you want to save first.</p>
+        <div class="mt-5 flex flex-wrap justify-end gap-3">
+          <button value="cancel" class="editor-button" autofocus>Keep editing</button>
+          <button value="replace" class="editor-button editor-button-primary">Replace project</button>
+        </div>
+      </form>
+    </dialog>
+
   </section>
 </Layout>
 
@@ -111,6 +122,7 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
 </script>
 
 <style>
+  #replace-project::backdrop { background: rgb(0 0 0 / 0.65); }
   .editor-split { display: grid; }
   #code-pane, #simulator-pane { height: var(--workspace-height, 620px); min-height: 0; }
   #code-pane { overflow: hidden; }

@@ -1,4 +1,4 @@
-import { bytesEqual, fileBytes, validateFilePath, type EditorProject } from './badge-editor-project'
+import { bytesEqual, fileBytes, validateFilePath, validateProjectLocation, type EditorProject } from './badge-editor-project'
 
 export type DiskFile = {
   getFile: () => Promise<File>
@@ -81,6 +81,7 @@ export async function uploadEditorApp(root: DiskDirectory, value: string, code: 
 
 export async function uploadEditorProject(root: DiskDirectory, project: EditorProject, options: { replace?: boolean; expected?: Map<string, Uint8Array> } = {}) {
   const name = validateAppName(project.name)
+  validateProjectLocation(project)
   if (!project.files.some(file => file.path === '__init__.py' && file.text !== null)) throw new Error('The app needs an editable __init__.py.')
   const paths = new Set<string>()
   for (const file of project.files) {

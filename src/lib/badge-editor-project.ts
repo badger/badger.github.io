@@ -12,6 +12,7 @@ export type EditorProject = {
   files: ProjectFile[]
   origin: 'new' | 'example' | 'badge'
   activePath: string
+  checkpoint?: { name: string; paths: string[] }
 }
 
 export type EditorCatalogApp = { name: string; title: string; files: string[] }
@@ -44,6 +45,25 @@ export function fileBytes(file: ProjectFile) {
 
 export function bytesEqual(left: Uint8Array, right: Uint8Array) {
   return left.length === right.length && left.every((value, index) => value === right[index])
+}
+
+export function projectCheckpoint(project: EditorProject) {
+  return { name: project.name, paths: project.files.map(file => file.path) }
+}
+
+export function hasProjectChanges(project: EditorProject) {
+  const checkpoint = project.checkpoint
+  return !checkpoint || checkpoint.name !== project.name || checkpoint.paths.length !== project.files.length ||
+    project.files.some(file => !checkpoint.paths.includes(file.path) || !bytesEqual(file.data, fileBytes(file)))
+}
+
+export function validateProjectLocation(project: EditorProject) {
+  if (project.name === project.sourceName) return
+  const roots = [`/system/apps/${project.sourceName}`, `/remote/apps/${project.sourceName}`, `/apps/${project.sourceName}`, `/${project.sourceName}`]
+  const escapedRoots = roots.map(root => root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  const reference = new RegExp(`(?:${escapedRoots.join('|')})(?=[/"'\\x60\\s]|$)`)
+  const file = project.files.find(file => /\.py$/i.test(file.path) && file.text !== null && reference.test(file.text))
+  if (file) throw new Error(`${file.path} still references the ${project.sourceName} app folder. Keep that app name, or update its paths to ${project.name} before running or uploading.`)
 }
 
 export async function readBadgeProject(root: DiskDirectory, name: string): Promise<EditorProject> {
@@ -104,12 +124,11 @@ export async function loadExampleProject(app: EditorCatalogApp): Promise<EditorP
 }
 
 export function simulationRequest(project: EditorProject) {
+  validateProjectLocation(project)
   const entry = project.files.find(file => file.path === '__init__.py')
   if (!entry || entry.text === null) throw new Error('Add an editable __init__.py to simulate this app.')
-  const names = [...new Set([project.name, project.sourceName])]
-  const roots = names.flatMap(name => [`/apps/${name}`, `/system/apps/${name}`, `/remote/apps/${name}`, `/${name}`])
-  const files = roots.flatMap(root => project.files.map(file => ({ name: `${root}/${file.path}`, content: fileBytes(file) })))
-  const root = `/apps/${project.name}`
+  const root = `/system/apps/${project.name}`
+  const files = project.files.map(file => ({ name: `${root}/${file.path}`, content: fileBytes(file) }))
   const path = `${root}/__init__.py`
   const program = `import editor_support
 import os, sys\nos.chdir(${JSON.stringify(root)})\nsys.path.insert(0, ${JSON.stringify(root)})\n__file__ = ${JSON.stringify(path)}\nexec(compile(${JSON.stringify(entry.text)}, __file__, 'exec'))`

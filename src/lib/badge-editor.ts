@@ -1,6 +1,6 @@
 import { ExistingAppError, uploadEditorProject, validateAppName, type DiskDirectory } from './badge-editor-upload'
 import { initEditorSplit } from './badge-editor-split'
-import { bytesEqual, fileBytes, listBadgeApps, loadExampleProject, projectFile, readBadgeProject, readProjectDraft, saveProjectDraft, simulationRequest, validateFilePath, type EditorCatalog, type EditorProject } from './badge-editor-project'
+import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, loadExampleProject, projectCheckpoint, projectFile, readBadgeProject, readProjectDraft, saveProjectDraft, simulationRequest, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject } from './badge-editor-project'
 import { basicSetup } from 'codemirror'
 import { EditorView, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
@@ -63,6 +63,8 @@ export async function initBadgeEditor() {
   let previewUrl: string | null = null
   let saveGeneration = 0
   let saveChain = Promise.resolve()
+  let initialized = false
+  let locationError = false
 
   const extensions = [
         keymap.of([
@@ -102,6 +104,7 @@ export async function initBadgeEditor() {
         if (file && file.text !== null) file.text = update.state.doc.toString()
         states.set(project.activePath, update.state)
         renderFiles()
+        updateLocationMessage()
         scheduleSave()
         scheduleRun()
       }
@@ -130,9 +133,21 @@ export async function initBadgeEditor() {
   }
 
   function showMessage(text: string, error = false) {
+    locationError = false
     message.hidden = false
     message.textContent = text
     message.className = `mt-3 text-sm ${error ? 'text-red-400' : 'text-primary'}`
+  }
+
+  function updateLocationMessage() {
+    try {
+      validateProjectLocation(project)
+      if (locationError) message.hidden = true
+      locationError = false
+    } catch (error) {
+      showMessage(error instanceof Error ? error.message : 'Update the app paths before renaming.', true)
+      locationError = true
+    }
   }
 
   function scheduleSave() {
@@ -202,9 +217,22 @@ export async function initBadgeEditor() {
     saveDraft()
   }
 
-  function openProject(next: EditorProject, device: DiskDirectory | null = null, expected?: Map<string, Uint8Array>) {
+  async function confirmReplacement() {
+    const dialog = element<HTMLDialogElement>('replace-project')
+    dialog.returnValue = ''
+    const decision = new Promise<boolean>(resolve => dialog.addEventListener('close', () => resolve(dialog.returnValue === 'replace'), { once: true }))
+    dialog.showModal()
+    return decision
+  }
+
+  async function openProject(next: EditorProject, device: DiskDirectory | null = null, expected?: Map<string, Uint8Array>, restored = false) {
+    if (initialized && hasProjectChanges(project) && !await confirmReplacement()) {
+      return false
+    }
+    if (!restored) next.checkpoint = projectCheckpoint(next)
     stopWorker()
     project = next
+    initialized = true
     boundDisk = device
     baseline = expected
     states = new Map()
@@ -213,10 +241,12 @@ export async function initBadgeEditor() {
     overwrite.checked = false
     overwriteOption.hidden = true
     message.hidden = true
+    locationError = false
     states.set(project.activePath, EditorState.create({ doc: project.files.find(file => file.path === project.activePath)?.text || '', extensions }))
     openProjectFile(project.activePath)
     updatePath()
     scheduleRun(0)
+    return true
   }
 
   function releaseButtons() {
@@ -402,8 +432,7 @@ export async function initBadgeEditor() {
     setBusy(true)
     try {
       const loaded = await readBadgeProject(root, name)
-      openProject(loaded, root, new Map(loaded.files.map(file => [file.path, new Uint8Array(file.data)])))
-      showMessage(`Opened /apps/${name}/ from BADGER.`)
+      if (await openProject(loaded, root, new Map(loaded.files.map(file => [file.path, new Uint8Array(file.data)])))) showMessage(`Opened /apps/${name}/ from BADGER.`)
     } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not read this app.', true) } finally { deviceApp.value = ''; setBusy(false) }
   })
 
@@ -424,6 +453,7 @@ export async function initBadgeEditor() {
         const uploaded = snapshot.files.find(item => item.path === file.path)
         if (uploaded) file.data = fileBytes(uploaded)
       }
+      project.checkpoint = projectCheckpoint(snapshot)
       overwriteOption.hidden = true
       overwrite.checked = false
       renderFiles()
@@ -441,13 +471,12 @@ export async function initBadgeEditor() {
     if (!app || busy) return
     setBusy(true)
     try {
-      runtimeStatus.textContent = 'Loading app…'
       const loaded = await loadExampleProject(app)
-      openProject(loaded)
+      await openProject(loaded)
     } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not load this app.', true) } finally { example.value = ''; setBusy(false) }
   })
 
-  element('new-project').addEventListener('click', () => { if (!busy) openProject(newProject()) })
+  element('new-project').addEventListener('click', async () => { if (!busy) await openProject(newProject()) })
   element('add-file').addEventListener('click', () => { element('new-file-form').hidden = !element('new-file-form').hidden; element<HTMLInputElement>('new-file-path').focus() })
   element<HTMLFormElement>('new-file-form').addEventListener('submit', event => {
     event.preventDefault()
@@ -477,7 +506,7 @@ export async function initBadgeEditor() {
       loaded.sourceName = loaded.name
       loaded.files = [projectFile('__init__.py', new Uint8Array(await file.arrayBuffer()))]
       if (loaded.files[0].text === null) throw new Error('Choose a UTF-8 Python file.')
-      openProject(loaded)
+      await openProject(loaded)
     } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not open the file.', true) } finally { fileInput.value = '' }
   })
   element('download').addEventListener('click', () => {
@@ -494,7 +523,12 @@ export async function initBadgeEditor() {
   stopButton.addEventListener('click', () => { live.checked = false; stopWorker(); log('Stopped by user.') })
   live.addEventListener('change', () => { if (live.checked) scheduleRun(0); else clearTimeout(autoRunTimer) })
   element('clear-output').addEventListener('click', () => output.textContent = '')
-  appName.addEventListener('input', () => { project.name = appName.value.trim(); updatePath(); scheduleRun() })
+  appName.addEventListener('input', () => {
+    project.name = appName.value.trim()
+    updatePath()
+    updateLocationMessage()
+    scheduleRun()
+  })
   document.addEventListener('visibilitychange', () => { releaseButtons(); worker?.postMessage({ pause: document.hidden }) })
   window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { disposeSplit(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
   window.addEventListener('pageshow', event => { if (event.persisted) scheduleRun(0) })
@@ -510,21 +544,24 @@ export async function initBadgeEditor() {
       example.disabled = busy
     } catch (error) { example.disabled = true; showMessage(error instanceof Error ? error.message : 'Could not load the app examples.', true) }
   })()
+  let restored = false
   try {
     const draft = await readProjectDraft()
     if (draft?.files?.length && draft.files.some(file => file.path === '__init__.py')) {
       draft.files.forEach(file => validateFilePath(file.path))
       if (!draft.files.some(file => file.path === draft.activePath)) draft.activePath = '__init__.py'
       project = draft
+      restored = true
     } else {
       const legacy = JSON.parse(localStorage.getItem('badger-editor-draft-v1') || 'null')
       if (legacy && typeof legacy.code === 'string' && typeof legacy.name === 'string') {
         project.name = legacy.name
         project.sourceName = legacy.name
         project.files = [projectFile('__init__.py', new TextEncoder().encode(legacy.code))]
+        restored = true
       }
     }
   } catch { draftStatus.textContent = 'Browser storage unavailable' }
-  openProject(project)
+  await openProject(project, null, undefined, restored)
   setBusy(false)
 }

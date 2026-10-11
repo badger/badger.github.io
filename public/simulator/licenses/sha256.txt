@@ -1,0 +1,5 @@
+Source: https://github.com/pimoroni/micropython/blob/4559a9a5a433f75ada6a01933c19878fd3a7dd81/lib/crypto-algorithms/sha256.c
+Original source: https://github.com/B-Con/crypto-algorithms
+Author: Brad Conte (brad AT bradconte.com)
+Copyright: This code is released into the public domain.
+Disclaimer: This code is presented "as is" without any guarantees.

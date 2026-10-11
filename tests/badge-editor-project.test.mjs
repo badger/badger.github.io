@@ -7,7 +7,7 @@ async function loadModule(path) {
   const compiled = await build({ entryPoints: [new URL(path, import.meta.url).pathname], bundle: true, format: 'esm', platform: 'node', write: false })
   return import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`)
 }
-const { projectFile, readBadgeProject, listBadgeApps, simulationRequest, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
+const { projectFile, projectCheckpoint, hasProjectChanges, readBadgeProject, listBadgeApps, simulationRequest, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
 const { uploadEditorProject } = await loadModule('../src/lib/badge-editor-upload.ts')
 const { getInstallableAppFolders } = await loadModule('../src/lib/github-app-catalog.ts')
 const bytes = text => new TextEncoder().encode(text)
@@ -111,14 +111,75 @@ test('reads nested Python files and binary assets from the badge', async () => {
   assert.equal(opened.files.length, 3)
 })
 
-test('simulation injects edited modules and assets at supported app paths', () => {
+test('simulation stages exactly the files uploaded to the current app folder', async () => {
   const current = project('demo-copy')
   current.sourceName = 'demo'
   current.files[1].text = 'value = 99'
   const request = simulationRequest(current)
-  assert(request.program.includes('/apps/demo-copy/__init__.py'))
-  assert.equal(new TextDecoder().decode(request.files.find(file => file.name === '/system/apps/demo/helpers.py').content), 'value = 99')
-  assert.deepEqual(request.files.find(file => file.name === '/apps/demo-copy/assets/icon.png').content, new Uint8Array([0, 255, 128]))
+  assert(request.program.includes('/system/apps/demo-copy/__init__.py'))
+  assert.equal(request.files.length, current.files.length)
+  assert.equal(new TextDecoder().decode(request.files.find(file => file.name === '/system/apps/demo-copy/helpers.py').content), 'value = 99')
+  const disk = fakeDisk({})
+  await uploadEditorProject(disk.root, current)
+  for (const file of request.files) assert.deepEqual(disk.files.get(file.name.replace('/system/', '')), file.content)
+  assert(request.files.every(file => file.name.startsWith('/system/apps/demo-copy/')))
+})
+
+test('renamed apps with fixed paths cannot simulate or write until their source paths are updated', async () => {
+  const current = project('tomato-copy')
+  current.sourceName = 'tomato'
+  current.files[0] = projectFile('__init__.py', new Uint8Array(await readFile(new URL('../public/editor-apps/tomato/__init__.py', import.meta.url))))
+  assert.throws(() => simulationRequest(current), /still references the tomato app folder/)
+  const disk = fakeDisk({})
+  await assert.rejects(uploadEditorProject(disk.root, current), /still references the tomato app folder/)
+  assert.equal(disk.writes.length, 0)
+  assert.equal(disk.directories.has('apps/tomato-copy'), false)
+  current.files[0].text = current.files[0].text.replaceAll('/system/apps/tomato', '/system/apps/tomato-copy')
+  const request = simulationRequest(current)
+  await uploadEditorProject(disk.root, current)
+  assert(request.files.every(file => file.name.startsWith('/system/apps/tomato-copy/')))
+})
+
+test('fixed paths in companion modules also block renamed uploads', async () => {
+  const current = project('demo-copy')
+  current.sourceName = 'demo'
+  for (const root of ['/system/apps/demo', '/remote/apps/demo', '/apps/demo', '/demo']) {
+    current.files[1].text = `path = "${root}/assets/icon.png"`
+    assert.throws(() => simulationRequest(current), /helpers.py still references/)
+    await assert.rejects(uploadEditorProject(fakeDisk({}).root, current), /helpers.py still references/)
+  }
+  current.files[1].text = 'path = "/system/apps/demo-copy/assets/icon.png"'
+  assert.doesNotThrow(() => simulationRequest(current))
+})
+
+test('project changes include edits, empty added files, removed files, and renames across draft restoration', () => {
+  const current = project()
+  current.checkpoint = projectCheckpoint(current)
+  assert.equal(hasProjectChanges(current), false)
+  current.files[0].text += '\nprint("changed")'
+  assert.equal(hasProjectChanges(current), true)
+  current.files[0].text = new TextDecoder().decode(current.files[0].data)
+  assert.equal(hasProjectChanges(current), false)
+  current.files.push(projectFile('empty.py', new Uint8Array()))
+  assert.equal(hasProjectChanges(structuredClone(current)), true)
+  current.files.pop()
+  current.name = 'renamed'
+  assert.equal(hasProjectChanges(structuredClone(current)), true)
+  current.name = current.checkpoint.name
+  current.files.pop()
+  assert.equal(hasProjectChanges(current), true)
+})
+
+test('legacy drafts without a checkpoint are protected conservatively', () => {
+  assert.equal(hasProjectChanges(project()), true)
+})
+
+test('edits made after an upload snapshot remain dirty', () => {
+  const current = project()
+  const snapshot = structuredClone(current)
+  current.files[0].text = 'print("typed while uploading")'
+  current.checkpoint = projectCheckpoint(snapshot)
+  assert.equal(hasProjectChanges(current), true)
 })
 
 test('uploads complete projects including assets and commits entry point last', async () => {

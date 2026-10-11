@@ -57,7 +57,7 @@ export function Navigation() {
           <span className="hidden sm:block"><GitHubRepoBadge repo="badger/home" /></span>
         </div>
       </div>
-      <div className={`container grid ${APP_CATALOG_PAGE_ENABLED ? 'grid-cols-8' : 'grid-cols-7'} gap-1 overflow-hidden border-t border-border/50 py-2 lg:hidden`}>
+      <div className="container grid grid-cols-4 gap-1 border-t border-border/50 py-2 lg:hidden">
         {navItems.map(({ href, label }) => {
           const active = isActive(href)
           return (
@@ -66,7 +66,7 @@ export function Navigation() {
               href={href}
               aria-current={active ? 'page' : undefined}
               data-active={active}
-              className="min-w-0 rounded-md py-1.5 text-center font-mono text-[0.58rem] uppercase text-muted-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md px-1 text-center font-mono text-[0.65rem] uppercase text-muted-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
             >
               {label}
             </a>
