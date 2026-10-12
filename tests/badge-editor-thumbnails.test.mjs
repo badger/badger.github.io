@@ -11,8 +11,9 @@ for (const key of ['window', 'document', 'ImageData', 'Worker', 'IntersectionObs
 function environment(t) {
   const workers = []
   const observers = []
+  const listeners = new Map()
   t.mock.property(globalThis, 'window', { setTimeout: globalThis.setTimeout })
-  t.mock.property(globalThis, 'document', { hidden: false, addEventListener() {}, removeEventListener() {} })
+  t.mock.property(globalThis, 'document', { hidden: false, addEventListener: (type, listener) => listeners.set(type, listener), removeEventListener: type => listeners.delete(type) })
   t.mock.property(globalThis, 'ImageData', class { constructor(pixels, width, height) { Object.assign(this, { pixels, width, height }) } })
   t.mock.property(globalThis, 'Worker', class {
     constructor() { workers.push(this); this.messages = []; this.terminated = false }
@@ -31,7 +32,7 @@ function environment(t) {
     const painted = []
     return { key, load, painted, canvas: { dataset: {}, getContext: () => ({ putImageData: data => painted.push(data) }) }, cover: { hidden: false, textContent: '' }, label: { textContent: '' } }
   }
-  return { workers, observers, card }
+  return { workers, observers, card, visibility: () => listeners.get('visibilitychange')?.() }
 }
 
 test('visible cards render sequentially, cache real frames, and cancel workers on close', async t => {
@@ -80,4 +81,30 @@ test('closing during a project load prevents a stale worker from starting', asyn
   await flush()
   assert.equal(env.workers.length, 0)
   assert.equal(card.painted.length, 0)
+})
+
+test('hiding during project loading requeues the card until the tab is visible', async t => {
+  const env = environment(t)
+  const engine = initThumbnails({})
+  t.after(() => engine.dispose())
+  let resolve
+  const delayed = new Promise(done => { resolve = done })
+  const card = env.card('delayed', () => delayed)
+  engine.add(card)
+  env.observers[0].reveal()
+  document.hidden = true
+  env.visibility()
+  resolve(project)
+  await flush()
+  assert.equal(env.workers.length, 0)
+  document.hidden = false
+  env.visibility()
+  await flush()
+  assert.equal(env.workers.length, 1)
+  env.workers[0].emit({ ready: true })
+  env.workers[0].emit({ frame: { width: 1, height: 1, buffer: new Uint8Array([20, 80, 40, 255]).buffer } })
+  env.workers[0].emit({ completed: true })
+  await flush()
+  assert.equal(card.cover.hidden, true)
+  assert.equal(env.workers[0].terminated, true)
 })

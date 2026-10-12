@@ -67,14 +67,9 @@ for x in range(MAP_SIZE_X):
 
 minimap_overlay = image(MAP_SIZE_X * minimap_scale, MAP_SIZE_Y * minimap_scale)
 minimap_overlay_mv = memoryview(minimap_overlay)
-minimap_overlay_len = minimap_overlay.width * minimap_overlay.height
+minimap_overlay_len = len(minimap_overlay_mv)
 
 
-# @micropython.viper  - a native memset. The viper emitter isn't in the WASM
-# build, so it's shimmed with the plain-Python loop below (slower, but it runs).
-# def clear(buf: ptr32, length: int):
-#   for i in range(length):
-#     buf[i] = 0
 def clear(buf, length):
   for i in range(length):
     buf[i] = 0

@@ -31,6 +31,7 @@ export function initThumbnails(root: HTMLElement) {
       try {
         const project = await card.load()
         if (current !== generation) break
+        if (document.hidden) { queue.unshift(card); break }
         await new Promise<void>(resolve => {
           const active = new Worker('/simulator/micropython.worker.js', { type: 'module' })
           worker = active

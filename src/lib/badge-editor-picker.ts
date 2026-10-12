@@ -1,6 +1,7 @@
 import { loadExampleProject, loadSimulatorExample, simulationRequest, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
 
 import { initThumbnails } from './badge-editor-thumbnails'
+import appDescriptions from '../data/app-descriptions.json'
 
 type Collection = 'apps' | 'examples' | 'badge'
 type PickerItem = { key: string; title: string; description: string; category: string; load: () => Promise<EditorProject> }
@@ -72,9 +73,11 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
         if (data.bootError || data.failed) return fail()
         if (data.ready) {
           clearTimeout(timer)
+          timer = window.setTimeout(fail, 6000)
           worker.postMessage({ ...simulationRequest(project), debug: false })
         }
         if (data.frame) {
+          clearTimeout(timer)
           const { width, height, buffer } = data.frame
           canvas.width = width
           canvas.height = height
@@ -110,6 +113,7 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
     for (const category of new Set(items.map(item => item.category))) {
       const section = document.createElement('section')
       const heading = document.createElement('h3')
+      heading.className = 'font-mono'
       heading.textContent = `${category} · ${items.filter(item => item.category === category).length}`
       const grid = document.createElement('div')
       grid.className = 'picker-grid'
@@ -141,7 +145,7 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
         caption.append(title, description)
         const edit = document.createElement('button')
         edit.className = 'editor-button'
-        edit.textContent = 'Edit ↗'
+        edit.textContent = 'Edit'
         edit.setAttribute('aria-label', `Edit ${item.title}`)
         edit.addEventListener('click', () => {
           dialog.close()
@@ -185,7 +189,7 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
 
   return {
     setApps(catalog: EditorCatalog) {
-      collections.apps = catalog.apps.map(app => ({ key: `apps/${app.name}`, title: app.title, description: `${app.files.length} ${app.files.length === 1 ? 'file' : 'files'}`, category: 'Badge apps', load: () => loadExampleProject(app) }))
+      collections.apps = catalog.apps.map(app => ({ key: `apps/${app.name}`, title: app.title, description: appDescriptions[app.name as keyof typeof appDescriptions] || `${app.files.length} ${app.files.length === 1 ? 'file' : 'files'}`, category: 'Badge apps', load: () => loadExampleProject(app) }))
       if (dialog.open) render()
     },
     setExamples(catalog: SimulatorExamples) {
