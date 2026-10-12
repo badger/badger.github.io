@@ -2,7 +2,7 @@ import { ExistingAppError, uploadEditorProject, validateAppName, type DiskDirect
 import { initEditorSplit } from './badge-editor-split'
 import { initProjectPicker } from './badge-editor-picker'
 import { initEditorFullscreen } from './badge-editor-fullscreen'
-import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, projectCheckpoint, projectFile, projectUploadBaseline, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
+import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, projectCheckpoint, projectFile, projectUploadBaseline, removeProjectFile, removedProjectFiles, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
 import { basicSetup } from 'codemirror'
 import { EditorView, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
@@ -12,12 +12,47 @@ import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags } from '@lezer/highlight'
 
 const starter = `import badgeware
+import math
 
-badge.mode(LORES)
+badge.mode(HIRES | VSYNC)
+screen.font = font.compass
+palette = 0
+paused = False
+phase = 0
+palettes = [(95, 237, 131), (88, 166, 255), (219, 142, 255)]
 
 def update():
-    screen.pen = color.rgb(95, 237, 131)
-    screen.text("Hello, GitHub!", 10, 20)
+    global palette, paused, phase
+    if BUTTON_A in badge.pressed():
+        palette = (palette + 1) % len(palettes)
+    if BUTTON_B in badge.pressed():
+        paused = not paused
+    if BUTTON_C in badge.pressed():
+        phase = 0
+    if not paused:
+        phase += 0.045
+
+    screen.pen = color.rgb(13, 17, 23)
+    screen.clear()
+    screen.pen = color.rgb(240, 246, 252)
+    screen.text("Hello, Badger", 14, 14)
+    screen.pen = color.rgb(139, 148, 158)
+    screen.text("Live contribution waves", 14, 36)
+
+    r, g, b = palettes[palette]
+    for x in range(21):
+        for y in range(7):
+            wave = (math.sin(x * 0.45 + phase) + math.cos(y * 0.7 - phase)) / 4 + 0.5
+            glow = 0.12 + wave * 0.88
+            screen.pen = color.rgb(int(r * glow), int(g * glow), int(b * glow))
+            screen.rectangle(14 + x * 14, 68 + y * 14, 11, 11)
+
+    for i in range(18):
+        screen.pen = color.rgb(r, g, b, 70 + i * 9)
+        screen.circle(vec2(160 + math.cos(phase + i * 0.18) * 130,
+                           192 + math.sin(phase + i * 0.18) * 12), 2)
+    screen.pen = color.rgb(139, 148, 158)
+    screen.text("A: color   B: pause   C: reset", 14, 222)
 
 run(update)
 `
@@ -188,6 +223,8 @@ export async function initBadgeEditor() {
       button.addEventListener('click', () => openProjectFile(file.path))
       fileList.append(button)
     }
+    element<HTMLButtonElement>('delete-file').disabled = busy || project.activePath === '__init__.py'
+    element('delete-file').title = project.activePath === '__init__.py' ? 'The app entry point is required' : `Delete ${project.activePath}`
     updateUploadButton()
   }
 
@@ -376,7 +413,7 @@ export async function initBadgeEditor() {
 
   function updateUploadButton() {
     const existing = badgeAppNames.includes(project.name)
-    const count = uploadProjectFiles(project, existing).length
+    const count = uploadProjectFiles(project, existing).length + removedProjectFiles(project, existing).length
     uploadButton.disabled = busy || !disk || count === 0
     element('upload-label').textContent = !disk ? 'Upload' : count === 0 ? 'No changes' : `${existing ? 'Upload' : 'Install'} ${count} ${count === 1 ? 'file' : 'files'}`
   }
@@ -384,6 +421,7 @@ export async function initBadgeEditor() {
   function setBusy(value: boolean) {
     busy = value
     for (const id of ['connect-disk', 'release-disk', 'new-project', 'open-file', 'add-file']) element<HTMLButtonElement>(id).disabled = value
+    element<HTMLButtonElement>('delete-file').disabled = value || project.activePath === '__init__.py'
     updateUploadButton()
     appName.disabled = value
     overwrite.disabled = value
@@ -464,7 +502,8 @@ export async function initBadgeEditor() {
       overwrite.checked = false
       renderFiles()
       saveDraft()
-      if (result.written === 0) showMessage('No changed files to upload.')
+      if (result.deleted) showMessage(`Updated ${result.path}/: ${result.written} files uploaded, ${result.deleted} deleted, verified. Eject BADGER, then restart it.`)
+      else if (result.written === 0) showMessage('No changed files to upload.')
       else showMessage(`${result.created ? 'Installed app with' : 'Uploaded'} ${result.written} ${result.written === 1 ? 'file' : 'files'} in ${result.path}/, verified. Eject BADGER, then restart it.`)
       if (!badgeAppNames.includes(snapshot.name)) badgeAppNames = [...badgeAppNames, snapshot.name].sort()
     } catch (error) {
@@ -474,6 +513,22 @@ export async function initBadgeEditor() {
   })
 
   element('new-project').addEventListener('click', async () => { if (!busy) await openProject(newProject()) })
+  element('delete-file').addEventListener('click', async () => {
+    if (busy || project.activePath === '__init__.py') return
+    const path = project.activePath
+    const current = project
+    const dialog = element<HTMLDialogElement>('delete-file-dialog')
+    element('delete-file-description').textContent = `Remove ${path} from this project? If it is installed on your badge, Upload will delete it there too.`
+    dialog.returnValue = ''
+    const decision = new Promise<boolean>(resolve => dialog.addEventListener('close', () => resolve(dialog.returnValue === 'delete'), { once: true }))
+    dialog.showModal()
+    if (!await decision || busy || project !== current) return
+    removeProjectFile(project, path)
+    states.delete(path)
+    currentEditorPath = null
+    openProjectFile(project.activePath)
+    scheduleRun()
+  })
   element('add-file').addEventListener('click', () => { element('new-file-form').hidden = !element('new-file-form').hidden; element<HTMLInputElement>('new-file-path').focus() })
   element<HTMLFormElement>('new-file-form').addEventListener('submit', event => {
     event.preventDefault()
@@ -482,7 +537,9 @@ export async function initBadgeEditor() {
       const path = validateFilePath(element<HTMLInputElement>('new-file-path').value.trim())
       if (!/\.(py|txt|json|csv|md|ini|toml|yaml|yml)$/i.test(path)) throw new Error('Use a Python or text file extension.')
       if (project.files.some(file => file.path === path)) throw new Error('This file already exists.')
-      project.files.push(projectFile(path, new Uint8Array()))
+      const removed = project.removedFiles?.find(file => file.path === path)
+      project.files.push(removed ? { path, data: removed.data, text: '' } : projectFile(path, new Uint8Array()))
+      project.removedFiles = project.removedFiles?.filter(file => file.path !== path)
       project.files.sort((a, b) => a.path.localeCompare(b.path))
       element('new-file-form').hidden = true
       element<HTMLInputElement>('new-file-path').value = ''

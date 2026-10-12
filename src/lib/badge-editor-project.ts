@@ -14,6 +14,7 @@ export type EditorProject = {
   activePath: string
   checkpoint?: { name: string; paths: string[] }
   diskPaths?: string[]
+  removedFiles?: ProjectFile[]
 }
 
 export type EditorCatalogApp = { name: string; title: string; files: string[] }
@@ -63,7 +64,22 @@ export function projectCheckpoint(project: EditorProject) {
 export function projectUploadBaseline(project: EditorProject) {
   if (project.origin !== 'badge' || project.name !== project.sourceName) return undefined
   const paths = project.diskPaths || project.checkpoint?.paths
-  return new Map(project.files.filter(file => paths ? paths.includes(file.path) : file.data.length > 0).map(file => [file.path, file.data]))
+  return new Map([...project.files, ...(project.removedFiles || [])].filter(file => paths ? paths.includes(file.path) : file.data.length > 0).map(file => [file.path, file.data]))
+}
+
+export function removeProjectFile(project: EditorProject, path: string) {
+  if (path === '__init__.py') throw new Error('The app entry point __init__.py is required.')
+  const file = project.files.find(file => file.path === path)
+  if (!file) throw new Error('This file is no longer in the project.')
+  if (project.origin !== 'new' && project.checkpoint?.paths.includes(path) && !project.removedFiles?.some(removed => removed.path === path)) {
+    project.removedFiles = [...(project.removedFiles || []), structuredClone(file)]
+  }
+  project.files = project.files.filter(file => file.path !== path)
+  if (project.activePath === path) project.activePath = '__init__.py'
+}
+
+export function removedProjectFiles(project: EditorProject, existing: boolean) {
+  return existing && project.name === project.sourceName ? (project.removedFiles || []).filter(file => !project.files.some(current => current.path === file.path)) : []
 }
 
 export function editedProjectFiles(project: EditorProject) {
@@ -84,6 +100,7 @@ export function recordProjectUpload(project: EditorProject, snapshot: EditorProj
   }
   project.diskPaths = [...verified.keys()]
   project.checkpoint = projectCheckpoint(snapshot)
+  project.removedFiles = project.removedFiles?.filter(file => !snapshot.removedFiles?.some(removed => removed.path === file.path))
 }
 
 export function hasProjectChanges(project: EditorProject) {
@@ -145,6 +162,12 @@ export async function loadSimulatorExample(example: SimulatorExample): Promise<E
   const response = await fetch(`/editor-examples/${example.file}`)
   if (!response.ok) throw new Error('Could not load this example. Try again.')
   let source = await response.text()
+  if (/\brom_font\./.test(source)) source = `rom_font = font\n\n${source}`
+  if (['text.py', 'vector_text.py'].includes(example.file)) {
+    source = source.replace(/^  tokens = text\.tokenise\([^\n]+\)\n/m, '  for glyph_name, renderer in glyph_renderers.items():\n    add_glyph(glyph_name, renderer)\n')
+    source = source.replace('text.draw(screen, tokens, bounds, line_spacing=1, word_spacing=1.05, size=size)', 'screen.text(message, bounds, font_size=size, line_height=1, word_spacing=1.05)')
+    source = source.replace('text.draw(screen, tokens, bounds, line_spacing=1, word_spacing=1.05)', 'screen.text(message, bounds, line_height=1, word_spacing=1.05)')
+  }
   const files: ProjectFile[] = []
   for (const asset of example.assets) {
     validateFilePath(asset)

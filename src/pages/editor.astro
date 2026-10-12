@@ -1,15 +1,15 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search } from 'lucide-react'
+import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus } from 'lucide-react'
 ---
 
 <Layout title="Editor / Badger" description="Write Python, test it in the browser, and upload your app to a Badger badge.">
   <section class="container py-10 sm:py-14">
     <h1 class="mb-6 text-4xl sm:text-5xl">Editor</h1>
 
-    <div id="badge-editor" class="surface overflow-hidden">
-      <div class="border-b border-border/70 bg-muted/20 px-4 py-3">
-        <div class="mb-3 flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
+    <div id="badge-editor">
+      <div id="badge-connection" class="surface mb-3 px-4 py-3">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
           <h2 class="flex items-center gap-2 text-xs"><Usb size={15} className="text-primary" /> Edit apps on your badge</h2>
           <span id="disk-status" role="status" class="text-[0.65rem] text-muted-foreground">No badge connected</span>
         </div>
@@ -29,14 +29,15 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
           </div>
         </div>
         <details id="usb-help" class="mt-2 text-xs text-muted-foreground">
-          <summary class="w-fit cursor-pointer font-mono text-[0.65rem] hover:text-foreground">USB setup</summary>
+          <summary class="w-fit cursor-pointer text-xs hover:text-foreground">USB setup</summary>
           <p class="mt-2 max-w-2xl leading-relaxed">Connect over USB, double tap the reset button to open disk mode, then choose the BADGER volume with Connect badge. Select an app to edit its files.</p>
         </details>
         <label id="overwrite-option" class="mt-3 flex items-center gap-2 text-xs" hidden><input id="overwrite" type="checkbox" /><span>Allow updating this existing app.</span></label>
         <p id="upload-message" role="status" class="mt-3 text-sm" hidden></p>
       </div>
+      <div id="editor-workspace" class="surface overflow-hidden">
       <div class="editor-toolbar flex flex-wrap items-center gap-3 border-b border-border/70 px-4 py-3">
-        <label class="flex items-center gap-2 font-mono text-xs text-muted-foreground"><Code2 size={16} /><span class="sr-only">App folder name</span><input id="app-name" value="my-app" maxlength="48" pattern="[a-z0-9][a-z0-9_-]*" class="w-28 rounded border border-border bg-background px-2 py-1.5 text-foreground" aria-label="App folder name" /></label>
+        <label class="flex items-center gap-2 text-xs text-muted-foreground"><Code2 size={16} /><span class="sr-only">App folder name</span><input id="app-name" value="my-app" maxlength="48" pattern="[a-z0-9][a-z0-9_-]*" class="w-28 rounded border border-border bg-background px-2 py-1.5 text-foreground" aria-label="App folder name" /></label>
         <div class="flex items-center gap-2" role="group" aria-label="Browse projects">
           <button id="browse-apps" class="editor-button" aria-haspopup="dialog" aria-controls="project-picker" disabled><Grid2X2 size={15} /> Apps</button>
           <button id="browse-examples" class="editor-button" aria-haspopup="dialog" aria-controls="project-picker" disabled><Code2 size={15} /> Examples</button>
@@ -58,7 +59,7 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
         <div id="code-pane" class="min-w-0 border-b border-border/70 lg:border-b-0">
           <div class="code-workspace grid grid-cols-[110px_minmax(0,1fr)] sm:grid-cols-[180px_minmax(0,1fr)]">
             <aside class="file-sidebar min-w-0 border-r border-border/70 bg-muted/20" aria-label="Project files">
-              <div class="flex items-center justify-between border-b border-border/70 px-3 py-3 font-mono text-xs"><span>Files</span><button id="add-file" title="Add Python file" aria-label="Add Python file" class="text-primary">+</button></div>
+              <div class="flex items-center justify-between border-b border-border/70 px-3 py-3 text-xs"><span>Files</span><div class="flex items-center gap-1"><button id="add-file" title="Add file" aria-label="Add file" class="file-action"><Plus size={14} /></button><button id="delete-file" title="Delete current file" aria-label="Delete current file" class="file-action" disabled><Trash2 size={13} /></button></div></div>
               <form id="new-file-form" class="border-b border-border/70 p-2" hidden><label class="sr-only" for="new-file-path">New file path</label><input id="new-file-path" class="w-full rounded border border-border bg-background px-2 py-1 text-xs" placeholder="helpers.py" /><button class="mt-2 text-xs text-primary" type="submit">Create file</button></form>
               <div id="project-files" class="min-h-0 flex-1 overflow-auto py-2"></div>
             </aside>
@@ -66,7 +67,7 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
           <div class="flex items-center justify-between border-b border-border/70 px-3 py-3 text-[0.65rem]"><span class="flex min-w-0 items-center gap-2 font-mono"><Code2 size={14} className="shrink-0 text-primary" /><span id="active-file" class="truncate">__init__.py</span></span><span id="draft-status" role="status" class="ml-2 shrink-0 text-muted-foreground">Saved in this browser</span></div>
           <div id="code-editor" class="min-h-0 flex-1" aria-label="Python code editor"></div>
           <div id="asset-preview" class="min-h-0 flex-1 overflow-auto p-5 font-mono text-xs text-muted-foreground" hidden></div>
-          <div class="flex flex-wrap items-center justify-between gap-1 border-t border-border/70 px-5 py-2 font-mono text-[0.65rem] text-muted-foreground"><span id="cursor-position">Ln 1, Col 1</span><span>Python · UTF-8 · Ctrl / ⌘ + Enter to run</span></div>
+          <div class="flex flex-wrap items-center justify-between gap-1 border-t border-border/70 px-5 py-2 text-[0.65rem] text-muted-foreground"><span id="cursor-position">Ln 1, Col 1</span><span>Python · UTF-8 · Ctrl / ⌘ + Enter to run</span></div>
             </div>
           </div>
         </div>
@@ -75,19 +76,19 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
 
         <div id="simulator-pane" class="min-w-0 bg-muted/15">
           <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-4 py-3 text-xs">
-            <span class="flex items-center gap-2 font-mono"><Cpu size={14} className="text-primary" /> Simulator</span>
+            <span class="flex items-center gap-2"><Cpu size={14} className="text-primary" /> Simulator</span>
             <div class="flex items-center gap-2">
-              <label class="mr-1 flex items-center gap-2 font-mono text-[0.65rem] text-muted-foreground" title="Restart the simulation automatically after edits"><input id="live-preview" type="checkbox" checked /> Auto-run</label>
+              <label class="mr-1 flex items-center gap-2 text-xs text-muted-foreground" title="Restart the simulation automatically after edits"><input id="live-preview" type="checkbox" checked /> Auto-run</label>
               <button id="stop" class="editor-icon-button" aria-label="Stop simulation" title="Stop simulation" disabled><Square size={14} /></button>
               <button id="run" class="editor-button editor-button-primary" title="Run simulation (F5)"><Play size={14} /> Run</button>
             </div>
           </div>
           <div class="px-6 py-7">
-            <div class="mx-auto max-w-[380px] rounded-2xl border border-border bg-[#0d1117] p-5 shadow-xl">
-              <div class="mb-4 flex items-center justify-between text-[#c9d1d9]"><span class="flex items-center gap-2 font-mono text-sm"><Github size={20} /> GitHub</span><span class="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-[#8b949e]">Badger / dev</span></div>
+            <div id="badge-device" class="mx-auto max-w-[380px] rounded-2xl border border-border bg-[#0d1117] p-5 shadow-xl">
+              <div class="mb-4 flex items-center justify-between text-[#c9d1d9]"><span class="flex items-center gap-2 text-sm"><Github size={20} /> GitHub</span><span class="text-[0.6rem] uppercase tracking-[0.18em] text-[#8b949e]">Badger / dev</span></div>
               <div class="relative overflow-hidden rounded-md border border-[#30363d] bg-black">
                 <canvas id="badge-screen" width="320" height="240" tabindex="0" aria-label="Simulated badge display. Focus to use arrow keys, Space for B, and Escape for Home."></canvas>
-                <div id="screen-placeholder" class="pointer-events-none absolute inset-0 grid place-content-center gap-2 text-center"><Code2 size={28} className="mx-auto text-primary" /><span class="font-mono text-xs text-[#8b949e]">Your code starts here.</span></div>
+                <div id="screen-placeholder" class="pointer-events-none absolute inset-0 grid place-content-center gap-2 text-center"><Code2 size={28} className="mx-auto text-primary" /><span class="text-xs text-[#8b949e]">Your code starts here.</span></div>
               </div>
               <div class="mt-4 flex items-center justify-between gap-2">
                 <div class="flex gap-2">{[['A',16],['B',8],['C',4]].map(([label,bit]) => <button class="badge-key" data-button={bit} aria-label={`Badge button ${label}`}>{label}</button>)}</div>
@@ -96,13 +97,15 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
             </div>
           </div>
           <div class="border-t border-border/70">
-            <div class="flex items-center justify-between px-5 py-3 text-xs"><span class="flex items-center gap-2 font-mono"><Terminal size={14} /> Output <span id="runtime-status" role="status" class="ml-2 text-[0.65rem] text-muted-foreground">Ready to run</span></span><button id="clear-output" class="text-muted-foreground hover:text-foreground">Clear</button></div>
+            <div class="flex items-center justify-between px-5 py-3 text-xs"><span class="flex items-center gap-2"><Terminal size={14} /> Output <span id="runtime-status" role="status" class="ml-2 text-[0.65rem] text-muted-foreground">Ready to run</span></span><button id="clear-output" class="text-muted-foreground hover:text-foreground">Clear</button></div>
             <pre id="console-output" tabindex="0" aria-label="Simulator output" aria-live="polite" class="h-36 overflow-auto whitespace-pre-wrap break-words px-5 pb-4 font-mono text-xs leading-5 text-muted-foreground">Starting MicroPython…</pre>
           </div>
         </div>
       </div>
 
       <div id="editor-height-divider" role="separator" tabindex="0" aria-label="Resize workspace height" aria-controls="code-pane simulator-pane" aria-orientation="horizontal" aria-valuemin="320" aria-valuemax="1600" aria-valuenow="620" title="Drag up or down to resize height. Arrow keys adjust. Double-click or Enter resets."></div>
+
+      </div>
 
     <dialog id="project-picker" class="project-picker" aria-labelledby="picker-title">
       <header class="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
@@ -119,6 +122,17 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
       </div>
       <p id="picker-status" class="px-5 py-3 text-xs text-muted-foreground" role="status">Loading collection…</p>
       <div id="picker-gallery" role="tabpanel" aria-labelledby="picker-tab-apps" class="picker-gallery"></div>
+    </dialog>
+
+    <dialog id="delete-file-dialog" aria-labelledby="delete-file-title" aria-describedby="delete-file-description" class="max-w-md rounded-xl border border-border bg-background p-6 text-foreground shadow-xl">
+      <form method="dialog">
+        <h2 id="delete-file-title" class="text-xl">Delete this file?</h2>
+        <p id="delete-file-description" class="mt-3 break-words text-sm leading-relaxed text-muted-foreground"></p>
+        <div class="mt-5 flex justify-end gap-3">
+          <button value="cancel" class="editor-button" autofocus>Cancel</button>
+          <button value="delete" class="editor-button editor-button-danger">Delete file</button>
+        </div>
+      </form>
     </dialog>
 
     <dialog id="replace-project" aria-labelledby="replace-project-title" aria-describedby="replace-project-description" class="max-w-md rounded-xl border border-border bg-background p-6 text-foreground shadow-xl">
@@ -142,7 +156,7 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
 </script>
 
 <style>
-  #replace-project::backdrop { background: rgb(0 0 0 / 0.65); }
+  #delete-file-dialog::backdrop, #replace-project::backdrop { background: rgb(0 0 0 / 0.65); }
   .project-picker::backdrop { background: rgb(0 0 0 / 0.8); }
   .project-picker { width: min(1000px, calc(100vw - 2rem)); max-width: none; max-height: calc(100dvh - 2rem); padding: 0; border: 1px solid hsl(var(--border)); border-radius: 0.8rem; background: hsl(var(--background)); color: hsl(var(--foreground)); }
   .project-picker[open] { display: flex; flex-direction: column; }
@@ -157,24 +171,35 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
   .picker-gallery { overflow: auto; overscroll-behavior: contain; min-height: 0; padding: 0 1.25rem 1.25rem; }
   .picker-gallery :global([hidden]) { display: none !important; }
   .picker-gallery :global(button:focus-visible) { outline: 2px solid hsl(var(--primary)); outline-offset: -3px; }
-  .picker-gallery :global(h3) { margin: 1rem 0 0.7rem; font-family: ui-monospace, monospace; font-size: 0.8rem; color: hsl(var(--muted-foreground)); }
+  .picker-gallery :global(h3) { margin: 1rem 0 0.7rem; font-size: 0.8rem; font-weight: 600; color: hsl(var(--muted-foreground)); }
   .picker-gallery :global(.picker-grid) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
   .picker-gallery :global(.picker-card) { min-width: 0; border: 1px solid hsl(var(--border)); border-radius: 0.6rem; overflow: hidden; background: hsl(var(--muted) / 0.2); }
   .picker-gallery :global(.picker-card:hover) { border-color: hsl(var(--primary) / 0.5); }
   .picker-gallery :global(.picker-preview) { display: block; position: relative; width: 100%; background: #0d1117; aspect-ratio: 4 / 3; border-bottom: 1px solid hsl(var(--border)); }
   .picker-gallery :global(.picker-preview canvas) { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
-  .picker-gallery :global(.picker-cover) { position: absolute; inset: 0; display: grid; place-content: center; background: radial-gradient(ellipse, #182e22, #0d1117); }
-  .picker-gallery :global(.picker-cover img) { width: 64px; height: 64px; object-fit: contain; image-rendering: pixelated; }
-  .picker-gallery :global(.picker-code-icon) { font-family: ui-monospace, monospace; font-size: 2rem; color: hsl(var(--primary)); }
-  .picker-gallery :global(.picker-preview-label) { position: absolute; bottom: 0.6rem; left: 0.6rem; border: 1px solid #30363d; border-radius: 0.3rem; background: #0d1117; padding: 0.25rem 0.45rem; font-family: ui-monospace, monospace; font-size: 0.65rem; color: #c9d1d9; }
+  .picker-gallery :global(.picker-cover) { position: absolute; inset: 0; display: grid; place-content: center; background: #0d1117; color: #8b949e; font-size: 0.75rem; }
+  .picker-gallery :global(.picker-preview-label) { position: absolute; bottom: 0.6rem; left: 0.6rem; border: 1px solid #30363d; border-radius: 0.3rem; background: #0d1117; padding: 0.25rem 0.45rem; font-size: 0.65rem; color: #c9d1d9; }
   .picker-gallery :global(.picker-meta) { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.85rem; }
   .picker-gallery :global(.picker-meta > div) { min-width: 0; }
-  .picker-gallery :global(.picker-meta strong) { display: block; font-family: ui-monospace, monospace; font-size: 0.75rem; overflow-wrap: anywhere; }
+  .picker-gallery :global(.picker-meta strong) { display: block; font-size: 0.8rem; overflow-wrap: anywhere; }
   .picker-gallery :global(.picker-meta span) { display: block; margin-top: 0.25rem; font-size: 0.7rem; color: hsl(var(--muted-foreground)); overflow-wrap: anywhere; }
   .picker-gallery :global(.picker-meta button) { flex-shrink: 0; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; padding: 0.5rem 0.65rem; font-size: 0.7rem; }
+  #badge-editor { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  #badge-editor :global(button) { font-family: inherit; }
+  #badge-editor :global(.cm-editor button) { font-family: ui-monospace, monospace; }
+  .file-action { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 0.25rem; color: hsl(var(--muted-foreground)); }
+  .file-action:hover:not(:disabled) { background: hsl(var(--muted)); color: hsl(var(--foreground)); }
+  .file-action:disabled { opacity: 0.3; cursor: not-allowed; }
+  .editor-button-danger { color: #f85149; border-color: #f85149; }
+  .picker-search:focus-within { border-color: #6e7681; }
+  .picker-search input:focus-visible { outline: none; box-shadow: none; }
   .fullscreen-exit { display: none; }
-  #badge-editor[data-fullscreen='true'] { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; height: 100dvh; width: 100%; max-width: none; margin: 0; border-radius: 0; background: hsl(var(--background)); }
-  #badge-editor[data-fullscreen='true'] > div:first-child, #badge-editor[data-fullscreen='true'] > .editor-toolbar { flex-shrink: 0; }
+  #badge-editor[data-fullscreen='true'] { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; height: 100dvh; width: 100%; max-width: none; margin: 0; border: 0; border-radius: 0; box-shadow: none; background: hsl(var(--background)); }
+  #badge-editor[data-fullscreen='true'] #badge-connection { flex-shrink: 0; margin: 0 0 0.75rem; border: 0; border-radius: 0; box-shadow: none; }
+  #badge-editor[data-fullscreen='true'] #editor-workspace { display: flex; flex-direction: column; flex: 1; min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
+  #badge-editor[data-fullscreen='true'] .editor-toolbar { flex-shrink: 0; }
+  #badge-editor[data-fullscreen='true'] #badge-device, #badge-editor[data-fullscreen='true'] #badge-device > div:nth-child(2) { border: 0; box-shadow: none; }
+  #badge-editor[data-fullscreen='true'] #badge-device { background: transparent; }
   #badge-editor[data-fullscreen='true'] .editor-split { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
   #badge-editor[data-fullscreen='true'] #code-pane, #badge-editor[data-fullscreen='true'] #simulator-pane { height: 100%; }
   #badge-editor[data-fullscreen='true'] #editor-height-divider { display: none; }

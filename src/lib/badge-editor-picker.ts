@@ -1,11 +1,14 @@
 import { loadExampleProject, loadSimulatorExample, simulationRequest, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
 
+import { initThumbnails } from './badge-editor-thumbnails'
+
 type Collection = 'apps' | 'examples' | 'badge'
-type PickerItem = { key: string; title: string; description: string; category: string; icon?: string; load: () => Promise<EditorProject> }
+type PickerItem = { key: string; title: string; description: string; category: string; load: () => Promise<EditorProject> }
 
 export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>, onToggle: (open: boolean) => void) {
   const dialog = document.getElementById('project-picker') as HTMLDialogElement
   const gallery = document.getElementById('picker-gallery')!
+  const thumbnails = initThumbnails(gallery)
   const search = document.getElementById('picker-search') as HTMLInputElement
   const status = document.getElementById('picker-status')!
   const tabs = [...dialog.querySelectorAll<HTMLButtonElement>('[data-collection]')]
@@ -46,8 +49,9 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
   async function play(item: PickerItem, canvas: HTMLCanvasElement, cover: HTMLElement, label: HTMLElement) {
     stopPreview()
     const current = generation
+    canvas.dataset.live = 'true'
     label.textContent = 'Loading preview…'
-    resetPreview = () => { label.textContent = 'Preview' }
+    resetPreview = () => { delete canvas.dataset.live; label.textContent = 'Play preview' }
     try {
       const project = await load(item)
       if (current !== generation || !dialog.open) return
@@ -91,6 +95,7 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
 
   function render() {
     stopPreview()
+    thumbnails.reset()
     tabs.forEach(tab => {
       const selected = tab.dataset.collection === active
       tab.setAttribute('aria-selected', String(selected))
@@ -120,21 +125,10 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
         canvas.setAttribute('aria-hidden', 'true')
         const cover = document.createElement('span')
         cover.className = 'picker-cover'
-        if (item.icon) {
-          const icon = document.createElement('img')
-          icon.src = item.icon
-          icon.alt = ''
-          icon.loading = 'lazy'
-          cover.append(icon)
-        } else {
-          const symbol = document.createElement('span')
-          symbol.className = 'picker-code-icon'
-          symbol.textContent = '</>'
-          cover.append(symbol)
-        }
+        cover.textContent = 'Rendering preview…'
         const label = document.createElement('span')
         label.className = 'picker-preview-label'
-        label.textContent = 'Preview'
+        label.textContent = 'Loading'
         playButton.append(canvas, cover, label)
         playButton.addEventListener('click', () => { void play(item, canvas, cover, label) })
         const meta = document.createElement('div')
@@ -156,6 +150,7 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
         meta.append(caption, edit)
         card.append(playButton, meta)
         grid.append(card)
+        thumbnails.add({ key: item.key, canvas, cover, label, load: () => load(item) })
       }
       section.append(heading, grid)
       gallery.append(section)
@@ -184,13 +179,13 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
   })
   search.addEventListener('input', render)
   document.getElementById('close-picker')!.addEventListener('click', () => dialog.close())
-  dialog.addEventListener('close', () => { stopPreview(); onToggle(false) })
+  dialog.addEventListener('close', () => { stopPreview(); thumbnails.reset(); onToggle(false) })
   const pausePreview = () => preview?.postMessage({ pause: document.hidden })
   document.addEventListener('visibilitychange', pausePreview)
 
   return {
     setApps(catalog: EditorCatalog) {
-      collections.apps = catalog.apps.map(app => ({ key: `apps/${app.name}`, title: app.title, description: `${app.files.length} files`, category: 'Badge apps', icon: app.files.includes('icon.png') ? `/editor-apps/${app.name}/icon.png` : undefined, load: () => loadExampleProject(app) }))
+      collections.apps = catalog.apps.map(app => ({ key: `apps/${app.name}`, title: app.title, description: `${app.files.length} ${app.files.length === 1 ? 'file' : 'files'}`, category: 'Badge apps', load: () => loadExampleProject(app) }))
       if (dialog.open) render()
     },
     setExamples(catalog: SimulatorExamples) {
@@ -198,6 +193,7 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
       if (dialog.open) render()
     },
     setBadgeApps(names: string[], read: (name: string) => Promise<EditorProject>) {
+      thumbnails.invalidateBadge()
       for (const key of projects.keys()) if (key.startsWith('badge/')) projects.delete(key)
       collections.badge = names.map(name => ({ key: `badge/${name}`, title: name, description: `/apps/${name}/`, category: 'On your badge', load: () => read(name) }))
       if (dialog.open) render()
@@ -210,6 +206,6 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
       tabs.find(tab => tab.dataset.collection === 'badge')!.disabled = !connected
     },
     get open() { return dialog.open },
-    dispose() { stopPreview(); document.removeEventListener('visibilitychange', pausePreview) },
+    dispose() { stopPreview(); thumbnails.dispose(); document.removeEventListener('visibilitychange', pausePreview) },
   }
 }
