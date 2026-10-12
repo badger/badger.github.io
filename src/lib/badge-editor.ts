@@ -89,6 +89,8 @@ export async function initBadgeEditor() {
   let autoRunTimer: number | undefined
   let draftTimer: number | undefined
   let buttons = 0
+  const flipped = element<HTMLInputElement>('simulator-flipped')
+  const inputMask = () => buttons | (flipped.checked ? 32768 : 0)
   let disk: DiskDirectory | null = null
   let badgeAppNames: string[] = []
   let busy = false
@@ -296,7 +298,7 @@ export async function initBadgeEditor() {
 
   function releaseButtons() {
     buttons = 0
-    worker?.postMessage({ buttons })
+    worker?.postMessage({ buttons: inputMask() })
     keyButtons.forEach(button => button.dataset.pressed = 'false')
   }
 
@@ -348,6 +350,7 @@ export async function initBadgeEditor() {
       if (data.bootError) return fail(`Runtime could not start: ${data.bootError}`)
       if (data.ready) {
         clearTimeout(workerTimer)
+        activeWorker.postMessage({ buttons: inputMask() })
         activeWorker.postMessage({ ...request, debug: false })
       }
       if (data.running) {
@@ -378,12 +381,13 @@ export async function initBadgeEditor() {
   function sendButton(bit: number, pressed: boolean) {
     if (pressed) buttons |= bit
     else buttons &= ~bit
-    worker?.postMessage({ buttons })
+    worker?.postMessage({ buttons: inputMask() })
     keyButtons.forEach(button => button.dataset.pressed = String(Boolean(buttons & Number(button.dataset.button))))
   }
-  const keyMap: Record<string, number> = { ArrowLeft: 16, ' ': 8, ArrowRight: 4, ArrowUp: 2, ArrowDown: 1, Escape: 32 }
+  flipped.addEventListener('change', () => worker?.postMessage({ buttons: inputMask() }))
+  const keyMap: Record<string, number> = { ArrowLeft: 16, ' ': 4, ArrowRight: 8, ArrowUp: 2, ArrowDown: 1, Escape: 32, w: 2048, a: 256, s: 4096, d: 512, j: 1024, k: 8192, u: 16384 }
   for (const type of ['keydown', 'keyup'] as const) screen.addEventListener(type, event => {
-    const bit = keyMap[event.key]
+    const bit = keyMap[event.key.length === 1 ? event.key.toLowerCase() : event.key]
     if (!bit) return
     event.preventDefault()
     sendButton(bit, type === 'keydown')

@@ -7,7 +7,7 @@ async function loadModule(path) {
   const compiled = await build({ entryPoints: [new URL(path, import.meta.url).pathname], bundle: true, format: 'esm', platform: 'node', write: false })
   return import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`)
 }
-const { projectFile, projectCheckpoint, fileBytes, hasProjectChanges, projectUploadBaseline, removeProjectFile, recordProjectUpload, readBadgeProject, listBadgeApps, simulationRequest, loadSimulatorExample, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
+const { projectFile, projectCheckpoint, fileBytes, hasProjectChanges, projectUploadBaseline, removeProjectFile, recordProjectUpload, readBadgeProject, listBadgeApps, simulationRequest, simulationSource, loadSimulatorExample, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
 const { uploadEditorProject, ExistingAppError } = await loadModule('../src/lib/badge-editor-upload.ts')
 const { getInstallableAppFolders } = await loadModule('../src/lib/github-app-catalog.ts')
 const bytes = text => new TextEncoder().encode(text)
@@ -43,7 +43,7 @@ function fakeDisk(initial, failPath = '', corrupt = false) {
         return directory(key)
       },
       async getFileHandle(name, options) {
-        const key = path + '/' + name
+        const key = path ? path + '/' + name : name
         if (directories.has(key)) throw new DOMException('Is a directory', 'TypeMismatchError')
         if (!files.has(key) && !options?.create) throw new DOMException('Missing file', 'NotFoundError')
         return {
@@ -78,6 +78,31 @@ function fakeDisk(initial, failPath = '', corrupt = false) {
 function project(name = 'new-app') {
   return { name, sourceName: name, origin: 'example', activePath: '__init__.py', files: [projectFile('__init__.py', bytes('print("hello")')), projectFile('helpers.py', bytes('value = 42')), projectFile('assets/icon.png', new Uint8Array([0, 255, 128]))] }
 }
+
+test('shared libraries and assets are staged for simulation and never included in an app upload', async () => {
+  const disk = fakeDisk({
+    'apps/test/__init__.py': 'import helper\nimage.load("/system/assets/icon.png")',
+    'lib/helper.py': 'import companion\nvalue = 42',
+    'lib/companion.py': 'value = 1',
+    'assets/icon.png': new Uint8Array([0, 1, 2]),
+    'secrets.py': 'PRIVATE_SETTING = "do not read"',
+  })
+  const app = await readBadgeProject(disk.root, 'test')
+  assert.deepEqual(app.files.map(file => file.path), ['__init__.py'])
+  assert.deepEqual(app.supportFiles.map(file => file.path).sort(), ['assets/icon.png', 'lib/companion.py', 'lib/helper.py'])
+  assert.ok(simulationRequest(app).files.some(file => file.name === '/system/lib/helper.py'))
+  assert.ok(!disk.reads.includes('secrets.py'))
+  await uploadEditorProject(disk.root, { ...app, name: 'copy' })
+  assert.deepEqual(disk.writes, ['apps/copy/__init__.py'])
+})
+
+test('native decorator fallback preserves line numbers and quoted Python text', () => {
+  const source = 'value = """\n@micropython.viper\n"""\n@micropython.native\ndef work():\n    return value'
+  const result = simulationSource(source)
+  assert.match(result, /value = """\n@micropython.viper\n"""/)
+  assert.match(result, /@editor_support.native\ndef work/)
+  assert.equal(result.split('\n').length, source.split('\n').length)
+})
 
 async function flappyProject() {
   const catalog = JSON.parse(await readFile(new URL('../public/editor-apps/catalog.json', import.meta.url)))
