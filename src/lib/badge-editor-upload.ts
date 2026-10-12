@@ -87,6 +87,11 @@ export async function uploadEditorProject(root: DiskDirectory, project: EditorPr
   for (const file of project.files) {
     validateFilePath(file.path)
     if (paths.has(file.path)) throw new Error(`Duplicate file: ${file.path}`)
+    for (const existing of paths) {
+      if (existing.startsWith(`${file.path}/`) || file.path.startsWith(`${existing}/`)) {
+        throw new Error(`File path conflicts with another file: ${file.path}`)
+      }
+    }
     paths.add(file.path)
   }
   const appsRoot = await root.getDirectoryHandle('apps')
