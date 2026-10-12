@@ -2,6 +2,8 @@ import { ExistingAppError, uploadEditorProject, validateAppName, type DiskDirect
 import { initEditorSplit } from './badge-editor-split'
 import { initProjectPicker } from './badge-editor-picker'
 import { initEditorFullscreen } from './badge-editor-fullscreen'
+import { BadgeInput, initBadgeKeyboard } from './badge-editor-input'
+import { createBadgeModelController } from './badge-editor-model-controller'
 import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, projectCheckpoint, projectFile, projectUploadBaseline, removeProjectFile, removedProjectFiles, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
 import { basicSetup } from 'codemirror'
 import { EditorView, keymap } from '@codemirror/view'
@@ -100,6 +102,27 @@ export async function initBadgeEditor() {
   let saveChain = Promise.resolve()
   let initialized = false
   let locationError = false
+  const modelView = createBadgeModelController(async (signal, fail) => {
+    const { initBadgeModel } = await import('./badge-editor-model')
+    if (signal.aborted) throw new Error('3D loading cancelled.')
+    return initBadgeModel(element('badge-model'), screen, (bit, pressed) => inputs.set('model', bit, pressed), signal, fail)
+  }, error => {
+    element('badge-model').dataset.state = 'fallback'
+    element('model-status').textContent = '3D view unavailable. You can keep using the simulator below.'
+    element('model-status').hidden = false
+    element<HTMLButtonElement>('reset-badge-view').disabled = true
+    element<HTMLButtonElement>('focus-badge-screen').disabled = true
+    element('badge-model').querySelectorAll('canvas:not(#badge-screen)').forEach(canvas => canvas.remove())
+    inputs.set('model', 31, false)
+    console.warn('Badge 3D view unavailable:', error)
+  })
+  const inputs = new BadgeInput(mask => {
+    buttons = mask
+    worker?.postMessage({ buttons: inputMask() })
+    keyButtons.forEach(button => button.dataset.pressed = String(Boolean(mask & Number(button.dataset.button))))
+    modelView.setButtons(mask)
+  })
+  const disposeKeyboard = initBadgeKeyboard(element('simulator-pane'), inputs)
 
   const extensions = [
         keymap.of([
@@ -297,9 +320,7 @@ export async function initBadgeEditor() {
   }
 
   function releaseButtons() {
-    buttons = 0
-    worker?.postMessage({ buttons: inputMask() })
-    keyButtons.forEach(button => button.dataset.pressed = 'false')
+    inputs.clear()
   }
 
   function stopWorker(status = 'Stopped') {
@@ -371,40 +392,30 @@ export async function initBadgeEditor() {
         screen.width = width
         screen.height = height
         screen.getContext('2d')?.putImageData(new ImageData(new Uint8ClampedArray(buffer), width, height), 0, 0)
+        modelView.updateFrame()
         element('screen-placeholder').hidden = true
       }
-      if (data.backlight !== undefined) screen.style.opacity = String(Math.max(0, Math.min(1, data.backlight)))
+      if (data.backlight !== undefined) {
+        screen.style.opacity = String(Math.max(0, Math.min(1, data.backlight)))
+        modelView.setBacklight(data.backlight)
+      }
     }
     screen.style.opacity = '1'
+    modelView.setBacklight(1)
   }
 
-  function sendButton(bit: number, pressed: boolean) {
-    if (pressed) buttons |= bit
-    else buttons &= ~bit
-    worker?.postMessage({ buttons: inputMask() })
-    keyButtons.forEach(button => button.dataset.pressed = String(Boolean(buttons & Number(button.dataset.button))))
-  }
   flipped.addEventListener('change', () => worker?.postMessage({ buttons: inputMask() }))
-  const keyMap: Record<string, number> = { ArrowLeft: 16, ' ': 4, ArrowRight: 8, ArrowUp: 2, ArrowDown: 1, Escape: 32, w: 2048, a: 256, s: 4096, d: 512, j: 1024, k: 8192, u: 16384 }
-  for (const type of ['keydown', 'keyup'] as const) screen.addEventListener(type, event => {
-    const bit = keyMap[event.key.length === 1 ? event.key.toLowerCase() : event.key]
-    if (!bit) return
-    event.preventDefault()
-    sendButton(bit, type === 'keydown')
-  })
-  screen.addEventListener('blur', releaseButtons)
-  window.addEventListener('blur', releaseButtons)
   for (const button of keyButtons) {
     const bit = Number(button.dataset.button)
-    button.addEventListener('pointerdown', event => { button.setPointerCapture(event.pointerId); sendButton(bit, true) })
-    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) button.addEventListener(type, () => sendButton(bit, false))
+    button.addEventListener('pointerdown', event => { button.setPointerCapture(event.pointerId); inputs.set(`button-pointer:${bit}`, bit, true) })
+    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) button.addEventListener(type, () => inputs.set(`button-pointer:${bit}`, bit, false))
     button.addEventListener('keydown', event => {
-      if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); sendButton(bit, true) }
+      if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); inputs.set(`button-key:${bit}`, bit, true) }
     })
     button.addEventListener('keyup', event => {
-      if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); sendButton(bit, false) }
+      if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); inputs.set(`button-key:${bit}`, bit, false) }
     })
-    button.addEventListener('blur', () => sendButton(bit, false))
+    button.addEventListener('blur', () => inputs.set(`button-key:${bit}`, bit, false))
   }
 
   function updatePath() {
@@ -588,7 +599,7 @@ export async function initBadgeEditor() {
     scheduleRun()
   })
   document.addEventListener('visibilitychange', () => { releaseButtons(); worker?.postMessage({ pause: document.hidden || picker.open }) })
-  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { disposeSplit(); disposeFullscreen(); picker.dispose(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
+  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { modelView.dispose(); disposeKeyboard(); disposeSplit(); disposeFullscreen(); picker.dispose(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
   window.addEventListener('pageshow', event => { if (event.persisted) scheduleRun(0) })
 
   setBusy(true)
@@ -626,4 +637,5 @@ export async function initBadgeEditor() {
   } catch { draftStatus.textContent = 'Browser storage unavailable' }
   await openProject(project, restored)
   setBusy(false)
+  modelView.start()
 }

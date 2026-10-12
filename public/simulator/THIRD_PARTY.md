@@ -32,3 +32,11 @@ c1664165cabcbcb5aca5ac0e72ca8aace383ec30c455d526325563921f6c9e74  asyncify/micro
 dfebdf53540f5cfbeac85a4ae0784d0054218d11e6cf7b4483a355b115ab6e23  jspi/micropython.mjs
 a6f8ea74c9003f3d485ff536856e7c0a1337fe6464a8d7f952118a88da43918e  jspi/micropython.wasm
 ```
+
+## Editor 3D badge model
+
+`models/github-mona-badge.glb` is the 2026 badge model downloaded from [Lee Reilly’s H4X0R3D badge showcase](https://leereilly.net/h4x0r3d-badge/#hardware), at `models/github_mona_badge_screen_centered.glb`, on 2026-10-12. Its embedded generator is `https://github.com/mikedh/trimesh`. The original geometry and artwork are preserved; the editor replaces the display material with its live simulator output. The source is linked from the viewer. The model endpoint does not include license metadata; no new license is asserted for the model or its GitHub artwork.
+
+SHA-256: `a7cf8a12cb2d014092c7c2a9079f7f3eb126963a06aee2e95462a5e33d88636d`.
+
+Three.js is bundled under its MIT license, retained in `licenses/three.txt`.

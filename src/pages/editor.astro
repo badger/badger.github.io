@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus } from 'lucide-react'
+import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus, RotateCcw } from 'lucide-react'
 ---
 
 <Layout title="Editor / Badger" description="Write Python, test it in the browser, and upload your app to a Badger badge.">
@@ -83,24 +83,32 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
               <button id="run" class="editor-button editor-button-primary" title="Run simulation (F5)"><Play size={14} /> Run</button>
             </div>
           </div>
-          <div class="px-6 py-7">
-            <div id="badge-device" class="mx-auto max-w-[380px] rounded-2xl border border-border bg-[#0d1117] p-5 shadow-xl">
-              <div class="mb-4 flex items-center justify-between text-[#c9d1d9]"><span class="flex items-center gap-2 text-sm"><Github size={20} /> GitHub</span><span class="text-[0.6rem] uppercase tracking-[0.18em] text-[#8b949e]">Badger / dev</span></div>
-              <div class="relative overflow-hidden rounded-md border border-[#30363d] bg-black">
-                <canvas id="badge-screen" width="320" height="240" tabindex="0" aria-label="Simulated badge display. Badge: arrow keys, Space to select, Escape for Home. Gamepad: WASD to move, J to select, K to go back."></canvas>
-                <div id="screen-placeholder" class="pointer-events-none absolute inset-0 grid place-content-center gap-2 text-center"><Code2 size={28} className="mx-auto text-primary" /><span class="text-xs text-[#8b949e]">Your code starts here.</span></div>
+          <div class="px-4 pb-4 pt-3">
+            <div id="badge-device" class="mx-auto w-full">
+              <div class="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                <span class="model-keyboard-hint">Click the badge to use your keyboard</span>
+                <div class="flex shrink-0 items-center gap-2">
+                  <button id="focus-badge-screen" class="editor-button" disabled>Screen view</button>
+                  <button id="reset-badge-view" class="editor-icon-button" aria-label="Reset badge view" title="Reset badge view" disabled><RotateCcw size={14} /></button>
+                </div>
               </div>
-              <div class="mt-4 flex items-center justify-between gap-2">
+              <div id="badge-model" class="badge-model" data-state="loading">
+                <canvas id="badge-screen" width="320" height="240" tabindex="0" aria-label="Simulated badge display. Arrow keys control the badge, Space selects. WASD and J control the gamepad."></canvas>
+                <div id="screen-placeholder" class="pointer-events-none absolute inset-0 grid place-content-center gap-2 text-center"><Code2 size={28} className="mx-auto text-primary" /><span class="text-xs text-[#8b949e]">Your code starts here.</span></div>
+                <p id="model-status" role="status" class="pointer-events-none absolute inset-x-4 bottom-3 text-center text-xs text-muted-foreground">Loading 3D view… You can use the simulator now.</p>
+              </div>
+              <div class="mx-auto mt-2 flex max-w-[380px] items-center justify-between gap-2" role="group" aria-label="Badge controls">
                 <div class="flex gap-2">{[['A',16],['B',8],['C',4]].map(([label,bit]) => <button class="badge-key" data-button={bit} aria-label={`Badge button ${label}`}>{label}</button>)}</div>
                 <div class="flex gap-2">{[['↑',2],['↓',1],['⌂',32]].map(([label,bit]) => <button class="badge-key" data-button={bit} aria-label={bit === 32 ? 'Badge Home button' : bit === 2 ? 'Badge Up button' : 'Badge Down button'}>{label}</button>)}</div>
               </div>
-              <details class="mt-4 text-xs text-[#8b949e]">
-                <summary class="cursor-pointer hover:text-[#c9d1d9]">Gamepad and orientation</summary>
+              <div class="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[0.65rem] text-muted-foreground"><span>Drag to rotate · Scroll to zoom</span><a href="https://leereilly.net/h4x0r3d-badge/#hardware" target="_blank" rel="noreferrer" class="hover:text-foreground">Model source ↗</a></div>
+              <details class="mx-auto mt-3 max-w-[380px] text-xs text-muted-foreground">
+                <summary class="cursor-pointer hover:text-foreground">Keyboard, gamepad &amp; orientation</summary>
                 <div class="mt-3 flex flex-wrap items-center gap-2">
                   {[['←',256],['↑',2048],['↓',4096],['→',512],['Select',1024],['Back',8192]].map(([label,bit]) => <button class="badge-key !w-auto min-w-8 px-2" data-button={bit} aria-label={`Gamepad ${label}`}>{label}</button>)}
                 </div>
                 <label class="mt-3 flex items-center gap-2"><input id="simulator-flipped" type="checkbox" /> Upside down</label>
-                <p class="mt-2 leading-relaxed">Focus the display. Badge: arrows and Space. Gamepad: WASD, J to select, K to go back.</p>
+                <p class="mt-2 leading-relaxed">Badge: arrow keys, Space or Enter to select, Escape for Home. Gamepad: WASD to move, J to select, K to go back, U for Menu. Keyboard controls work while the simulator is focused.</p>
               </details>
             </div>
           </div>
@@ -204,8 +212,6 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
   #badge-editor[data-fullscreen='true'] #badge-connection { flex-shrink: 0; margin: 0 0 0.75rem; border: 0; border-radius: 0; box-shadow: none; }
   #badge-editor[data-fullscreen='true'] #editor-workspace { display: flex; flex-direction: column; flex: 1; min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
   #badge-editor[data-fullscreen='true'] .editor-toolbar { flex-shrink: 0; }
-  #badge-editor[data-fullscreen='true'] #badge-device, #badge-editor[data-fullscreen='true'] #badge-device > div:nth-child(2) { border: 0; box-shadow: none; }
-  #badge-editor[data-fullscreen='true'] #badge-device { background: transparent; }
   #badge-editor[data-fullscreen='true'] .editor-split { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
   #badge-editor[data-fullscreen='true'] #code-pane, #badge-editor[data-fullscreen='true'] #simulator-pane { height: 100%; }
   #badge-editor[data-fullscreen='true'] #editor-height-divider { display: none; }
@@ -251,8 +257,12 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
   .editor-button-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: hsl(var(--primary)); }
   .badge-key { width: 2.3rem; height: 2rem; border: 1px solid #30363d; border-radius: 0.35rem; background: #161b22; color: #c9d1d9; font-size: 0.75rem; touch-action: none; user-select: none; }
   .badge-key:active, .badge-key[data-pressed='true'] { color: #5fed83; border-color: #5fed83; background: #163321; }
-  #badge-screen { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; image-rendering: pixelated; outline-offset: -3px; }
-  #badge-screen:focus-visible { outline: 2px solid hsl(var(--primary)); }
+  .badge-model { position: relative; width: 100%; height: clamp(340px, 52vh, 540px); overflow: hidden; }
+  .badge-model :global(canvas:not(#badge-screen)) { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
+  #badge-screen { display: none; image-rendering: pixelated; }
+  .badge-model:not([data-state='ready']) #badge-screen { display: block; position: absolute; inset: 0; width: min(100%, 400px); height: auto; aspect-ratio: 4 / 3; margin: auto; outline-offset: 3px; }
+  .badge-model:not([data-state='ready']) :global(canvas:not(#badge-screen)) { display: none; }
+  #badge-device:focus-within .model-keyboard-hint { color: hsl(var(--primary)); }
   button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 3px; }
   [hidden] { display: none !important; }
 </style>
