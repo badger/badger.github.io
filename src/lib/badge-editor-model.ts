@@ -2,7 +2,13 @@ import { Box3, CanvasTexture, DirectionalLight, DoubleSide, HemisphereLight, Lin
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
-export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, button: (bit: number, pressed: boolean) => void) {
+export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, button: (bit: number, pressed: boolean) => void, signal: AbortSignal, onError: (error: unknown) => void) {
+  const display = document.createElement('canvas')
+  display.width = 640
+  display.height = 438
+  const displayContext = display.getContext('2d')
+  if (!displayContext) throw new Error('Canvas rendering is unavailable.')
+  const context = displayContext
   const renderer = new WebGLRenderer({ alpha: true, antialias: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.outputColorSpace = SRGBColorSpace
@@ -24,10 +30,6 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   const fill = new DirectionalLight(0xb7a8ff, 1.5)
   fill.position.set(0.2, -0.1, -0.2)
   scene.add(fill)
-  const display = document.createElement('canvas')
-  display.width = 640
-  display.height = 438
-  const context = display.getContext('2d')!
   const texture = new CanvasTexture(display)
   texture.colorSpace = SRGBColorSpace
   texture.flipY = false
@@ -53,7 +55,11 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
 
   function render() {
     if (disposed || frame || document.hidden) return
-    frame = requestAnimationFrame(() => { frame = 0; if (!disposed) renderer.render(scene, camera) })
+    frame = requestAnimationFrame(() => {
+      frame = 0
+      if (disposed) return
+      try { renderer.render(scene, camera) } catch (error) { onError(error) }
+    })
   }
   function updateFrame() {
     context.fillStyle = '#000'
@@ -89,11 +95,13 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   const reset = () => { screenView = false; view() }
   const focusScreen = () => { screenView = true; view() }
   const resize = new ResizeObserver(() => {
-    if (!host.clientWidth || !host.clientHeight) return
-    renderer.setSize(host.clientWidth, host.clientHeight, false)
-    camera.aspect = host.clientWidth / host.clientHeight
-    camera.updateProjectionMatrix()
-    render()
+    if (disposed || !host.clientWidth || !host.clientHeight) return
+    try {
+      renderer.setSize(host.clientWidth, host.clientHeight, false)
+      camera.aspect = host.clientWidth / host.clientHeight
+      camera.updateProjectionMatrix()
+      render()
+    } catch (error) { onError(error) }
   })
   resize.observe(host)
   const hit = (event: PointerEvent) => {
@@ -137,11 +145,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   const move = (event: PointerEvent) => { canvas.style.cursor = active || hit(event) ? 'pointer' : 'grab' }
   const lost = (event: Event) => {
     event.preventDefault()
-    release()
-    host.dataset.state = 'fallback'
-    status.textContent = '3D view unavailable. The flat display is still interactive.'
-    status.hidden = false
-    resetButton.disabled = screenButton.disabled = true
+    onError(new Error('The browser lost its 3D graphics context.'))
   }
   canvas.addEventListener('pointerdown', down, true)
   canvas.addEventListener('pointermove', move)
@@ -154,9 +158,12 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   controls.addEventListener('change', render)
   resetButton.addEventListener('click', reset)
   screenButton.addEventListener('click', focusScreen)
-  updateFrame()
-
-  const ready = new GLTFLoader().loadAsync('/simulator/models/github-mona-badge.glb').then(gltf => {
+  const ready = fetch('/simulator/models/github-mona-badge.glb', { signal }).then(async response => {
+    if (!response.ok) throw new Error(`Could not load the badge model (HTTP ${response.status}).`)
+    const data = await response.arrayBuffer()
+    signal.throwIfAborted()
+    return new GLTFLoader().parseAsync(data, '/simulator/models/')
+  }).then(gltf => {
     model = gltf.scene
     scene.add(model)
     model.traverse(object => {
@@ -183,11 +190,14 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     })
     if (!displayMesh || caps.size !== 5) throw new Error('The badge model is missing its screen or controls.')
     if (disposed) { disposeModel(); return }
+    updateFrame()
+    setButtons(mask)
+    view()
+    renderer.render(scene, camera)
+    if (disposed || signal.aborted) return
     host.dataset.state = 'ready'
     status.hidden = true
     resetButton.disabled = screenButton.disabled = false
-    setButtons(mask)
-    view()
   })
 
   function disposeModel() {
@@ -210,6 +220,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     setButtons,
     setBacklight(value: number) { displayMaterial.color.setScalar(Math.max(0, Math.min(1, value))); render() },
     dispose() {
+      if (disposed) return
       disposed = true
       release()
       cancelAnimationFrame(frame)

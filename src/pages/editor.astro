@@ -67,7 +67,7 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
           <div class="flex items-center justify-between border-b border-border/70 px-3 py-3 text-[0.65rem]"><span class="flex min-w-0 items-center gap-2 font-mono"><Code2 size={14} className="shrink-0 text-primary" /><span id="active-file" class="truncate">__init__.py</span></span><span id="draft-status" role="status" class="ml-2 shrink-0 text-muted-foreground">Saved in this browser</span></div>
           <div id="code-editor" class="min-h-0 flex-1" aria-label="Python code editor"></div>
           <div id="asset-preview" class="min-h-0 flex-1 overflow-auto p-5 font-mono text-xs text-muted-foreground" hidden></div>
-          <div class="flex flex-wrap items-center justify-between gap-1 border-t border-border/70 px-5 py-2 text-[0.65rem] text-muted-foreground"><span id="cursor-position">Ln 1, Col 1</span><span>Python · UTF-8 · Ctrl / ⌘ + Enter to run</span></div>
+          <div class="flex flex-wrap items-center justify-between gap-1 border-t border-border/70 px-5 py-2 font-mono text-[0.65rem] text-muted-foreground"><span id="cursor-position">Ln 1, Col 1</span><span>Python · UTF-8 · Ctrl / ⌘ + Enter to run</span></div>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
         <div id="editor-divider" role="separator" tabindex="0" aria-label="Resize code editor and simulator" aria-controls="code-pane simulator-pane" aria-orientation="vertical" aria-valuemin="25" aria-valuemax="75" aria-valuenow="57" title="Drag to resize. Arrow keys adjust. Double-click or Enter resets."></div>
 
         <div id="simulator-pane" class="min-w-0 bg-muted/15">
-          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-4 py-3 text-xs">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-4 py-3 font-mono text-xs">
             <span class="flex items-center gap-2"><Cpu size={14} className="text-primary" /> Simulator</span>
             <div class="flex items-center gap-2">
               <label class="mr-1 flex items-center gap-2 text-xs text-muted-foreground" title="Restart the simulation automatically after edits"><input id="live-preview" type="checkbox" checked /> Auto-run</label>
@@ -95,7 +95,7 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
               <div id="badge-model" class="badge-model" data-state="loading">
                 <canvas id="badge-screen" width="320" height="240" tabindex="0" aria-label="Simulated badge display. Arrow keys control the badge, Space selects. WASD and J control the gamepad."></canvas>
                 <div id="screen-placeholder" class="pointer-events-none absolute inset-0 grid place-content-center gap-2 text-center"><Code2 size={28} className="mx-auto text-primary" /><span class="text-xs text-[#8b949e]">Your code starts here.</span></div>
-                <p id="model-status" role="status" class="pointer-events-none absolute inset-x-4 bottom-3 text-center text-xs text-muted-foreground">Loading 3D badge…</p>
+                <p id="model-status" role="status" class="pointer-events-none absolute inset-x-4 bottom-3 text-center text-xs text-muted-foreground">Loading 3D view… You can use the simulator now.</p>
               </div>
               <div class="mx-auto mt-2 flex max-w-[380px] items-center justify-between gap-2" role="group" aria-label="Badge controls">
                 <div class="flex gap-2">{[['A',16],['B',8],['C',4]].map(([label,bit]) => <button class="badge-key" data-button={bit} aria-label={`Badge button ${label}`}>{label}</button>)}</div>
@@ -187,7 +187,7 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
   .picker-gallery { overflow: auto; overscroll-behavior: contain; min-height: 0; padding: 0 1.25rem 1.25rem; }
   .picker-gallery :global([hidden]) { display: none !important; }
   .picker-gallery :global(button:focus-visible) { outline: 2px solid hsl(var(--primary)); outline-offset: -3px; }
-  .picker-gallery :global(h3) { margin: 1rem 0 0.7rem; font-size: 0.8rem; font-weight: 600; color: hsl(var(--muted-foreground)); }
+  .picker-gallery :global(h3) { margin: 1rem 0 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; font-weight: 600; color: hsl(var(--muted-foreground)); }
   .picker-gallery :global(.picker-grid) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
   .picker-gallery :global(.picker-card) { min-width: 0; border: 1px solid hsl(var(--border)); border-radius: 0.6rem; overflow: hidden; background: hsl(var(--muted) / 0.2); }
   .picker-gallery :global(.picker-card:hover) { border-color: hsl(var(--primary) / 0.5); }
@@ -201,12 +201,10 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
   .picker-gallery :global(.picker-meta span) { display: block; margin-top: 0.25rem; font-size: 0.7rem; color: hsl(var(--muted-foreground)); overflow-wrap: anywhere; }
   .picker-gallery :global(.picker-meta button) { flex-shrink: 0; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; padding: 0.5rem 0.65rem; font-size: 0.7rem; }
   #badge-editor { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  #badge-editor :global(button) { font-family: inherit; }
-  #badge-editor :global(.cm-editor button) { font-family: ui-monospace, monospace; }
   .file-action { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 0.25rem; color: hsl(var(--muted-foreground)); }
   .file-action:hover:not(:disabled) { background: hsl(var(--muted)); color: hsl(var(--foreground)); }
   .file-action:disabled { opacity: 0.3; cursor: not-allowed; }
-  .editor-button-danger { color: #f85149; border-color: #f85149; }
+  .editor-button-danger { color: hsl(var(--destructive)); border-color: hsl(var(--destructive)); }
   .picker-search:focus-within { border-color: #6e7681; }
   .picker-search input:focus-visible { outline: none; box-shadow: none; }
   .fullscreen-exit { display: none; }
@@ -262,8 +260,8 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
   .badge-model { position: relative; width: 100%; height: clamp(340px, 52vh, 540px); overflow: hidden; }
   .badge-model :global(canvas:not(#badge-screen)) { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
   #badge-screen { display: none; image-rendering: pixelated; }
-  .badge-model[data-state='fallback'] #badge-screen { display: block; position: absolute; inset: 0; width: min(100%, 400px); height: auto; aspect-ratio: 4 / 3; margin: auto; outline-offset: 3px; }
-  .badge-model[data-state='fallback'] :global(canvas:not(#badge-screen)) { display: none; }
+  .badge-model:not([data-state='ready']) #badge-screen { display: block; position: absolute; inset: 0; width: min(100%, 400px); height: auto; aspect-ratio: 4 / 3; margin: auto; outline-offset: 3px; }
+  .badge-model:not([data-state='ready']) :global(canvas:not(#badge-screen)) { display: none; }
   #badge-device:focus-within .model-keyboard-hint { color: hsl(var(--primary)); }
   button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 3px; }
   [hidden] { display: none !important; }

@@ -20,6 +20,27 @@ function request(source, name = 'runtime-contract') {
   return simulationRequest({ name, sourceName: name, files: [projectFile('__init__.py', new TextEncoder().encode(source))] })
 }
 
+test('raycast minimap clearing resets every RGBA channel in the real simulator', async () => {
+  const source = await readFile(new URL('../public/editor-examples/raycast.py', import.meta.url), 'utf8')
+  const setup = source.match(/^minimap_overlay = image\([^\n]+\)\nminimap_overlay_mv = [^\n]+\nminimap_overlay_len = [^\n]+/m)[0]
+  const clear = source.match(/^def clear\(buf, length\):\n(?:  [^\n]+\n)+/m)[0]
+  const result = await run(request(`
+MAP_SIZE_X = 3
+MAP_SIZE_Y = 2
+minimap_scale = 1
+${setup}
+${clear}
+for index in range(len(minimap_overlay_mv)):
+    minimap_overlay_mv[index] = 255
+clear(minimap_overlay_mv, minimap_overlay_len)
+assert len(minimap_overlay_mv) == MAP_SIZE_X * MAP_SIZE_Y * 4
+assert all(value == 0 for value in minimap_overlay_mv)
+print('Minimap cleared')
+`))
+  assert.equal(result.error, '')
+  assert.match(result.output.join('\n'), /Minimap cleared/)
+})
+
 test('shared firmware API runs in MicroPython with separate button and gamepad input and rotation state', async () => {
   const result = await run(request(`
 from badgeware import get_backlight, set_backlight

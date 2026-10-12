@@ -38,15 +38,16 @@ export function initEditorFullscreen(onResize: () => void) {
   const keydown = (event: KeyboardEvent) => {
     if (event.key !== 'Escape' || !expanded || workspace.querySelector('dialog[open]')) return
     event.preventDefault()
+    event.stopPropagation()
     void toggle().then(() => button.focus())
   }
   button.addEventListener('click', toggle)
   document.addEventListener('fullscreenchange', changed)
-  document.addEventListener('keydown', keydown)
+  document.addEventListener('keydown', keydown, true)
   return () => {
     apply(false)
     button.removeEventListener('click', toggle)
     document.removeEventListener('fullscreenchange', changed)
-    document.removeEventListener('keydown', keydown)
+    document.removeEventListener('keydown', keydown, true)
   }
 }
