@@ -10,6 +10,7 @@
     "test:app-descriptions": "node --experimental-strip-types --test scripts/sync-app-descriptions.test.mjs",
     "astro": "astro",
     "sync:editor-apps": "node --experimental-strip-types scripts/sync-editor-apps.mjs",
+    "sync:editor-examples": "node scripts/sync-editor-examples.mjs",
     "test:editor": "node --test tests/*.test.mjs"
   },
   "dependencies": {

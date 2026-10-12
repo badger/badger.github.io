@@ -18,6 +18,8 @@ export type EditorProject = {
 
 export type EditorCatalogApp = { name: string; title: string; files: string[] }
 export type EditorCatalog = { revision: string; apps: EditorCatalogApp[] }
+export type SimulatorExample = { file: string; description: string; assets: string[] }
+export type SimulatorExamples = { revision: string; categories: { name: string; examples: SimulatorExample[] }[] }
 
 const encoder = new TextEncoder()
 const maxProjectBytes = 16 * 1024 * 1024
@@ -136,6 +138,24 @@ export async function listBadgeApps(root: DiskDirectory) {
     }
   }
   return names.sort()
+}
+
+export async function loadSimulatorExample(example: SimulatorExample): Promise<EditorProject> {
+  if (!/^[a-z0-9_]+\.py$/.test(example.file)) throw new Error('Invalid example filename.')
+  const response = await fetch(`/editor-examples/${example.file}`)
+  if (!response.ok) throw new Error('Could not load this example. Try again.')
+  let source = await response.text()
+  const files: ProjectFile[] = []
+  for (const asset of example.assets) {
+    validateFilePath(asset)
+    source = source.replaceAll(`/system/${asset}`, asset)
+    const assetResponse = await fetch(`/editor-examples/${asset.split('/').map(encodeURIComponent).join('/')}`)
+    if (!assetResponse.ok) throw new Error(`Could not load ${asset}. Try again.`)
+    files.push(projectFile(asset, new Uint8Array(await assetResponse.arrayBuffer())))
+  }
+  files.unshift(projectFile('__init__.py', encoder.encode(source)))
+  const name = `example-${example.file.replace(/\.py$/, '').replaceAll('_', '-')}`
+  return { name, sourceName: name, origin: 'example', activePath: '__init__.py', files }
 }
 
 export async function loadExampleProject(app: EditorCatalogApp): Promise<EditorProject> {

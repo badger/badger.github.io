@@ -1,0 +1,244 @@
+{
+  "version": "20260625c",
+  "categories": [
+    {
+      "name": "Basics",
+      "examples": [
+        {
+          "file": "hello.py",
+          "description": "smallest app",
+          "assets": []
+        },
+        {
+          "file": "colors.py",
+          "description": "rgb · hsv · oklch",
+          "assets": []
+        },
+        {
+          "file": "buttons.py",
+          "description": "reading input",
+          "assets": []
+        }
+      ]
+    },
+    {
+      "name": "Shapes",
+      "examples": [
+        {
+          "file": "circles.py",
+          "description": "circles & rnd",
+          "assets": []
+        },
+        {
+          "file": "lines.py",
+          "description": "random lines",
+          "assets": []
+        },
+        {
+          "file": "triangles.py",
+          "description": "random triangles",
+          "assets": []
+        },
+        {
+          "file": "intersect.py",
+          "description": "rect overlap",
+          "assets": []
+        },
+        {
+          "file": "shape.py",
+          "description": "custom shape",
+          "assets": []
+        },
+        {
+          "file": "vector_shapes.py",
+          "description": "shape gallery",
+          "assets": []
+        }
+      ]
+    },
+    {
+      "name": "Strokes & fills",
+      "examples": [
+        {
+          "file": "gradient.py",
+          "description": "gradients",
+          "assets": []
+        },
+        {
+          "file": "pattern.py",
+          "description": "bitmap patterns",
+          "assets": []
+        },
+        {
+          "file": "dither.py",
+          "description": "dithering",
+          "assets": []
+        },
+        {
+          "file": "stroke.py",
+          "description": "stroke alignment",
+          "assets": []
+        },
+        {
+          "file": "joins_caps.py",
+          "description": "joins & caps",
+          "assets": []
+        },
+        {
+          "file": "fill_rules.py",
+          "description": "fill rules",
+          "assets": []
+        }
+      ]
+    },
+    {
+      "name": "Brushes & effects",
+      "examples": [
+        {
+          "file": "image_brush.py",
+          "description": "image brush",
+          "assets": [
+            "assets/skull.png"
+          ]
+        },
+        {
+          "file": "lighten_darken.py",
+          "description": "lighten / darken",
+          "assets": []
+        },
+        {
+          "file": "pixelate.py",
+          "description": "pixelate",
+          "assets": []
+        },
+        {
+          "file": "blur.py",
+          "description": "frame blur",
+          "assets": []
+        },
+        {
+          "file": "blur_brush.py",
+          "description": "blur brush",
+          "assets": []
+        }
+      ]
+    },
+    {
+      "name": "Sprites",
+      "examples": [
+        {
+          "file": "sprites.py",
+          "description": "sprite blit",
+          "assets": [
+            "assets/skull.png"
+          ]
+        },
+        {
+          "file": "spritesheet.py",
+          "description": "SpriteSheet anim",
+          "assets": [
+            "assets/squirrel-sprites/running.png"
+          ]
+        },
+        {
+          "file": "transform_sprite.py",
+          "description": "transformed sprite",
+          "assets": [
+            "assets/skull.png"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Text",
+      "examples": [
+        {
+          "file": "scrolling_text.py",
+          "description": "marquee",
+          "assets": []
+        },
+        {
+          "file": "text.py",
+          "description": "rich text",
+          "assets": [
+            "assets/skull.png"
+          ]
+        },
+        {
+          "file": "vector_text.py",
+          "description": "vector text",
+          "assets": [
+            "assets/skull.png",
+            "assets/fonts/DynaPuff-Medium.af"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Motion & games",
+      "examples": [
+        {
+          "file": "easing.py",
+          "description": "easing curves",
+          "assets": []
+        },
+        {
+          "file": "menu.py",
+          "description": "selection menu",
+          "assets": []
+        },
+        {
+          "file": "platformer.py",
+          "description": "movement & gravity",
+          "assets": []
+        }
+      ]
+    },
+    {
+      "name": "Badge hardware",
+      "examples": [
+        {
+          "file": "caselights.py",
+          "description": "case LEDs",
+          "assets": []
+        },
+        {
+          "file": "battery.py",
+          "description": "hardware status",
+          "assets": []
+        },
+        {
+          "file": "clock.py",
+          "description": "real-time clock",
+          "assets": []
+        },
+        {
+          "file": "state.py",
+          "description": "saved state",
+          "assets": []
+        }
+      ]
+    },
+    {
+      "name": "Going further",
+      "examples": [
+        {
+          "file": "line_clip.py",
+          "description": "line clipping",
+          "assets": []
+        },
+        {
+          "file": "mandelbrot.py",
+          "description": "fractal + FPS",
+          "assets": []
+        },
+        {
+          "file": "raycast.py",
+          "description": "raycaster",
+          "assets": []
+        }
+      ]
+    }
+  ],
+  "revision": "eb3b3fbf27e6e61635aef5de11ab17e6303e8c20"
+}

@@ -1,6 +1,8 @@
 import { ExistingAppError, uploadEditorProject, validateAppName, type DiskDirectory } from './badge-editor-upload'
 import { initEditorSplit } from './badge-editor-split'
-import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, loadExampleProject, projectCheckpoint, projectFile, projectUploadBaseline, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject } from './badge-editor-project'
+import { initProjectPicker } from './badge-editor-picker'
+import { initEditorFullscreen } from './badge-editor-fullscreen'
+import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, projectCheckpoint, projectFile, projectUploadBaseline, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
 import { basicSetup } from 'codemirror'
 import { EditorView, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
@@ -27,8 +29,6 @@ function newProject(): EditorProject {
 export async function initBadgeEditor() {
   const element = <T extends HTMLElement>(id: string) => document.getElementById(id) as T
   const appName = element<HTMLInputElement>('app-name')
-  const example = element<HTMLSelectElement>('example')
-  const deviceApp = element<HTMLSelectElement>('device-app')
   const live = element<HTMLInputElement>('live-preview')
   const stopButton = element<HTMLButtonElement>('stop')
   const connectButton = element<HTMLButtonElement>('connect-disk')
@@ -47,7 +47,6 @@ export async function initBadgeEditor() {
   const assetPreview = element('asset-preview')
   const keyButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-button]')]
   let project = newProject()
-  let catalog: EditorCatalog | null = null
   let states = new Map<string, EditorState>()
   let currentEditorPath: string | null = null
   let worker: Worker | null = null
@@ -116,6 +115,17 @@ export async function initBadgeEditor() {
   ]
   const editor = new EditorView({ parent: element('code-editor'), state: EditorState.create({ doc: starter, extensions: [...extensions, EditorState.readOnly.of(true)] }) })
   const disposeSplit = initEditorSplit(() => editor.requestMeasure())
+  const disposeFullscreen = initEditorFullscreen(() => editor.requestMeasure())
+  const picker = initProjectPicker(async item => {
+    if (busy) return
+    setBusy(true)
+    try {
+      if (await openProject(await item.load()) && item.key.startsWith('badge/')) showMessage(`Opened /apps/${project.name}/ from BADGER.`)
+    } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not open this project.', true) } finally { setBusy(false) }
+  }, open => {
+    releaseButtons()
+    worker?.postMessage({ pause: document.hidden || open })
+  })
 
   function updateHistoryButtons(state: EditorState) {
     const editable = currentEditorPath !== null && !state.readOnly
@@ -305,7 +315,7 @@ export async function initBadgeEditor() {
       }
       if (data.running) {
         runtimeStatus.textContent = 'Running'
-        if (document.hidden) activeWorker.postMessage({ pause: true })
+        if (document.hidden || picker.open) activeWorker.postMessage({ pause: true })
       }
       if (data.failed) { errorReported = true; runtimeStatus.textContent = 'Python error' }
       if (data.completed) {
@@ -377,14 +387,15 @@ export async function initBadgeEditor() {
     updateUploadButton()
     appName.disabled = value
     overwrite.disabled = value
-    example.disabled = value || !catalog
-    deviceApp.disabled = value || !disk
+    picker.setDisabled(value, Boolean(disk))
     element<HTMLButtonElement>('refresh-badge').disabled = value || !disk
   }
 
   function renderDeviceApps() {
-    deviceApp.replaceChildren(new Option(badgeAppNames.length ? 'Choose an app to edit' : 'No Python apps found', ''))
-    badgeAppNames.forEach(name => deviceApp.add(new Option(name, name)))
+    picker.setBadgeApps(badgeAppNames, name => {
+      if (!disk) throw new Error('Connect your badge to open an installed app.')
+      return readBadgeProject(disk, name)
+    })
     element('badge-editor').dataset.connected = 'true'
     element('disk-status').textContent = `BADGER · ${badgeAppNames.length} apps`
     updateUploadButton()
@@ -420,7 +431,7 @@ export async function initBadgeEditor() {
     badgeAppNames = []
     releaseButton.hidden = true
     connectButton.hidden = false
-    deviceApp.replaceChildren(new Option('Choose an app to edit', ''))
+    picker.setBadgeApps([], async () => { throw new Error('Connect your badge to open an installed app.') })
     overwrite.checked = false
     overwriteOption.hidden = true
     element('badge-editor').dataset.connected = 'false'
@@ -433,17 +444,6 @@ export async function initBadgeEditor() {
     if (busy || !disk) return
     setBusy(true)
     try { await refreshDeviceApps() } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not refresh badge files.', true) } finally { setBusy(false) }
-  })
-
-  deviceApp.addEventListener('change', async () => {
-    if (busy || !disk || !deviceApp.value) return
-    const name = deviceApp.value
-    const root = disk
-    setBusy(true)
-    try {
-      const loaded = await readBadgeProject(root, name)
-      if (await openProject(loaded)) showMessage(`Opened /apps/${name}/ from BADGER.`)
-    } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not read this app.', true) } finally { deviceApp.value = ''; setBusy(false) }
   })
 
   uploadButton.addEventListener('click', async () => {
@@ -471,16 +471,6 @@ export async function initBadgeEditor() {
       if (error instanceof ExistingAppError) overwriteOption.hidden = false
       showMessage(error instanceof Error ? error.message : 'Upload failed. Check the USB connection and try again.', true)
     } finally { renderDeviceApps(); setBusy(false) }
-  })
-
-  example.addEventListener('change', async () => {
-    const app = catalog?.apps.find(app => app.name === example.value)
-    if (!app || busy) return
-    setBusy(true)
-    try {
-      const loaded = await loadExampleProject(app)
-      await openProject(loaded)
-    } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not load this app.', true) } finally { example.value = ''; setBusy(false) }
   })
 
   element('new-project').addEventListener('click', async () => { if (!busy) await openProject(newProject()) })
@@ -536,8 +526,8 @@ export async function initBadgeEditor() {
     updateLocationMessage()
     scheduleRun()
   })
-  document.addEventListener('visibilitychange', () => { releaseButtons(); worker?.postMessage({ pause: document.hidden }) })
-  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { disposeSplit(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
+  document.addEventListener('visibilitychange', () => { releaseButtons(); worker?.postMessage({ pause: document.hidden || picker.open }) })
+  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { disposeSplit(); disposeFullscreen(); picker.dispose(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
   window.addEventListener('pageshow', event => { if (event.persisted) scheduleRun(0) })
 
   setBusy(true)
@@ -545,11 +535,15 @@ export async function initBadgeEditor() {
     try {
       const response = await fetch('/editor-apps/catalog.json')
       if (!response.ok) throw new Error('Could not load the app examples.')
-      catalog = await response.json() as EditorCatalog
-      example.replaceChildren(new Option('App examples', ''))
-      catalog.apps.forEach(app => example.add(new Option(app.title, app.name)))
-      example.disabled = busy
-    } catch (error) { example.disabled = true; showMessage(error instanceof Error ? error.message : 'Could not load the app examples.', true) }
+      picker.setApps(await response.json() as EditorCatalog)
+    } catch { picker.setFailure('apps', 'Could not load the app collection. Reload to try again.') }
+  })()
+  void (async () => {
+    try {
+      const response = await fetch('/editor-examples/catalog.json')
+      if (!response.ok) throw new Error('Could not load the examples.')
+      picker.setExamples(await response.json() as SimulatorExamples)
+    } catch { picker.setFailure('examples', 'Could not load the example collection. Reload to try again.') }
   })()
   let restored = false
   try {

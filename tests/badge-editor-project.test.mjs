@@ -7,7 +7,7 @@ async function loadModule(path) {
   const compiled = await build({ entryPoints: [new URL(path, import.meta.url).pathname], bundle: true, format: 'esm', platform: 'node', write: false })
   return import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`)
 }
-const { projectFile, projectCheckpoint, fileBytes, hasProjectChanges, projectUploadBaseline, recordProjectUpload, readBadgeProject, listBadgeApps, simulationRequest, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
+const { projectFile, projectCheckpoint, fileBytes, hasProjectChanges, projectUploadBaseline, recordProjectUpload, readBadgeProject, listBadgeApps, simulationRequest, loadSimulatorExample, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
 const { uploadEditorProject, ExistingAppError } = await loadModule('../src/lib/badge-editor-upload.ts')
 const { getInstallableAppFolders } = await loadModule('../src/lib/github-app-catalog.ts')
 const bytes = text => new TextEncoder().encode(text)
@@ -87,6 +87,42 @@ async function flappyProject() {
   current.checkpoint = projectCheckpoint(current)
   return current
 }
+
+test('all 36 simulator examples have packaged source and every referenced asset', async () => {
+  const catalog = JSON.parse(await readFile(new URL('../public/editor-examples/catalog.json', import.meta.url)))
+  const examples = catalog.categories.flatMap(category => category.examples)
+  assert.equal(examples.length, 36)
+  assert.equal(new Set(examples.map(example => example.file)).size, 36)
+  for (const example of examples) {
+    assert.match(example.file, /^[a-z0-9_]+\.py$/)
+    const source = await readFile(new URL(`../public/editor-examples/${example.file}`, import.meta.url), 'utf8')
+    const referenced = [...new Set([...source.matchAll(/["']\/system\/(assets\/[^"']+)["']/g)].map(match => match[1]))]
+    assert.deepEqual(example.assets, referenced)
+    for (const asset of example.assets) assert.ok((await readFile(new URL(`../public/editor-examples/${asset}`, import.meta.url))).length > 0)
+  }
+})
+
+test('simulator examples become editable installable projects with local asset paths', async t => {
+  const catalog = JSON.parse(await readFile(new URL('../public/editor-examples/catalog.json', import.meta.url)))
+  t.mock.method(globalThis, 'fetch', async url => new Response(await readFile(new URL(`../public${url}`, import.meta.url))))
+  for (const example of catalog.categories.flatMap(category => category.examples)) {
+    const loaded = await loadSimulatorExample(example)
+    assert.match(loaded.name, /^example-[a-z0-9-]+$/)
+    assert.equal(loaded.files[0].path, '__init__.py')
+    assert.equal(loaded.files[0].text.includes('/system/assets/'), false)
+    assert.deepEqual(loaded.files.slice(1).map(file => file.path), example.assets)
+    assert.equal(simulationRequest(loaded).files.length, 1 + example.assets.length)
+    const disk = fakeDisk({})
+    const result = await uploadEditorProject(disk.root, loaded)
+    assert.equal(result.written, loaded.files.length)
+  }
+})
+
+test('missing example assets fail loading instead of creating an incomplete project', async t => {
+  t.mock.method(globalThis, 'fetch', async url => new Response(url.endsWith('sprites.py') ? 'image.load("/system/assets/skull.png")' : '', { status: url.endsWith('sprites.py') ? 200 : 404 }))
+  await assert.rejects(loadSimulatorExample({ file: 'sprites.py', description: 'sprite blit', assets: ['assets/skull.png'] }), /Could not load assets\/skull.png/)
+  await assert.rejects(loadSimulatorExample({ file: '../startup.py', description: '', assets: [] }), /Invalid example filename/)
+})
 
 test('a one-line example edit updates one file in a nine-file app without reading or replacing its other files', async () => {
   const current = await flappyProject()

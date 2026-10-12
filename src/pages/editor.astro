@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2 } from 'lucide-react'
+import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search } from 'lucide-react'
 ---
 
 <Layout title="Editor / Badger" description="Write Python, test it in the browser, and upload your app to a Badger badge.">
@@ -19,8 +19,7 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
             <button id="release-disk" class="editor-button" hidden>Disconnect</button>
             <ArrowRight size={14} className="hidden shrink-0 text-muted-foreground sm:block" aria-hidden="true" />
             <div id="device-browser" class="flex min-w-0 max-w-full items-center gap-2">
-              <label class="sr-only" for="device-app">Badge app to edit</label>
-              <select id="device-app" disabled class="editor-select"><option value="">Choose an app to edit</option></select>
+              <button id="device-app" disabled class="editor-button" aria-haspopup="dialog" aria-controls="project-picker"><Grid2X2 size={15} /> Choose badge app</button>
               <button id="refresh-badge" class="editor-icon-button" aria-label="Refresh badge files" title="Refresh badge files" disabled><RefreshCw size={14} /></button>
             </div>
           </div>
@@ -38,7 +37,10 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
       </div>
       <div class="editor-toolbar flex flex-wrap items-center gap-3 border-b border-border/70 px-4 py-3">
         <label class="flex items-center gap-2 font-mono text-xs text-muted-foreground"><Code2 size={16} /><span class="sr-only">App folder name</span><input id="app-name" value="my-app" maxlength="48" pattern="[a-z0-9][a-z0-9_-]*" class="w-28 rounded border border-border bg-background px-2 py-1.5 text-foreground" aria-label="App folder name" /></label>
-        <label class="min-w-0 max-w-full"><span class="sr-only">Load an example</span><select aria-label="Load an example" id="example" disabled class="editor-select"><option value="">Examples</option><option value="" disabled>Loading apps…</option></select></label>
+        <div class="flex items-center gap-2" role="group" aria-label="Browse projects">
+          <button id="browse-apps" class="editor-button" aria-haspopup="dialog" aria-controls="project-picker" disabled><Grid2X2 size={15} /> Apps</button>
+          <button id="browse-examples" class="editor-button" aria-haspopup="dialog" aria-controls="project-picker" disabled><Code2 size={15} /> Examples</button>
+        </div>
         <button id="new-project" class="editor-button"><Code2 size={15} /> New app</button>
         <div class="flex items-center gap-2" role="group" aria-label="File actions">
           <button id="open-file" class="editor-icon-button" aria-label="Open Python file" title="Open Python file"><FolderOpen size={15} /></button>
@@ -49,6 +51,7 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
           <button id="redo" class="editor-icon-button" aria-label="Redo" title="Redo (Ctrl / ⌘ + Shift + Z)" disabled><Redo2 size={15} /></button>
         </div>
         <input id="file-input" type="file" accept=".py,text/x-python,text/plain" hidden />
+        <button id="toggle-fullscreen" class="editor-icon-button ml-auto" aria-label="Enter full screen" aria-pressed="false" title="Enter full screen"><span class="fullscreen-enter"><Maximize size={15} /></span><span class="fullscreen-exit"><Minimize size={15} /></span></button>
       </div>
 
       <div id="editor-split" class="editor-split">
@@ -100,7 +103,23 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
       </div>
 
       <div id="editor-height-divider" role="separator" tabindex="0" aria-label="Resize workspace height" aria-controls="code-pane simulator-pane" aria-orientation="horizontal" aria-valuemin="320" aria-valuemax="1600" aria-valuenow="620" title="Drag up or down to resize height. Arrow keys adjust. Double-click or Enter resets."></div>
-    </div>
+
+    <dialog id="project-picker" class="project-picker" aria-labelledby="picker-title">
+      <header class="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+        <h2 id="picker-title" class="text-xl">Apps &amp; examples</h2>
+        <button id="close-picker" class="editor-icon-button" aria-label="Close picker"><X size={16} /></button>
+      </header>
+      <div class="picker-controls border-b border-border px-5 py-4">
+        <div class="picker-tabs" role="tablist" aria-label="Project collection">
+          <button id="picker-tab-apps" role="tab" data-collection="apps" aria-selected="true" aria-controls="picker-gallery">Apps</button>
+          <button id="picker-tab-examples" role="tab" data-collection="examples" aria-selected="false" aria-controls="picker-gallery">Examples</button>
+          <button id="picker-tab-badge" role="tab" data-collection="badge" aria-selected="false" aria-controls="picker-gallery" disabled>On your badge</button>
+        </div>
+        <label class="picker-search"><Search size={15} /><span class="sr-only">Search apps and examples</span><input id="picker-search" type="search" placeholder="Search apps and examples" autofocus /></label>
+      </div>
+      <p id="picker-status" class="px-5 py-3 text-xs text-muted-foreground" role="status">Loading collection…</p>
+      <div id="picker-gallery" role="tabpanel" aria-labelledby="picker-tab-apps" class="picker-gallery"></div>
+    </dialog>
 
     <dialog id="replace-project" aria-labelledby="replace-project-title" aria-describedby="replace-project-description" class="max-w-md rounded-xl border border-border bg-background p-6 text-foreground shadow-xl">
       <form method="dialog">
@@ -112,6 +131,7 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
         </div>
       </form>
     </dialog>
+    </div>
 
   </section>
 </Layout>
@@ -123,6 +143,45 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
 
 <style>
   #replace-project::backdrop { background: rgb(0 0 0 / 0.65); }
+  .project-picker::backdrop { background: rgb(0 0 0 / 0.8); }
+  .project-picker { width: min(1000px, calc(100vw - 2rem)); max-width: none; max-height: calc(100dvh - 2rem); padding: 0; border: 1px solid hsl(var(--border)); border-radius: 0.8rem; background: hsl(var(--background)); color: hsl(var(--foreground)); }
+  .project-picker[open] { display: flex; flex-direction: column; }
+  .project-picker > header, .project-picker > .picker-controls, .project-picker > p { flex-shrink: 0; }
+  .picker-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+  .picker-tabs { display: flex; gap: 0.4rem; }
+  .picker-tabs button { border-radius: 0.4rem; padding: 0.6rem 0.7rem; font-size: 0.75rem; color: hsl(var(--muted-foreground)); }
+  .picker-tabs button[aria-selected='true'] { background: hsl(var(--primary) / 0.15); color: hsl(var(--primary)); }
+  .picker-tabs button:disabled { opacity: 0.4; }
+  .picker-search { display: flex; align-items: center; gap: 0.5rem; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; padding: 0.6rem; color: hsl(var(--muted-foreground)); flex: 0 1 280px; min-width: 0; }
+  .picker-search input { width: 100%; min-width: 0; background: transparent; font-size: 0.75rem; color: hsl(var(--foreground)); }
+  .picker-gallery { overflow: auto; overscroll-behavior: contain; min-height: 0; padding: 0 1.25rem 1.25rem; }
+  .picker-gallery :global([hidden]) { display: none !important; }
+  .picker-gallery :global(button:focus-visible) { outline: 2px solid hsl(var(--primary)); outline-offset: -3px; }
+  .picker-gallery :global(h3) { margin: 1rem 0 0.7rem; font-family: ui-monospace, monospace; font-size: 0.8rem; color: hsl(var(--muted-foreground)); }
+  .picker-gallery :global(.picker-grid) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
+  .picker-gallery :global(.picker-card) { min-width: 0; border: 1px solid hsl(var(--border)); border-radius: 0.6rem; overflow: hidden; background: hsl(var(--muted) / 0.2); }
+  .picker-gallery :global(.picker-card:hover) { border-color: hsl(var(--primary) / 0.5); }
+  .picker-gallery :global(.picker-preview) { display: block; position: relative; width: 100%; background: #0d1117; aspect-ratio: 4 / 3; border-bottom: 1px solid hsl(var(--border)); }
+  .picker-gallery :global(.picker-preview canvas) { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+  .picker-gallery :global(.picker-cover) { position: absolute; inset: 0; display: grid; place-content: center; background: radial-gradient(ellipse, #182e22, #0d1117); }
+  .picker-gallery :global(.picker-cover img) { width: 64px; height: 64px; object-fit: contain; image-rendering: pixelated; }
+  .picker-gallery :global(.picker-code-icon) { font-family: ui-monospace, monospace; font-size: 2rem; color: hsl(var(--primary)); }
+  .picker-gallery :global(.picker-preview-label) { position: absolute; bottom: 0.6rem; left: 0.6rem; border: 1px solid #30363d; border-radius: 0.3rem; background: #0d1117; padding: 0.25rem 0.45rem; font-family: ui-monospace, monospace; font-size: 0.65rem; color: #c9d1d9; }
+  .picker-gallery :global(.picker-meta) { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.85rem; }
+  .picker-gallery :global(.picker-meta > div) { min-width: 0; }
+  .picker-gallery :global(.picker-meta strong) { display: block; font-family: ui-monospace, monospace; font-size: 0.75rem; overflow-wrap: anywhere; }
+  .picker-gallery :global(.picker-meta span) { display: block; margin-top: 0.25rem; font-size: 0.7rem; color: hsl(var(--muted-foreground)); overflow-wrap: anywhere; }
+  .picker-gallery :global(.picker-meta button) { flex-shrink: 0; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; padding: 0.5rem 0.65rem; font-size: 0.7rem; }
+  .fullscreen-exit { display: none; }
+  #badge-editor[data-fullscreen='true'] { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; height: 100dvh; width: 100%; max-width: none; margin: 0; border-radius: 0; background: hsl(var(--background)); }
+  #badge-editor[data-fullscreen='true'] > div:first-child, #badge-editor[data-fullscreen='true'] > .editor-toolbar { flex-shrink: 0; }
+  #badge-editor[data-fullscreen='true'] .editor-split { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+  #badge-editor[data-fullscreen='true'] #code-pane, #badge-editor[data-fullscreen='true'] #simulator-pane { height: 100%; }
+  #badge-editor[data-fullscreen='true'] #editor-height-divider { display: none; }
+  #badge-editor[data-fullscreen='true'] .fullscreen-enter { display: none; }
+  #badge-editor[data-fullscreen='true'] .fullscreen-exit { display: block; }
+  @media (max-width: 700px) { .picker-gallery :global(.picker-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 420px) { .picker-gallery :global(.picker-grid) { grid-template-columns: minmax(0, 1fr); } .picker-search { flex-basis: 100%; } }
   .editor-split { display: grid; }
   #code-pane, #simulator-pane { height: var(--workspace-height, 620px); min-height: 0; }
   #code-pane { overflow: hidden; }
@@ -139,6 +198,7 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
   #badge-editor[data-resizing-height='true'] { cursor: row-resize; user-select: none; }
   #editor-divider { display: none; }
   @media (min-width: 1024px) {
+    #badge-editor[data-fullscreen='true'] .editor-split { grid-template-rows: minmax(0, 1fr); }
     .editor-split { grid-template-columns: minmax(300px, var(--code-share, 56.5fr)) 8px minmax(280px, var(--simulator-share, 43.5fr)); }
     #editor-divider { display: block; position: relative; cursor: col-resize; touch-action: none; background: hsl(var(--border) / 0.25); outline-offset: -2px; }
     #editor-divider::after { content: ''; position: absolute; top: 50%; left: 3px; width: 2px; height: 32px; border-radius: 2px; background: hsl(var(--muted-foreground)); }
@@ -147,8 +207,6 @@ import { Github, Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cp
     .editor-split[data-resizing='true'] { cursor: col-resize; user-select: none; }
   }
   .editor-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; background: hsl(var(--background)); padding: 0.55rem 0.8rem; font-size: 0.7rem; line-height: 1.2; }
-  .editor-select { width: auto; max-width: 100%; min-width: 0; flex-shrink: 1; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; background: hsl(var(--background)); padding: 0.5rem 0.6rem; font-family: ui-monospace, monospace; font-size: 0.7rem; }
-  .editor-select:disabled { opacity: 0.4; }
   .editor-icon-button { display: inline-flex; align-items: center; justify-content: center; border: 1px solid hsl(var(--border)); border-radius: 0.4rem; background: hsl(var(--background)); width: 2rem; height: 2rem; }
   .editor-icon-button:disabled { opacity: 0.4; cursor: not-allowed; }
   #badge-editor input[type='checkbox'] { accent-color: hsl(var(--primary)); }
