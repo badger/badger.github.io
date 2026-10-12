@@ -19,5 +19,7 @@ jobs:
         run: npm ci
       - name: Check app description updates
         run: npm run test:app-descriptions
+      - name: Check editor projects
+        run: npm run test:editor
       - name: Build
         run: npm run build
