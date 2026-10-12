@@ -4,7 +4,10 @@ import { getInstallableAppFolders, GITHUB_APPS_TREE_URL } from '../src/lib/githu
 const treeResponse = await fetch(GITHUB_APPS_TREE_URL)
 if (!treeResponse.ok) throw new Error(`Could not read app catalog: HTTP ${treeResponse.status}`)
 const tree = await treeResponse.json()
-const folders = getInstallableAppFolders(tree.tree || []).sort(([a], [b]) => a.localeCompare(b))
+if (tree.truncated !== false || !Array.isArray(tree.tree)) {
+  throw new Error('Could not read a complete app catalog tree.')
+}
+const folders = getInstallableAppFolders(tree.tree).sort(([a], [b]) => a.localeCompare(b))
 const target = new URL('../public/editor-apps/', import.meta.url)
 const staging = new URL('../public/.editor-apps-staging/', import.meta.url)
 await rm(staging, { recursive: true, force: true })
