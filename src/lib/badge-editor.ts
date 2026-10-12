@@ -218,7 +218,7 @@ export async function initBadgeEditor() {
     for (const file of project.files) {
       const button = document.createElement('button')
       button.type = 'button'
-      button.className = 'project-file'
+      button.className = 'project-file font-mono'
       button.setAttribute('aria-current', String(file.path === project.activePath))
       button.setAttribute('aria-label', `Open ${file.path}`)
       button.textContent = file.path + (bytesEqual(file.data, fileBytes(file)) ? '' : ' *')
