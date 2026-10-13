@@ -5,7 +5,8 @@ ask Copilot to build one small badge app, then copy the finished app folder to
 the badge in Windows File Explorer.
 
 You do not need a GitHub repository, a team folder, or command-line tools for
-this route. The badge-builder skill is already available to Copilot.
+this route. Booth staff must first make the `badge-app-builder` skill
+available to Copilot on the laptop.
 
 ## Before you start
 
@@ -13,10 +14,18 @@ this route. The badge-builder skill is already available to Copilot.
   connection.
 - Use a data-capable USB cable and any adapter needed to connect the badge.
 - Make sure GitHub Copilot is signed in to the attendee's account.
+- Ask booth staff to confirm that Copilot can read `badge-app-builder` and
+  its 2026 reference files. A skill in another repository is not automatically
+  available in an empty app folder.
 - Keep the badge connected only when you are ready to test or copy files.
 - Do not update firmware during an app-building session.
 
 A charge-only cable will power the badge but may not transfer files.
+
+Booth staff: install the complete `badge-app-builder` folder as a personal
+skill, including `SKILL.md`, `references`, and `scripts`. Do not copy only
+`SKILL.md` or put the skill inside the app folder that will go onto the badge.
+Use the VS Code agent skills link below for supported installation locations.
 
 ## 1. Make a local folder for the app
 
@@ -31,19 +40,27 @@ project.
 
 ## 2. Ask Copilot to create the app
 
-Open Copilot Chat in VS Code. Ask it to use the badge-builder skill that is
-already installed. Tell it that there is no repository and that the open
-folder is the app folder.
+Open Copilot Chat in VS Code and select **Agent** so Copilot can create files.
+Ask it to use `badge-app-builder`. Tell it that there is no repository and
+that the open folder is the app folder. If it cannot find the skill or its
+references, stop and ask booth staff to load them.
 
 Example:
 
-> Use the badge-builder skill already available to you. I am at a booth and
-> do not have a repository. Build a small Universe 2026 badge app in the
-> currently open folder. Create the files needed to run it, including
-> `__init__.py`, a 24 x 24 `icon.png`, and any assets. Use the skill's current
-> badge API. Do not ask me to clone a repo, do not use repo-specific paths,
-> do not change firmware, and do not add passwords. Explain how I can copy
-> this app to the badge.
+> Use the badge-app-builder skill. First read its 2026 hardware, app-contract,
+> API, and physical-badge references. If they are missing, stop and tell me.
+> I am at a booth with no repository. Build a small Universe 2026 MicroPython
+> app directly in the open folder, not in TeamN or badge/apps. My app idea is:
+> a counter that increases when I press SELECT. Create __init__.py, a real
+> 24 x 24 icon.png, and any required assets. Use the 2026 runtime globals,
+> logical BUTTON_* controls, a short non-blocking update(), and a module-level
+> run(update) call. Leave HOME available to return to the menu. Use the skill's
+> app-directory pattern for local modules and assets; do not use os.path or
+> desktop Python packages. Do not clone a repo, change firmware, or add
+> credentials. Distinguish the USB drive's apps folder from /system/apps in
+> running code. Explain how to copy and test the app.
+
+Replace the counter idea with your own small app idea.
 
 Ask for a small first version. A simple screen and one button action are
 easier to test at a booth than networking or sensor features.
@@ -61,15 +78,27 @@ star-counter
 
 The `assets` folder is optional. If the app needs images or other files, keep
 them inside this app folder and ask Copilot to use paths relative to the app.
-The `icon.png` should be 24 x 24 pixels.
+The `icon.png` must be a real 24 x 24 PNG image, not an empty placeholder.
 Use **View > Show > File name extensions** in File Explorer if you need to
 check that the entry file is named `__init__.py`, not `__init__.py.txt`.
 
-Ask Copilot to review the app against the badge-builder skill. If the skill
-offers a checker that works without a project repository, ask it to run that
-checker. If a check requires a repository or a script that is not present,
-do not let Copilot invent a command; continue with the browser and physical
-checks below.
+Ask Copilot to review the app against `badge-app-builder`:
+
+- Use the 2026 `badge`, `screen`, `image`, `font`, `color`, and `shape` APIs,
+  not the old 2025 drawing or `io` input APIs.
+- Use logical SELECT, BACK, and direction controls, not physical A/B/C names.
+  HOME must still return to the menu.
+- Start the app with `run(update)` outside an `if __name__` check.
+- Keep assets inside the app folder and use the skill's app-directory pattern
+  without `os.path`. The normal drawing area is 160 x 120; use
+  `screen.width` and `screen.height` when laying out the screen.
+
+If Python 3.10 or newer and the skill's bundled `validate_app.py` are available,
+ask Copilot to run that file using its actual installed path and the full path
+to your app folder. The validator accepts a standalone app folder; a TeamN
+folder or repository is not required. Fix errors and review warnings.
+If Python or the checker is missing, ask for a file review instead.
+Do not run an invented command. A file check does not replace a physical test.
 
 ## 4. Copy the app to the badge
 
@@ -78,8 +107,8 @@ checks below.
 2. Connect the badge with the data-capable USB cable.
 3. Double-tap the badge's RESET button. Wait for its USB Disk Mode screen.
 4. In File Explorer, open **This PC** and open the new badge drive.
-5. Before copying, confirm that the drive contains an `apps` folder at its
-   root, for example `BADGER\apps`.
+5. Open the `apps` folder at the root of the badge drive: `BADGER\apps`.
+   Windows also assigns the drive a letter.
 6. Copy the `star-counter` folder itself from Documents.
 7. Paste it into `BADGER\apps`.
 
@@ -90,22 +119,25 @@ The result should look like this:
 
 ```text
 BADGER
-└── system
-    └── apps
-        └── star-counter
-            ├── __init__.py
-            ├── icon.png
-            └── assets
+└── apps
+    └── star-counter
+        ├── __init__.py
+        ├── icon.png
+        └── assets
 ```
 
 Do not copy the whole `Badge Projects` folder, a ZIP file, or a `.uf2` file.
 The `RP2350` drive is for a deliberate firmware update, not for installing an
 app.
 
+On the 2026 firmware tested here, `apps` on the USB drive appears as
+`/system/apps` inside the running badge. These are two views of the same
+folder. Do not create a `system` folder on the USB drive to match a code path.
+
 Badge firmware can change the drive name or folder layout. If you do not see
-`system\apps`, stop and ask booth staff where apps belong on that badge. Do
-not guess. Some badge and firmware combinations may show a different name or
-layout, such as `TUFTY\apps`.
+the root `apps` folder, stop and ask booth staff to check the firmware and
+existing app location. Other firmware may expose `system\apps` or use a drive
+name such as `TUFTY`. Do not guess from the name or create a new folder.
 
 ## 5. Eject and test
 
@@ -117,6 +149,14 @@ layout, such as `TUFTY\apps`.
 4. Open the new app from the badge menu.
 5. Try each screen and button. If the app saves data, exit and reopen it to
    check that the data is still there.
+6. Press HOME and confirm that the badge menu returns.
+7. If the app saves data, press RESET once, reopen the app, and confirm that
+   the data is still there.
+
+To install a corrected version, first copy the old app folder from the badge
+to a backup folder on the laptop. Then replace only your app folder with the
+complete corrected version. Do not change the menu, `main.py`, shared assets,
+or other system files.
 
 ## 6. If the app shows an error
 
@@ -141,8 +181,35 @@ before testing a button or movement.
 - A successful simulator or file-copy step does not prove that the physical
   badge works. Open and test the app on the badge.
 
+## Test status: October 13, 2026
+
+A standalone test app was checked and copied from a Mac using command-line
+tools to `BADGER/apps`. The badge reported a Badger MicroPython
+1.29.0-preview build dated October 9, 2026. The app opened from the menu,
+loaded a local Python module and PNG image, and responded to SELECT, RIGHT,
+BACK, and HOME. The saved count survived both HOME and RESET. All 128
+existing app and system files checked before the copy were unchanged.
+No firmware update was performed.
+
+Still needs a Windows check:
+
+- Copilot sign-in, personal skill discovery, and file creation in a new
+  standalone VS Code folder.
+- File Explorer folder creation, file extensions, badge drive name and
+  letter, whole-folder copying, and the safe-eject steps.
+- Backup and replacement of an existing app. Only a new app was installed
+  in this test.
+
+The Mac hardware check does not prove that the full Windows workflow works.
+
 ## Helpful links
 
+- [2026 badge app rules](https://github.com/badger/home/blob/main/badge/AGENTS.md)
+- [2026 USB installation and troubleshooting](https://github.com/badger/home/blob/main/hardware/USB_SERIAL.md)
 - [GitHub Copilot in VS Code](https://code.visualstudio.com/docs/setup/copilot)
+- [VS Code agent skills](https://code.visualstudio.com/docs/agent-customization/agent-skills)
 - [Universe badge simulator](https://pimoroni.github.io/badgeware-web-simulator/)
 - [Safely eject a USB device in Windows](https://support.microsoft.com/en-us/windows/hardware/safely-remove-hardware-in-windows)
+
+Checked against the `badge-app-builder` skill and its 2026 references on
+October 13, 2026. Booth staff must still check the firmware on the badge in use.
