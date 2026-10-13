@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, Code2, ContactRound, Grid3x3, Home, PlugZap, Power, Settings } from 'lucide-react'
+import { BookOpen, Code2, ContactRound, Grid3x3, Hammer, Home, PlugZap, Power, Settings } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
 import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
@@ -9,7 +9,8 @@ const navItems = [
   { href: '/get-started', label: 'Start', icon: Power },
   { href: '/about-badge', label: 'Badge', icon: BookOpen },
   { href: '/apps', label: 'Apps', icon: PlugZap },
-  { href: '/build', label: 'Build', icon: Code2 },
+  { href: '/build', label: 'Build', icon: Hammer },
+  { href: '/editor', label: 'Editor', icon: Code2 },
   ...(APP_CATALOG_PAGE_ENABLED ? [{ href: '/browse-apps', label: 'Browse', icon: Grid3x3 }] : []),
   { href: '/contacts', label: 'Contacts', icon: ContactRound },
   { href: '/hacks', label: 'Hacks', icon: Settings },
@@ -24,7 +25,7 @@ export function Navigation() {
 
   const isActive = (href: string) => href === '/'
     ? pathname === '/'
-    : pathname.startsWith(href)
+    : pathname === href || pathname.startsWith(`${href}/`)
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/90 backdrop-blur-xl">
@@ -51,13 +52,12 @@ export function Navigation() {
             )
           })}
         </div>
-
         <div className="flex shrink-0 items-center gap-2">
           <ThemeToggle />
           <span className="hidden sm:block"><GitHubRepoBadge repo="badger/home" /></span>
         </div>
       </div>
-      <div className={`container grid grid-cols-4 ${APP_CATALOG_PAGE_ENABLED ? 'sm:grid-cols-8' : 'sm:grid-cols-7'} gap-1 border-t border-border/50 py-2 xl:hidden [&>a]:flex [&>a]:min-h-11 [&>a]:items-center [&>a]:justify-center`}>
+      <div className={`container grid grid-cols-4 ${APP_CATALOG_PAGE_ENABLED ? 'sm:grid-cols-9' : 'sm:grid-cols-8'} gap-1 border-t border-border/50 py-2 xl:hidden`}>
         {navItems.map(({ href, label }) => {
           const active = isActive(href)
           return (
@@ -66,7 +66,7 @@ export function Navigation() {
               href={href}
               aria-current={active ? 'page' : undefined}
               data-active={active}
-              className="min-w-0 rounded-md py-1.5 text-center font-mono text-[0.58rem] uppercase text-muted-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md px-1 text-center font-mono text-[0.65rem] uppercase text-muted-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
             >
               {label}
             </a>
@@ -76,3 +76,4 @@ export function Navigation() {
     </nav>
   )
 }
+
