@@ -14,10 +14,6 @@ that Copilot can read the `badge-app-builder` skill and its 2026 references.
 A skill in another repository is not automatically available in your empty
 app folder. Do not update firmware during this session.
 
-Booth staff: install the complete `badge-app-builder` folder as a personal
-skill, including `SKILL.md`, `references`, and `scripts`, outside the attendee's
-app folder. Use the VS Code agent skills link below for installation locations.
-
 ## 1. Create a local app folder
 
 1. In File Explorer, create `Documents\Badge Projects\my-app`.
@@ -137,33 +133,13 @@ to check the actual firmware API and all uses of the failing call. Serial
 access can interrupt the running app; wait for any serial command to finish
 before trying a physical gesture.
 
-## Test status: October 13, 2026
-
-The shared physical-install steps passed on a Mac with a Badger MicroPython
-1.29.0-preview build dated October 9, 2026. A new app copied to `BADGER/apps`
-opened from the menu, loaded a local module and PNG image, and responded to
-SELECT, RIGHT, BACK, and HOME. Its saved count survived HOME and RESET.
-Existing app and system files were unchanged; no firmware update was performed.
-
-Still needs a Windows check:
-
-- Copilot sign-in, personal skill discovery, and app creation in a standalone
-  VS Code folder.
-- Browser editor, asset uploads with preserved paths, F5, and keyboard focus.
-  The simulator steps were not exercised in this physical test.
-- File Explorer drive name and letter, whole-folder copying, safe eject,
-  and backup and replacement of an existing app.
-
-This verifies the shared badge behavior, not the full simulator-first route.
-
 ## Helpful links
 
 - [2026 badge app rules](https://github.com/badger/home/blob/main/badge/AGENTS.md)
 - [2026 USB installation and troubleshooting](https://github.com/badger/home/blob/main/hardware/USB_SERIAL.md)
 - [Universe badge simulator](https://pimoroni.github.io/badgeware-web-simulator/)
 - [GitHub Copilot in VS Code](https://code.visualstudio.com/docs/setup/copilot)
-- [VS Code agent skills](https://code.visualstudio.com/docs/agent-customization/agent-skills)
 - [Safely eject a USB device in Windows](https://support.microsoft.com/en-us/windows/hardware/safely-remove-hardware-in-windows)
 
 Checked against the `badge-app-builder` skill and its 2026 references on
-October 13, 2026. Booth staff must still check the firmware on the badge in use.
+October 13, 2026.

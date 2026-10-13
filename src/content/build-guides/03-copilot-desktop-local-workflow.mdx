@@ -15,11 +15,6 @@ read `badge-app-builder` and its 2026 reference files. A skill installed only
 in another repository is not automatically available in this local folder.
 Do not update firmware during an app-building session.
 
-Booth staff: install the complete `badge-app-builder` folder as a personal
-skill, including `SKILL.md`, `references`, and `scripts`, outside the attendee's
-app folder. Use the local skills link below for installation locations, then
-confirm the desktop session can read the skill before starting.
-
 ## 1. Make a local folder
 
 1. In File Explorer, create `Documents\Badge Projects\my-app`.
@@ -138,33 +133,13 @@ Serial connections can reset or interrupt the running app. Use one serial
 program at a time, and wait until it is finished before asking someone to
 test a movement or button.
 
-## Test status: October 13, 2026
-
-The shared physical-install steps passed on a Mac with a Badger MicroPython
-1.29.0-preview build dated October 9, 2026. A new app copied to `BADGER/apps`
-opened from the menu, loaded a local module and PNG image, and responded to
-SELECT, RIGHT, BACK, and HOME. Its saved count survived HOME and RESET.
-Existing app and system files were unchanged; no firmware update was performed.
-
-Still needs a Windows check:
-
-- Git for Windows, Copilot desktop installation, and sign-in.
-- Adding a standalone local folder, loading the personal skill, starting an
-  Interactive session, reviewing Changes, and finding the actual saved files.
-- File Explorer drive name and letter, whole-folder copying, safe eject,
-  and backup and replacement of an existing app.
-- Any optional simulator preview. The browser steps were not exercised here.
-
-This verifies the shared badge behavior, not the Copilot desktop workflow.
-
 ## Helpful links
 
 - [2026 badge app rules](https://github.com/badger/home/blob/main/badge/AGENTS.md)
 - [2026 USB installation and troubleshooting](https://github.com/badger/home/blob/main/hardware/USB_SERIAL.md)
 - [GitHub Copilot app quickstart](https://docs.github.com/en/copilot/get-started/quickstart-copilot-app)
-- [Adding local skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills)
 - [Badgeware Web Simulator](https://pimoroni.github.io/badgeware-web-simulator/)
 - [Safely eject a USB device in Windows](https://support.microsoft.com/en-us/windows/hardware/safely-remove-hardware-in-windows)
 
 Checked against the `badge-app-builder` skill and its 2026 references on
-October 13, 2026. Booth staff must still check the firmware on the badge in use.
+October 13, 2026.

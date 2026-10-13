@@ -5,15 +5,14 @@ ask Copilot to build one small badge app, then copy the finished app folder to
 the badge in Windows File Explorer.
 
 You do not need a GitHub repository, a team folder, or command-line tools for
-this route. Booth staff must first make the `badge-app-builder` skill
-available to Copilot on the laptop.
+this route.
 
 ## Before you start
 
 - Use a Windows 11 laptop with VS Code, GitHub Copilot, and an internet
   connection.
 - Use a data-capable USB cable and any adapter needed to connect the badge.
-- Make sure GitHub Copilot is signed in to the attendee's account.
+- Sign in to GitHub Copilot with your own account.
 - Ask booth staff to confirm that Copilot can read `badge-app-builder` and
   its 2026 reference files. A skill in another repository is not automatically
   available in an empty app folder.
@@ -21,11 +20,6 @@ available to Copilot on the laptop.
 - Do not update firmware during an app-building session.
 
 A charge-only cable will power the badge but may not transfer files.
-
-Booth staff: install the complete `badge-app-builder` folder as a personal
-skill, including `SKILL.md`, `references`, and `scripts`. Do not copy only
-`SKILL.md` or put the skill inside the app folder that will go onto the badge.
-Use the VS Code agent skills link below for supported installation locations.
 
 ## 1. Make a local folder for the app
 
@@ -166,9 +160,9 @@ places where the same API is used. Fix related calls together, then copy the
 app again and retest.
 
 Do not assume every badge has the same firmware just because it has the same
-case. A serial connection can stop or reset the running app. If booth staff
-uses a serial tool to read the firmware, wait until its command finishes
-before testing a button or movement.
+case. If you are unsure which firmware it uses, ask booth staff for help.
+A serial connection can stop or reset the running app. Wait until any serial
+command finishes before testing a button or movement.
 
 ## Physical test rules for any badge app
 
@@ -181,35 +175,13 @@ before testing a button or movement.
 - A successful simulator or file-copy step does not prove that the physical
   badge works. Open and test the app on the badge.
 
-## Test status: October 13, 2026
-
-A standalone test app was checked and copied from a Mac using command-line
-tools to `BADGER/apps`. The badge reported a Badger MicroPython
-1.29.0-preview build dated October 9, 2026. The app opened from the menu,
-loaded a local Python module and PNG image, and responded to SELECT, RIGHT,
-BACK, and HOME. The saved count survived both HOME and RESET. All 128
-existing app and system files checked before the copy were unchanged.
-No firmware update was performed.
-
-Still needs a Windows check:
-
-- Copilot sign-in, personal skill discovery, and file creation in a new
-  standalone VS Code folder.
-- File Explorer folder creation, file extensions, badge drive name and
-  letter, whole-folder copying, and the safe-eject steps.
-- Backup and replacement of an existing app. Only a new app was installed
-  in this test.
-
-The Mac hardware check does not prove that the full Windows workflow works.
-
 ## Helpful links
 
 - [2026 badge app rules](https://github.com/badger/home/blob/main/badge/AGENTS.md)
 - [2026 USB installation and troubleshooting](https://github.com/badger/home/blob/main/hardware/USB_SERIAL.md)
 - [GitHub Copilot in VS Code](https://code.visualstudio.com/docs/setup/copilot)
-- [VS Code agent skills](https://code.visualstudio.com/docs/agent-customization/agent-skills)
 - [Universe badge simulator](https://pimoroni.github.io/badgeware-web-simulator/)
 - [Safely eject a USB device in Windows](https://support.microsoft.com/en-us/windows/hardware/safely-remove-hardware-in-windows)
 
 Checked against the `badge-app-builder` skill and its 2026 references on
-October 13, 2026. Booth staff must still check the firmware on the badge in use.
+October 13, 2026.
