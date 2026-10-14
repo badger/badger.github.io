@@ -2,7 +2,7 @@ export function BadgeSetupGuide() {
   return (
     <details className="rounded-lg border border-border/60 bg-background/45">
       <summary className="cursor-pointer rounded-lg px-4 py-3 font-mono text-sm uppercase tracking-[0.12em] text-foreground outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset">
-Connect your badge here to download and manage apps
+Click me for Instructions! 
       </summary>
 
       <div className="space-y-6 border-t border-border/50 px-4 py-4 text-sm leading-6 text-muted-foreground sm:px-5">
