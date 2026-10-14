@@ -1,11 +1,10 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import { AppCard } from '@/components/app-card'
-import { AppCount } from '@/components/app-count'
 import { HackCard } from '@/components/hack-card'
 import { OutlinedButton } from '@/components/outlined-button'
 import { getCollection } from 'astro:content'
-import { ArrowUpRight, BookOpen, Grid3x3, PlugZap } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Grid3x3, Hammer, PlugZap } from 'lucide-react'
 import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
 
 const allHacks = await getCollection('hacks')
@@ -28,7 +27,7 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
               Hack. Tinker. <span class="text-primary">Repeat.</span>
             </h1>
             <p class="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-              Apps, hacks, and hardware notes for the Badger 2350.
+              Apps, hacks, and hardware notes for the Badger 2350. Updated for 2026.
             </p>
           </div>
 
@@ -43,27 +42,16 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
               Manage apps
               <PlugZap className="h-4 w-4" />
             </a>
-          </div>
-
-          <div class="grid max-w-lg grid-cols-3 gap-6 border-t border-border/70 pt-6">
-            <div class="metric">
-              <AppCount fallback={allApps.length} client:load />
-              <div class="metric-label">apps</div>
-            </div>
-            <div class="metric">
-              <div class="metric-value">{allHacks.length}</div>
-              <div class="metric-label">hacks</div>
-            </div>
-            <div class="metric">
-              <div class="metric-value">USB</div>
-              <div class="metric-label">editor</div>
-            </div>
+            <a href="/build" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
+              <Hammer className="h-4 w-4" />
+              Build apps
+            </a>
           </div>
         </div>
 
         <div class="relative mx-auto w-full max-w-[28rem]">
           <div class="surface overflow-hidden p-2">
-            <img src="/images/hero.jpg" alt="Badger 2350 hardware badge" class="aspect-square w-full rounded-lg object-cover" />
+            <img src="/images/hero.jpg" alt="Badger 2350 hardware badge" class="aspect-[3/4] w-full rounded-lg object-cover" />
           </div>
         </div>
       </div>
