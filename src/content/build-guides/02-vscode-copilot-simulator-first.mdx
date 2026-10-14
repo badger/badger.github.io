@@ -1,0 +1,145 @@
+# Route 2: Build in VS Code, preview in the browser, copy once
+
+This repo-free route is useful when the app has several screens or images.
+You try the screen and button flow in a browser simulator first, then copy the
+app to the badge when it is ready for a physical test.
+
+You do not need a repository, Python, Git, or a deployment script.
+
+## Before you start
+
+Use a Windows laptop with VS Code, a signed-in GitHub Copilot account, an
+internet connection, and a data-capable USB cable. Ask booth staff to confirm
+that Copilot can read the `badge-app-builder` skill and its 2026 references.
+A skill in another repository is not automatically available in your empty
+app folder. Do not update firmware during this session.
+
+## 1. Create a local app folder
+
+1. In File Explorer, create `Documents\Badge Projects\my-app`.
+2. Open VS Code.
+3. Choose **File > Open Folder** and select `my-app`.
+4. Open Copilot Chat, select **Agent**, and ask it to use `badge-app-builder`.
+   If the skill or its references are missing, stop and ask booth staff to
+   load them.
+
+Tell Copilot that this is a new, standalone app folder, not a repository:
+
+> Use the badge-app-builder skill. First read its 2026 hardware, app-contract,
+> API, emulator, and physical-badge references. If they are missing, stop and
+> tell me. This is a standalone booth app with no repository. My app idea is:
+> a counter that increases when I press SELECT. Build directly in the open
+> folder, not in TeamN or badge/apps. Create __init__.py, a real 24 x 24
+> icon.png, and any required assets. Use the 2026 runtime globals, logical
+> BUTTON_* controls, a short non-blocking update(), and a module-level
+> run(update) call. Leave HOME available to return to the menu. Use the skill's
+> app-directory pattern without os.path or desktop Python packages. Do not
+> invent APIs, clone a repo, add credentials, or update firmware. Explain which
+> parts can be previewed in the upstream Tufty simulator and which need the
+> real 2026 badge. Distinguish the USB drive's apps folder from /system/apps
+> in running code.
+
+Replace the counter idea with your own small app idea.
+
+## 2. Keep the local files as the source copy
+
+Review the files VS Code shows in its Explorer. Keep the app code and all its
+assets in the `my-app` folder. Do not copy code only into the web simulator;
+the local folder is the copy you will later transfer to the badge.
+
+Ask Copilot to check the entry file, the real 24 x 24 PNG icon, and all assets
+against `badge-app-builder`. The app must use the 2026 drawing and input APIs,
+not the archived 2025 APIs. Its `run(update)` call must not be inside an
+`if __name__` check. The normal drawing area is 160 x 120; use `screen.width`
+and `screen.height` for layout.
+
+If Python 3.10 or newer and the bundled `validate_app.py` are available, ask
+Copilot to use the checker's actual installed path and the full app-folder
+path. It accepts standalone folders; no repository is needed. Fix errors and
+review warnings. If the checker or Python is missing, use a file review and
+physical testing instead. Do not invent a command or clone a project just
+for this check.
+
+## 3. Try the screen in the browser simulator
+
+1. Open the [Pimoroni Badgeware Web Simulator](https://pimoroni.github.io/badgeware-web-simulator/).
+2. Copy the app's `__init__.py` from VS Code into the simulator editor.
+3. Add any local Python modules and upload image or data files with the
+   simulator's **Files** panel. Keep the relative paths used by the app;
+   `assets/player.png` must not become just `player.png`.
+4. Choose **Run** or press **F5**. Click the 3D badge to give it keyboard
+   focus, then try the available controls.
+5. When you change the app in VS Code, copy the updated source and upload any
+   changed assets again.
+
+Keep all lasting changes in VS Code, not only in the browser. Do not paste
+passwords, Wi-Fi credentials, or other private information into the simulator.
+
+The simulator models upstream Tufty 2350, not all of the custom Universe 2026
+badge. Its keyboard controls are Left arrow for A, Space for B, Right arrow
+for C, Up/Down arrows, and Esc for Home. These are simulator labels, not a
+reason to replace the app's 2026 logical SELECT/BACK/MENU controls with A/B/C.
+Some 2026 actions or APIs may be missing. If so, move to a physical test
+instead of changing the app to an older API.
+
+The simulator is a screen and control preview. It does not prove that IMU,
+Bluetooth, GPIO, IR, charging, battery, or real badge timing works. If the
+simulator lacks an API, do not ask Copilot to fake it just to make the
+simulator run. Ask the skill how to test that feature on the real badge.
+
+## 4. Copy the app to the real badge
+
+When the screen is ready for a real test:
+
+1. Close serial tools and connect the badge with a data-capable USB cable.
+2. Double-tap RESET and wait for the badge's USB Disk Mode screen.
+3. Open **This PC** in File Explorer and open the badge drive.
+4. Open the `apps` folder at the root of the badge drive: `BADGER\apps`.
+5. Copy the whole local `my-app` folder into `apps`. The result must
+   include `BADGER\apps\my-app\__init__.py`. Do not copy the
+   `Badge Projects` parent folder. Use an app name that is not already on the
+   badge. Do not overwrite or delete an existing app; ask booth staff if the
+   name is already in use.
+6. Safely eject the drive from Windows. Wait for the safe-to-remove message.
+7. Press RESET once if needed, open the app, and test it on the badge.
+
+On the tested 2026 firmware, the USB drive's `apps` folder appears as
+`/system/apps` inside the running badge. Do not create a `system` folder on
+the USB drive to match that code path.
+
+If the root `apps` folder is missing, stop and ask booth staff to check the
+firmware and existing app location. Other firmware may expose `system\apps`
+or use a drive name such as `TUFTY`. Do not guess from the drive name, create
+a new folder, or use the `RP2350` firmware-update drive to install an app.
+
+For a corrected version, first back up the installed app folder to the laptop.
+Then replace only your app folder with the complete corrected version. Leave
+the menu, `main.py`, shared assets, and other system files unchanged.
+
+## 5. A quick test list
+
+- Does the app open from the badge menu?
+- Can you move through every screen?
+- Do the buttons do what the app says they do?
+- Does HOME return to the badge menu?
+- Can one press trigger only one action, including when moving between screens?
+- Does it still work after you exit and open it again?
+- If it saves data, is that data still there after pressing RESET and reopening?
+- Do any sensor, wireless, sound, or other hardware features work on the real
+  badge?
+
+If the badge shows an error, take a photo of the full message and ask Copilot
+to check the actual firmware API and all uses of the failing call. Serial
+access can interrupt the running app; wait for any serial command to finish
+before trying a physical gesture.
+
+## Helpful links
+
+- [2026 badge app rules](https://github.com/badger/home/blob/main/badge/AGENTS.md)
+- [2026 USB installation and troubleshooting](https://github.com/badger/home/blob/main/hardware/USB_SERIAL.md)
+- [Universe badge simulator](https://pimoroni.github.io/badgeware-web-simulator/)
+- [GitHub Copilot in VS Code](https://code.visualstudio.com/docs/setup/copilot)
+- [Safely eject a USB device in Windows](https://support.microsoft.com/en-us/windows/hardware/safely-remove-hardware-in-windows)
+
+Checked against the `badge-app-builder` skill and its 2026 references on
+October 13, 2026.

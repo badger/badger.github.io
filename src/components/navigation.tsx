@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, Code2, ContactRound, Grid3x3, Home, PlugZap, Power, Settings } from 'lucide-react'
+import { BookOpen, Code2, ContactRound, Grid3x3, Hammer, Home, PlugZap, Power, Settings } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
 import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
@@ -9,6 +9,7 @@ const navItems = [
   { href: '/get-started', label: 'Start', icon: Power },
   { href: '/about-badge', label: 'Badge', icon: BookOpen },
   { href: '/apps', label: 'Apps', icon: PlugZap },
+  { href: '/build', label: 'Build', icon: Hammer },
   { href: '/editor', label: 'Editor', icon: Code2 },
   ...(APP_CATALOG_PAGE_ENABLED ? [{ href: '/browse-apps', label: 'Browse', icon: Grid3x3 }] : []),
   { href: '/contacts', label: 'Contacts', icon: ContactRound },
@@ -34,7 +35,7 @@ export function Navigation() {
           <span className="font-display text-2xl font-semibold tracking-tight">Badger</span>
         </a>
 
-        <div className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex">
+        <div className="hidden min-w-0 flex-1 items-center justify-center gap-1 xl:flex">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = isActive(href)
             return (
@@ -51,13 +52,12 @@ export function Navigation() {
             )
           })}
         </div>
-
         <div className="flex shrink-0 items-center gap-2">
           <ThemeToggle />
           <span className="hidden sm:block"><GitHubRepoBadge repo="badger/home" /></span>
         </div>
       </div>
-      <div className="container grid grid-cols-4 gap-1 border-t border-border/50 py-2 lg:hidden">
+      <div className={`container grid grid-cols-4 ${APP_CATALOG_PAGE_ENABLED ? 'sm:grid-cols-9' : 'sm:grid-cols-8'} gap-1 border-t border-border/50 py-2 xl:hidden`}>
         {navItems.map(({ href, label }) => {
           const active = isActive(href)
           return (
@@ -76,3 +76,4 @@ export function Navigation() {
     </nav>
   )
 }
+
