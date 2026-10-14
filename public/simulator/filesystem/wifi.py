@@ -8,3 +8,10 @@ def disconnect():
 
 def isconnected():
     return False
+
+
+is_connected = isconnected
+
+
+def status():
+    return -1, "Wi-Fi is unavailable in the simulator."

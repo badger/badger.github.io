@@ -14,10 +14,14 @@ export type EditorProject = {
   activePath: string
   checkpoint?: { name: string; paths: string[] }
   diskPaths?: string[]
+  removedFiles?: ProjectFile[]
+  supportFiles?: ProjectFile[]
 }
 
 export type EditorCatalogApp = { name: string; title: string; files: string[] }
 export type EditorCatalog = { revision: string; apps: EditorCatalogApp[] }
+export type SimulatorExample = { file: string; description: string; assets: string[] }
+export type SimulatorExamples = { revision: string; categories: { name: string; examples: SimulatorExample[] }[] }
 
 const encoder = new TextEncoder()
 const maxProjectBytes = 16 * 1024 * 1024
@@ -61,7 +65,22 @@ export function projectCheckpoint(project: EditorProject) {
 export function projectUploadBaseline(project: EditorProject) {
   if (project.origin !== 'badge' || project.name !== project.sourceName) return undefined
   const paths = project.diskPaths || project.checkpoint?.paths
-  return new Map(project.files.filter(file => paths ? paths.includes(file.path) : file.data.length > 0).map(file => [file.path, file.data]))
+  return new Map([...project.files, ...(project.removedFiles || [])].filter(file => paths ? paths.includes(file.path) : file.data.length > 0).map(file => [file.path, file.data]))
+}
+
+export function removeProjectFile(project: EditorProject, path: string) {
+  if (path === '__init__.py') throw new Error('The app entry point __init__.py is required.')
+  const file = project.files.find(file => file.path === path)
+  if (!file) throw new Error('This file is no longer in the project.')
+  if (project.origin !== 'new' && project.checkpoint?.paths.includes(path) && !project.removedFiles?.some(removed => removed.path === path)) {
+    project.removedFiles = [...(project.removedFiles || []), structuredClone(file)]
+  }
+  project.files = project.files.filter(file => file.path !== path)
+  if (project.activePath === path) project.activePath = '__init__.py'
+}
+
+export function removedProjectFiles(project: EditorProject, existing: boolean) {
+  return existing && project.name === project.sourceName ? (project.removedFiles || []).filter(file => !project.files.some(current => current.path === file.path)) : []
 }
 
 export function editedProjectFiles(project: EditorProject) {
@@ -82,6 +101,7 @@ export function recordProjectUpload(project: EditorProject, snapshot: EditorProj
   }
   project.diskPaths = [...verified.keys()]
   project.checkpoint = projectCheckpoint(snapshot)
+  project.removedFiles = project.removedFiles?.filter(file => !snapshot.removedFiles?.some(removed => removed.path === file.path))
 }
 
 export function hasProjectChanges(project: EditorProject) {
@@ -120,7 +140,76 @@ export async function readBadgeProject(root: DiskDirectory, name: string): Promi
   }
   await visit(appRoot)
   if (!files.some(file => file.path === '__init__.py')) throw new Error('This app has no editable __init__.py source file.')
-  return { name, sourceName: name, files: files.sort((a, b) => a.path.localeCompare(b.path)), origin: 'badge', activePath: '__init__.py', diskPaths: files.map(file => file.path) }
+  const supportFiles: ProjectFile[] = []
+  const checked = new Set<string>()
+  const directoryEntries = new Map<DiskDirectory, Map<string, string>>()
+  async function entries(directory: DiskDirectory) {
+    let found = directoryEntries.get(directory)
+    if (!found) {
+      found = new Map()
+      for await (const entry of directory.values()) found.set(entry.name, entry.kind)
+      directoryEntries.set(directory, found)
+    }
+    return found
+  }
+  const directories = new Map<string, DiskDirectory>([['', root]])
+  async function readSupport(path: string, folder = false) {
+    validateFilePath(path)
+    if (checked.has(path)) return
+    checked.add(path)
+    try {
+      const parts = path.split('/')
+      let directory = root
+      let directoryPath = ''
+      for (const part of parts.slice(0, -1)) {
+        if ((await entries(directory)).get(part) !== 'directory') return
+        directoryPath += `${part}/`
+        const cached = directories.get(directoryPath)
+        directory = cached || await directory.getDirectoryHandle(part)
+        directories.set(directoryPath, directory)
+      }
+      const name = parts.at(-1)!
+      const kind = (await entries(directory)).get(name)
+      if (kind === 'directory' && folder) {
+        const child = await directory.getDirectoryHandle(name)
+        for (const [name] of await entries(child)) {
+          if (!name.startsWith('.') && name !== '__pycache__') await readSupport(`${path}/${name}`, true)
+        }
+        return
+      }
+      if (kind !== 'file') return
+      const file = await (await directory.getFileHandle(name)).getFile()
+      total += file.size
+      if (total > maxProjectBytes) throw new Error('This app and its shared files exceed the 16 MB editor limit.')
+      supportFiles.push(projectFile(path, new Uint8Array(await file.arrayBuffer())))
+    } catch (error) {
+      if (!(error instanceof DOMException && ['NotFoundError', 'TypeMismatchError'].includes(error.name))) throw error
+    }
+  }
+  for (let cursor = 0; cursor < files.length + supportFiles.length; cursor++) {
+    const file = [...files, ...supportFiles][cursor]
+    if (!file.path.endsWith('.py') || file.text === null) continue
+    const modules = [...file.text.matchAll(/^\s*from\s+([a-zA-Z_]\w*(?:\.\w+)*)\s+import\b/gm)].map(match => match[1])
+    for (const match of file.text.matchAll(/^\s*import\s+([^\n#]+)/gm)) {
+      for (const part of match[1].split(',')) {
+        const name = part.trim().match(/^([a-zA-Z_]\w*(?:\.\w+)*)\b/)
+        if (name) modules.push(name[1])
+      }
+    }
+    for (const module of new Set(modules.map(name => name.replaceAll('.', '/')))) {
+      if (module === 'secrets') continue
+      for (const prefix of ['', 'lib/']) {
+        await readSupport(`${prefix}${module}.py`)
+        await readSupport(`${prefix}${module}.mpy`)
+        await readSupport(`${prefix}${module}/__init__.py`)
+        await readSupport(`${prefix}${module}`, true)
+      }
+    }
+    for (const match of file.text.matchAll(/["']\/(?:system\/)?(assets\/[^"'\n{}]+)["']/g)) {
+      await readSupport(match[1].replace(/\/$/, ''), true)
+    }
+  }
+  return { name, sourceName: name, files: files.sort((a, b) => a.path.localeCompare(b.path)), origin: 'badge', activePath: '__init__.py', diskPaths: files.map(file => file.path), ...(supportFiles.length ? { supportFiles } : {}) }
 }
 
 export async function listBadgeApps(root: DiskDirectory) {
@@ -136,6 +225,30 @@ export async function listBadgeApps(root: DiskDirectory) {
     }
   }
   return names.sort()
+}
+
+export async function loadSimulatorExample(example: SimulatorExample): Promise<EditorProject> {
+  if (!/^[a-z0-9_]+\.py$/.test(example.file)) throw new Error('Invalid example filename.')
+  const response = await fetch(`/editor-examples/${example.file}`)
+  if (!response.ok) throw new Error('Could not load this example. Try again.')
+  let source = await response.text()
+  if (/\brom_font\./.test(source)) source = `rom_font = font\n\n${source}`
+  if (['text.py', 'vector_text.py'].includes(example.file)) {
+    source = source.replace(/^  tokens = text\.tokenise\([^\n]+\)\n/m, '  for glyph_name, renderer in glyph_renderers.items():\n    add_glyph(glyph_name, renderer)\n')
+    source = source.replace('text.draw(screen, tokens, bounds, line_spacing=1, word_spacing=1.05, size=size)', 'screen.text(message, bounds, font_size=size, line_height=1, word_spacing=1.05)')
+    source = source.replace('text.draw(screen, tokens, bounds, line_spacing=1, word_spacing=1.05)', 'screen.text(message, bounds, line_height=1, word_spacing=1.05)')
+  }
+  const files: ProjectFile[] = []
+  for (const asset of example.assets) {
+    validateFilePath(asset)
+    source = source.replaceAll(`/system/${asset}`, asset)
+    const assetResponse = await fetch(`/editor-examples/${asset.split('/').map(encodeURIComponent).join('/')}`)
+    if (!assetResponse.ok) throw new Error(`Could not load ${asset}. Try again.`)
+    files.push(projectFile(asset, new Uint8Array(await assetResponse.arrayBuffer())))
+  }
+  files.unshift(projectFile('__init__.py', encoder.encode(source)))
+  const name = `example-${example.file.replace(/\.py$/, '').replaceAll('_', '-')}`
+  return { name, sourceName: name, origin: 'example', activePath: '__init__.py', files }
 }
 
 export async function loadExampleProject(app: EditorCatalogApp): Promise<EditorProject> {
@@ -161,11 +274,45 @@ export function simulationRequest(project: EditorProject) {
   const entry = project.files.find(file => file.path === '__init__.py')
   if (!entry || entry.text === null) throw new Error('Add an editable __init__.py to simulate this app.')
   const root = `/system/apps/${project.name}`
-  const files = project.files.map(file => ({ name: `${root}/${file.path}`, content: fileBytes(file) }))
+  const simulationBytes = (file: ProjectFile) => fileBytes({ ...file, text: file.path.endsWith('.py') && file.text !== null ? simulationSource(file.text) : file.text })
+  const files = project.files.map(file => ({ name: `${root}/${file.path}`, content: simulationBytes(file) }))
+  for (const file of project.supportFiles || []) {
+    validateFilePath(file.path)
+    for (const prefix of ['/system/', '/']) files.push({ name: prefix + file.path, content: simulationBytes(file) })
+  }
   const path = `${root}/__init__.py`
   const program = `import editor_support
-import os, sys\nos.chdir(${JSON.stringify(root)})\nsys.path.insert(0, ${JSON.stringify(root)})\n__file__ = ${JSON.stringify(path)}\nexec(compile(${JSON.stringify(entry.text)}, __file__, 'exec'))`
+import os, sys\nos.chdir(${JSON.stringify(root)})\nsys.path[:0] = [${JSON.stringify(root)}, "/system/lib", "/lib", "/system"]\n__file__ = ${JSON.stringify(path)}\nexec(compile(${JSON.stringify(simulationSource(entry.text))}, __file__, 'exec'))`
   return { program, files }
+}
+
+export function simulationSource(source: string) {
+  let quote = ''
+  let triple = false
+  let escaped = false
+  return source.split('\n').map(line => {
+    const result = !quote ? line.replace(/^(\s*)@micropython\.(native|viper)\s*$/, '$1@editor_support.$2') : line
+    for (let index = 0; index < line.length; index++) {
+      const character = line[index]
+      if (escaped) { escaped = false; continue }
+      if (character === '\\') { escaped = true; continue }
+      if (quote) {
+        if (character === quote && (!triple || line.slice(index, index + 3) === quote.repeat(3))) {
+          if (triple) index += 2
+          quote = ''
+          triple = false
+        }
+      } else if (character === '#') break
+      else if (character === '"' || character === "'") {
+        quote = character
+        triple = line.slice(index, index + 3) === character.repeat(3)
+        if (triple) index += 2
+      }
+    }
+    if (!triple && !escaped) quote = ''
+    escaped = false
+    return result
+  }).join('\n')
 }
 
 export async function readProjectDraft(): Promise<EditorProject | null> {

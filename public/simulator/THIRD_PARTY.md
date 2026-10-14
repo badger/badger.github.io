@@ -1,6 +1,10 @@
 # Bundled runtime notices
 
-The simulator front end is adapted from [badgeware-web-simulator](https://github.com/pimoroni/badgeware-web-simulator/tree/eb3b3fbf27e6e61635aef5de11ab17e6303e8c20). Its MIT notice remains in `LICENSE`, alongside the MicroPython MIT notice. The documents in `licenses/` ship with the static site and cover the compiled dependencies below.
+The simulator front end is adapted from [badgeware-web-simulator](https://github.com/pimoroni/badgeware-web-simulator/tree/eb3b3fbf27e6e61635aef5de11ab17e6303e8c20). Its MIT notice remains in `LICENSE`, alongside the MicroPython MIT notice. The categorized Python examples and their required assets are bundled from the same revision in `../editor-examples/`, with a separate copy of the upstream MIT notice. The documents in `licenses/` ship with the static site and cover the compiled dependencies below.
+
+The shared `world.geo.json` asset comes from [the Tufty firmware assets at ee84772fb7](https://github.com/pimoroni/tufty2350/blob/ee84772fb7f7d5424e9593029caba815c6f89c80/firmware/assets/world.geo.json), under the firmware repository's MIT license. The simulator compatibility helpers are implemented locally; they do not replace badge firmware or get included in app uploads.
+
+The additional ROM fonts were extracted from the user-supplied `badger-d71d98d-with-filesystem.uf2` (SHA-256 `3fc99270c702524533b5528cfde208e6e0c263e012715f1f1ee07ed6a3adb6b8`). The fourteen icon font files match [Gadgetoid/iconfont-ppf at 8612a32402](https://github.com/Gadgetoid/iconfont-ppf/tree/8612a32402ec16f8f6550261446f78317936e7a7/dist) byte for byte. Its [README](https://github.com/Gadgetoid/iconfont-ppf/blob/8612a32402ec16f8f6550261446f78317936e7a7/README.md) attributes the sprites to nikoichu’s 1-bit Pixel Icons; its CC0 notice is retained in `licenses/iconfont-ppf.txt`. The supplied image also provides `badgeware.ppf` and `badgewaremax.ppf`. Only ROM font payloads were extracted; the firmware binary and its writable filesystem are not bundled.
 
 | Component | Notice | Source checked |
 | --- | --- | --- |

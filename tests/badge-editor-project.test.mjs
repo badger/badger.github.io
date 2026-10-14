@@ -7,7 +7,7 @@ async function loadModule(path) {
   const compiled = await build({ entryPoints: [new URL(path, import.meta.url).pathname], bundle: true, format: 'esm', platform: 'node', write: false })
   return import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`)
 }
-const { projectFile, projectCheckpoint, fileBytes, hasProjectChanges, projectUploadBaseline, recordProjectUpload, readBadgeProject, listBadgeApps, simulationRequest, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
+const { projectFile, projectCheckpoint, fileBytes, hasProjectChanges, projectUploadBaseline, removeProjectFile, recordProjectUpload, readBadgeProject, listBadgeApps, simulationRequest, simulationSource, loadSimulatorExample, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')
 const { uploadEditorProject, ExistingAppError } = await loadModule('../src/lib/badge-editor-upload.ts')
 const { getInstallableAppFolders } = await loadModule('../src/lib/github-app-catalog.ts')
 const bytes = text => new TextEncoder().encode(text)
@@ -43,7 +43,7 @@ function fakeDisk(initial, failPath = '', corrupt = false) {
         return directory(key)
       },
       async getFileHandle(name, options) {
-        const key = path + '/' + name
+        const key = path ? path + '/' + name : name
         if (directories.has(key)) throw new DOMException('Is a directory', 'TypeMismatchError')
         if (!files.has(key) && !options?.create) throw new DOMException('Missing file', 'NotFoundError')
         return {
@@ -79,6 +79,31 @@ function project(name = 'new-app') {
   return { name, sourceName: name, origin: 'example', activePath: '__init__.py', files: [projectFile('__init__.py', bytes('print("hello")')), projectFile('helpers.py', bytes('value = 42')), projectFile('assets/icon.png', new Uint8Array([0, 255, 128]))] }
 }
 
+test('shared libraries and assets are staged for simulation and never included in an app upload', async () => {
+  const disk = fakeDisk({
+    'apps/test/__init__.py': 'import helper\nimage.load("/system/assets/icon.png")',
+    'lib/helper.py': 'import companion\nvalue = 42',
+    'lib/companion.py': 'value = 1',
+    'assets/icon.png': new Uint8Array([0, 1, 2]),
+    'secrets.py': 'PRIVATE_SETTING = "do not read"',
+  })
+  const app = await readBadgeProject(disk.root, 'test')
+  assert.deepEqual(app.files.map(file => file.path), ['__init__.py'])
+  assert.deepEqual(app.supportFiles.map(file => file.path).sort(), ['assets/icon.png', 'lib/companion.py', 'lib/helper.py'])
+  assert.ok(simulationRequest(app).files.some(file => file.name === '/system/lib/helper.py'))
+  assert.ok(!disk.reads.includes('secrets.py'))
+  await uploadEditorProject(disk.root, { ...app, name: 'copy' })
+  assert.deepEqual(disk.writes, ['apps/copy/__init__.py'])
+})
+
+test('native decorator fallback preserves line numbers and quoted Python text', () => {
+  const source = 'value = """\n@micropython.viper\n"""\n@micropython.native\ndef work():\n    return value'
+  const result = simulationSource(source)
+  assert.match(result, /value = """\n@micropython.viper\n"""/)
+  assert.match(result, /@editor_support.native\ndef work/)
+  assert.equal(result.split('\n').length, source.split('\n').length)
+})
+
 async function flappyProject() {
   const catalog = JSON.parse(await readFile(new URL('../public/editor-apps/catalog.json', import.meta.url)))
   const app = catalog.apps.find(app => app.name === 'flappy')
@@ -87,6 +112,47 @@ async function flappyProject() {
   current.checkpoint = projectCheckpoint(current)
   return current
 }
+
+test('all 36 simulator examples have packaged source and every referenced asset', async () => {
+  const catalog = JSON.parse(await readFile(new URL('../public/editor-examples/catalog.json', import.meta.url)))
+  const examples = catalog.categories.flatMap(category => category.examples)
+  assert.equal(examples.length, 36)
+  assert.equal(new Set(examples.map(example => example.file)).size, 36)
+  for (const example of examples) {
+    assert.match(example.file, /^[a-z0-9_]+\.py$/)
+    const source = await readFile(new URL(`../public/editor-examples/${example.file}`, import.meta.url), 'utf8')
+    const referenced = [...new Set([...source.matchAll(/["']\/system\/(assets\/[^"']+)["']/g)].map(match => match[1]))]
+    assert.deepEqual(example.assets, referenced)
+    for (const asset of example.assets) assert.ok((await readFile(new URL(`../public/editor-examples/${asset}`, import.meta.url))).length > 0)
+  }
+})
+
+test('simulator examples become editable installable projects with local asset paths', async t => {
+  const catalog = JSON.parse(await readFile(new URL('../public/editor-examples/catalog.json', import.meta.url)))
+  t.mock.method(globalThis, 'fetch', async url => new Response(await readFile(new URL(`../public${url}`, import.meta.url))))
+  for (const example of catalog.categories.flatMap(category => category.examples)) {
+    const loaded = await loadSimulatorExample(example)
+    assert.match(loaded.name, /^example-[a-z0-9-]+$/)
+    assert.equal(loaded.files[0].path, '__init__.py')
+    assert.equal(loaded.files[0].text.includes('/system/assets/'), false)
+    if (['text.py', 'vector_text.py'].includes(example.file)) {
+      assert.match(loaded.files[0].text, /add_glyph\(glyph_name, renderer\)/)
+      assert.match(loaded.files[0].text, /screen.text\(message, bounds/)
+      assert.doesNotMatch(loaded.files[0].text, /^  tokens = text\.tokenise/m)
+    }
+    assert.deepEqual(loaded.files.slice(1).map(file => file.path), example.assets)
+    assert.equal(simulationRequest(loaded).files.length, 1 + example.assets.length)
+    const disk = fakeDisk({})
+    const result = await uploadEditorProject(disk.root, loaded)
+    assert.equal(result.written, loaded.files.length)
+  }
+})
+
+test('missing example assets fail loading instead of creating an incomplete project', async t => {
+  t.mock.method(globalThis, 'fetch', async url => new Response(url.endsWith('sprites.py') ? 'image.load("/system/assets/skull.png")' : '', { status: url.endsWith('sprites.py') ? 200 : 404 }))
+  await assert.rejects(loadSimulatorExample({ file: 'sprites.py', description: 'sprite blit', assets: ['assets/skull.png'] }), /Could not load assets\/skull.png/)
+  await assert.rejects(loadSimulatorExample({ file: '../startup.py', description: '', assets: [] }), /Invalid example filename/)
+})
 
 test('a one-line example edit updates one file in a nine-file app without reading or replacing its other files', async () => {
   const current = await flappyProject()
@@ -372,4 +438,75 @@ test('unsafe file paths are rejected before any device write', async () => {
   const disk = fakeDisk({})
   await assert.rejects(uploadEditorProject(disk.root, current), /relative file path/)
   assert.equal(disk.writes.length, 0)
+})
+
+
+test('deleting a badge file is saved in the draft and applied without rewriting unchanged files', async () => {
+  const disk = fakeDisk({ 'apps/demo/__init__.py': 'source', 'apps/demo/helpers.py': 'helper', 'apps/demo/assets/icon.png': bytes('icon') })
+  const current = await readBadgeProject(disk.root, 'demo')
+  current.checkpoint = projectCheckpoint(current)
+  current.activePath = 'helpers.py'
+  removeProjectFile(current, 'helpers.py')
+  assert.equal(current.activePath, '__init__.py')
+  assert.equal(hasProjectChanges(current), true)
+  const restored = structuredClone(current)
+  disk.reads.length = 0
+  const snapshot = structuredClone(restored)
+  const result = await uploadEditorProject(disk.root, snapshot, { expected: projectUploadBaseline(snapshot) })
+  assert.equal(result.written, 0)
+  assert.equal(result.deleted, 1)
+  assert.equal(disk.files.has('apps/demo/helpers.py'), false)
+  assert.deepEqual(disk.writes, [])
+  assert.deepEqual(disk.reads, ['apps/demo/helpers.py'])
+  assert.equal(disk.files.has('apps/demo/assets/icon.png'), true)
+  recordProjectUpload(restored, snapshot, result.verified)
+  assert.equal(hasProjectChanges(restored), false)
+  assert.equal(restored.removedFiles.length, 0)
+  assert.equal(projectUploadBaseline(restored).has('helpers.py'), false)
+})
+
+test('external edits block deletion before any changed files are written', async () => {
+  const disk = fakeDisk({ 'apps/demo/__init__.py': 'source', 'apps/demo/helpers.py': 'helper' })
+  const current = await readBadgeProject(disk.root, 'demo')
+  current.checkpoint = projectCheckpoint(current)
+  removeProjectFile(current, 'helpers.py')
+  current.files[0].text = 'new source'
+  disk.files.set('apps/demo/helpers.py', bytes('external changes'))
+  await assert.rejects(uploadEditorProject(disk.root, current, { expected: projectUploadBaseline(current) }), /changed on the badge/)
+  assert.deepEqual(disk.writes, [])
+  assert.deepEqual(disk.files.get('apps/demo/helpers.py'), bytes('external changes'))
+})
+
+test('deleted files are restored if a later write fails', async () => {
+  const initial = { 'apps/demo/__init__.py': 'source', 'apps/demo/helpers.py': 'helper' }
+  const disk = fakeDisk(initial, 'apps/demo/__init__.py')
+  const current = await readBadgeProject(disk.root, 'demo')
+  current.checkpoint = projectCheckpoint(current)
+  removeProjectFile(current, 'helpers.py')
+  current.files[0].text = 'new source'
+  await assert.rejects(uploadEditorProject(disk.root, current, { expected: projectUploadBaseline(current) }), /USB disconnected/)
+  for (const [path, text] of Object.entries(initial)) assert.deepEqual(disk.files.get(path), bytes(text))
+})
+
+test('deleting an added file cancels its upload and deleting the entry point is rejected', () => {
+  const current = project('demo')
+  current.checkpoint = projectCheckpoint(current)
+  current.files.push(projectFile('scratch.py', bytes('draft')))
+  removeProjectFile(current, 'scratch.py')
+  assert.equal(current.removedFiles?.length || 0, 0)
+  assert.equal(hasProjectChanges(current), false)
+  assert.throws(() => removeProjectFile(current, '__init__.py'), /entry point/)
+})
+
+test('deleted example files are omitted from a first install and renamed uploads preserve the original app', async () => {
+  const current = project('demo')
+  current.checkpoint = projectCheckpoint(current)
+  removeProjectFile(current, 'helpers.py')
+  const disk = fakeDisk({ 'apps/demo/__init__.py': 'original', 'apps/demo/helpers.py': 'helper' })
+  current.name = 'demo-copy'
+  const result = await uploadEditorProject(disk.root, current)
+  assert.equal(result.deleted, 0)
+  assert.equal(result.written, 2)
+  assert.equal(disk.files.has('apps/demo-copy/helpers.py'), false)
+  assert.deepEqual(disk.files.get('apps/demo/helpers.py'), bytes('helper'))
 })
