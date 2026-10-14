@@ -14,12 +14,12 @@
   "iss_tracker": "View the International Space Station's location on a map and check its crew.",
   "life": "Watch cell patterns evolve in Conway's Game of Life.",
   "mass_storage": "Restart the badge in USB storage mode to manage its files.",
-  "monapet": "Care for your very own Mona!",
+  "monapet": "Care for your very own Mona.",
   "plucky_cluck": "Guide a chicken past obstacles in a Flappy Bird-style game.",
   "rogue": "Explore dungeons and fight monsters in a turn-based game.",
   "sense": "View temperature, humidity, pressure, light, and motion sensor readings.",
   "sketchy_sketch": "Draw on the badge by moving a cursor with the directional controls.",
-  "snarky_sciuridae": "Care for a your very own Squirrel!",
+  "snarky_sciuridae": "Care for your very own Squirrel.",
   "tennis": "Play a Pong-style game against a computer-controlled paddle.",
-  "tomato": "Your very own Pomodoro Timer!"
+  "tomato": "Your very own Pomodoro Timer."
 }
