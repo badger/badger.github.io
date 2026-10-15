@@ -1,21 +1,21 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import ListingHero from '@/components/listing-hero.astro'
-import ManualBuildGuide from '@/content/build-guides/01-vscode-manual-build-and-copy.mdx'
-import SimulatorBuildGuide from '@/content/build-guides/02-vscode-copilot-simulator-first.mdx'
-import CopilotDesktopGuide from '@/content/build-guides/03-copilot-desktop-local-workflow.mdx'
+import VSCodeGuide from '@/content/build-guides/01-vscode.mdx'
+import CopilotAppGuide from '@/content/build-guides/02-copilot-app.mdx'
+import CopilotCLIGuide from '@/content/build-guides/03-copilot-cli.mdx'
 
 const guides = [
-  { title: 'Build in VS Code and copy by hand', Content: ManualBuildGuide },
-  { title: 'Build in VS Code and preview in the simulator', Content: SimulatorBuildGuide },
-  { title: 'Build in the GitHub Copilot desktop app', Content: CopilotDesktopGuide },
+  { title: 'Build with VS Code', Content: VSCodeGuide },
+  { title: 'Build with the GitHub Copilot App', Content: CopilotAppGuide },
+  { title: 'Build with GitHub Copilot CLI', Content: CopilotCLIGuide },
 ]
 ---
 
-<Layout title="Build" description="Choose a workflow to build and test an app for your badge.">
+<Layout title="Build" description="Build a badge app with Copilot on a Windows PC. No coding experience needed.">
   <ListingHero
     title="Build"
-    description="Choose a workflow, then follow its steps to build and test an app for your badge."
+    description="Choose your Copilot tool on the Windows PC. Connect your badge, describe your idea, and let Copilot guide the build and testing."
   />
   <section class="container py-10 sm:py-14">
     <div class="mx-auto max-w-4xl space-y-3">
