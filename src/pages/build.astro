@@ -1,37 +1,78 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import ListingHero from '@/components/listing-hero.astro'
+import BuildGuidePanel from '@/components/build-guide-panel.astro'
 import VSCodeGuide from '@/content/build-guides/01-vscode.mdx'
 import CopilotAppGuide from '@/content/build-guides/02-copilot-app.mdx'
 import CopilotCLIGuide from '@/content/build-guides/03-copilot-cli.mdx'
+import MacVSCodeGuide from '@/content/build-guides/mac/01-vscode.mdx'
+import MacCopilotAppGuide from '@/content/build-guides/mac/02-copilot-app.mdx'
+import MacCopilotCLIGuide from '@/content/build-guides/mac/03-copilot-cli.mdx'
 
-const guides = [
-  { title: 'Build with VS Code', Content: VSCodeGuide },
-  { title: 'Build with the GitHub Copilot App', Content: CopilotAppGuide },
-  { title: 'Build with GitHub Copilot CLI', Content: CopilotCLIGuide },
+const platforms = [
+  {
+    id: 'windows',
+    label: 'Windows',
+    guides: [
+      { title: 'Build with VS Code', Content: VSCodeGuide },
+      { title: 'Build with the GitHub Copilot App', Content: CopilotAppGuide },
+      { title: 'Build with GitHub Copilot CLI', Content: CopilotCLIGuide },
+    ],
+  },
+  {
+    id: 'mac',
+    label: 'Mac',
+    guides: [
+      { title: 'Build with VS Code', Content: MacVSCodeGuide },
+      { title: 'Build with the GitHub Copilot App', Content: MacCopilotAppGuide },
+      { title: 'Build with GitHub Copilot CLI', Content: MacCopilotCLIGuide },
+    ],
+  },
 ]
 ---
 
-<Layout title="Build" description="Build a badge app with Copilot on a Windows PC. No coding experience needed.">
+<Layout title="Build" description="Build a badge app with Copilot on Windows or Mac. No coding experience needed.">
   <ListingHero
     title="Build"
-    description="Choose your Copilot tool on the Windows PC. Connect your badge, describe your idea, and let Copilot guide the build and testing."
+    description="Choose your computer and Copilot tool. Connect your badge, describe your idea, and let Copilot guide the build and testing."
   />
   <section class="container py-10 sm:py-14">
-    <div class="mx-auto max-w-4xl space-y-3">
-      {guides.map(({ title, Content }) => (
-        <details class="group rounded-lg border border-border/60 bg-card/70 open:border-primary/40">
-          <summary class="cursor-pointer list-none px-5 py-4 font-mono text-sm uppercase tracking-[0.08em] text-foreground outline-none transition-colors marker:hidden hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset sm:px-6">
-            <span class="flex items-center justify-between gap-4">
-              {title}
-              <span aria-hidden="true" class="text-primary transition-transform group-open:rotate-45">+</span>
-            </span>
-          </summary>
-          <article class="prose prose-invert max-w-none border-t border-border/50 px-5 py-5 prose-headings:font-display prose-headings:tracking-tight prose-a:text-primary prose-code:text-primary prose-pre:border prose-pre:border-border/60 prose-pre:bg-background sm:px-6">
-            <Content />
-          </article>
-        </details>
+    <div class="platform-picker mx-auto max-w-4xl space-y-6">
+      <fieldset>
+        <legend class="mb-3 font-mono text-sm uppercase tracking-[0.12em]">Choose your computer</legend>
+        <div class="flex flex-wrap gap-3">
+          {platforms.map(({ id, label }) => (
+            <label class="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-lg border border-border/60 px-4 py-2 font-mono text-base uppercase tracking-[0.12em] transition-colors hover:border-primary/50 hover:bg-primary/5 has-[:checked]:border-primary/60 has-[:checked]:bg-primary/5 has-[:checked]:text-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary">
+              <input
+                id={`platform-${id}`}
+                type="radio"
+                name="build-platform"
+                value={id}
+                checked={id === 'windows'}
+                aria-controls={`guides-${id}`}
+                class="h-4 w-4 accent-primary"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      {platforms.map(({ id, label, guides }) => (
+        <section id={`guides-${id}`} data-platform={id} aria-label={`${label} build guides`} class="space-y-3">
+          {guides.map(({ title, Content }) => (
+            <BuildGuidePanel title={title}>
+              <Content />
+            </BuildGuidePanel>
+          ))}
+        </section>
       ))}
     </div>
   </section>
 </Layout>
+
+<style>
+  .platform-picker:has(#platform-windows:checked) [data-platform='mac'],
+  .platform-picker:has(#platform-mac:checked) [data-platform='windows'] {
+    display: none;
+  }
+</style>

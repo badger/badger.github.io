@@ -1,0 +1,100 @@
+# Build with GitHub Copilot CLI on Mac
+
+Copilot CLI is Copilot in a terminal: a window where you type messages and
+commands. Describe your idea in plain language. Copilot builds the app and
+copies it to your connected badge. You test it on the badge.
+
+These steps assume GitHub Copilot CLI, Python 3.10 or newer, and the Mac
+version of `hyb26-skill` are already installed. The skill is a set of
+instructions and tools that helps Copilot build apps for this badge.
+Skill installation is not covered here. You do not need to write code yourself.
+
+## 1. Connect the badge for Copilot CLI on Mac
+
+1. Connect the badge to your Mac with a USB cable that transfers data.
+2. Quickly press the badge's **RESET** button twice. Wait for **USB Disk Mode**.
+3. Open **Finder** and look for **BADGER** under **Locations** in the sidebar.
+   If external disks are hidden, turn them on in **Finder > Settings > Sidebar**.
+4. Leave the badge connected in Disk Mode while Copilot works.
+
+If BADGER does not appear, check the cable and connection before continuing.
+If you see **RP2350**, stop: that drive is for firmware updates, not apps.
+Do not copy files to it, erase the drive, or change the firmware.
+
+## 2. Start a local Copilot CLI session on Mac
+
+1. In Finder, create a folder named **Badge Projects** in Documents, or use
+   your existing local project folder.
+2. Open **Terminal** from Applications > Utilities.
+3. Type `cd` followed by a space, then drag your **Badge Projects** folder
+   from Finder into Terminal. Press **Return** to use that folder.
+4. Type `copilot` and press **Return** to start Copilot CLI. Sign in to
+   GitHub if asked. If Copilot asks you to trust the folder, confirm it is
+   your local project folder before accepting.
+
+If the `copilot` command is not found, complete the Copilot CLI installation
+before continuing. You do not need to create or clone a repository.
+
+Use the local session on this Mac. Do not send the task to a cloud agent,
+which cannot access the connected badge. Once Copilot is running, type your
+request as a chat message, not as a Terminal command.
+
+## 3. Give Copilot CLI your Mac app idea
+
+Copy this prompt into **Copilot CLI**, replace the idea in brackets, and
+press **Return**. For example: "A counter that increases when I press SELECT."
+
+> Use hyb26-skill to build a Universe 2026 badge app. My idea is: [describe
+> your app]. I am new to coding with AI and using macOS. My badge is
+> connected in USB Disk Mode. Ask any necessary questions, then build a small
+> first version. Use the skill's current references and examples on BADGER.
+> Save the app under badge/apps in this local project; give the skill tools
+> explicit project paths, including the scaffold output folder. Use python3
+> and macOS paths, and find BADGER and its actual apps folder. Choose a new
+> app name so you do not replace an existing app. Run the hardware checks,
+> fix errors, review warnings, preview the copy, then install the app without
+> another confirmation question. Do not change firmware, system apps, or
+> credentials. Guide me in plain language when I need to eject, reset, test,
+> or reconnect the badge. Tell me which checks still need my help.
+
+Answer Copilot's questions. If a permission request appears, check that it
+is for your local project, the installed skill tools, or BADGER before
+allowing it. macOS may also ask to let Terminal access Documents or removable
+volumes. Allow only access needed for this work; do not grant broad disk
+access or disable safety settings. Do not use an allow-everything option.
+
+Copilot should check the app before copying it. If the Mac skill or Python
+is missing, stop and complete that setup rather than skip the checks. If
+the badge cannot be identified, ask Copilot to explain what it found before
+continuing. Do not guess a destination.
+
+## 4. Test Copilot CLI's result on your Mac-connected badge
+
+Wait until Copilot says copying has finished. Follow its test steps:
+
+1. In Finder, click the **Eject** button next to **BADGER**. Wait until
+   BADGER disappears from the sidebar. If macOS says it is in use, close
+   files or terminals using the badge and try again; do not force eject.
+2. Press **RESET** once. Open your app from the badge menu.
+3. Try its screens and buttons, then press **HOME** to return to the menu.
+   If the app saves data, reopen it and check the data after a reset too.
+
+Copilot can check files and copy them, but it needs you to report what the
+badge displays and how the controls work. Sensors and wireless features
+need tests on the real badge; passing file checks does not prove they work.
+
+## 5. Continue in Copilot CLI on Mac
+
+Tell Copilot what to change or what went wrong. For an error, type the full
+message, including the file name and line number, or share a clear photo if
+your CLI setup supports it. Before the next copy, reconnect the badge if
+needed and press **RESET** twice to return to Disk Mode.
+
+When updating your own app, tell Copilot it is an update so it uses the
+skill's replacement option and keeps a backup. Do not replace someone
+else's app or change shared badge files.
+
+If Copilot cannot access BADGER, ask it for the full path to your checked
+app folder and the correct destination. You can copy that one folder in
+Finder as a fallback, then eject and test as above. Do not disable broad
+safety settings to give access.
