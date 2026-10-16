@@ -74,11 +74,34 @@ const platforms = [
   const platformPicker = document.querySelector<HTMLSelectElement>('#build-platform')
   const guideSections = document.querySelectorAll<HTMLElement>('[data-platform]')
 
-  platformPicker?.addEventListener('change', () => {
+  const showSelectedPlatform = () => {
+    if (!platformPicker) return
     guideSections.forEach((section) => {
       section.hidden = section.dataset.platform !== platformPicker.value
     })
-  })
+  }
+
+  const revealFragment = () => {
+    let targetId: string
+    try {
+      targetId = decodeURIComponent(window.location.hash.slice(1))
+    } catch {
+      return
+    }
+    const target = document.getElementById(targetId)
+    const section = target?.closest<HTMLElement>('[data-platform]')
+    if (!platformPicker || !target || !section) return
+
+    platformPicker.value = section.dataset.platform ?? 'windows'
+    showSelectedPlatform()
+    target.closest('details')?.setAttribute('open', '')
+    target.scrollIntoView()
+  }
+
+  platformPicker?.addEventListener('change', showSelectedPlatform)
+  window.addEventListener('hashchange', revealFragment)
+  showSelectedPlatform()
+  revealFragment()
 </script>
 
 <style>
