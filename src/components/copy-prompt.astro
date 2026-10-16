@@ -1,0 +1,55 @@
+---
+interface Props {
+  prompt: string
+}
+
+const { prompt } = Astro.props
+---
+
+<div data-copy-prompt>
+  <blockquote>
+    <p data-prompt-text>{prompt}</p>
+  </blockquote>
+  <div class="not-prose flex flex-wrap items-center gap-3">
+    <button
+      type="button"
+      disabled
+      class="inline-flex min-h-10 items-center gap-2.5 rounded-md border border-border/40 bg-transparent px-3 py-2 font-mono text-xs uppercase tracking-[0.12em] transition-colors duration-150 hover:border-primary/50 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" />
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+      </svg>
+      Copy prompt
+    </button>
+    <span role="status" class="font-sans text-sm text-muted-foreground"></span>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('[data-copy-prompt]').forEach((container) => {
+    const button = container.querySelector('button')
+    const status = container.querySelector('[role="status"]')
+    const text = container.querySelector('[data-prompt-text]')?.textContent?.trim()
+
+    if (!button || !status || !text) {
+      throw new Error('Incomplete copy prompt component')
+    }
+
+    button.disabled = false
+    button.addEventListener('click', async () => {
+      button.disabled = true
+      status.textContent = ''
+
+      try {
+        await navigator.clipboard.writeText(text)
+        status.textContent = 'Copied'
+      } catch (error) {
+        console.error('Failed to copy prompt:', error)
+        status.textContent = 'Could not copy. Select the prompt text and copy it.'
+      } finally {
+        button.disabled = false
+      }
+    })
+  })
+</script>
