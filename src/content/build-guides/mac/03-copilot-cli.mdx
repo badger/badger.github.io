@@ -1,3 +1,5 @@
+import CopyPrompt from '@/components/copy-prompt.astro'
+
 # Build with GitHub Copilot CLI on Mac
 
 Copilot CLI is Copilot in a terminal: a window where you type messages and
@@ -23,39 +25,30 @@ Do not copy files to it, erase the drive, or change the firmware.
 
 ## 2. Start a local Copilot CLI session on Mac
 
-1. In Finder, create a folder named **Badge Projects** in Documents, or use
-   your existing local project folder.
-2. Open **Terminal** from Applications > Utilities.
-3. Type `cd` followed by a space, then drag your **Badge Projects** folder
-   from Finder into Terminal. Press **Return** to use that folder.
-4. Type `copilot` and press **Return** to start Copilot CLI. Sign in to
-   GitHub if asked. If Copilot asks you to trust the folder, confirm it is
-   your local project folder before accepting.
+1. Open the **Copilot CLI** terminal prepared for you in the local **Badge
+   Projects** folder.
+2. If Copilot asks you to trust the folder, confirm it is the local **Badge
+   Projects** folder before accepting.
+3. Use the local session on this Mac. Do not send the task to a cloud agent,
+   which cannot access the connected badge.
 
-If the `copilot` command is not found, complete the Copilot CLI installation
-before continuing. You do not need to create or clone a repository.
+If no session is ready, open Finder and find **Badge Projects** in Documents.
+If it is missing, ask a volunteer for help. Open **Terminal** from
+Applications > Utilities. Type `cd` followed by a space, then drag your
+**Badge Projects** folder from Finder into Terminal. Press **Return** to use
+that folder. Type `copilot` and press **Return** to start Copilot CLI. If the
+command is not found, ask a volunteer for help.
 
-Use the local session on this Mac. Do not send the task to a cloud agent,
-which cannot access the connected badge. Once Copilot is running, type your
-request as a chat message, not as a Terminal command.
+You do not need a repository or any other setup commands. Once Copilot is
+running, type your request as a chat message, not as a Terminal command.
 
 ## 3. Give Copilot CLI your Mac app idea
 
-Copy this prompt into **Copilot CLI**, replace the idea in brackets, and
-press **Return**. For example: "A counter that increases when I press SELECT."
+Tell **Copilot CLI** what you want to make and ask it to use `hyb26-skill`.
+The prompt below is only an example. You do not need to copy it or use it
+as written; describe your own idea in your own words.
 
-> Use hyb26-skill to build a Universe 2026 badge app. My idea is: [describe
-> your app]. I am new to coding with AI and using macOS. My badge is
-> connected in USB Disk Mode. Ask any necessary questions, then build a small
-> first version. Use the skill's current references and examples on BADGER.
-> Save the app under badge/apps in this local project; give the skill tools
-> explicit project paths, including the scaffold output folder. Use python3
-> and macOS paths, and find BADGER and its actual apps folder. Choose a new
-> app name so you do not replace an existing app. Run the hardware checks,
-> fix errors, review warnings, preview the copy, then install the app without
-> another confirmation question. Do not change firmware, system apps, or
-> credentials. Guide me in plain language when I need to eject, reset, test,
-> or reconnect the badge. Tell me which checks still need my help.
+<CopyPrompt prompt="Use hyb26-skill to make a badge app with a counter that increases when I press SELECT. Walk me through anything I need to do with the badge using plain English." />
 
 Answer Copilot's questions. If a permission request appears, check that it
 is for your local project, the installed skill tools, or BADGER before
@@ -63,10 +56,9 @@ allowing it. macOS may also ask to let Terminal access Documents or removable
 volumes. Allow only access needed for this work; do not grant broad disk
 access or disable safety settings. Do not use an allow-everything option.
 
-Copilot should check the app before copying it. If the Mac skill or Python
-is missing, stop and complete that setup rather than skip the checks. If
-the badge cannot be identified, ask Copilot to explain what it found before
-continuing. Do not guess a destination.
+Copilot should check the app before copying it. If the skill or Python is
+missing, or Copilot cannot identify the badge, ask staff for help rather
+than skip the checks.
 
 ## 4. Test Copilot CLI's result on your Mac-connected badge
 
@@ -85,10 +77,13 @@ need tests on the real badge; passing file checks does not prove they work.
 
 ## 5. Continue in Copilot CLI on Mac
 
-Tell Copilot what to change or what went wrong. For an error, type the full
-message, including the file name and line number, or share a clear photo if
-your CLI setup supports it. Before the next copy, reconnect the badge if
-needed and press **RESET** twice to return to Disk Mode.
+Tell Copilot what you want to change. If the badge shows an error, provide
+the error message to Copilot as best as you can and ask it to try to fix
+it. If anything is unclear, ask a volunteer for help.
+
+Before copying a fix, reconnect the badge if needed and press **RESET**
+twice to return to Disk Mode. Follow Copilot's steps to copy and test the
+updated app.
 
 When updating your own app, tell Copilot it is an update so it uses the
 skill's replacement option and keeps a backup. Do not replace someone

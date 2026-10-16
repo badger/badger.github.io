@@ -1,3 +1,5 @@
+import CopyPrompt from '@/components/copy-prompt.astro'
+
 # Build with VS Code on Mac
 
 Describe your idea in Copilot Chat. Copilot builds the app and copies it to
@@ -22,34 +24,23 @@ Do not copy files to it, erase the drive, or change the firmware.
 
 ## 2. Open Copilot Chat on Mac
 
-1. In Finder, create a folder named **Badge Projects** in Documents, or use
-   your existing local project folder.
-2. Open **VS Code**, choose **File > Open Folder**, and select that folder.
-3. Open **Copilot Chat** with **Control + Command + I**. Sign in to GitHub
-   if asked.
-4. Start a new chat and select **Agent** so Copilot can create files and run
+1. Open **VS Code** and use the **Badge Projects** folder prepared for you.
+2. Open **Copilot Chat** with **Control + Command + I**.
+3. Start a new chat and select **Agent** so Copilot can create files and run
    the badge tools. Work locally on this Mac, not in a cloud session.
 
-This folder is just a place to save your work. Copilot creates the app files
-inside it. You do not need to create or clone a repository.
+If no folder is open, choose **File > Open Folder** and select **Badge
+Projects** in Documents. If it is missing, ask a volunteer for help.
+This folder is just a place to save your work. Copilot creates the app
+files inside it. You do not need a repository.
 
 ## 3. Give VS Code your Mac app idea
 
-Copy this prompt into **Copilot Chat**, replace the idea in brackets, and
-press **Return**. For example: "A counter that increases when I press SELECT."
+Tell **Copilot Chat** what you want to make and ask it to use `hyb26-skill`.
+The prompt below is only an example. You do not need to copy it or use it
+as written; describe your own idea in your own words.
 
-> Use hyb26-skill to build a Universe 2026 badge app. My idea is: [describe
-> your app]. I am new to coding with AI and using macOS. My badge is
-> connected in USB Disk Mode. Ask any necessary questions, then build a small
-> first version. Use the skill's current references and examples on BADGER.
-> Save the app under badge/apps in this local project; give the skill tools
-> explicit project paths, including the scaffold output folder. Use python3
-> and macOS paths, and find BADGER and its actual apps folder. Choose a new
-> app name so you do not replace an existing app. Run the hardware checks,
-> fix errors, review warnings, preview the copy, then install the app without
-> another confirmation question. Do not change firmware, system apps, or
-> credentials. Guide me in plain language when I need to eject, reset, test,
-> or reconnect the badge. Tell me which checks still need my help.
+<CopyPrompt prompt="Use hyb26-skill to make a badge app with a counter that increases when I press SELECT. Walk me through anything I need to do with the badge using plain English." />
 
 Answer Copilot's questions. If a permission request appears, check that it
 is for your local project, the installed skill tools, or BADGER before
@@ -57,10 +48,9 @@ allowing it. macOS may also ask to let VS Code access Documents or removable
 volumes. Allow only access needed for this work; do not grant broad disk
 access or disable safety settings.
 
-Copilot should check the app before copying it. If the Mac skill or Python
-is missing, stop and complete that setup rather than skip the checks. If
-the badge cannot be identified, ask Copilot to explain what it found before
-continuing. Do not guess a destination.
+Copilot should check the app before copying it. If the skill or Python is
+missing, or Copilot cannot identify the badge, ask staff for help rather
+than skip the checks.
 
 ## 4. Test the VS Code app on your Mac-connected badge
 
@@ -79,10 +69,13 @@ need tests on the real badge; passing file checks does not prove they work.
 
 ## 5. Continue in VS Code on Mac
 
-Tell Copilot what to change or what went wrong. For an error, provide the
-full message or a clear photo, including the file name and line number.
-Before the next copy, reconnect the badge if needed and press **RESET**
-twice to return to Disk Mode.
+Tell Copilot what you want to change. If the badge shows an error, provide
+the error message to Copilot as best as you can and ask it to try to fix
+it. If anything is unclear, ask a volunteer for help.
+
+Before copying a fix, reconnect the badge if needed and press **RESET**
+twice to return to Disk Mode. Follow Copilot's steps to copy and test the
+updated app.
 
 When updating your own app, tell Copilot it is an update so it uses the
 skill's replacement option and keeps a backup. Do not replace someone

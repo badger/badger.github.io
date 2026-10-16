@@ -1,3 +1,5 @@
+import CopyPrompt from '@/components/copy-prompt.astro'
+
 # Build with VS Code
 
 Describe your idea in Copilot Chat. Copilot builds the app and copies it to
@@ -23,32 +25,22 @@ or change the firmware.
 ## 2. Open Copilot Chat in VS Code
 
 1. Open **VS Code** and use the **Badge Projects** folder prepared by staff.
-2. Open **Copilot Chat** with **Ctrl + Alt + I**. Sign in to GitHub if asked.
+2. Open **Copilot Chat** with **Ctrl + Alt + I**.
 3. Start a new chat and select **Agent** so Copilot can create files and run
    the badge tools. Work locally on this PC, not in a cloud session.
 
 If no folder is open, choose **File > Open Folder** and select **Badge
-Projects** in Documents. If it is missing, create that folder in File
-Explorer, then open it in VS Code. This is just a place to save your work;
-Copilot creates the app files inside it. You do not need a repository.
+Projects** in Documents. If it is missing, ask a volunteer for help.
+This folder is just a place to save your work. Copilot creates the app
+files inside it. You do not need a repository.
 
 ## 3. Give VS Code your app idea
 
-Copy this prompt into **Copilot Chat**, replace the idea in brackets, and
-press **Enter**. For example: "A counter that increases when I press SELECT."
+Tell **Copilot Chat** what you want to make and ask it to use `hyb26-skill`.
+The prompt below is only an example. You do not need to copy it or use it
+as written; describe your own idea in your own words.
 
-> Use hyb26-skill to build a Universe 2026 badge app. My idea is: [describe
-> your app]. I am new to coding with AI and using Windows. My badge is
-> connected in USB Disk Mode. Ask any necessary questions, then build a small
-> first version. Use the skill's current references and examples on BADGER.
-> Save the app under badge/apps in this local project; give the skill tools
-> explicit project paths, including the scaffold output folder. Find BADGER
-> and its actual apps folder; do not guess a drive letter. Choose a new app
-> name so you do not replace an existing app. Run the hardware checks, fix
-> errors, review warnings, preview the copy, then install the app without
-> another confirmation question. Do not change firmware, system apps, or
-> credentials. Guide me in plain language when I need to eject, reset, test,
-> or reconnect the badge. Tell me which checks still need my help.
+<CopyPrompt prompt="Use hyb26-skill to make a badge app with a counter that increases when I press SELECT. Walk me through anything I need to do with the badge using plain English." />
 
 Answer Copilot's questions. If a permission request appears, check that it
 is for your local project, the installed skill tools, or BADGER before
@@ -75,10 +67,13 @@ need tests on the real badge; passing file checks does not prove they work.
 
 ## 5. Continue in VS Code
 
-Tell Copilot what to change or what went wrong. For an error, provide the
-full message or a clear photo, including the file name and line number.
-Before the next copy, reconnect the badge if needed and press **RESET**
-twice to return to Disk Mode.
+Tell Copilot what you want to change. If the badge shows an error, provide
+the error message to Copilot as best as you can and ask it to try to fix
+it. If anything is unclear, ask a volunteer for help.
+
+Before copying a fix, reconnect the badge if needed and press **RESET**
+twice to return to Disk Mode. Follow Copilot's steps to copy and test the
+updated app.
 
 When updating your own app, tell Copilot it is an update so it uses the
 skill's replacement option and keeps a backup. Do not replace someone
