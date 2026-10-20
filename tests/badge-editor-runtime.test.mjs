@@ -176,7 +176,7 @@ print('Firmware fonts passed')
 test('shipping firmware shared assets and helper APIs are available in the real simulator', async () => {
   const result = await run(request(`
 import missing_details, wifi
-for path in ('skull.png', 'icons.png', 'cards.png', 'tufty.png', 'squirrel-sprites/running.png'):
+for path in ('skull.png', 'icons.png', 'cards.png', 'tufty.png', 'background.png', 'sparkle/invertocat.png', 'squirrel-sprites/running.png'):
     assert image.load('/system/assets/' + path)
 assert font.load('/system/assets/fonts/lato-400.af') and font.load('/system/assets/fonts/lato-900.af')
 assert wifi.failure() and not wifi.is_connected()
