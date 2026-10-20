@@ -1,0 +1,92 @@
+import CopyPrompt from '@/components/copy-prompt.astro'
+
+# Build with GitHub Copilot CLI
+
+Copilot CLI is Copilot in a terminal: a window where you type messages and
+commands. Describe your idea in plain language. Copilot builds the app and
+copies it to your connected badge. You test it on the badge.
+
+The Windows PC already has `hyb26-skill`, a set of instructions and tools
+that helps Copilot build apps for this badge. You do not need to install
+the skill or write code yourself.
+
+## 1. Connect the badge for Copilot CLI
+
+1. Connect the badge to the PC with a USB cable that transfers data.
+2. Quickly press the badge's **RESET** button twice. Wait for **USB Disk Mode**.
+3. Press **Windows key + E** to open File Explorer. Select **This PC** and
+   find the **BADGER** drive. Windows adds a drive letter; yours may differ
+   from someone else's.
+4. Leave the badge connected in Disk Mode while Copilot works.
+
+If BADGER does not appear, ask event staff for help. If you see **RP2350**,
+stop: that drive is for firmware updates, not apps. Do not copy files to it
+or change the firmware.
+
+## 2. Open the prepared Copilot CLI session
+
+1. Open the **Copilot CLI** terminal prepared by staff in the local **Badge
+   Projects** folder.
+2. If Copilot asks you to trust the folder,
+   confirm it is the local **Badge Projects** folder before accepting.
+3. Use the local session on this PC. Do not send the task to a cloud agent,
+   which cannot access the connected badge.
+
+If no session is ready, open File Explorer and find **Badge Projects** in
+Documents. If it is missing, ask a volunteer for help. Open the existing
+folder, right-click an empty space, and choose **Open in Terminal**.
+In PowerShell, type `copilot` and press **Enter** to start Copilot CLI.
+If the command is not found, ask a volunteer for help.
+
+You do not need a repository or any other setup commands. Once Copilot is
+running, type your request as a chat message, not as a PowerShell command.
+
+## 3. Give Copilot CLI your app idea
+
+Tell **Copilot CLI** what you want to make and ask it to use `hyb26-skill`.
+The prompt below is only an example. You do not need to copy it or use it
+as written; describe your own idea in your own words.
+
+<CopyPrompt prompt="Use hyb26-skill to make a badge app with a counter that increases when I press SELECT. Walk me through anything I need to do with the badge using plain English." />
+
+Answer Copilot's questions. If a permission request appears, check that it
+is for your local project, the installed skill tools, or BADGER before
+allowing it. You may still need to approve a tool action; the prompt does
+not bypass those controls. Do not use an allow-everything option.
+
+Copilot should check the app before copying it. If the skill or Python is
+missing, or Copilot cannot identify the badge, ask staff for help rather
+than skip the checks.
+
+## 4. Test Copilot CLI's result on your badge
+
+Wait until Copilot says copying has finished. Follow its test steps:
+
+1. In File Explorer, right-click **BADGER** and choose **Eject**. Wait until
+   Windows confirms it is safe to remove or the drive disappears.
+2. Press **RESET** once. Open your app from the badge menu.
+3. Try its screens and buttons, then press **HOME** to return to the menu.
+   If the app saves data, reopen it and check the data after a reset too.
+
+Copilot can check files and copy them, but it needs you to report what the
+badge displays and how the controls work. Sensors and wireless features
+need tests on the real badge; passing file checks does not prove they work.
+
+## 5. Continue in Copilot CLI
+
+Tell Copilot what you want to change. If the badge shows an error, provide
+the error message to Copilot as best as you can and ask it to try to fix
+it. If anything is unclear, ask a volunteer for help.
+
+Before copying a fix, reconnect the badge if needed and press **RESET**
+twice to return to Disk Mode. Follow Copilot's steps to copy and test the
+updated app.
+
+When updating your own app, tell Copilot it is an update so it uses the
+skill's replacement option and keeps a backup. Do not replace someone
+else's app or change shared badge files.
+
+If Copilot cannot access BADGER, ask it for the full path to your checked
+app folder and the correct destination. You can copy that one folder in
+File Explorer as a fallback, then eject and test as above. Do not disable
+broad safety settings to give access.

@@ -2,10 +2,20 @@
 import Layout from '@/layouts/Layout.astro'
 import ListingHero from '@/components/listing-hero.astro'
 
+interface LinkStep {
+  type: 'link'
+  before: string
+  href: string
+  label: string
+  after: string
+}
+
+type Step = string | LinkStep
+
 interface Task {
   id: string
   label: string
-  steps: string[]
+  steps: Step[]
 }
 
 const tasks: Task[] = [
@@ -45,8 +55,8 @@ const tasks: Task[] = [
     id: 'usb-disk',
     label: 'USB Disk Mode',
     steps: [
-      'Double-press RESET quickly. The bootloader mounts as `BADGER` or `TUFTY` and a message on the badge screen will let you know you\'re in disk mode.',
-      'Connect your badge to your computer and copy apps or assets onto the drive. Keep filenames ≤31 characters for FAT.',
+      'Double-press RESET quickly. The bootloader mounts as `BADGER` and a message on the badge screen will let you know you\'re in disk mode.',
+      'Connect your badge to your computer and copy apps or assets onto the drive. Keep filenames ≤ 31 characters for FAT.',
       'Eject the drive from your OS, then tap RESET once to reboot into MonaOS.',
     ],
   },
@@ -54,10 +64,16 @@ const tasks: Task[] = [
     id: 'flash',
     label: 'Flash Firmware',
     steps: [
-      'Download the `.uf2` asset from the newest release at https://github.com/badger/home/releases. Check the release notes and back up your files before flashing; factory-restoration images delete the badge filesystem.',
+      {
+        type: 'link',
+        before: 'Download the `.uf2` asset from the newest release at ',
+        href: 'https://github.com/badger/home/releases',
+        label: 'https://github.com/badger/home/releases',
+        after: '. Check the release notes and back up your files before flashing; factory-restoration images delete the badge filesystem.',
+      },
       'Plug your badge into your computer.',
       'Hold HOME, tap RESET once, then release HOME when the `RP2350` drive appears in your Finder window or File Explorer. Your badge screen will go dark.',
-      'Drag the .uf2 file onto the `RP2350` volume. The badge reboots automatically after flashing.',
+      'Drag the .uf2 file onto the `RP2350` volume. The badge reboots automatically after flashing. This can take a few minutes.',
     ],
   },
 ]
@@ -84,12 +100,27 @@ const tasks: Task[] = [
             </a>
           </header>
           <ol class="divide-y divide-border/60">
-            {task.steps.map((step: string, index: number) => (
+            {task.steps.map((step: Step, index: number) => (
               <li class="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 px-6 py-4">
                 <span class="pt-0.5 font-mono text-xs tracking-[0.14em] text-primary/70">
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <span class="text-sm leading-6 text-foreground/90 sm:text-base sm:leading-7">{step}</span>
+                <span class="text-sm leading-6 text-foreground/90 sm:text-base sm:leading-7">
+                  {typeof step === 'string' ? step : (
+                    <>
+                      {step.before}
+                      <a
+                        href={step.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-primary underline decoration-primary/60 underline-offset-4 transition-colors hover:text-primary/80 hover:decoration-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60"
+                      >
+                        {step.label}
+                      </a>
+                      {step.after}
+                    </>
+                  )}
+                </span>
               </li>
             ))}
           </ol>
