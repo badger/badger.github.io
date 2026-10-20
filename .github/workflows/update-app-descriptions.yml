@@ -1,8 +1,8 @@
 name: Update app descriptions
 
 on:
-  repository_dispatch:
-    types: [apps-updated]
+  schedule:
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -22,7 +22,7 @@ jobs:
           cache: npm
       - name: Regenerate app descriptions
         env:
-          APPS_REF: ${{ github.event.client_payload.sha || 'main' }}
+          APPS_REF: main
           GITHUB_TOKEN: ${{ github.token }}
         run: npm run sync:app-descriptions
       # PRs created with GITHUB_TOKEN do not trigger ci.yml, so validate here.
