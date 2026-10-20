@@ -73,7 +73,7 @@ To update descriptions:
 
 1. Edit the app's `README.md` in `badger/home` so its first paragraph starts with
    one plain-text sentence.
-2. After the change merges to `main`, the hourly `Update app descriptions`
+2. After the change merges to `main`, the nightly `Update app descriptions`
    workflow reads `badger/home` and opens a pull request here. To run it by hand, use `workflow_dispatch` or run
    `npm run sync:app-descriptions` on a website working branch.
 3. Run `npm run test:app-descriptions` and `npm run build`, then submit the saved

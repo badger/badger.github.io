@@ -16,7 +16,7 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 
 - The `/apps/` app store's descriptions are generated from the first sentence of each app's `README.md` in `badger/home` (same logic as `badger/badgerfactory` PR #19).
 - When adding an installable app to the store, give its README a plain-text first sentence. Keys are the exact `badger/home/badge/apps/` folder names and must match `^[a-z0-9][a-z0-9_-]*$`.
-- The `Update app descriptions` workflow runs hourly (and on demand), reads `badger/home` `main`, and runs `npm run sync:app-descriptions` and opens a PR. You can also run it on a website branch.
+- The `Update app descriptions` workflow runs nightly (and on demand), reads `badger/home` `main`, and runs `npm run sync:app-descriptions` and opens a PR. You can also run it on a website branch.
 - `src/data/app-descriptions.json` is generated; do not edit it by hand or maintain a second description list.
 - Do not depend on `badger/badgerfactory` for descriptions; the sync reads only public `badger/home` content.
 - Preserve existing description wording, including exclamation marks; app descriptions are an exception to the punctuation rule for labels and instructions.
