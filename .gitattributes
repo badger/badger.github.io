@@ -1,0 +1,3 @@
+# Simulator files are served with byte sizes from filesystem.json, so keep LF on every platform
+public/simulator/filesystem/** text=auto eol=lf
+
