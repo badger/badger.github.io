@@ -2,7 +2,13 @@ import { Box3, CanvasTexture, DirectionalLight, DoubleSide, HemisphereLight, Lin
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
-export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, button: (bit: number, pressed: boolean) => void, signal: AbortSignal, onError: (error: unknown) => void) {
+export interface BadgeModelControls {
+  reset: HTMLButtonElement
+  screen: HTMLButtonElement
+  status: HTMLElement
+}
+
+export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, button: (bit: number, pressed: boolean) => void, signal: AbortSignal, onError: (error: unknown) => void, elements?: BadgeModelControls) {
   const display = document.createElement('canvas')
   display.width = 640
   display.height = 438
@@ -42,9 +48,9 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   const targets = new Map<Object3D, number>()
   const caps = new Map<number, { mesh: Mesh; z: number; material: MeshStandardMaterial }>()
   const discarded = new Set<Material>()
-  const resetButton = document.getElementById('reset-badge-view') as HTMLButtonElement
-  const screenButton = document.getElementById('focus-badge-screen') as HTMLButtonElement
-  const status = document.getElementById('model-status')!
+  const resetButton = elements?.reset ?? document.getElementById('reset-badge-view') as HTMLButtonElement
+  const screenButton = elements?.screen ?? document.getElementById('focus-badge-screen') as HTMLButtonElement
+  const status = elements?.status ?? document.getElementById('model-status')!
   let model: Object3D | undefined
   let displayMesh: Mesh | undefined
   let active: { pointer: number; bit: number } | undefined

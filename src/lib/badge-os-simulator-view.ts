@@ -1,4 +1,5 @@
 import { BadgeInput, initBadgeKeyboard } from './badge-editor-input'
+import { createBadgeModelController } from './badge-editor-model-controller'
 import { loadBadgeOs } from './badge-os-simulator'
 
 const bootTimeout = 20000
@@ -6,6 +7,13 @@ const frameTimeout = 10000
 
 function supportsSimulator() {
   if (typeof Worker !== 'function' || typeof WebAssembly !== 'object' || typeof ImageData !== 'function') return false
+  try {
+    const gl = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl')
+    if (!gl) return false
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
+  } catch {
+    return false
+  }
   let moduleWorkers = false
   try {
     const probe = new Worker(URL.createObjectURL(new Blob([''], { type: 'text/javascript' })), { get type() { moduleWorkers = true; return 'module' as const } })
@@ -17,10 +25,15 @@ function supportsSimulator() {
 }
 
 export function initBadgeOsSimulator(root: HTMLElement) {
-  const fallback = root.querySelector<HTMLElement>('[data-fallback]')!
+  const host = root.querySelector<HTMLElement>('[data-model]')!
   const simulator = root.querySelector<HTMLElement>('[data-simulator]')!
-  const canvas = root.querySelector<HTMLCanvasElement>('canvas')!
+  const screen = root.querySelector<HTMLCanvasElement>('[data-screen]')!
   const status = root.querySelector<HTMLElement>('[data-status]')!
+  const controls = {
+    reset: root.querySelector<HTMLButtonElement>('[data-model-reset]')!,
+    screen: root.querySelector<HTMLButtonElement>('[data-model-screen]')!,
+    status: root.querySelector<HTMLElement>('[data-model-status]')!,
+  }
   const keys = [...root.querySelectorAll<HTMLButtonElement>('[data-button]')]
   if (!supportsSimulator()) return
 
@@ -30,13 +43,8 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   let timer = 0
   let visible = false
   let failed = false
-
-  const input = new BadgeInput(mask => {
-    worker?.postMessage({ buttons: mask })
-    for (const key of keys) key.dataset.pressed = String((mask & Number(key.dataset.button)) !== 0)
-  })
-  const removeKeyboard = initBadgeKeyboard(simulator, input)
-  signal.addEventListener('abort', removeKeyboard)
+  let framed = false
+  let modelReady = false
 
   const fail = (reason: unknown) => {
     if (failed) return
@@ -46,9 +54,30 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     worker?.terminate()
     worker = null
     controller.abort()
-    simulator.hidden = true
-    fallback.hidden = false
+    model.dispose()
     root.dataset.state = 'fallback'
+  }
+
+  const model = createBadgeModelController(async (modelSignal, modelFail) => {
+    const { initBadgeModel } = await import('./badge-editor-model')
+    if (modelSignal.aborted) throw new Error('3D loading cancelled.')
+    const view = initBadgeModel(host, screen, (bit, pressed) => input.set('model', bit, pressed), modelSignal, modelFail, controls)
+    void view.ready.then(() => { modelReady = true; reveal() }, () => {})
+    return view
+  }, fail)
+
+  const input = new BadgeInput(mask => {
+    worker?.postMessage({ buttons: mask })
+    for (const key of keys) key.dataset.pressed = String((mask & Number(key.dataset.button)) !== 0)
+    model.setButtons(mask)
+  })
+  const removeKeyboard = initBadgeKeyboard(simulator, input)
+  signal.addEventListener('abort', removeKeyboard)
+
+  function reveal() {
+    if (failed || !framed || !modelReady || root.dataset.state === 'running') return
+    root.dataset.state = 'running'
+    status.textContent = 'Running BadgeOS'
   }
 
   const pause = () => worker?.postMessage({ pause: document.hidden || !visible })
@@ -58,6 +87,8 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   }
 
   async function boot() {
+    root.dataset.state = 'loading'
+    model.start()
     try {
       const request = await loadBadgeOs()
       if (failed) return
@@ -81,21 +112,20 @@ export function initBadgeOsSimulator(root: HTMLElement) {
           pause()
         }
         if (data.frame) {
-          clearTimeout(timer)
           const { width, height, buffer } = data.frame
-          if (canvas.width !== width || canvas.height !== height) {
-            canvas.width = width
-            canvas.height = height
+          if (screen.width !== width || screen.height !== height) {
+            screen.width = width
+            screen.height = height
           }
-          canvas.getContext('2d')?.putImageData(new ImageData(new Uint8ClampedArray(buffer), width, height), 0, 0)
-          if (root.dataset.state !== 'running') {
-            root.dataset.state = 'running'
-            fallback.hidden = true
-            simulator.hidden = false
-            status.textContent = 'Running BadgeOS'
+          screen.getContext('2d')?.putImageData(new ImageData(new Uint8ClampedArray(buffer), width, height), 0, 0)
+          model.updateFrame()
+          if (!framed) {
+            framed = true
+            clearTimeout(timer)
+            reveal()
           }
         }
-        if (data.backlight !== undefined) canvas.style.opacity = String(Math.max(0.15, Math.min(1, data.backlight)))
+        if (data.backlight !== undefined) model.setBacklight(Math.max(0.15, Math.min(1, data.backlight)))
       }
     } catch (error) {
       fail(error)
@@ -115,8 +145,8 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     key.addEventListener('lostpointercapture', release, { signal })
     key.addEventListener('contextmenu', event => event.preventDefault(), { signal })
   }
-  canvas.addEventListener('pointerdown', () => canvas.focus(), { signal })
   document.addEventListener('visibilitychange', () => { input.clear(); pause() }, { signal })
+  window.addEventListener('pagehide', event => { if (!event.persisted) { worker?.terminate(); model.dispose() } }, { signal })
 
   let started = false
   const observer = new IntersectionObserver(([entry]) => {
