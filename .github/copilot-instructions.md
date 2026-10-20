@@ -14,12 +14,12 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 
 ## App Store Descriptions and Navigation
 
-- The `/apps/` app store's description source is `app-descriptions.json` in `badger/badgerfactory`.
-- When adding an installable app to the store, add its description to that source file in the same badgerfactory change. Use the exact `badger/home/badge/apps/` folder name as the key, write one concise plain-text sentence, and keep every installable store app covered.
-- Only the approved description file may be copied from that private repository.
-- After source changes are reviewed and merged, run `npm run sync:app-descriptions` on a website branch.
+- The `/apps/` app store's descriptions are generated from the first sentence of each app's `README.md` in `badger/home` (same logic as `badger/badgerfactory` PR #19).
+- When adding an installable app to the store, give its README a plain-text first sentence. Keys are the exact `badger/home/badge/apps/` folder names and must match `^[a-z0-9][a-z0-9_-]*$`.
+- The `Update app descriptions` workflow runs nightly (and on demand), reads `badger/home` `main`, and runs `npm run sync:app-descriptions` and opens a PR. You can also run it on a website branch.
 - `src/data/app-descriptions.json` is generated; do not edit it by hand or maintain a second description list.
-- Preserve approved app description wording, including exclamation marks; app descriptions are an exception to the punctuation rule for labels and instructions.
+- Do not depend on `badger/badgerfactory` for descriptions; the sync reads only public `badger/home` content.
+- Preserve existing description wording, including exclamation marks; app descriptions are an exception to the punctuation rule for labels and instructions.
 - Keep app downloads in `badger/home`; builds and browser code must not need private-repository access.
 - The store and description coverage exclude `menu`, `startup`, and `quest` through the shared catalog helper.
 - Local app content descriptions still serve `/browse-apps/` and individual app pages.
