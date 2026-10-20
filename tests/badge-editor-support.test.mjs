@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
@@ -13,7 +14,7 @@ test('simulator lazy filesystem sizes match the shipped modules and assets', asy
 })
 
 test('Contacts firmware helpers render locally without pretending to connect or send data', () => {
-  const output = execFileSync('python3', [new URL('./fixtures/badge-editor-support.py', import.meta.url).pathname], { encoding: 'utf8', env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } })
+  const output = execFileSync('python3', [fileURLToPath(new URL('./fixtures/badge-editor-support.py', import.meta.url))], { encoding: 'utf8', env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } })
   assert.match(output, /badge-to-badge communication is unavailable/)
   assert.match(output, /Contacts helper checks passed/)
 })

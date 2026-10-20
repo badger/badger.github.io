@@ -1,8 +1,9 @@
+import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { build } from 'esbuild'
 
-const compiled = await build({ entryPoints: [new URL('../src/lib/badge-editor-picker.ts', import.meta.url).pathname], bundle: true, format: 'esm', platform: 'node', write: false })
+const compiled = await build({ entryPoints: [fileURLToPath(new URL('../src/lib/badge-editor-picker.ts', import.meta.url))], bundle: true, format: 'esm', platform: 'node', write: false })
 const { initProjectPicker } = await import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`)
 const flush = () => new Promise(resolve => setImmediate(resolve))
 for (const key of ['window', 'document', 'ImageData', 'Worker', 'IntersectionObserver']) Object.defineProperty(globalThis, key, { value: undefined, writable: true, configurable: true })

@@ -1,10 +1,11 @@
+import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile, readdir } from 'node:fs/promises'
 import { build } from 'esbuild'
 
 async function loadModule(path) {
-  const compiled = await build({ entryPoints: [new URL(path, import.meta.url).pathname], bundle: true, format: 'esm', platform: 'node', write: false })
+  const compiled = await build({ entryPoints: [fileURLToPath(new URL(path, import.meta.url))], bundle: true, format: 'esm', platform: 'node', write: false })
   return import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`)
 }
 const { projectFile, projectCheckpoint, fileBytes, hasProjectChanges, projectUploadBaseline, removeProjectFile, recordProjectUpload, readBadgeProject, listBadgeApps, simulationRequest, simulationSource, loadSimulatorExample, validateFilePath } = await loadModule('../src/lib/badge-editor-project.ts')

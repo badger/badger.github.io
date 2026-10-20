@@ -1,8 +1,9 @@
+import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { build } from 'esbuild'
 
-const compiled = await build({ entryPoints: [new URL('../src/lib/badge-editor-thumbnails.ts', import.meta.url).pathname], bundle: true, format: 'esm', platform: 'node', write: false })
+const compiled = await build({ entryPoints: [fileURLToPath(new URL('../src/lib/badge-editor-thumbnails.ts', import.meta.url))], bundle: true, format: 'esm', platform: 'node', write: false })
 const { initThumbnails } = await import(`data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`)
 const project = { name: 'demo', sourceName: 'demo', files: [{ path: '__init__.py', text: 'print("demo")', data: new Uint8Array() }] }
 const flush = () => new Promise(resolve => setImmediate(resolve))
