@@ -35,8 +35,18 @@ a6f8ea74c9003f3d485ff536856e7c0a1337fe6464a8d7f952118a88da43918e  jspi/micropyth
 
 ## Editor 3D badge model
 
-`models/github-mona-badge.glb` is the 2026 badge model downloaded from [Lee Reilly’s H4X0R3D badge showcase](https://leereilly.net/h4x0r3d-badge/#hardware), at `models/github_mona_badge_screen_centered.glb`, on 2026-10-12. Its embedded generator is `https://github.com/mikedh/trimesh`. The original geometry and artwork are preserved; the editor replaces the display material with its live simulator output. The source is linked from the viewer. The model endpoint does not include license metadata; no new license is asserted for the model or its GitHub artwork.
+`models/github-mona-badge.glb` is the 2026 badge model downloaded from [Lee Reilly’s H4X0R3D badge showcase](https://leereilly.net/h4x0r3d-badge/#hardware), at `models/github_mona_badge_screen_centered.glb`, on 2026-10-12. Its embedded generator is `https://github.com/mikedh/trimesh`. The source is linked from the viewer. The model endpoint does not include license metadata; no new license is asserted for the model or its GitHub artwork.
 
-SHA-256: `a7cf8a12cb2d014092c7c2a9079f7f3eb126963a06aee2e95462a5e33d88636d`.
+Source SHA-256: `a7cf8a12cb2d014092c7c2a9079f7f3eb126963a06aee2e95462a5e33d88636d`.
+
+`scripts/build-badge-model.mjs` modifies the source model:
+
+- Replaces the lower clear shell with geometry tessellated from the Badgeware case CAD (`badgeware_solid.step`), with the PCB slot tab removed. The case is scaled to the model's PCB width.
+- Moves the five button caps and collars onto the case's button nubs, and centres the USB-C port between the up and down buttons.
+- Mirrors the rear artwork UVs so the rear print reads correctly.
+
+The upper board, its artwork, and the remaining parts are unchanged. The editor replaces the display material with its live simulator output. Rebuild with `npm run build:badge-model -- <badgeware_solid.step> [source.glb]`. The STEP file is not committed.
+
+Output SHA-256: `4245c5e8a42bc9ef7f52e1c2d5e5ea54f84287a1df8dc0e53dbf89f0fdefca6b`.
 
 Three.js is bundled under its MIT license, retained in `licenses/three.txt`.

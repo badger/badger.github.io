@@ -11,6 +11,7 @@
     "astro": "astro",
     "sync:editor-apps": "node --experimental-strip-types scripts/sync-editor-apps.mjs",
     "sync:editor-examples": "node scripts/sync-editor-examples.mjs",
+    "build:badge-model": "node scripts/build-badge-model.mjs",
     "test:editor": "node --test tests/*.test.mjs"
   },
   "dependencies": {
@@ -47,6 +48,9 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
-    "@types/three": "^0.186.0"
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "@types/three": "^0.186.0",
+    "occt-import-js": "^0.0.23"
   }
 }
