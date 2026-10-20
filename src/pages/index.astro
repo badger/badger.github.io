@@ -1,19 +1,18 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { AppCard } from '@/components/app-card'
+import PreinstalledAppCard from '@/components/preinstalled-app-card.astro'
 import { HackCard } from '@/components/hack-card'
 import { OutlinedButton } from '@/components/outlined-button'
 import { getCollection } from 'astro:content'
 import { ArrowUpRight, BookOpen, Grid3x3, Hammer, PlugZap } from 'lucide-react'
 import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
+import { PREINSTALLED_APPS } from '@/data/preinstalled-apps'
 
 const allHacks = await getCollection('hacks')
-const allApps = await getCollection('apps')
 const featuredHacks = allHacks
   .filter((hack) => typeof hack.data.featured === 'number' && hack.data.featured >= 1 && hack.data.featured <= 3)
   .sort((left, right) => (left.data.featured ?? 0) - (right.data.featured ?? 0))
   .slice(0, 3)
-const preloadedApps = allApps.filter((app) => app.data.preloaded)
 ---
 
 <Layout title="Badger / 2026 Field Guide" description="A living field guide to apps, hacks, and hardware workflows for the Badger 2350.">
@@ -76,14 +75,15 @@ const preloadedApps = allApps.filter((app) => app.data.preloaded)
   <section class="py-20 sm:py-24">
     <div class="container">
       <div class="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div class="section-heading">
-          <h2 class="text-3xl sm:text-4xl">Apps</h2>
+        <div class="section-heading space-y-3">
+          <h2 class="text-3xl sm:text-4xl">Pre-installed apps</h2>
+          <p class="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">{PREINSTALLED_APPS.length} apps ship on the Universe 2026 badge</p>
         </div>
-        <OutlinedButton href="/apps" variant="subtle" client:load><span>Show more</span><PlugZap className="h-3.5 w-3.5" /></OutlinedButton>
+        <OutlinedButton href="/apps" variant="subtle" client:load><span>Get more apps</span><PlugZap className="h-3.5 w-3.5" /></OutlinedButton>
       </div>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {preloadedApps.slice(0, 6).map((app) => (
-          <AppCard title={app.data.title} description={app.data.description} icon={app.data.icon} category={app.data.category} preloaded={app.data.preloaded} customizable={app.data.customizable} slug={app.slug} client:load />
+        {PREINSTALLED_APPS.map((app) => (
+          <PreinstalledAppCard title={app.title} description={app.description} iconSrc={app.iconSrc} color={app.color} />
         ))}
       </div>
     </div>

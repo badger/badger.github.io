@@ -112,6 +112,7 @@ export async function initBadgeEditor() {
     element('model-status').hidden = false
     element<HTMLButtonElement>('reset-badge-view').disabled = true
     element<HTMLButtonElement>('focus-badge-screen').disabled = true
+    element<HTMLButtonElement>('focus-badge-full').disabled = true
     element('badge-model').querySelectorAll('canvas:not(#badge-screen)').forEach(canvas => canvas.remove())
     inputs.set('model', 31, false)
     console.warn('Badge 3D view unavailable:', error)

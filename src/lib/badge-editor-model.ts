@@ -2,6 +2,9 @@ import { Box3, CanvasTexture, DirectionalLight, DoubleSide, HemisphereLight, Lin
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
+// Corner radius of the badge model's inner circuit board, in model units (metres).
+const BOARD_CORNER_RADIUS = 0.0037
+
 export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, button: (bit: number, pressed: boolean) => void, signal: AbortSignal, onError: (error: unknown) => void) {
   const display = document.createElement('canvas')
   display.width = 640
@@ -44,6 +47,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   const discarded = new Set<Material>()
   const resetButton = document.getElementById('reset-badge-view') as HTMLButtonElement
   const screenButton = document.getElementById('focus-badge-screen') as HTMLButtonElement
+  const fullButton = document.getElementById('focus-badge-full') as HTMLButtonElement
   const status = document.getElementById('model-status')!
   let model: Object3D | undefined
   let displayMesh: Mesh | undefined
@@ -51,7 +55,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   let mask = 0
   let frame = 0
   let disposed = false
-  let screenView = false
+  let screenView = true
 
   function render() {
     if (disposed || frame || document.hidden) return
@@ -92,8 +96,15 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     controls.update()
     render()
   }
-  const reset = () => { screenView = false; view() }
-  const focusScreen = () => { screenView = true; view() }
+  const setView = (screen: boolean) => {
+    screenView = screen
+    screenButton.setAttribute('aria-pressed', String(screen))
+    fullButton.setAttribute('aria-pressed', String(!screen))
+    view()
+  }
+  const reset = () => view()
+  const focusScreen = () => setView(true)
+  const focusFull = () => setView(false)
   const resize = new ResizeObserver(() => {
     if (disposed || !host.clientWidth || !host.clientHeight) return
     try {
@@ -158,6 +169,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   controls.addEventListener('change', render)
   resetButton.addEventListener('click', reset)
   screenButton.addEventListener('click', focusScreen)
+  fullButton.addEventListener('click', focusFull)
   const ready = fetch('/simulator/models/github-mona-badge.glb', { signal }).then(async response => {
     if (!response.ok) throw new Error(`Could not load the badge model (HTTP ${response.status}).`)
     const data = await response.arrayBuffer()
@@ -189,6 +201,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
       }
     })
     if (!displayMesh || caps.size !== 5) throw new Error('The badge model is missing its screen or controls.')
+    roundPanels(model)
     if (disposed) { disposeModel(); return }
     updateFrame()
     setButtons(mask)
@@ -197,8 +210,41 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     if (disposed || signal.aborted) return
     host.dataset.state = 'ready'
     status.hidden = true
-    resetButton.disabled = screenButton.disabled = false
+    resetButton.disabled = screenButton.disabled = fullButton.disabled = false
   })
+
+  // The front and back artwork are flat rectangles, so clip them to the
+  // rounded outline of the circuit board they sit on.
+  function roundPanels(root: Object3D) {
+    const board = root.getObjectByName('Inside_violet_circuit_board')
+    if (!board) return
+    const outline = new Box3().setFromObject(board)
+    for (const name of ['Front_electronic_assembly_face', 'Back_electronics_silkscreen_print']) {
+      const panel = root.getObjectByName(name)
+      if (!(panel instanceof Mesh) || Array.isArray(panel.material)) continue
+      const bounds = new Box3().setFromObject(panel)
+      const width = bounds.max.x - bounds.min.x
+      const height = bounds.max.y - bounds.min.y
+      const mask = document.createElement('canvas')
+      mask.width = 1024
+      mask.height = Math.round(1024 * height / width)
+      const scale = mask.width / width
+      const draw = mask.getContext('2d')
+      if (!draw) continue
+      draw.fillStyle = '#000'
+      draw.fillRect(0, 0, mask.width, mask.height)
+      draw.fillStyle = '#fff'
+      draw.beginPath()
+      draw.roundRect((outline.min.x - bounds.min.x) * scale, (bounds.max.y - outline.max.y) * scale, (outline.max.x - outline.min.x) * scale, (outline.max.y - outline.min.y) * scale, BOARD_CORNER_RADIUS * scale)
+      draw.fill()
+      const alphaMap = new CanvasTexture(mask)
+      alphaMap.flipY = false
+      const material = panel.material as MeshStandardMaterial
+      material.alphaMap = alphaMap
+      material.alphaTest = 0.5
+      material.needsUpdate = true
+    }
+  }
 
   function disposeModel() {
     const materials = new Set(discarded)
@@ -228,6 +274,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
       controls.dispose()
       resetButton.removeEventListener('click', reset)
       screenButton.removeEventListener('click', focusScreen)
+      fullButton.removeEventListener('click', focusFull)
       window.removeEventListener('blur', release)
       document.removeEventListener('visibilitychange', release)
       canvas.removeEventListener('webglcontextlost', lost)

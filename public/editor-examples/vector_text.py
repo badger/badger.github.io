@@ -42,6 +42,9 @@ glyph_renderers = {
   "circle": circle_glyph_renderer
 }
 
+for glyph_name, renderer in glyph_renderers.items():
+  add_glyph(glyph_name, renderer)
+
 while True:
   screen.font = mona_sans
   screen.antialias = image.X2
@@ -64,9 +67,8 @@ Once I roared with breath and [pen:255,100,80]flame[pen:180,150,120], Now legend
   y = 10
   width = math.sin(badge.ticks / 500) * 50 + 230
   height = 224
-  tokens = text.tokenise(screen, message, size=size, glyph_renderers=glyph_renderers)
   bounds = rect(x, y, width, height)
-  text.draw(screen, tokens, bounds, line_spacing=1, word_spacing=1.05, size=size)
+  screen.text(message, bounds, font_size=size, line_height=1, word_spacing=1.05)
 
   screen.pen = color.rgb(60, 80, 100, 100)
   screen.line(bounds.x, bounds.y, bounds.x + bounds.w, bounds.y)

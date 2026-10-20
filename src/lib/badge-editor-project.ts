@@ -233,11 +233,6 @@ export async function loadSimulatorExample(example: SimulatorExample): Promise<E
   if (!response.ok) throw new Error('Could not load this example. Try again.')
   let source = await response.text()
   if (/\brom_font\./.test(source)) source = `rom_font = font\n\n${source}`
-  if (['text.py', 'vector_text.py'].includes(example.file)) {
-    source = source.replace(/^  tokens = text\.tokenise\([^\n]+\)\n/m, '  for glyph_name, renderer in glyph_renderers.items():\n    add_glyph(glyph_name, renderer)\n')
-    source = source.replace('text.draw(screen, tokens, bounds, line_spacing=1, word_spacing=1.05, size=size)', 'screen.text(message, bounds, font_size=size, line_height=1, word_spacing=1.05)')
-    source = source.replace('text.draw(screen, tokens, bounds, line_spacing=1, word_spacing=1.05)', 'screen.text(message, bounds, line_height=1, word_spacing=1.05)')
-  }
   const files: ProjectFile[] = []
   for (const asset of example.assets) {
     validateFilePath(asset)

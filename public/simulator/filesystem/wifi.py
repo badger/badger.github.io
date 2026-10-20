@@ -13,5 +13,9 @@ def isconnected():
 is_connected = isconnected
 
 
+def failure():
+    return True
+
+
 def status():
     return -1, "Wi-Fi is unavailable in the simulator."
