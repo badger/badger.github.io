@@ -1,25 +1,62 @@
-import { execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { promisify } from 'node:util'
 import { getInstallableAppFolders } from '../src/lib/github-app-catalog.ts'
 
-const execFileAsync = promisify(execFile)
-export const SOURCE_ENDPOINT = 'repos/badger/badgerfactory/contents/app-descriptions.json?ref=main'
-export const CATALOG_ENDPOINT = 'repos/badger/home/git/trees/main?recursive=1'
-const OUTPUT_PATH = fileURLToPath(new URL('../src/data/app-descriptions.json', import.meta.url))
+const HOME_REPOSITORY = 'badger/home'
 
-async function readGitHubJson(endpoint) {
-  try {
-    const { stdout } = await execFileAsync('gh', [
-      'api', endpoint, '-H', 'Accept: application/vnd.github.raw+json',
-    ], { encoding: 'utf8', timeout: 60_000, maxBuffer: 10 * 1024 * 1024 })
-    return JSON.parse(stdout)
-  } catch (error) {
-    throw new Error(`Could not read ${endpoint}. Check gh authentication, repository access, and the source file.`, { cause: error })
+export function catalogUrl(ref) {
+  return `https://api.github.com/repos/${HOME_REPOSITORY}/git/trees/${ref}?recursive=1`
+}
+
+export function readmeUrl(ref, name, file) {
+  return `https://raw.githubusercontent.com/${HOME_REPOSITORY}/${ref}/badge/apps/${name}/${file}`
+}
+
+const OUTPUT_PATH = fileURLToPath(new URL('../src/data/app-descriptions.json', import.meta.url))
+const README_NAMES = ['README.md', 'readme.md']
+const BLOCK_PREFIXES = ['#', '>', '|', '-', '!', '[!', '```', '<']
+
+async function fetchText(url, { optional = false } = {}) {
+  const headers = { 'User-Agent': 'badger-app-descriptions' }
+  if (process.env.GITHUB_TOKEN && url.startsWith('https://api.github.com/')) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
   }
+  const response = await fetch(url, { headers, signal: AbortSignal.timeout(60_000) })
+  if (optional && response.status === 404) return null
+  if (!response.ok) throw new Error(`Could not read ${url} (HTTP ${response.status}).`)
+  return response.text()
+}
+
+async function readHomeCatalog(ref) {
+  return JSON.parse(await fetchText(catalogUrl(ref)))
+}
+
+async function readHomeReadme(ref, name, file) {
+  return fetchText(readmeUrl(ref, name, file), { optional: true })
+}
+
+// Mirrors badgerfactory scripts/update_app_descriptions.py.
+export function firstSentence(readme) {
+  const paragraph = []
+  for (const line of readme.split(/\r?\n/)) {
+    const text = line.trim()
+    const isBlock = BLOCK_PREFIXES.some((prefix) => text.startsWith(prefix))
+      || /^(?:\*(?:\s|$)|(?:\*\s*){3,}$)/.test(text)
+    if (!text || isBlock) {
+      if (paragraph.length) break
+      continue
+    }
+    paragraph.push(text)
+  }
+  const joined = paragraph.join(' ')
+  return (joined.match(/^(.+?[.!?])(?=\s|$)/)?.[1] ?? joined).trim()
+}
+export const KEY_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
+
+export function describableFolders(tree) {
+  return getInstallableAppFolders(tree).map(([name]) => name).filter((name) => KEY_PATTERN.test(name))
 }
 
 export function validateDescriptions(descriptions, catalog) {
@@ -31,11 +68,12 @@ export function validateDescriptions(descriptions, catalog) {
     throw new Error('The app catalog must contain a complete, valid GitHub file tree.')
   }
 
-  const folders = getInstallableAppFolders(catalog.tree).map(([name]) => name)
-  if (!folders.length) throw new Error('The app catalog has no installable apps; the saved descriptions were not changed.')
+  const installable = getInstallableAppFolders(catalog.tree)
+  if (!installable.length) throw new Error('The app catalog has no installable apps; the saved descriptions were not changed.')
+  const folders = describableFolders(catalog.tree)
 
   const invalid = Object.entries(descriptions).filter(([name, description]) =>
-    !/^[a-z0-9][a-z0-9_-]*$/.test(name)
+    !KEY_PATTERN.test(name)
     || ['menu', 'startup', 'constructor', 'prototype'].includes(name)
     || typeof description !== 'string'
     || !description.trim()
@@ -52,19 +90,35 @@ export function validateDescriptions(descriptions, catalog) {
   ))
 }
 
-export async function syncAppDescriptions({ outputPath = OUTPUT_PATH, readGitHub = readGitHubJson } = {}) {
-  const [source, catalog] = await Promise.all([
-    readGitHub(SOURCE_ENDPOINT),
-    readGitHub(CATALOG_ENDPOINT),
-  ])
-  const descriptions = validateDescriptions(source, catalog)
-  const contents = `${JSON.stringify(descriptions, null, 2)}\n`
+export async function syncAppDescriptions({
+  outputPath = OUTPUT_PATH,
+  ref = process.env.APPS_REF || 'main',
+  readCatalog = readHomeCatalog,
+  readReadme = readHomeReadme,
+} = {}) {
   let previous
   try {
     previous = await readFile(outputPath, 'utf8')
   } catch (error) {
     if (error.code !== 'ENOENT') throw error
   }
+  const existing = previous ? JSON.parse(previous) : {}
+
+  const catalog = await readCatalog(ref)
+  const source = { ...existing }
+  const folders = Array.isArray(catalog?.tree) ? describableFolders(catalog.tree) : []
+  for (const name of folders) {
+    for (const file of README_NAMES) {
+      const readme = await readReadme(ref, name, file)
+      if (readme == null) continue
+      const description = firstSentence(readme)
+      if (description) source[name] = description
+      break
+    }
+  }
+
+  const descriptions = validateDescriptions(source, catalog)
+  const contents = `${JSON.stringify(descriptions, null, 2)}\n`
   if (previous === contents) return { changed: false, count: Object.keys(descriptions).length }
 
   await mkdir(dirname(outputPath), { recursive: true })

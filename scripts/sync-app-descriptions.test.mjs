@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
 import { getInstallableAppFolders } from '../src/lib/github-app-catalog.ts'
-import { CATALOG_ENDPOINT, SOURCE_ENDPOINT, syncAppDescriptions, validateDescriptions } from './sync-app-descriptions.mjs'
+import { firstSentence, syncAppDescriptions, validateDescriptions } from './sync-app-descriptions.mjs'
 
 function catalog(...names) {
   return {
@@ -83,25 +83,38 @@ test('excludes quest from both the store list and description coverage', () => {
   assert.deepEqual(validateDescriptions({ flappy: 'A game.' }, tree), { flappy: 'A game.' })
 })
 
+test('skips folders that do not match the lowercase key rule', () => {
+  const tree = catalog('flappy', 'Copilot')
+  assert.deepEqual(validateDescriptions({ flappy: 'A game.' }, tree), { flappy: 'A game.' })
+})
+
 async function temporaryOutput(t) {
   const directory = await mkdtemp(join(tmpdir(), 'badger-descriptions-'))
   t.after(() => rm(directory, { recursive: true, force: true }))
   return { directory, outputPath: join(directory, 'app-descriptions.json') }
 }
 
-function reader(source, tree) {
-  return async (endpoint) => {
-    if (endpoint === SOURCE_ENDPOINT) return source
-    assert.equal(endpoint, CATALOG_ENDPOINT)
-    return tree
-  }
+function readmes(files) {
+  return async (ref, name, file) => files[`${name}/${file}`] ?? null
 }
+
+test('extracts the first sentence of the first paragraph', () => {
+  assert.equal(firstSentence('# Title\n\n![img](a.png)\n\nBreak bricks with a paddle. Second sentence.\n\n- list'), 'Break bricks with a paddle.')
+  assert.equal(firstSentence('> note\n\nCare for your very own Mona!\nMore text.'), 'Care for your very own Mona!')
+  assert.equal(firstSentence('Wraps across\ntwo lines. Next.'), 'Wraps across two lines.')
+  assert.equal(firstSentence('# Title\n\n- only a list\n'), '')
+  assert.equal(firstSentence('No terminal punctuation'), 'No terminal punctuation')
+})
 
 test('writes sorted JSON and does not rewrite an unchanged copy', async (t) => {
   const { directory, outputPath } = await temporaryOutput(t)
   const options = {
     outputPath,
-    readGitHub: reader({ flappy: 'A game.', commits: 'Break bricks.' }, catalog('flappy', 'commits')),
+    readCatalog: async () => catalog('flappy', 'commits'),
+    readReadme: readmes({
+      'flappy/README.md': '# Flappy\n\nA game. More.',
+      'commits/readme.md': 'Break bricks.',
+    }),
   }
   assert.deepEqual(await syncAppDescriptions(options), { changed: true, count: 2 })
   assert.equal(await readFile(outputPath, 'utf8'), '{\n  "commits": "Break bricks.",\n  "flappy": "A game."\n}\n')
@@ -111,23 +124,35 @@ test('writes sorted JSON and does not rewrite an unchanged copy', async (t) => {
   assert.deepEqual(await readdir(directory), ['app-descriptions.json'])
 })
 
+test('keeps saved descriptions for apps without a usable README', async (t) => {
+  const { outputPath } = await temporaryOutput(t)
+  await writeFile(outputPath, '{"commits":"Saved text.","flappy":"Old."}\n')
+  await syncAppDescriptions({
+    outputPath,
+    readCatalog: async () => catalog('flappy', 'commits'),
+    readReadme: readmes({ 'flappy/README.md': 'New.', 'commits/README.md': '# Only a heading' }),
+  })
+  assert.equal(await readFile(outputPath, 'utf8'), '{\n  "commits": "Saved text.",\n  "flappy": "New."\n}\n')
+})
+
 test('failed downloads and validation preserve the last good copy', async (t) => {
   const { directory, outputPath } = await temporaryOutput(t)
   const previous = '{"flappy":"Last good copy."}\n'
   await writeFile(outputPath, previous)
-  for (const endpoint of [SOURCE_ENDPOINT, CATALOG_ENDPOINT]) {
-    await assert.rejects(syncAppDescriptions({
-      outputPath,
-      readGitHub: async (requested) => {
-        if (requested === endpoint) throw new Error('Download failed')
-        return requested === SOURCE_ENDPOINT ? { flappy: 'A game.' } : catalog('flappy')
-      },
-    }), /Download failed/)
-    assert.equal(await readFile(outputPath, 'utf8'), previous)
-  }
   await assert.rejects(syncAppDescriptions({
     outputPath,
-    readGitHub: reader({ flappy: 'A game.' }, catalog('flappy', 'commits')),
+    readCatalog: async () => { throw new Error('Download failed') },
+    readReadme: readmes({}),
+  }), /Download failed/)
+  await assert.rejects(syncAppDescriptions({
+    outputPath,
+    readCatalog: async () => catalog('flappy'),
+    readReadme: async () => { throw new Error('Download failed') },
+  }), /Download failed/)
+  await assert.rejects(syncAppDescriptions({
+    outputPath,
+    readCatalog: async () => catalog('flappy', 'commits'),
+    readReadme: readmes({ 'flappy/README.md': 'A game.' }),
   }), /Missing descriptions.*commits/)
   assert.equal(await readFile(outputPath, 'utf8'), previous)
   assert.deepEqual(await readdir(directory), ['app-descriptions.json'])

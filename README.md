@@ -63,30 +63,35 @@ npm run astro        # Run Astro CLI commands
 
 ## App store descriptions
 
-The `/apps/` app store uses descriptions from `app-descriptions.json` in
-`badger/badgerfactory`. That file is approved public text. App downloads still
-come from `badger/home`; descriptions on `/browse-apps/` and individual app
+The `/apps/` app store uses descriptions generated from the first sentence of
+each app's `README.md` in `badger/home`. App downloads also come from
+`badger/home`; descriptions on `/browse-apps/` and individual app
 pages still come from local app content.
 The store excludes the `menu` and `startup` system apps and the `quest` app.
 
 To update descriptions:
 
-1. Edit the source file in badgerfactory using exact store folder names and one
-   plain-text sentence per app. Cover every installable store app.
-2. Review and merge the source change through a pull request.
-3. On a website working branch, run `npm run sync:app-descriptions`.
-4. Run `npm run test:app-descriptions` and `npm run build`, then submit the saved
+1. Edit the app's `README.md` in `badger/home` so its first paragraph starts with
+   one plain-text sentence.
+2. After the change merges to `main`, `badger/home` sends an `apps-updated`
+   repository dispatch and the `Update app descriptions` workflow opens a pull
+   request here. To run it by hand, use `workflow_dispatch` or run
+   `npm run sync:app-descriptions` on a website working branch.
+3. Run `npm run test:app-descriptions` and `npm run build`, then submit the saved
    website changes through a pull request.
 
-The update command requires Node.js 22.6.0 or newer, the `gh` CLI, and a GitHub
-login with read access to badgerfactory. It reads the source from `main` and checks coverage
-against the current `badger/home` store. Invalid or incomplete updates fail with
-a clear error and leave the last good copy unchanged.
+The update command requires Node.js 22.6.0 or newer. It reads the file tree and
+READMEs from the public `badger/home` repository (`APPS_REF` selects a branch or
+commit, default `main`). Apps without a usable README keep their saved
+description. Folders that do not match the lowercase key rule
+(`^[a-z0-9][a-z0-9_-]*$`, such as `Copilot`) get no description. Invalid or
+incomplete updates fail with a clear error and leave the last good copy
+unchanged.
 
 Do not edit `src/data/app-descriptions.json` by hand. It is the generated website
-copy. Normal builds and deployment use this saved file without private-repository
-access. A newly added store app remains installable and shows
-`Description not available` until the descriptions are updated.
+copy used by normal builds and deployment. A newly added store app remains
+installable and shows `Description not available` until the descriptions are
+updated.
 
 ## 📁 Project Structure
 
