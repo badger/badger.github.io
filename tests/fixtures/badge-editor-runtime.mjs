@@ -2,7 +2,7 @@ import { parentPort, workerData } from 'node:worker_threads'
 import { readFile } from 'node:fs/promises'
 import { loadMicroPython } from '../../public/simulator/asyncify/micropython.mjs'
 
-const { request, input = 0, frameLimit = 8 } = workerData
+const { request, input = 0, frameLimit = 8, timeLimit = 3000 } = workerData
 let inputMask = input
 const output = []
 let frames = 0
@@ -34,7 +34,7 @@ function stage(name, content) {
 for (const name of Object.keys(manifest.files)) stage(name, new Uint8Array(await readFile(new URL(`../../public/simulator/filesystem${name}`, import.meta.url))))
 for (const file of request.files) stage(file.name, file.content)
 await runtime.runPython('import sys; sys.path.insert(0, "/"); import badgeware')
-const timer = setTimeout(() => runtime.interrupt(), 3000)
+const timer = setTimeout(() => runtime.interrupt(), timeLimit)
 let error = ''
 try { await runtime.runPython(request.program) } catch (failure) { error = String(failure) }
 clearTimeout(timer)

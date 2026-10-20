@@ -1,5 +1,15 @@
 {
   "revision": "26f4f142efa9b437eec0d56b7751d77a3cc4dcc1",
+  "launcher": {
+    "name": "menu",
+    "title": "Menu",
+    "files": [
+      "__init__.py",
+      "app.py",
+      "default_icon.png",
+      "ui.py"
+    ]
+  },
   "apps": [
     {
       "name": "30_minutes_to_alpha_centauri",
