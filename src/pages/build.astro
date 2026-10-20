@@ -2,11 +2,11 @@
 import Layout from '@/layouts/Layout.astro'
 import ListingHero from '@/components/listing-hero.astro'
 import BuildGuidePanel from '@/components/build-guide-panel.astro'
-import VSCodeGuide from '@/content/build-guides/01-vscode.mdx'
-import CopilotAppGuide from '@/content/build-guides/02-copilot-app.mdx'
+import VSCodeGuide from '@/content/build-guides/02-vscode.mdx'
+import CopilotAppGuide from '@/content/build-guides/01-copilot-app.mdx'
 import CopilotCLIGuide from '@/content/build-guides/03-copilot-cli.mdx'
-import MacVSCodeGuide from '@/content/build-guides/mac/01-vscode.mdx'
-import MacCopilotAppGuide from '@/content/build-guides/mac/02-copilot-app.mdx'
+import MacVSCodeGuide from '@/content/build-guides/mac/02-vscode.mdx'
+import MacCopilotAppGuide from '@/content/build-guides/mac/01-copilot-app.mdx'
 import MacCopilotCLIGuide from '@/content/build-guides/mac/03-copilot-cli.mdx'
 
 const platforms = [
@@ -14,8 +14,8 @@ const platforms = [
     id: 'windows',
     label: 'Windows',
     guides: [
-      { title: 'Build with VS Code', Content: VSCodeGuide },
       { title: 'Build with the GitHub Copilot App', Content: CopilotAppGuide },
+      { title: 'Build with VS Code', Content: VSCodeGuide },
       { title: 'Build with GitHub Copilot CLI', Content: CopilotCLIGuide },
     ],
   },
@@ -23,8 +23,8 @@ const platforms = [
     id: 'mac',
     label: 'macOS',
     guides: [
-      { title: 'Build with VS Code', Content: MacVSCodeGuide },
       { title: 'Build with the GitHub Copilot App', Content: MacCopilotAppGuide },
+      { title: 'Build with VS Code', Content: MacVSCodeGuide },
       { title: 'Build with GitHub Copilot CLI', Content: MacCopilotCLIGuide },
     ],
   },
