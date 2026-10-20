@@ -107,7 +107,7 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
     gallery.setAttribute('aria-labelledby', `picker-tab-${active}`)
     gallery.replaceChildren()
     const query = search.value.trim().toLowerCase()
-    const items = collections[active].filter(item => `${item.title} ${item.description} ${item.category}`.toLowerCase().includes(query))
+    const items = collections[active].filter(item => `${item.key} ${item.title} ${item.description} ${item.category}`.toLowerCase().includes(query))
     const noun = active === 'examples' ? 'example' : 'app'
     status.textContent = failures[active] || (items.length ? `${items.length} ${noun}${items.length === 1 ? '' : 's'}. Preview a card or choose Edit.` : query ? 'No matches. Try another search.' : active === 'badge' ? 'No editable apps found. Refresh the badge files.' : 'Loading collection…')
     for (const category of new Set(items.map(item => item.category))) {
@@ -193,7 +193,7 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
       if (dialog.open) render()
     },
     setExamples(catalog: SimulatorExamples) {
-      collections.examples = catalog.categories.flatMap(category => category.examples.map(example => ({ key: `examples/${example.file}`, title: example.file, description: example.description, category: category.name, load: () => loadSimulatorExample(example) })))
+      collections.examples = catalog.categories.flatMap(category => category.examples.map(example => ({ key: `examples/${example.file}`, title: example.file.replace(/\.py$/, '').replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase()), description: example.description, category: category.name, load: () => loadSimulatorExample(example) })))
       if (dialog.open) render()
     },
     setBadgeApps(names: string[], read: (name: string) => Promise<EditorProject>) {

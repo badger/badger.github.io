@@ -8,7 +8,8 @@ export function adaptExampleSource(file, source) {
 }
 
 export function exampleAssetDestination(asset, staging) {
-  if (!asset.startsWith('assets/') || asset.split('/').some(part => !part || part === '..' || part === '.')) throw new Error('Unsafe asset path')
+  const decoded = decodeURIComponent(asset)
+  if (!decoded.startsWith('assets/') || /[\\\x00-\x1f?#]/.test(decoded) || decoded.split('/').some(part => !part || part === '..' || part === '.')) throw new Error('Unsafe asset path')
   const destination = new URL(asset, staging)
   const path = relative(fileURLToPath(staging), fileURLToPath(destination))
   if (!path || path === '..' || path.startsWith(`..${sep}`) || isAbsolute(path)) throw new Error('Unsafe asset path')

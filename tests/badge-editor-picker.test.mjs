@@ -42,7 +42,7 @@ function environment(t) {
   picker.setApps({ revision: 'test', apps: [{ name: 'badge', title: 'Badge', files: ['__init__.py'] }] })
   element('browse-apps').click()
   const card = () => element('picker-gallery').children[0]?.children[1].children[0]
-  return { workers, timers, element, card, expire(delay) { for (const [id, timer] of timers) if (timer.delay === delay) { timers.delete(id); timer.callback() } } }
+  return { picker, workers, timers, element, card, expire(delay) { for (const [id, timer] of timers) if (timer.delay === delay) { timers.delete(id); timer.callback() } } }
 }
 
 test('a ready preview without a frame terminates after the render deadline', async t => {
@@ -84,4 +84,17 @@ test('approved app descriptions are displayed and searchable with a plain Edit l
   env.element('picker-search').value = 'no match'
   env.element('picker-search').dispatchEvent(new Event('input'))
   assert.equal(env.card(), undefined)
+})
+
+test('example cards display readable titles while retaining filename searches', t => {
+  const env = environment(t)
+  env.picker.setExamples({ revision: 'test', categories: [{ name: 'Text', examples: [{ file: 'vector_text.py', description: 'Render vector text', assets: [] }, { file: 'lighten_darken.py', description: 'Adjust colors', assets: [] }] }] })
+  env.element('browse-examples').click()
+  const cards = env.element('picker-gallery').children[0].children[1].children
+  assert.deepEqual(cards.map(card => card.children[1].children[0].children[0].textContent), ['Vector Text', 'Lighten Darken'])
+  for (const query of ['vector text', 'vector_text.py']) {
+    env.element('picker-search').value = query
+    env.element('picker-search').dispatchEvent(new Event('input'))
+    assert.equal(env.card().children[1].children[0].children[0].textContent, 'Vector Text')
+  }
 })
