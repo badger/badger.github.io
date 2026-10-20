@@ -172,3 +172,24 @@ print('Firmware fonts passed')
   assert.equal(result.frames, 1)
   assert.match(result.output.join('\n'), /Firmware fonts passed/)
 })
+
+test('shipping firmware shared assets and helper APIs are available in the real simulator', async () => {
+  const result = await run(request(`
+import missing_details, wifi
+for path in ('skull.png', 'icons.png', 'cards.png', 'tufty.png', 'squirrel-sprites/running.png'):
+    assert image.load('/system/assets/' + path)
+assert font.load('/system/assets/fonts/lato-400.af') and font.load('/system/assets/fonts/lato-900.af')
+assert wifi.failure() and not wifi.is_connected()
+missing_details.show([], lambda: None, ('your name, GitHub username,', 'and LinkedIn stub'))
+missing_details.show(['WIFI_SSID'], lambda: None)
+badge.update()
+print('Shipping firmware passed')
+`))
+  assert.equal(result.error, '')
+  assert.match(result.output.join('\n'), /Shipping firmware passed/)
+})
+
+test('Sparkle light shows report the simulator limitation', async () => {
+  const result = await run(request('import sparkle\nsparkle.request_local_show()\n'))
+  assert.match(result.output.join('\n'), /Sparkle shows not supported in the simulator/)
+})
