@@ -1,6 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import { ContactsEditor } from '@/components/contacts-editor'
+import type { GetStaticPaths } from 'astro'
+import { CONTACTS_PAGE_ENABLED } from '@/config/features'
+
+export const getStaticPaths = (() => {
+  if (!CONTACTS_PAGE_ENABLED) return []
+
+  return [{ params: { contacts: 'contacts' } }]
+}) satisfies GetStaticPaths
 ---
 
 <Layout title="Contacts | Badger" description="Edit a Badger contact card and export collected contacts over Web Bluetooth.">

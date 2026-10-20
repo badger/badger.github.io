@@ -10,6 +10,8 @@
     "test:app-descriptions": "node --experimental-strip-types --test scripts/sync-app-descriptions.test.mjs",
     "astro": "astro",
     "sync:editor-apps": "node --experimental-strip-types scripts/sync-editor-apps.mjs",
+    "sync:editor-examples": "node scripts/sync-editor-examples.mjs",
+    "build:badge-model": "node scripts/build-badge-model.mjs",
     "test:editor": "node --test tests/*.test.mjs"
   },
   "dependencies": {
@@ -42,6 +44,13 @@
     "shiki": "^3.13.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^3.4.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "@types/three": "^0.186.0",
+    "occt-import-js": "^0.0.23"
   }
 }

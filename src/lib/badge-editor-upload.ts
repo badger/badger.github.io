@@ -1,4 +1,4 @@
-import { bytesEqual, fileBytes, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorProject } from './badge-editor-project'
+import { bytesEqual, fileBytes, removedProjectFiles, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorProject } from './badge-editor-project'
 
 export type DiskFile = {
   getFile: () => Promise<File>
@@ -94,6 +94,10 @@ export async function uploadEditorProject(root: DiskDirectory, project: EditorPr
     }
     paths.add(file.path)
   }
+  for (const file of project.removedFiles || []) {
+    validateFilePath(file.path)
+    if (file.path === '__init__.py') throw new Error('The app entry point __init__.py cannot be deleted.')
+  }
   const appsRoot = await root.getDirectoryHandle('apps')
   let appRoot: DiskDirectory | null = null
   try { appRoot = await appsRoot.getDirectoryHandle(name) } catch (error) {
@@ -135,7 +139,7 @@ export async function uploadEditorProject(root: DiskDirectory, project: EditorPr
     const saved = new Uint8Array(await (await handle.getFile()).arrayBuffer())
     if (!bytesEqual(bytes, saved)) throw new Error(`${path} did not pass read-back verification.`)
   }
-  const plan: { path: string; data: Uint8Array; before: Uint8Array | null }[] = []
+  const plan: { path: string; data: Uint8Array | null; before: Uint8Array | null }[] = []
   const attempted: typeof plan = []
   try {
     for (const file of candidates) {
@@ -155,11 +159,26 @@ export async function uploadEditorProject(root: DiskDirectory, project: EditorPr
       }
       if (!before || !bytesEqual(before, data)) plan.push({ path: file.path, data, before })
     }
+    for (const file of removedProjectFiles(project, !created)) {
+      const before = await read(file.path)
+      if (before && !bytesEqual(options.expected?.get(file.path) || file.data, before)) {
+        throw new Error(`${file.path} changed on the badge since it was opened. Refresh and reload the app before deleting it.`)
+      }
+      if (before) plan.push({ path: file.path, data: null, before })
+      else verified.delete(file.path)
+    }
     for (const item of plan.sort((a, b) => Number(a.path === '__init__.py') - Number(b.path === '__init__.py'))) {
       options.onProgress?.({ path: item.path, completed: attempted.length, total: plan.length })
       attempted.push(item)
-      await write(item.path, item.data)
-      verified.set(item.path, item.data)
+      if (item.data !== null) {
+        await write(item.path, item.data)
+        verified.set(item.path, item.data)
+      } else {
+        const target = await directory(item.path, false)
+        await target.directory.removeEntry(target.filename)
+        if (await read(item.path) !== null) throw new Error(`${item.path} could not be deleted.`)
+        verified.delete(item.path)
+      }
       options.onProgress?.({ path: item.path, completed: attempted.length, total: plan.length })
     }
   } catch (error) {
@@ -177,5 +196,5 @@ export async function uploadEditorProject(root: DiskDirectory, project: EditorPr
     } catch { throw new Error('Upload failed and rollback could not finish. Check the app files on BADGER before restarting.') }
     throw error
   }
-  return { path: `/apps/${name}`, written: plan.length, created, verified }
+  return { path: `/apps/${name}`, written: plan.filter(item => item.data !== null).length, deleted: plan.filter(item => item.data === null).length, created, verified }
 }

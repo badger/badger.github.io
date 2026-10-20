@@ -1,0 +1,13 @@
+# Editor simulator compatibility
+
+Every editor run and gallery preview loads `editor_support.py` before the app. Shared firmware behavior belongs here or in the simulator filesystem, rather than in individual apps.
+
+The adapter provides physical button, gamepad, and combined input groups, including held, pressed, released, changed, touched, direction, and replay state. The badge's named controls use A for Left, B for Right, and C for Select. Gamepad input remains separate from the badge's buttons. The orientation control supplies a stationary upright or inverted accelerometer reading and drives automatic display rotation. Apps can independently query and set `autorotate()` and `rotate_180()`.
+
+Shared modules provide hints, vector fonts, missing-settings display, pairing graphics, link identity graphics, sprite sheets, backlight, and editable simulator settings. The ROM font collection matches the supplied `badger-d71d98d-with-filesystem.uf2`, including food, emoji, cosmetics, hats, tools, travel, and weather icons and their outlines. Actual peer communication, Wi-Fi, infrared, USB disk mode, and physical sensors still require hardware. Firmware modules and ROM fonts added after this runtime was built may need additional simulator support.
+
+When reading a badge app, the editor also resolves referenced libraries from the selected volume's root and `lib/`, follows their imports, and loads referenced shared assets. These files are kept separately from the editable app and excluded from uploads. The badge's `secrets.py` is excluded from shared dependency reads.
+
+Native and Viper decorators are adapted only in simulation copies. Buffer pointers use byte, 16-bit, and 32-bit accesses; raw-address pointers and assembly need hardware. This fallback has Python execution speed and semantics, so it cannot establish native timing or every native integer overflow behavior. Editor contents and uploads retain the original source.
+
+`npm run test:editor` runs the firmware API contract and all bundled apps and examples in isolated instances of the actual MicroPython WASM runtime. It checks initial rendering, imports, graphics, and input behavior. USB disk mode is checked for an explicit hardware limitation. This is startup coverage, not full gameplay or physical hardware acceptance. New packaged apps and examples automatically enter this suite.

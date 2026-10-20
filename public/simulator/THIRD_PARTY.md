@@ -1,6 +1,10 @@
 # Bundled runtime notices
 
-The simulator front end is adapted from [badgeware-web-simulator](https://github.com/pimoroni/badgeware-web-simulator/tree/eb3b3fbf27e6e61635aef5de11ab17e6303e8c20). Its MIT notice remains in `LICENSE`, alongside the MicroPython MIT notice. The documents in `licenses/` ship with the static site and cover the compiled dependencies below.
+The simulator front end is adapted from [badgeware-web-simulator](https://github.com/pimoroni/badgeware-web-simulator/tree/eb3b3fbf27e6e61635aef5de11ab17e6303e8c20). Its MIT notice remains in `LICENSE`, alongside the MicroPython MIT notice. The categorized Python examples and their required assets are bundled from the same revision in `../editor-examples/`, with a separate copy of the upstream MIT notice. The documents in `licenses/` ship with the static site and cover the compiled dependencies below.
+
+The shared `world.geo.json` asset comes from [the Tufty firmware assets at ee84772fb7](https://github.com/pimoroni/tufty2350/blob/ee84772fb7f7d5424e9593029caba815c6f89c80/firmware/assets/world.geo.json), under the firmware repository's MIT license. The simulator compatibility helpers are implemented locally; they do not replace badge firmware or get included in app uploads.
+
+The additional ROM fonts were extracted from the user-supplied `badger-d71d98d-with-filesystem.uf2` (SHA-256 `3fc99270c702524533b5528cfde208e6e0c263e012715f1f1ee07ed6a3adb6b8`). The fourteen icon font files match [Gadgetoid/iconfont-ppf at 8612a32402](https://github.com/Gadgetoid/iconfont-ppf/tree/8612a32402ec16f8f6550261446f78317936e7a7/dist) byte for byte. Its [README](https://github.com/Gadgetoid/iconfont-ppf/blob/8612a32402ec16f8f6550261446f78317936e7a7/README.md) attributes the sprites to nikoichu’s 1-bit Pixel Icons; its CC0 notice is retained in `licenses/iconfont-ppf.txt`. The supplied image also provides `badgeware.ppf` and `badgewaremax.ppf`. Only ROM font payloads were extracted; the firmware binary and its writable filesystem are not bundled.
 
 | Component | Notice | Source checked |
 | --- | --- | --- |
@@ -28,3 +32,21 @@ c1664165cabcbcb5aca5ac0e72ca8aace383ec30c455d526325563921f6c9e74  asyncify/micro
 dfebdf53540f5cfbeac85a4ae0784d0054218d11e6cf7b4483a355b115ab6e23  jspi/micropython.mjs
 a6f8ea74c9003f3d485ff536856e7c0a1337fe6464a8d7f952118a88da43918e  jspi/micropython.wasm
 ```
+
+## Editor 3D badge model
+
+`models/github-mona-badge.glb` is the 2026 badge model downloaded from [Lee Reilly’s H4X0R3D badge showcase](https://leereilly.net/h4x0r3d-badge/#hardware), at `models/github_mona_badge_screen_centered.glb`, on 2026-10-12. Its embedded generator is `https://github.com/mikedh/trimesh`. The source is linked from the viewer. The model endpoint does not include license metadata; no new license is asserted for the model or its GitHub artwork.
+
+Source SHA-256: `a7cf8a12cb2d014092c7c2a9079f7f3eb126963a06aee2e95462a5e33d88636d`.
+
+`scripts/build-badge-model.mjs` modifies the source model:
+
+- Replaces the lower clear shell with geometry tessellated from the Badgeware case CAD (`badgeware_solid.step`), with the PCB slot tab removed. The case is scaled to the model's PCB width.
+- Moves the five button caps and collars onto the case's button nubs, and centres the USB-C port between the up and down buttons.
+- Mirrors the rear artwork UVs so the rear print reads correctly.
+
+The upper board, its artwork, and the remaining parts are unchanged. The editor replaces the display material with its live simulator output. Rebuild with `npm run build:badge-model -- <badgeware_solid.step> [source.glb]`. The STEP file is not committed.
+
+Output SHA-256: `4245c5e8a42bc9ef7f52e1c2d5e5ea54f84287a1df8dc0e53dbf89f0fdefca6b`.
+
+Three.js is bundled under its MIT license, retained in `licenses/three.txt`.

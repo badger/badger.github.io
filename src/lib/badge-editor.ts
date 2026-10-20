@@ -1,6 +1,10 @@
 import { ExistingAppError, uploadEditorProject, validateAppName, type DiskDirectory } from './badge-editor-upload'
 import { initEditorSplit } from './badge-editor-split'
-import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, loadExampleProject, projectCheckpoint, projectFile, projectUploadBaseline, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject } from './badge-editor-project'
+import { initProjectPicker } from './badge-editor-picker'
+import { initEditorFullscreen } from './badge-editor-fullscreen'
+import { BadgeInput, initBadgeKeyboard } from './badge-editor-input'
+import { createBadgeModelController } from './badge-editor-model-controller'
+import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, projectCheckpoint, projectFile, projectUploadBaseline, removeProjectFile, removedProjectFiles, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
 import { basicSetup } from 'codemirror'
 import { EditorView, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
@@ -10,12 +14,47 @@ import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags } from '@lezer/highlight'
 
 const starter = `import badgeware
+import math
 
-badge.mode(LORES)
+badge.mode(HIRES | VSYNC)
+screen.font = font.compass
+palette = 0
+paused = False
+phase = 0
+palettes = [(95, 237, 131), (88, 166, 255), (219, 142, 255)]
 
 def update():
-    screen.pen = color.rgb(95, 237, 131)
-    screen.text("Hello, GitHub!", 10, 20)
+    global palette, paused, phase
+    if BUTTON_A in badge.pressed():
+        palette = (palette + 1) % len(palettes)
+    if BUTTON_B in badge.pressed():
+        paused = not paused
+    if BUTTON_C in badge.pressed():
+        phase = 0
+    if not paused:
+        phase += 0.045
+
+    screen.pen = color.rgb(13, 17, 23)
+    screen.clear()
+    screen.pen = color.rgb(240, 246, 252)
+    screen.text("Hello, Badger", 14, 14)
+    screen.pen = color.rgb(139, 148, 158)
+    screen.text("Live contribution waves", 14, 36)
+
+    r, g, b = palettes[palette]
+    for x in range(21):
+        for y in range(7):
+            wave = (math.sin(x * 0.45 + phase) + math.cos(y * 0.7 - phase)) / 4 + 0.5
+            glow = 0.12 + wave * 0.88
+            screen.pen = color.rgb(int(r * glow), int(g * glow), int(b * glow))
+            screen.rectangle(14 + x * 14, 68 + y * 14, 11, 11)
+
+    for i in range(18):
+        screen.pen = color.rgb(r, g, b, 70 + i * 9)
+        screen.circle(vec2(160 + math.cos(phase + i * 0.18) * 130,
+                           192 + math.sin(phase + i * 0.18) * 12), 2)
+    screen.pen = color.rgb(139, 148, 158)
+    screen.text("A: color   B: pause   C: reset", 14, 222)
 
 run(update)
 `
@@ -27,8 +66,6 @@ function newProject(): EditorProject {
 export async function initBadgeEditor() {
   const element = <T extends HTMLElement>(id: string) => document.getElementById(id) as T
   const appName = element<HTMLInputElement>('app-name')
-  const example = element<HTMLSelectElement>('example')
-  const deviceApp = element<HTMLSelectElement>('device-app')
   const live = element<HTMLInputElement>('live-preview')
   const stopButton = element<HTMLButtonElement>('stop')
   const connectButton = element<HTMLButtonElement>('connect-disk')
@@ -47,7 +84,6 @@ export async function initBadgeEditor() {
   const assetPreview = element('asset-preview')
   const keyButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-button]')]
   let project = newProject()
-  let catalog: EditorCatalog | null = null
   let states = new Map<string, EditorState>()
   let currentEditorPath: string | null = null
   let worker: Worker | null = null
@@ -55,6 +91,8 @@ export async function initBadgeEditor() {
   let autoRunTimer: number | undefined
   let draftTimer: number | undefined
   let buttons = 0
+  const flipped = element<HTMLInputElement>('simulator-flipped')
+  const inputMask = () => buttons | (flipped.checked ? 32768 : 0)
   let disk: DiskDirectory | null = null
   let badgeAppNames: string[] = []
   let busy = false
@@ -64,6 +102,27 @@ export async function initBadgeEditor() {
   let saveChain = Promise.resolve()
   let initialized = false
   let locationError = false
+  const modelView = createBadgeModelController(async (signal, fail) => {
+    const { initBadgeModel } = await import('./badge-editor-model')
+    if (signal.aborted) throw new Error('3D loading cancelled.')
+    return initBadgeModel(element('badge-model'), screen, (bit, pressed) => inputs.set('model', bit, pressed), signal, fail)
+  }, error => {
+    element('badge-model').dataset.state = 'fallback'
+    element('model-status').textContent = '3D view unavailable. You can keep using the simulator below.'
+    element('model-status').hidden = false
+    element<HTMLButtonElement>('reset-badge-view').disabled = true
+    element<HTMLButtonElement>('focus-badge-screen').disabled = true
+    element('badge-model').querySelectorAll('canvas:not(#badge-screen)').forEach(canvas => canvas.remove())
+    inputs.set('model', 31, false)
+    console.warn('Badge 3D view unavailable:', error)
+  })
+  const inputs = new BadgeInput(mask => {
+    buttons = mask
+    worker?.postMessage({ buttons: inputMask() })
+    keyButtons.forEach(button => button.dataset.pressed = String(Boolean(mask & Number(button.dataset.button))))
+    modelView.setButtons(mask)
+  })
+  const disposeKeyboard = initBadgeKeyboard(element('simulator-pane'), inputs)
 
   const extensions = [
         keymap.of([
@@ -116,6 +175,17 @@ export async function initBadgeEditor() {
   ]
   const editor = new EditorView({ parent: element('code-editor'), state: EditorState.create({ doc: starter, extensions: [...extensions, EditorState.readOnly.of(true)] }) })
   const disposeSplit = initEditorSplit(() => editor.requestMeasure())
+  const disposeFullscreen = initEditorFullscreen(() => editor.requestMeasure())
+  const picker = initProjectPicker(async item => {
+    if (busy) return
+    setBusy(true)
+    try {
+      if (await openProject(await item.load()) && item.key.startsWith('badge/')) showMessage(`Opened /apps/${project.name}/ from BADGER.`)
+    } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not open this project.', true) } finally { setBusy(false) }
+  }, open => {
+    releaseButtons()
+    worker?.postMessage({ pause: document.hidden || open })
+  })
 
   function updateHistoryButtons(state: EditorState) {
     const editable = currentEditorPath !== null && !state.readOnly
@@ -171,13 +241,15 @@ export async function initBadgeEditor() {
     for (const file of project.files) {
       const button = document.createElement('button')
       button.type = 'button'
-      button.className = 'project-file'
+      button.className = 'project-file font-mono'
       button.setAttribute('aria-current', String(file.path === project.activePath))
       button.setAttribute('aria-label', `Open ${file.path}`)
       button.textContent = file.path + (bytesEqual(file.data, fileBytes(file)) ? '' : ' *')
       button.addEventListener('click', () => openProjectFile(file.path))
       fileList.append(button)
     }
+    element<HTMLButtonElement>('delete-file').disabled = busy || project.activePath === '__init__.py'
+    element('delete-file').title = project.activePath === '__init__.py' ? 'The app entry point is required' : `Delete ${project.activePath}`
     updateUploadButton()
   }
 
@@ -248,9 +320,7 @@ export async function initBadgeEditor() {
   }
 
   function releaseButtons() {
-    buttons = 0
-    worker?.postMessage({ buttons })
-    keyButtons.forEach(button => button.dataset.pressed = 'false')
+    inputs.clear()
   }
 
   function stopWorker(status = 'Stopped') {
@@ -301,11 +371,12 @@ export async function initBadgeEditor() {
       if (data.bootError) return fail(`Runtime could not start: ${data.bootError}`)
       if (data.ready) {
         clearTimeout(workerTimer)
+        activeWorker.postMessage({ buttons: inputMask() })
         activeWorker.postMessage({ ...request, debug: false })
       }
       if (data.running) {
         runtimeStatus.textContent = 'Running'
-        if (document.hidden) activeWorker.postMessage({ pause: true })
+        if (document.hidden || picker.open) activeWorker.postMessage({ pause: true })
       }
       if (data.failed) { errorReported = true; runtimeStatus.textContent = 'Python error' }
       if (data.completed) {
@@ -321,39 +392,30 @@ export async function initBadgeEditor() {
         screen.width = width
         screen.height = height
         screen.getContext('2d')?.putImageData(new ImageData(new Uint8ClampedArray(buffer), width, height), 0, 0)
+        modelView.updateFrame()
         element('screen-placeholder').hidden = true
       }
-      if (data.backlight !== undefined) screen.style.opacity = String(Math.max(0, Math.min(1, data.backlight)))
+      if (data.backlight !== undefined) {
+        screen.style.opacity = String(Math.max(0, Math.min(1, data.backlight)))
+        modelView.setBacklight(data.backlight)
+      }
     }
     screen.style.opacity = '1'
+    modelView.setBacklight(1)
   }
 
-  function sendButton(bit: number, pressed: boolean) {
-    if (pressed) buttons |= bit
-    else buttons &= ~bit
-    worker?.postMessage({ buttons })
-    keyButtons.forEach(button => button.dataset.pressed = String(Boolean(buttons & Number(button.dataset.button))))
-  }
-  const keyMap: Record<string, number> = { ArrowLeft: 16, ' ': 8, ArrowRight: 4, ArrowUp: 2, ArrowDown: 1, Escape: 32 }
-  for (const type of ['keydown', 'keyup'] as const) screen.addEventListener(type, event => {
-    const bit = keyMap[event.key]
-    if (!bit) return
-    event.preventDefault()
-    sendButton(bit, type === 'keydown')
-  })
-  screen.addEventListener('blur', releaseButtons)
-  window.addEventListener('blur', releaseButtons)
+  flipped.addEventListener('change', () => worker?.postMessage({ buttons: inputMask() }))
   for (const button of keyButtons) {
     const bit = Number(button.dataset.button)
-    button.addEventListener('pointerdown', event => { button.setPointerCapture(event.pointerId); sendButton(bit, true) })
-    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) button.addEventListener(type, () => sendButton(bit, false))
+    button.addEventListener('pointerdown', event => { button.setPointerCapture(event.pointerId); inputs.set(`button-pointer:${bit}`, bit, true) })
+    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) button.addEventListener(type, () => inputs.set(`button-pointer:${bit}`, bit, false))
     button.addEventListener('keydown', event => {
-      if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); sendButton(bit, true) }
+      if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); inputs.set(`button-key:${bit}`, bit, true) }
     })
     button.addEventListener('keyup', event => {
-      if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); sendButton(bit, false) }
+      if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); inputs.set(`button-key:${bit}`, bit, false) }
     })
-    button.addEventListener('blur', () => sendButton(bit, false))
+    button.addEventListener('blur', () => inputs.set(`button-key:${bit}`, bit, false))
   }
 
   function updatePath() {
@@ -366,7 +428,7 @@ export async function initBadgeEditor() {
 
   function updateUploadButton() {
     const existing = badgeAppNames.includes(project.name)
-    const count = uploadProjectFiles(project, existing).length
+    const count = uploadProjectFiles(project, existing).length + removedProjectFiles(project, existing).length
     uploadButton.disabled = busy || !disk || count === 0
     element('upload-label').textContent = !disk ? 'Upload' : count === 0 ? 'No changes' : `${existing ? 'Upload' : 'Install'} ${count} ${count === 1 ? 'file' : 'files'}`
   }
@@ -374,17 +436,19 @@ export async function initBadgeEditor() {
   function setBusy(value: boolean) {
     busy = value
     for (const id of ['connect-disk', 'release-disk', 'new-project', 'open-file', 'add-file']) element<HTMLButtonElement>(id).disabled = value
+    element<HTMLButtonElement>('delete-file').disabled = value || project.activePath === '__init__.py'
     updateUploadButton()
     appName.disabled = value
     overwrite.disabled = value
-    example.disabled = value || !catalog
-    deviceApp.disabled = value || !disk
+    picker.setDisabled(value, Boolean(disk))
     element<HTMLButtonElement>('refresh-badge').disabled = value || !disk
   }
 
   function renderDeviceApps() {
-    deviceApp.replaceChildren(new Option(badgeAppNames.length ? 'Choose an app to edit' : 'No Python apps found', ''))
-    badgeAppNames.forEach(name => deviceApp.add(new Option(name, name)))
+    picker.setBadgeApps(badgeAppNames, name => {
+      if (!disk) throw new Error('Connect your badge to open an installed app.')
+      return readBadgeProject(disk, name)
+    })
     element('badge-editor').dataset.connected = 'true'
     element('disk-status').textContent = `BADGER · ${badgeAppNames.length} apps`
     updateUploadButton()
@@ -420,7 +484,7 @@ export async function initBadgeEditor() {
     badgeAppNames = []
     releaseButton.hidden = true
     connectButton.hidden = false
-    deviceApp.replaceChildren(new Option('Choose an app to edit', ''))
+    picker.setBadgeApps([], async () => { throw new Error('Connect your badge to open an installed app.') })
     overwrite.checked = false
     overwriteOption.hidden = true
     element('badge-editor').dataset.connected = 'false'
@@ -433,17 +497,6 @@ export async function initBadgeEditor() {
     if (busy || !disk) return
     setBusy(true)
     try { await refreshDeviceApps() } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not refresh badge files.', true) } finally { setBusy(false) }
-  })
-
-  deviceApp.addEventListener('change', async () => {
-    if (busy || !disk || !deviceApp.value) return
-    const name = deviceApp.value
-    const root = disk
-    setBusy(true)
-    try {
-      const loaded = await readBadgeProject(root, name)
-      if (await openProject(loaded)) showMessage(`Opened /apps/${name}/ from BADGER.`)
-    } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not read this app.', true) } finally { deviceApp.value = ''; setBusy(false) }
   })
 
   uploadButton.addEventListener('click', async () => {
@@ -464,7 +517,8 @@ export async function initBadgeEditor() {
       overwrite.checked = false
       renderFiles()
       saveDraft()
-      if (result.written === 0) showMessage('No changed files to upload.')
+      if (result.deleted) showMessage(`Updated ${result.path}/: ${result.written} files uploaded, ${result.deleted} deleted, verified. Eject BADGER, then restart it.`)
+      else if (result.written === 0) showMessage('No changed files to upload.')
       else showMessage(`${result.created ? 'Installed app with' : 'Uploaded'} ${result.written} ${result.written === 1 ? 'file' : 'files'} in ${result.path}/, verified. Eject BADGER, then restart it.`)
       if (!badgeAppNames.includes(snapshot.name)) badgeAppNames = [...badgeAppNames, snapshot.name].sort()
     } catch (error) {
@@ -473,17 +527,23 @@ export async function initBadgeEditor() {
     } finally { renderDeviceApps(); setBusy(false) }
   })
 
-  example.addEventListener('change', async () => {
-    const app = catalog?.apps.find(app => app.name === example.value)
-    if (!app || busy) return
-    setBusy(true)
-    try {
-      const loaded = await loadExampleProject(app)
-      await openProject(loaded)
-    } catch (error) { showMessage(error instanceof Error ? error.message : 'Could not load this app.', true) } finally { example.value = ''; setBusy(false) }
-  })
-
   element('new-project').addEventListener('click', async () => { if (!busy) await openProject(newProject()) })
+  element('delete-file').addEventListener('click', async () => {
+    if (busy || project.activePath === '__init__.py') return
+    const path = project.activePath
+    const current = project
+    const dialog = element<HTMLDialogElement>('delete-file-dialog')
+    element('delete-file-description').textContent = `Remove ${path} from this project? If it is installed on your badge, Upload will delete it there too.`
+    dialog.returnValue = ''
+    const decision = new Promise<boolean>(resolve => dialog.addEventListener('close', () => resolve(dialog.returnValue === 'delete'), { once: true }))
+    dialog.showModal()
+    if (!await decision || busy || project !== current) return
+    removeProjectFile(project, path)
+    states.delete(path)
+    currentEditorPath = null
+    openProjectFile(project.activePath)
+    scheduleRun()
+  })
   element('add-file').addEventListener('click', () => { element('new-file-form').hidden = !element('new-file-form').hidden; element<HTMLInputElement>('new-file-path').focus() })
   element<HTMLFormElement>('new-file-form').addEventListener('submit', event => {
     event.preventDefault()
@@ -492,7 +552,9 @@ export async function initBadgeEditor() {
       const path = validateFilePath(element<HTMLInputElement>('new-file-path').value.trim())
       if (!/\.(py|txt|json|csv|md|ini|toml|yaml|yml)$/i.test(path)) throw new Error('Use a Python or text file extension.')
       if (project.files.some(file => file.path === path)) throw new Error('This file already exists.')
-      project.files.push(projectFile(path, new Uint8Array()))
+      const removed = project.removedFiles?.find(file => file.path === path)
+      project.files.push(removed ? { path, data: removed.data, text: '' } : projectFile(path, new Uint8Array()))
+      project.removedFiles = project.removedFiles?.filter(file => file.path !== path)
       project.files.sort((a, b) => a.path.localeCompare(b.path))
       element('new-file-form').hidden = true
       element<HTMLInputElement>('new-file-path').value = ''
@@ -536,8 +598,8 @@ export async function initBadgeEditor() {
     updateLocationMessage()
     scheduleRun()
   })
-  document.addEventListener('visibilitychange', () => { releaseButtons(); worker?.postMessage({ pause: document.hidden }) })
-  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { disposeSplit(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
+  document.addEventListener('visibilitychange', () => { releaseButtons(); worker?.postMessage({ pause: document.hidden || picker.open }) })
+  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { modelView.dispose(); disposeKeyboard(); disposeSplit(); disposeFullscreen(); picker.dispose(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
   window.addEventListener('pageshow', event => { if (event.persisted) scheduleRun(0) })
 
   setBusy(true)
@@ -545,11 +607,15 @@ export async function initBadgeEditor() {
     try {
       const response = await fetch('/editor-apps/catalog.json')
       if (!response.ok) throw new Error('Could not load the app examples.')
-      catalog = await response.json() as EditorCatalog
-      example.replaceChildren(new Option('App examples', ''))
-      catalog.apps.forEach(app => example.add(new Option(app.title, app.name)))
-      example.disabled = busy
-    } catch (error) { example.disabled = true; showMessage(error instanceof Error ? error.message : 'Could not load the app examples.', true) }
+      picker.setApps(await response.json() as EditorCatalog)
+    } catch { picker.setFailure('apps', 'Could not load the app collection. Reload to try again.') }
+  })()
+  void (async () => {
+    try {
+      const response = await fetch('/editor-examples/catalog.json')
+      if (!response.ok) throw new Error('Could not load the examples.')
+      picker.setExamples(await response.json() as SimulatorExamples)
+    } catch { picker.setFailure('examples', 'Could not load the example collection. Reload to try again.') }
   })()
   let restored = false
   try {
@@ -571,4 +637,5 @@ export async function initBadgeEditor() {
   } catch { draftStatus.textContent = 'Browser storage unavailable' }
   await openProject(project, restored)
   setBusy(false)
+  modelView.start()
 }
