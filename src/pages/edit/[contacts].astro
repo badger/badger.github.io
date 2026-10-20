@@ -1,4 +1,13 @@
 ---
+import type { GetStaticPaths } from 'astro'
+import { CONTACTS_PAGE_ENABLED } from '@/config/features'
+
+export const getStaticPaths = (() => {
+  if (!CONTACTS_PAGE_ENABLED) return []
+
+  return [{ params: { contacts: 'contacts' } }]
+}) satisfies GetStaticPaths
+
 const destination = '/contacts'
 ---
 

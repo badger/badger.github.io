@@ -27,6 +27,7 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 - `/edit` is a legacy address that redirects to `/apps`; update links to use `/apps`.
 - The separate optional app-browsing catalog uses `/browse-apps` and `APP_CATALOG_PAGE_ENABLED`.
 - The Bluetooth editor is disabled by default through `BLUETOOTH_EDITOR_ENABLED`; keep its page and footer link gated by that flag, and do not show it under Apps.
+- The Contacts page (`/contacts` and its `/edit/contacts` redirect) is disabled through `CONTACTS_PAGE_ENABLED` until it works with the retail badge's Contacts app; keep its routes, navigation item, and footer link gated by that flag.
 - Do not change badge filesystem paths such as `/apps/example/` in app instructions or content.
 
 ## Color Tokens (Dark Only)
