@@ -104,6 +104,9 @@ test('extracts the first sentence of the first paragraph', () => {
   assert.equal(firstSentence('Wraps across\ntwo lines. Next.'), 'Wraps across two lines.')
   assert.equal(firstSentence('# Title\n\n- only a list\n'), '')
   assert.equal(firstSentence('No terminal punctuation'), 'No terminal punctuation')
+  assert.equal(firstSentence('```python\nprint("hello")\n```\n'), '')
+  assert.equal(firstSentence('```\ncode\n```\n\nProse after code. More.'), 'Prose after code.')
+  assert.equal(firstSentence('Intro text.\n```\ncode\n```'), 'Intro text.')
 })
 
 test('writes sorted JSON and does not rewrite an unchanged copy', async (t) => {

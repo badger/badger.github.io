@@ -40,8 +40,15 @@ async function readHomeReadme(ref, name, file) {
 // Mirrors badgerfactory scripts/update_app_descriptions.py.
 export function firstSentence(readme) {
   const paragraph = []
+  let fenced = false
   for (const line of readme.split(/\r?\n/)) {
     const text = line.trim()
+    if (text.startsWith('```') || text.startsWith('~~~')) {
+      if (paragraph.length && !fenced) break
+      fenced = !fenced
+      continue
+    }
+    if (fenced) continue
     const isBlock = BLOCK_PREFIXES.some((prefix) => text.startsWith(prefix))
       || /^(?:\*(?:\s|$)|(?:\*\s*){3,}$)/.test(text)
     if (!text || isBlock) {

@@ -19,11 +19,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - name: Regenerate app descriptions
         env:
           APPS_REF: ${{ github.event.client_payload.sha || 'main' }}
           GITHUB_TOKEN: ${{ github.token }}
         run: npm run sync:app-descriptions
+      # PRs created with GITHUB_TOKEN do not trigger ci.yml, so validate here.
+      - name: Install dependencies
+        run: npm ci
+      - name: Check app description updates
+        run: npm run test:app-descriptions
+      - name: Build
+        run: npm run build
       - name: Open pull request
         uses: peter-evans/create-pull-request@v7
         with:
