@@ -44,6 +44,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   const discarded = new Set<Material>()
   const resetButton = document.getElementById('reset-badge-view') as HTMLButtonElement
   const screenButton = document.getElementById('focus-badge-screen') as HTMLButtonElement
+  const fullButton = document.getElementById('focus-badge-full') as HTMLButtonElement
   const status = document.getElementById('model-status')!
   let model: Object3D | undefined
   let displayMesh: Mesh | undefined
@@ -51,7 +52,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   let mask = 0
   let frame = 0
   let disposed = false
-  let screenView = false
+  let screenView = true
 
   function render() {
     if (disposed || frame || document.hidden) return
@@ -92,8 +93,15 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     controls.update()
     render()
   }
-  const reset = () => { screenView = false; view() }
-  const focusScreen = () => { screenView = true; view() }
+  const setView = (screen: boolean) => {
+    screenView = screen
+    screenButton.setAttribute('aria-pressed', String(screen))
+    fullButton.setAttribute('aria-pressed', String(!screen))
+    view()
+  }
+  const reset = () => view()
+  const focusScreen = () => setView(true)
+  const focusFull = () => setView(false)
   const resize = new ResizeObserver(() => {
     if (disposed || !host.clientWidth || !host.clientHeight) return
     try {
@@ -158,6 +166,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   controls.addEventListener('change', render)
   resetButton.addEventListener('click', reset)
   screenButton.addEventListener('click', focusScreen)
+  fullButton.addEventListener('click', focusFull)
   const ready = fetch('/simulator/models/github-mona-badge.glb', { signal }).then(async response => {
     if (!response.ok) throw new Error(`Could not load the badge model (HTTP ${response.status}).`)
     const data = await response.arrayBuffer()
@@ -197,7 +206,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     if (disposed || signal.aborted) return
     host.dataset.state = 'ready'
     status.hidden = true
-    resetButton.disabled = screenButton.disabled = false
+    resetButton.disabled = screenButton.disabled = fullButton.disabled = false
   })
 
   function disposeModel() {
@@ -228,6 +237,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
       controls.dispose()
       resetButton.removeEventListener('click', reset)
       screenButton.removeEventListener('click', focusScreen)
+      fullButton.removeEventListener('click', focusFull)
       window.removeEventListener('blur', release)
       document.removeEventListener('visibilitychange', release)
       canvas.removeEventListener('webglcontextlost', lost)
