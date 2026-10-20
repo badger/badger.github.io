@@ -23,11 +23,11 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   controls.enablePan = false
   controls.minDistance = 0.025
   controls.maxDistance = 0.6
-  scene.add(new HemisphereLight(0xffffff, 0x303050, 2.5))
+  scene.add(new HemisphereLight(0xffffff, 0x303030, 2.5))
   const key = new DirectionalLight(0xffffff, 3)
   key.position.set(-0.1, 0.15, 0.3)
   scene.add(key)
-  const fill = new DirectionalLight(0xb7a8ff, 1.5)
+  const fill = new DirectionalLight(0xffffff, 1.5)
   fill.position.set(0.2, -0.1, -0.2)
   scene.add(fill)
   const texture = new CanvasTexture(display)
