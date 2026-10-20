@@ -1,5 +1,5 @@
-# text.tokenise() + text.draw() lay out word-wrapped rich text inside a rect.
-# [tags] in the string call your glyph_renderers - here to change pen colour
+# screen.text() lays out word-wrapped rich text inside a rect. [tags] in the
+# string call glyph renderers registered with add_glyph() - here to change pen colour
 # mid-sentence and to blit an inline skull image.
 
 import math
@@ -7,7 +7,7 @@ import math
 badge.mode(HIRES)
 
 skull = image.load("/system/assets/skull.png")
-screen.font = rom_font.compass
+screen.font = font.compass
 
 
 def pen_glyph_renderer(_image, parameters, measure):
@@ -36,7 +36,7 @@ def circle_glyph_renderer(image, _parameters, measure):
   return None
 
 
-nope = rom_font.nope
+nope = font.nope
 
 
 glyph_renderers = {
@@ -44,6 +44,9 @@ glyph_renderers = {
   "pen": pen_glyph_renderer,
   "circle": circle_glyph_renderer
 }
+
+for glyph_name, renderer in glyph_renderers.items():
+  add_glyph(glyph_name, renderer)
 
 
 while True:
@@ -59,9 +62,8 @@ while True:
   y = 5
   width = math.sin(badge.ticks / 500) * 50 + 200
   height = 220
-  tokens = text.tokenise(screen, message, glyph_renderers)
   bounds = rect(x, y, width, height)
-  text.draw(screen, tokens, bounds, line_spacing=1, word_spacing=1.05)
+  screen.text(message, bounds, line_height=1, word_spacing=1.05)
 
   screen.pen = color.rgb(60, 80, 100, 100)
   screen.line(bounds.x, bounds.y, bounds.x + bounds.w, bounds.y)

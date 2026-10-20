@@ -47,4 +47,14 @@ test('example syncing uses the runtime revision and retains the full RGBA minima
   const original = 'minimap_overlay_len = minimap_overlay.width * minimap_overlay.height\n'
   assert.equal(adaptExampleSource('raycast.py', original), 'minimap_overlay_len = len(minimap_overlay_mv)\n')
   assert.equal(adaptExampleSource('other.py', original), original)
+  assert.throws(() => adaptExampleSource('text.py', 'screen.font = font.compass\n'), /changed upstream/)
+})
+
+test('synced text examples use only the badge firmware text API', async () => {
+  for (const file of ['text.py', 'vector_text.py']) {
+    const source = await readFile(new URL(`../public/editor-examples/${file}`, import.meta.url), 'utf8')
+    assert.doesNotMatch(source, /text\.(tokenise|draw)\(|rom_font/, file)
+    assert.match(source, /add_glyph\(glyph_name, renderer\)/, file)
+    assert.match(source, /screen\.text\(message, bounds/, file)
+  }
 })

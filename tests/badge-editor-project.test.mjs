@@ -139,7 +139,7 @@ test('simulator examples become editable installable projects with local asset p
     if (['text.py', 'vector_text.py'].includes(example.file)) {
       assert.match(loaded.files[0].text, /add_glyph\(glyph_name, renderer\)/)
       assert.match(loaded.files[0].text, /screen.text\(message, bounds/)
-      assert.doesNotMatch(loaded.files[0].text, /^  tokens = text\.tokenise/m)
+      assert.doesNotMatch(loaded.files[0].text, /text\.(tokenise|draw)\(|rom_font/)
     }
     assert.deepEqual(loaded.files.slice(1).map(file => file.path), example.assets)
     assert.equal(simulationRequest(loaded).files.length, 1 + example.assets.length)
