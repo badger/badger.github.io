@@ -34,7 +34,6 @@ _compat_module("aye_arr.nec")
 _compat_module("aye_arr.nec.remotes")
 _compat_module("aye_arr.nec.remotes.descriptor", RemoteDescriptor=_RemoteDescriptor)
 _compat_module("badgeware.ir", ir=_IR())
-_compat_module("sparkle", resume=lambda: None, request_local_show=lambda: True)
 
 # Bluetooth is inert: radios never find a peer, so badge-to-badge apps such as
 # Merge Conflict stay in their lobby and ask you to hold badges together.

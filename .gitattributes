@@ -1,2 +1,4 @@
-# Served byte-for-byte; filesystem.json records exact file sizes.
-public/simulator/filesystem/** -text
+# Simulator files are served with byte sizes from filesystem.json, so keep LF on every platform
+public/simulator/filesystem/** text=auto eol=lf
+# Editor examples are generated with LF; keep them byte-identical to the sync output
+public/editor-examples/** text=auto eol=lf

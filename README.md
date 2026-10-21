@@ -89,7 +89,7 @@ unchanged.
 
 Do not edit `src/data/app-descriptions.json` by hand. It is the generated website
 copy used by normal builds and deployment. A newly added store app remains
-installable and shows `Description not available` until the descriptions are
+installable and is listed without a description until the descriptions are
 updated.
 
 ## 📁 Project Structure

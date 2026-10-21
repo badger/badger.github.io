@@ -139,7 +139,7 @@ test('simulator examples become editable installable projects with local asset p
     if (['text.py', 'vector_text.py'].includes(example.file)) {
       assert.match(loaded.files[0].text, /add_glyph\(glyph_name, renderer\)/)
       assert.match(loaded.files[0].text, /screen.text\(message, bounds/)
-      assert.doesNotMatch(loaded.files[0].text, /^  tokens = text\.tokenise/m)
+      assert.doesNotMatch(loaded.files[0].text, /text\.(tokenise|draw)\(|rom_font/)
     }
     assert.deepEqual(loaded.files.slice(1).map(file => file.path), example.assets)
     assert.equal(simulationRequest(loaded).files.length, 1 + example.assets.length)
@@ -190,14 +190,14 @@ test('a one-line example edit updates one file in a nine-file app without readin
   assert.deepEqual(disk.reads, [])
 })
 
-test('first install copies all nine required files even when only one example file was edited', async () => {
+test('first install copies every required file even when only one example file was edited', async () => {
   const current = await flappyProject()
   current.files[0].text += '\nvalue = 1\n'
   const disk = fakeDisk({})
   const result = await uploadEditorProject(disk.root, current)
   assert.equal(result.created, true)
-  assert.equal(result.written, 9)
-  assert.equal(result.verified.size, 9)
+  assert.equal(result.written, current.files.length)
+  assert.equal(result.verified.size, current.files.length)
   assert.equal(disk.writes.at(-1), 'apps/flappy/__init__.py')
   for (const file of current.files) assert.deepEqual(disk.files.get(`apps/flappy/${file.path}`), fileBytes(file))
 })

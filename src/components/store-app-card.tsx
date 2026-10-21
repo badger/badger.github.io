@@ -35,9 +35,7 @@ export function StoreAppCard({ title, iconUrl, description, queued, installed, n
                 : <><ShoppingBag /> Add</>}
         </Button>
       </div>
-      <p className={`mt-2 break-words text-xs leading-5 text-muted-foreground ${description ? '' : 'font-mono'}`}>
-        {description || 'Description not available'}
-      </p>
+      {description && <p className="mt-2 break-words text-xs leading-5 text-muted-foreground">{description}</p>}
     </div>
   )
 }

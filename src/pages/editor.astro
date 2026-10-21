@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus, RotateCw, ScanSearch } from 'lucide-react'
+import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus, RotateCw } from 'lucide-react'
 ---
 
 <Layout title="Editor / Badger" description="Write Python, test it in the browser, and upload your app to a Badger badge.">
@@ -88,8 +88,10 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
               <div class="flex items-center justify-between gap-3 text-xs text-muted-foreground">
                 <span class="model-keyboard-hint">Click the badge to use your keyboard</span>
                 <div class="flex shrink-0 items-center gap-2">
-                  <button id="focus-badge-screen" class="editor-button" aria-pressed="false" title="Zoom to the screen" disabled><ScanSearch size={14} /> Screen</button>
-                  <button id="full-badge-view" class="editor-button" aria-pressed="true" title="Show the whole badge" disabled><Maximize size={14} /> Full</button>
+                  <div class="badge-view-toggle" role="group" aria-label="Badge view">
+                    <button id="focus-badge-screen" class="editor-button" aria-pressed="true" title="Zoom to the badge screen" disabled>Screen</button>
+                    <button id="focus-badge-full" class="editor-button" aria-pressed="false" title="Show the full badge" disabled>Full</button>
+                  </div>
                   <button id="rotate-badge" class="editor-button" aria-pressed="false" title="Turn the badge upside down"><RotateCw size={14} /> Rotate</button>
                 </div>
               </div>
@@ -254,6 +256,10 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
   #project-files :global(.project-file:hover) { background: hsl(var(--primary) / 0.05); color: hsl(var(--foreground)); }
   #project-files :global(.project-file[aria-current="true"]) { border-left-color: hsl(var(--primary)); background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); }
   .editor-button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .badge-view-toggle { display: inline-flex; }
+  .badge-view-toggle .editor-button:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  .badge-view-toggle .editor-button:last-child { margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .badge-view-toggle .editor-button[aria-pressed='true'] { position: relative; border-color: hsl(var(--primary) / 0.6); background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); }
   .editor-button-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: hsl(var(--primary)); }
   .badge-key { width: 2.3rem; height: 2rem; border: 1px solid #30363d; border-radius: 0.35rem; background: #161b22; color: #c9d1d9; font-size: 0.75rem; touch-action: none; user-select: none; }
   .badge-key:active, .badge-key[data-pressed='true'] { color: #5fed83; border-color: #5fed83; background: #163321; }

@@ -158,12 +158,18 @@ test('bundled app entry points render with their full projects in the real simul
   const catalog = JSON.parse(await readFile(new URL('../public/editor-apps/catalog.json', import.meta.url), 'utf8'))
   // These apps need badge networking or firmware I/O that the simulator does not provide.
   const hardwareOnly = { camera: /no module named 'socket'/, Copilot: /no module named 'socket'/, system: /no module named 'badgeware\.io'/ }
+  // These apps stop with a simulator limitation message instead of running.
+  const simulatorLimited = { show: /Sparkle shows not supported in the simulator/ }
   for (const app of catalog.apps) {
     await t.test(app.name, async () => {
       const files = await Promise.all(app.files.map(async path => projectFile(path, new Uint8Array(await readFile(new URL(`../public/editor-apps/${app.name}/${path}`, import.meta.url))))))
       const result = await run(simulationRequest({ name: app.name, sourceName: app.name, files }))
       if (hardwareOnly[app.name]) {
         assert.match(result.error, hardwareOnly[app.name])
+        return
+      }
+      if (simulatorLimited[app.name]) {
+        assert.match(result.output.join('\n'), simulatorLimited[app.name])
         return
       }
       assert.ok(result.frames > 0, `${result.error}\n${result.output.join('\n')}`)
@@ -235,4 +241,25 @@ print('Firmware fonts passed')
   assert.equal(result.error, '')
   assert.equal(result.frames, 1)
   assert.match(result.output.join('\n'), /Firmware fonts passed/)
+})
+
+test('shipping firmware shared assets and helper APIs are available in the real simulator', async () => {
+  const result = await run(request(`
+import missing_details, wifi
+for path in ('skull.png', 'icons.png', 'cards.png', 'tufty.png', 'background.png', 'sparkle/invertocat.png', 'squirrel-sprites/running.png'):
+    assert image.load('/system/assets/' + path)
+assert font.load('/system/assets/fonts/lato-400.af') and font.load('/system/assets/fonts/lato-900.af')
+assert not wifi.failure() and wifi.is_connected()
+missing_details.show([], lambda: None, ('your name, GitHub username,', 'and LinkedIn stub'))
+missing_details.show(['WIFI_SSID'], lambda: None)
+badge.update()
+print('Shipping firmware passed')
+`))
+  assert.equal(result.error, '')
+  assert.match(result.output.join('\n'), /Shipping firmware passed/)
+})
+
+test('Sparkle light shows report the simulator limitation', async () => {
+  const result = await run(request('import sparkle\nsparkle.request_local_show()\n'))
+  assert.match(result.output.join('\n'), /Sparkle shows not supported in the simulator/)
 })

@@ -338,8 +338,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         }))
         .sort((left, right) => left.title.localeCompare(right.title))
       setStoreApps(loadedApps)
-      const missingDescriptions = loadedApps.filter((app) => !app.description).length
-      setStoreMessage(`${loadedApps.length} apps · source: badger/home${missingDescriptions ? ` · Descriptions need an update (${missingDescriptions} missing).` : ''}`)
+      setStoreMessage(`${loadedApps.length} apps · source: badger/home`)
     } catch {
       setStoreMessage('Could not load the app catalog. Try again.')
     }
