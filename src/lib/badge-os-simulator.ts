@@ -16,11 +16,26 @@ class _ReturnHome(BaseException):
     pass
 
 _armed = False
+_target = None
 _native_poll = badge.poll
 
+# Like the firmware's HOME interrupt, run the app's on_exit hook once before
+# returning to the menu so apps can save state and restore defaults.
+def _exit_app():
+    app = sys.modules.get(_target)
+    on_exit = getattr(app, "on_exit", None)
+    if callable(on_exit):
+        try:
+            on_exit()
+        except Exception as e:
+            sys.print_exception(e)
+
 def _poll():
+    global _armed
     _native_poll()
     if _armed and badge.pressed(BUTTON_HOME):
+        _armed = False
+        _exit_app()
         raise _ReturnHome()
 
 def _reset():
@@ -38,13 +53,14 @@ def _release():
         badge.poll()
 
 def _launch(path):
+    # Apps (including the menu) may add import paths; restore them all on exit.
+    saved_path = list(sys.path)
     try:
         return launch(path)
     except _ReturnHome:
         return None
     finally:
-        while len(sys.path) and sys.path[0].startswith("${appRoot}"):
-            sys.path.pop(0)
+        sys.path[:] = saved_path
 
 while True:
     _armed = False

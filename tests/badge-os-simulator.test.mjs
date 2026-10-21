@@ -69,3 +69,38 @@ print("APPS", sorted(os.listdir("/system/apps")))
   assert.match(result.error, /KeyboardInterrupt/)
   assert.ok(result.frames > 20)
 })
+
+test('HOME runs the active app on_exit once and the launcher restores sys.path', async () => {
+  const file = (path, text) => projectFile(path, new TextEncoder().encode(text))
+  const menu = { name: 'menu', files: [file('__init__.py', 'import sys\nsys.path.insert(0, "/")\ndef on_exit():\n    return "/system/apps/demo"\n')] }
+  const demo = { name: 'demo', files: [file('__init__.py', 'exits = 0\ndef on_exit():\n    global exits\n    exits += 1\n    print("DEMO EXIT", exits)\n    badge.poll()\ndef update():\n    pass\nrun(update)\n')] }
+  const prelude = `
+import builtins, js, sys
+_script_polls = 0
+_script_poll = badge.poll
+_script_launch = launch
+_script_launches = 0
+_script_path = list(sys.path)
+def _scripted_poll():
+    global _script_polls
+    _script_polls += 1
+    js.set_test_buttons(32 if _script_polls in (20, 21) else 0)
+    _script_poll()
+def _logged_launch(path):
+    global _script_launches
+    _script_launches += 1
+    if _script_launches == 3:
+        print("PATH RESTORED", sys.path == _script_path)
+        raise KeyboardInterrupt()
+    return _script_launch(path)
+badge.poll = _scripted_poll
+builtins.launch = _logged_launch
+`
+  const result = await run(badgeOsRequest(menu, [demo], prelude))
+  const output = result.output.join('\n')
+  assert.match(output, /DEMO EXIT 1/)
+  assert.doesNotMatch(output, /DEMO EXIT 2/)
+  assert.match(output, /PATH RESTORED True/)
+  assert.doesNotMatch(output, /- ERROR:|Traceback/)
+  assert.match(result.error, /KeyboardInterrupt/)
+})

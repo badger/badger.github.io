@@ -19,9 +19,9 @@ const sideButtons = [
     <BadgeImage />
   </div>
   <figure data-simulator class="rounded-lg border border-border/40 bg-card p-4 sm:p-6">
-    <div class="flex items-center justify-between gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       <p data-status class="font-mono text-xs uppercase tracking-[0.12em] text-primary" aria-live="polite">Booting</p>
-      <div class="flex shrink-0 items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <button type="button" data-model-screen class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="false" title="Zoom to the screen" disabled><ScanSearch size={14} />Screen</button>
         <button type="button" data-model-full class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="true" title="Show the whole badge" disabled><Maximize size={14} />Full</button>
         <button type="button" data-model-rotate class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="false" title="Turn the badge upside down"><RotateCw size={14} />Rotate</button>

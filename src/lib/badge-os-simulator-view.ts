@@ -98,7 +98,16 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     status.textContent = 'Running Mona OS 4.0'
   }
 
-  const pause = () => worker?.postMessage({ pause: document.hidden || !visible })
+  // The first-frame watchdog only runs while the simulator is unpaused, so
+  // scrolling away or hiding the tab before the first frame is not a failure.
+  let awaitingFrame = false
+  const pause = () => {
+    const paused = document.hidden || !visible
+    worker?.postMessage({ pause: paused })
+    if (!awaitingFrame) return
+    if (paused) clearTimeout(timer)
+    else watchdog(frameTimeout, 'No display output')
+  }
   const watchdog = (ms: number, reason: string) => {
     clearTimeout(timer)
     timer = window.setTimeout(() => fail(new Error(reason)), ms)
@@ -125,7 +134,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
         }
         if (data.bootError || data.stuck || data.completed) return fail(data.bootError || 'Simulator stopped')
         if (data.ready) {
-          watchdog(frameTimeout, 'No display output')
+          awaitingFrame = true
           next.postMessage({ ...request, debug: false })
           sendButtons()
           pause()
@@ -140,6 +149,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
           model.updateFrame()
           if (!framed) {
             framed = true
+            awaitingFrame = false
             clearTimeout(timer)
             reveal()
           }
@@ -163,6 +173,26 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     key.addEventListener('pointercancel', release, { signal })
     key.addEventListener('lostpointercapture', release, { signal })
     key.addEventListener('contextmenu', event => event.preventDefault(), { signal })
+    // Enter and Space hold the button like a pointer. Preventing their default
+    // suppresses the keyboard click, so a click with no pointer detail comes
+    // from assistive technology and taps the button once.
+    const keyRelease = () => input.set(`key:${bit}`, bit, false)
+    key.addEventListener('keydown', event => {
+      if (event.key !== ' ' && event.key !== 'Enter') return
+      event.preventDefault()
+      input.set(`key:${bit}`, bit, true)
+    }, { signal })
+    key.addEventListener('keyup', event => {
+      if (event.key !== ' ' && event.key !== 'Enter') return
+      event.preventDefault()
+      keyRelease()
+    }, { signal })
+    key.addEventListener('blur', keyRelease, { signal })
+    key.addEventListener('click', event => {
+      if (event.detail !== 0) return
+      input.set(`click:${bit}`, bit, true)
+      window.setTimeout(() => input.set(`click:${bit}`, bit, false), 150)
+    }, { signal })
   }
   document.addEventListener('visibilitychange', () => { input.clear(); pause() }, { signal })
   window.addEventListener('pagehide', event => { if (!event.persisted) { worker?.terminate(); model.dispose() } }, { signal })
