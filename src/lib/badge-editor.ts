@@ -161,6 +161,8 @@ export async function initBadgeEditor() {
           '&.cm-focused': { outline: 'none' },
           '&.cm-focused .cm-cursor': { borderLeftColor: 'var(--code-editor-caret)' },
           '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection': { backgroundColor: 'var(--code-editor-selection)' },
+          // Keep syntax colours on selected text instead of the global/system highlight text colour.
+          '& ::selection': { color: 'currentcolor' },
           '.cm-panels': { backgroundColor: 'var(--code-editor-panel)', color: 'var(--code-editor-fg)' },
         }),
         darkMode.of(EditorView.darkTheme.of(getActiveTheme() === 'dark')),
