@@ -31,8 +31,8 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   const screen = root.querySelector<HTMLCanvasElement>('[data-screen]')!
   const status = root.querySelector<HTMLElement>('[data-status]')!
   const controls = {
-    reset: root.querySelector<HTMLButtonElement>('[data-model-reset]')!,
     screen: root.querySelector<HTMLButtonElement>('[data-model-screen]')!,
+    full: root.querySelector<HTMLButtonElement>('[data-model-full]') ?? undefined,
     status: root.querySelector<HTMLElement>('[data-model-status]')!,
     zoomIn: root.querySelector<HTMLButtonElement>('[data-model-zoom-in]') ?? undefined,
     zoomOut: root.querySelector<HTMLButtonElement>('[data-model-zoom-out]') ?? undefined,
@@ -69,14 +69,28 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     return view
   }, fail)
 
+  let rotated = false
+  let buttons = 0
+  // Bit 32768 tells the firmware the badge is upside down, so it autorotates
+  // the display and swaps the touch pad directions.
+  const sendButtons = () => worker?.postMessage({ buttons: buttons | (rotated ? 32768 : 0) })
   const input = new BadgeInput(mask => {
-    worker?.postMessage({ buttons: mask })
+    buttons = mask
+    sendButtons()
     for (const key of keys) key.dataset.pressed = String((mask & Number(key.dataset.button)) !== 0)
     model.setButtons(mask)
   })
   const removeKeyboard = initBadgeKeyboard(simulator, input)
   signal.addEventListener('abort', removeKeyboard)
-  initBadgeMotion(root, motion => worker?.postMessage({ motion }), signal)
+  const motion = initBadgeMotion(root, value => worker?.postMessage({ motion: value }), signal)
+  const rotateButton = root.querySelector<HTMLButtonElement>('[data-model-rotate]')!
+  rotateButton.addEventListener('click', () => {
+    rotated = !rotated
+    rotateButton.setAttribute('aria-pressed', String(rotated))
+    model.setRotated(rotated)
+    motion.setFlipped(rotated)
+    sendButtons()
+  }, { signal })
 
   function reveal() {
     if (failed || !framed || !modelReady || root.dataset.state === 'running') return
@@ -113,6 +127,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
         if (data.ready) {
           watchdog(frameTimeout, 'No display output')
           next.postMessage({ ...request, debug: false })
+          sendButtons()
           pause()
         }
         if (data.frame) {

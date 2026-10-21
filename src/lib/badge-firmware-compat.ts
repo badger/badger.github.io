@@ -36,6 +36,58 @@ _compat_module("aye_arr.nec.remotes.descriptor", RemoteDescriptor=_RemoteDescrip
 _compat_module("badgeware.ir", ir=_IR())
 _compat_module("sparkle", resume=lambda: None, request_local_show=lambda: True)
 
+# Bluetooth is inert: radios never find a peer, so badge-to-badge apps such as
+# Merge Conflict stay in their lobby and ask you to hold badges together.
+class _UUID:
+    def __init__(self, value):
+        self.value = value
+
+    def __eq__(self, other):
+        return isinstance(other, _UUID) and other.value == self.value
+
+    def __hash__(self):
+        return hash(self.value)
+
+class _BLE:
+    def active(self, *args):
+        return False
+
+    def config(self, *args, **options):
+        return b"\\x00\\x00\\x00\\x00\\x00\\x01" if "mac" in args else None
+
+    def __getattr__(self, name):
+        return lambda *args, **options: None
+
+_compat_module("bluetooth", BLE=_BLE, UUID=_UUID, FLAG_READ=2, FLAG_WRITE=8, FLAG_NOTIFY=16, FLAG_WRITE_NO_RESPONSE=4, FLAG_INDICATE=32)
+
+from badgeware import link as _link
+
+def _draw_identicon(target, badge_id, x, y, size, pen=None, background=None):
+    previous = target.pen
+    if background is not None:
+        target.pen = background
+        target.rectangle(x, y, size, size)
+    value = 2166136261
+    for byte in badge_id:
+        value = ((value ^ byte) * 16777619) & 0xffffffff
+    target.pen = pen if pen is not None else color.rgb(88, 58, 247)
+    cell = size / 5
+    for row in range(5):
+        for column in range(3):
+            if value & (1 << (row * 3 + column)):
+                for mirrored in {column, 4 - column}:
+                    target.rectangle(x + mirrored * cell, y + row * cell, cell, cell)
+    try:
+        target.pen = previous
+    except TypeError:
+        pass
+
+_link.draw_identicon = _draw_identicon
+_link.Link.central = False
+_link.Link.journal = None
+_link.Proximity.sync_id = None
+_link.Proximity.cooldown_ms = 1
+
 # The badge's BACK and MENU touch pads are separate from HOME, which exits apps.
 class _Action:
     def __init__(self, name):
@@ -288,4 +340,35 @@ def _show_missing_details(names, background=None, details=()):
     _show_missing(names or [" ".join(details)], background)
 
 missing_details.show = _show_missing_details
+
+# The badge reboots into USB disk mode. Without USB in the browser, show the
+# disk mode screen and wait for RESET (HOME in the simulator), as the badge does.
+import powman, time as _time
+
+def _reset_into_msc():
+    lines = (("USB Disk Mode", color.rgb(95, 237, 131)), ("", None), ("Connect to a computer", color.white), ("to access the disk.", color.white), ("", None), ("Press RESET to reboot.", color.white))
+    while True:
+        try:
+            screen.font = font.absolute
+        except (OSError, NameError):
+            pass
+        screen.pen = color.black
+        screen.shape(shape.rectangle(0, 0, screen.width, screen.height))
+        _w, height = screen.measure_text("X")
+        step = height + 4
+        y = (screen.height - step * len(lines)) / 2
+        for text, pen in lines:
+            if text:
+                screen.pen = pen
+                width, _h = screen.measure_text(text)
+                screen.text(text, (screen.width - width) / 2, y)
+            y += step
+        display.update()
+        badge.poll()
+        if badge.pressed(BUTTON_HOME):
+            machine.reset()
+        _time.sleep(0.05)
+
+powman.WAKE_DOUBLETAP = getattr(powman, "WAKE_DOUBLETAP", 254)
+powman.reset_into_msc = _reset_into_msc
 `

@@ -24,7 +24,12 @@ export function badgeMotion(acceleration: Vector, rotation: Rotation | null | un
 }
 
 export function initBadgeMotion(root: HTMLElement, send: (motion: number[]) => void, signal: AbortSignal) {
-  if (typeof window.DeviceMotionEvent !== 'function') return
+  let flipped = false
+  let latest: number[] | null = null
+  // Turning the badge 180° about the screen normal reverses its x and y axes.
+  const emit = () => { if (latest) send(flipped ? latest.map((value, index) => index === 2 || index === 5 ? value : clamp(-value)) : latest) }
+  const control = { setFlipped(value: boolean) { if (flipped === value) return; flipped = value; emit() } }
+  if (typeof window.DeviceMotionEvent !== 'function') return control
   let last = 0
   window.addEventListener('devicemotion', event => {
     const now = performance.now()
@@ -33,11 +38,12 @@ export function initBadgeMotion(root: HTMLElement, send: (motion: number[]) => v
     const motion = badgeMotion(event.accelerationIncludingGravity, event.rotationRate, angle)
     if (!motion) return
     last = now
-    send(motion)
+    latest = motion
+    emit()
   }, { signal })
   // iOS only delivers motion after permission is granted from a user gesture.
   const request = (DeviceMotionEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission
-  if (typeof request !== 'function') return
+  if (typeof request !== 'function') return control
   const ask = () => {
     root.removeEventListener('pointerup', ask)
     root.removeEventListener('keydown', ask)
@@ -45,4 +51,5 @@ export function initBadgeMotion(root: HTMLElement, send: (motion: number[]) => v
   }
   root.addEventListener('pointerup', ask, { signal })
   root.addEventListener('keydown', ask, { signal })
+  return control
 }

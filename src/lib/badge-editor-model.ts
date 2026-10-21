@@ -3,8 +3,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 export interface BadgeModelControls {
-  reset: HTMLButtonElement
   screen: HTMLButtonElement
+  full?: HTMLButtonElement
   status: HTMLElement
   zoomIn?: HTMLButtonElement
   zoomOut?: HTMLButtonElement
@@ -73,8 +73,8 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   const targets = new Map<Object3D, number>()
   const caps = new Map<number, { mesh: Mesh; z: number; material: MeshStandardMaterial }>()
   const discarded = new Set<Material>()
-  const resetButton = elements?.reset ?? document.getElementById('reset-badge-view') as HTMLButtonElement
   const screenButton = elements?.screen ?? document.getElementById('focus-badge-screen') as HTMLButtonElement
+  const fullButton = elements?.full ?? document.getElementById('full-badge-view') as HTMLButtonElement | null
   const status = elements?.status ?? document.getElementById('model-status')!
   let model: Object3D | undefined
   let displayMesh: Mesh | undefined
@@ -85,6 +85,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   let frame = 0
   let disposed = false
   let screenView = false
+  let rotated = false
 
   function render() {
     if (disposed || frame || document.hidden) return
@@ -181,8 +182,31 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     controls.update()
     render()
   }
-  const reset = () => { screenView = false; view() }
-  const focusScreen = () => { screenView = true; view() }
+  const setView = (value: boolean) => {
+    screenView = value
+    screenButton.setAttribute('aria-pressed', String(value))
+    fullButton?.setAttribute('aria-pressed', String(!value))
+    view()
+  }
+  const focusScreen = () => setView(true)
+  const showFull = () => setView(false)
+  // Turn the badge 180° about the view axis, pivoting on its centre so the
+  // camera stays put; focusZoom then follows the screen to its new position.
+  function applyRotation() {
+    if (!model) return
+    const before = new Box3().setFromObject(model).getCenter(new Vector3())
+    model.rotation.z = rotated ? Math.PI : 0
+    model.updateMatrixWorld(true)
+    model.position.add(before.sub(new Box3().setFromObject(model).getCenter(new Vector3())))
+    model.updateMatrixWorld(true)
+    if (screenView) view()
+    else { focusZoom(); controls.update(); render() }
+  }
+  function setRotated(value: boolean) {
+    if (value === rotated) return
+    rotated = value
+    applyRotation()
+  }
   const resize = new ResizeObserver(() => {
     if (disposed || !host.clientWidth || !host.clientHeight) return
     try {
@@ -249,8 +273,8 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   document.addEventListener('visibilitychange', release)
   controls.addEventListener('change', focusZoom)
   controls.addEventListener('change', render)
-  resetButton.addEventListener('click', reset)
   screenButton.addEventListener('click', focusScreen)
+  fullButton?.addEventListener('click', showFull)
   elements?.zoomIn?.addEventListener('click', zoomIn)
   elements?.zoomOut?.addEventListener('click', zoomOut)
   const ready = fetch('/simulator/models/github-mona-badge.glb', { signal }).then(async response => {
@@ -306,11 +330,13 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     updateFrame()
     setButtons(mask)
     view()
+    if (rotated) applyRotation()
     renderer.render(scene, camera)
     if (disposed || signal.aborted) return
     host.dataset.state = 'ready'
     status.hidden = true
-    resetButton.disabled = screenButton.disabled = false
+    screenButton.disabled = false
+    if (fullButton) fullButton.disabled = false
     if (elements?.zoomIn) elements.zoomIn.disabled = false
     if (elements?.zoomOut) elements.zoomOut.disabled = false
   })
@@ -334,6 +360,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     updateFrame,
     setButtons,
     zoom,
+    setRotated,
     setBacklight(value: number) { displayMaterial.color.setScalar(Math.max(0, Math.min(1, value))); render() },
     dispose() {
       if (disposed) return
@@ -342,8 +369,8 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
       cancelAnimationFrame(frame)
       resize.disconnect()
       controls.dispose()
-      resetButton.removeEventListener('click', reset)
       screenButton.removeEventListener('click', focusScreen)
+      fullButton?.removeEventListener('click', showFull)
       elements?.zoomIn?.removeEventListener('click', zoomIn)
       elements?.zoomOut?.removeEventListener('click', zoomOut)
       window.removeEventListener('blur', release)

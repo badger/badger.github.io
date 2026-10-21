@@ -51,11 +51,12 @@ from badgeware import link
 badge.poll()
 assert badge.buttons.held(BUTTON_SELECT)
 assert not badge.buttons.held(BUTTON_LEFT)
-assert badge.pad.held(BUTTON_LEFT)
+# Upside down, the display rotates and the left pad reads as right.
+assert badge.pad.held(BUTTON_RIGHT) and not badge.pad.held(BUTTON_LEFT)
 assert not badge.pad.held(BUTTON_SELECT)
-assert badge.all.held(BUTTON_LEFT) and badge.all.held(BUTTON_SELECT)
-assert badge.pressed(BUTTON_LEFT)
-assert badge.pad.direction().x == -1
+assert badge.all.held(BUTTON_RIGHT) and badge.all.held(BUTTON_SELECT)
+assert badge.pressed(BUTTON_RIGHT)
+assert badge.pad.direction().x == 1
 assert badge.buttons.direction().x == 0
 badge.poll()
 assert not badge.pressed()
@@ -70,9 +71,9 @@ assert badge.rotate_180()
 import js
 js.set_test_buttons(0)
 badge.poll()
-assert badge.pad.released(BUTTON_LEFT)
+assert badge.pad.released(BUTTON_RIGHT)
 assert badge.buttons.released(BUTTON_SELECT)
-assert badge.changed(BUTTON_LEFT)
+assert badge.changed(BUTTON_RIGHT)
 assert not badge.held()
 assert not badge.rotate_180() and not badge.upside_down()
 assert badge.imu() == (0, -16384, 0, 0, 0, 0)
@@ -125,6 +126,24 @@ assert badge.imu() == (100, -200, -16000, 1, 2, 3)
 assert BUTTON_BACK != BUTTON_HOME and BUTTON_MENU != BUTTON_HOME and BUTTON_BACK != BUTTON_MENU
 badge.poll()
 assert badge.pressed(BUTTON_BACK) and not badge.pressed(BUTTON_HOME)
+import bluetooth
+from badgeware import link
+assert not bluetooth.BLE().active() and bluetooth.UUID("a") == bluetooth.UUID("a")
+target = image(20, 20)
+link.draw_identicon(target, b"12345678", 0, 0, 10, color.white, color.black)
+assert not link.Link("test").central and link.Proximity(None).sync_id is None
+import powman, machine, js
+class Rebooted(Exception):
+    pass
+def reboot():
+    raise Rebooted()
+machine.reset = reboot
+js.set_test_buttons(32)
+try:
+    powman.reset_into_msc()
+    raise AssertionError("expected reset")
+except Rebooted:
+    pass
 print('Browser shims passed')
 `), {
     input: 8192,
@@ -148,10 +167,6 @@ test('bundled app entry points render with their full projects in the real simul
         return
       }
       assert.ok(result.frames > 0, `${result.error}\n${result.output.join('\n')}`)
-      if (app.name === 'mass_storage') {
-        assert.match(result.output.join('\n'), /MSC not supported in the simulator/)
-        return
-      }
       assert.doesNotMatch(result.output.join('\n'), /- ERROR:|Traceback/)
       assert.ok(!result.error || result.error.includes('KeyboardInterrupt'), result.error)
     })

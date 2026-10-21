@@ -111,8 +111,8 @@ export async function initBadgeEditor() {
     element('badge-model').dataset.state = 'fallback'
     element('model-status').textContent = '3D view unavailable. You can keep using the simulator below.'
     element('model-status').hidden = false
-    element<HTMLButtonElement>('reset-badge-view').disabled = true
     element<HTMLButtonElement>('focus-badge-screen').disabled = true
+    element<HTMLButtonElement>('full-badge-view').disabled = true
     element('badge-model').querySelectorAll('canvas:not(#badge-screen)').forEach(canvas => canvas.remove())
     inputs.set('model', 31, false)
     console.warn('Badge 3D view unavailable:', error)
@@ -125,7 +125,18 @@ export async function initBadgeEditor() {
   })
   const disposeKeyboard = initBadgeKeyboard(element('simulator-pane'), inputs)
   const motion = new AbortController()
-  initBadgeMotion(element('simulator-pane'), value => worker?.postMessage({ motion: value }), motion.signal)
+  const motionControl = initBadgeMotion(element('simulator-pane'), value => worker?.postMessage({ motion: value }), motion.signal)
+  const rotateButton = element<HTMLButtonElement>('rotate-badge')
+  // Rotate and the Upside down option share one state: bit 32768 makes the
+  // firmware autorotate the display and swap the touch pad directions.
+  const applyOrientation = () => {
+    rotateButton.setAttribute('aria-pressed', String(flipped.checked))
+    modelView.setRotated(flipped.checked)
+    motionControl.setFlipped(flipped.checked)
+    worker?.postMessage({ buttons: inputMask() })
+  }
+  rotateButton.addEventListener('click', () => { flipped.checked = !flipped.checked; applyOrientation() })
+  flipped.addEventListener('change', applyOrientation)
 
   const extensions = [
         keymap.of([
@@ -407,7 +418,6 @@ export async function initBadgeEditor() {
     modelView.setBacklight(1)
   }
 
-  flipped.addEventListener('change', () => worker?.postMessage({ buttons: inputMask() }))
   for (const button of keyButtons) {
     const bit = Number(button.dataset.button)
     button.addEventListener('pointerdown', event => { button.setPointerCapture(event.pointerId); inputs.set(`button-pointer:${bit}`, bit, true) })
