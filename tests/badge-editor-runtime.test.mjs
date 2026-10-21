@@ -61,7 +61,7 @@ badge.poll()
 assert not badge.pressed()
 assert badge.autorotate()
 assert badge.upside_down() and badge.rotate_180()
-assert badge.imu()[2] == -16384
+assert badge.imu() == (0, 16384, 0, 0, 0, 0)
 badge.autorotate(False)
 badge.rotate_180(False)
 assert not badge.rotate_180() and badge.upside_down()
@@ -75,6 +75,7 @@ assert badge.buttons.released(BUTTON_SELECT)
 assert badge.changed(BUTTON_LEFT)
 assert not badge.held()
 assert not badge.rotate_180() and not badge.upside_down()
+assert badge.imu() == (0, -16384, 0, 0, 0, 0)
 badge.poll()
 assert not badge.released()
 set_backlight(0.4)
@@ -92,10 +93,52 @@ print('Firmware contract passed')
   assert.equal(result.rotation, false)
 })
 
+test('browser network, motion, and touch pad shims behave like the badge firmware', async () => {
+  const result = await run(request(`
+import requests, urequests, wifi, network, ntptime, fetch, secrets, os
+from requests import get
+assert wifi.connect(timeout=5, retries=2) and wifi.is_connected() and not wifi.failure()
+assert wifi.status()[0] >= 0
+assert network.WLAN(network.STA_IF).isconnected() and network.WLAN(network.STA_IF).ifconfig()[0] != "0.0.0.0"
+ntptime.settime()
+assert secrets.WIFI_SSID
+response = get("https://api.test/data", headers={"X-Test": "1"})
+assert response.status_code == 200 and response.ok
+assert response.json()["method"] == "GET" and response.json()["headers"]["X-Test"] == "1"
+assert response.headers["x-test"] == "yes"
+posted = urequests.post("https://api.test/data", json={"a": 1}).json()
+assert posted["method"] == "POST" and posted["body"] == '{"a": 1}'
+assert requests.get("https://api.test/missing", timeout=1).status_code == 404
+try:
+    requests.get("https://api.test/offline")
+    raise AssertionError("expected OSError")
+except OSError:
+    pass
+fetch.AsyncFetch.MAX_HEADER_BYTES = 8192
+download = fetch.url("https://api.test/file").to("/download.tmp")
+assert not download and download.state == "Fetching via browser"
+assert download and download.error is None
+assert open("/download.tmp").read() == "file body"
+failed = fetch.url("https://api.test/missing").to("/missing.tmp")
+assert not failed and not failed and failed.error == "HTTP 404"
+assert badge.imu() == (100, -200, -16000, 1, 2, 3)
+assert BUTTON_BACK != BUTTON_HOME and BUTTON_MENU != BUTTON_HOME and BUTTON_BACK != BUTTON_MENU
+badge.poll()
+assert badge.pressed(BUTTON_BACK) and not badge.pressed(BUTTON_HOME)
+print('Browser shims passed')
+`), {
+    input: 8192,
+    motion: [100, -200, -16000, 1, 2, 3],
+    http: { 'https://api.test/data': {}, 'https://api.test/missing': { status: 404, body: 'missing' }, 'https://api.test/file': { body: 'file body' } },
+  })
+  assert.equal(result.error, '')
+  assert.match(result.output.join('\n'), /Browser shims passed/)
+})
+
 test('bundled app entry points render with their full projects in the real simulator', async t => {
   const catalog = JSON.parse(await readFile(new URL('../public/editor-apps/catalog.json', import.meta.url), 'utf8'))
   // These apps need badge networking or firmware I/O that the simulator does not provide.
-  const hardwareOnly = { camera: /no module named 'network'/, Copilot: /no module named 'socket'/, system: /no module named 'badgeware\.io'/ }
+  const hardwareOnly = { camera: /no module named 'socket'/, Copilot: /no module named 'socket'/, system: /no module named 'badgeware\.io'/ }
   for (const app of catalog.apps) {
     await t.test(app.name, async () => {
       const files = await Promise.all(app.files.map(async path => projectFile(path, new Uint8Array(await readFile(new URL(`../public/editor-apps/${app.name}/${path}`, import.meta.url))))))

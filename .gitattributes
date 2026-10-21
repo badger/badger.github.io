@@ -1,0 +1,2 @@
+# Served byte-for-byte; filesystem.json records exact file sizes.
+public/simulator/filesystem/** -text

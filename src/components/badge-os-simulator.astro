@@ -1,5 +1,5 @@
 ---
-import { RotateCcw } from 'lucide-react'
+import { Minus, Plus, RotateCcw } from 'lucide-react'
 import BadgeImage from '@/components/badge-image.astro'
 
 const badgeButtons = [
@@ -29,6 +29,10 @@ const sideButtons = [
     <div data-model class="badge-os-model">
       <canvas data-screen width="320" height="240" hidden></canvas>
       <p data-model-status hidden></p>
+      <div class="badge-os-zoom" role="group" aria-label="Zoom">
+        <button type="button" data-model-zoom-in class="badge-os-key grid place-items-center bg-background/80 text-foreground" aria-label="Zoom in" title="Zoom in" disabled><Plus size={14} /></button>
+        <button type="button" data-model-zoom-out class="badge-os-key grid place-items-center bg-background/80 text-foreground" aria-label="Zoom out" title="Zoom out" disabled><Minus size={14} /></button>
+      </div>
     </div>
     <div class="mx-auto flex max-w-[420px] flex-wrap items-center justify-between gap-4" role="group" aria-label="Badge controls">
       <div class="flex gap-2">
@@ -43,11 +47,11 @@ const sideButtons = [
       </div>
     </div>
     <p class="mt-3 text-center font-mono text-[0.7rem] text-muted-foreground">
-      Click the badge, then: arrows move · Space selects · Esc Home · drag rotates · scroll zooms ·
+      Click the badge, then: arrows move · Space selects · Esc Home · tap the printed pads · drag rotates · scroll or +/− zooms · tilt a device with motion sensors ·
       <a href="https://leereilly.net/h4x0r3d-badge/#hardware" target="_blank" rel="noreferrer" class="hover:text-foreground">model source ↗</a>
     </p>
     <figcaption class="mx-auto max-w-prose pt-3 text-center text-sm text-muted-foreground">
-      Mona OS 4.0 menu and stock apps running in a MicroPython WebAssembly simulator. Select an app with C; press Home to return to the menu. Wi-Fi and sensors need the physical badge.
+      Mona OS 4.0 menu and stock apps running in a MicroPython WebAssembly simulator. Select an app with C; press Home to return to the menu. Wi-Fi reports connected and HTTP requests go through the browser, subject to CORS. Socket apps such as Camera and Copilot need the physical badge.
     </figcaption>
   </figure>
 </div>
@@ -60,6 +64,7 @@ const sideButtons = [
   .badge-os-model { position: relative; width: 100%; height: clamp(340px, 60vh, 600px); overflow: hidden; }
   .badge-os-model :global(canvas:not([data-screen])) { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
   .badge-os-model :global(canvas:not([data-screen]):focus-visible) { outline: 2px solid hsl(var(--primary)); outline-offset: -2px; }
+  .badge-os-zoom { position: absolute; right: 0.5rem; bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.375rem; }
   .badge-os-key { width: 2.75rem; height: 2.25rem; border: 1px solid hsl(var(--border) / 0.4); border-radius: 0.375rem; background: transparent; font-size: 0.8rem; touch-action: none; user-select: none; transition: border-color 150ms, background-color 150ms; }
   .badge-os-key:hover:not(:disabled) { border-color: hsl(var(--primary) / 0.5); background: hsl(var(--primary) / 0.05); }
   .badge-os-key:disabled { opacity: 0.4; }

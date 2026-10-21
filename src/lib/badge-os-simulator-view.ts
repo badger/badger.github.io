@@ -1,5 +1,6 @@
 import { BadgeInput, initBadgeKeyboard } from './badge-editor-input'
 import { createBadgeModelController } from './badge-editor-model-controller'
+import { initBadgeMotion } from './badge-motion'
 import { loadBadgeOs } from './badge-os-simulator'
 
 const bootTimeout = 20000
@@ -33,6 +34,8 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     reset: root.querySelector<HTMLButtonElement>('[data-model-reset]')!,
     screen: root.querySelector<HTMLButtonElement>('[data-model-screen]')!,
     status: root.querySelector<HTMLElement>('[data-model-status]')!,
+    zoomIn: root.querySelector<HTMLButtonElement>('[data-model-zoom-in]') ?? undefined,
+    zoomOut: root.querySelector<HTMLButtonElement>('[data-model-zoom-out]') ?? undefined,
   }
   const keys = [...root.querySelectorAll<HTMLButtonElement>('[data-button]')]
   if (!supportsSimulator()) return
@@ -73,6 +76,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   })
   const removeKeyboard = initBadgeKeyboard(simulator, input)
   signal.addEventListener('abort', removeKeyboard)
+  initBadgeMotion(root, motion => worker?.postMessage({ motion }), signal)
 
   function reveal() {
     if (failed || !framed || !modelReady || root.dataset.state === 'running') return

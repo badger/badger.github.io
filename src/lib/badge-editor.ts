@@ -4,6 +4,7 @@ import { initProjectPicker } from './badge-editor-picker'
 import { initEditorFullscreen } from './badge-editor-fullscreen'
 import { BadgeInput, initBadgeKeyboard } from './badge-editor-input'
 import { createBadgeModelController } from './badge-editor-model-controller'
+import { initBadgeMotion } from './badge-motion'
 import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, projectCheckpoint, projectFile, projectUploadBaseline, removeProjectFile, removedProjectFiles, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
 import { basicSetup } from 'codemirror'
 import { EditorView, keymap } from '@codemirror/view'
@@ -123,6 +124,8 @@ export async function initBadgeEditor() {
     modelView.setButtons(mask)
   })
   const disposeKeyboard = initBadgeKeyboard(element('simulator-pane'), inputs)
+  const motion = new AbortController()
+  initBadgeMotion(element('simulator-pane'), value => worker?.postMessage({ motion: value }), motion.signal)
 
   const extensions = [
         keymap.of([
@@ -599,7 +602,7 @@ export async function initBadgeEditor() {
     scheduleRun()
   })
   document.addEventListener('visibilitychange', () => { releaseButtons(); worker?.postMessage({ pause: document.hidden || picker.open }) })
-  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { modelView.dispose(); disposeKeyboard(); disposeSplit(); disposeFullscreen(); picker.dispose(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
+  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { modelView.dispose(); disposeKeyboard(); motion.abort(); disposeSplit(); disposeFullscreen(); picker.dispose(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
   window.addEventListener('pageshow', event => { if (event.persisted) scheduleRun(0) })
 
   setBusy(true)

@@ -19,6 +19,13 @@ globalThis.blitrgba = () => {
   if (frames >= frameLimit) runtime.interrupt()
 }
 globalThis.fetch = async () => { throw new Error('Network access is unavailable in runtime tests') }
+globalThis.sim_motion = () => workerData.motion ?? null
+globalThis.sim_http = (method, url, headers, body) => {
+  const reply = workerData.http?.[url]
+  if (!reply) return { status: 0, error: `No test response for ${url}` }
+  const text = typeof reply.body === 'string' ? reply.body : JSON.stringify(reply.body ?? { method, headers: JSON.parse(headers), body })
+  return { status: reply.status ?? 200, reason: 'OK', headers: 'content-type: application/json\r\nx-test: yes', body: new TextEncoder().encode(text), url }
+}
 runtime = await loadMicroPython({ heapsize: 7 * 1024 * 1024, stdout: value => output.push(value), stderr: value => output.push(value) })
 const manifest = JSON.parse(await readFile(new URL('../../public/simulator/filesystem.json', import.meta.url), 'utf8'))
 
