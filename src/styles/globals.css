@@ -41,6 +41,26 @@
     --control-danger: 353 25% 11%;
     --control-danger-hover: 353 32% 14%;
     --dot-line: rgba(255, 255, 255, 0.5);
+
+    --code-editor-bg: #0d1117;
+    --code-editor-fg: #c9d1d9;
+    --code-editor-gutter: #6e7681;
+    --code-editor-active-line: #161b22;
+    --code-editor-selection: #26452f;
+    --code-editor-caret: #5fed83;
+    --code-editor-panel: #161b22;
+    --code-keyword: #ff7b72;
+    --code-string: #a5d6ff;
+    --code-number: #79c0ff;
+    --code-constant: #79c0ff;
+    --code-comment: #8b949e;
+    --code-function: #d2a8ff;
+    --code-type: #ffa657;
+    --sim-key-bg: #161b22;
+    --sim-key-border: #30363d;
+    --sim-key-fg: #c9d1d9;
+    --sim-key-pressed-bg: #163321;
+    --sim-key-pressed-fg: #5fed83;
     color-scheme: dark;
   }
 
@@ -81,6 +101,27 @@
     --control-danger: 353 80% 97%;
     --control-danger-hover: 353 75% 94%;
     --dot-line: rgba(16, 20, 17, 0.35);
+
+    /* Based on VS Code Default Light (light_vs) with Light+ function/type colors */
+    --code-editor-bg: #ffffff;
+    --code-editor-fg: #000000;
+    --code-editor-gutter: #237893;
+    --code-editor-active-line: #f5f7f6;
+    --code-editor-selection: #add6ff;
+    --code-editor-caret: #000000;
+    --code-editor-panel: #f3f3f3;
+    --code-keyword: #0000ff;
+    --code-string: #a31515;
+    --code-number: #098658;
+    --code-constant: #0000ff;
+    --code-comment: #008000;
+    --code-function: #795e26;
+    --code-type: #267f99;
+    --sim-key-bg: #ffffff;
+    --sim-key-border: hsl(140 9% 78%);
+    --sim-key-fg: #101411;
+    --sim-key-pressed-bg: hsl(137 91% 25% / 0.1);
+    --sim-key-pressed-fg: hsl(137 91% 25%);
     color-scheme: light;
   }
 
