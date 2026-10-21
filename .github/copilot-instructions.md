@@ -1,13 +1,13 @@
 # Badger UI Guidelines – Dark Hacker Aesthetic
 
-All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitarian, terminal-inspired feel. Avoid marketing gradients, rounded blobby ornaments, sales language, or corporate sheen.
+Dark is the default theme. A light theme is available through the navigation theme toggle. Maintain a utilitarian, terminal-inspired feel. Avoid marketing gradients, rounded blobby ornaments, sales language, or corporate sheen.
 
 ## Core Principles
 1. Monochrome + Green: Base is near-black (#010409 / hsl(210 11% 2%)). Accent is Universe Green-3 (#5FED83) used sparingly.
 2. Flat + Precise: Panels are subtle layered dark greys (grey-9 → grey-8) with minimal elevation. No soft blurred frosted UI.
 3. Monospace Bias: Use `font-mono` (Monaspace Neon) for interactive controls, labels, metrics, semantic tags. Display headings use `font-display`.
 4. Technical Voice: Copy must be direct, instructional, terse. Avoid words like "unlock", "amazing", "grow", "inspire". Prefer "configure", "wire", "flash", "pinout", "I/O", "example".
-5. No Light Mode Fallback: Don't add light tokens or conditionals. Everything assumes a dark environment.
+5. Theme Tokens: Use the CSS variables in `src/styles/globals.css`, never literal dark or light colors. `:root` holds dark tokens; `:root.light` overrides them. `src/lib/theme.ts` and the inline script in `src/layouts/Layout.astro` apply the saved `badger-theme` choice before paint.
 6. Motion Minimization: Only subtle opacity / shadow transitions (150–200ms). No scaling transforms except micro (translate-y for button press).
 7. Honest UI: If data is missing, show placeholder monospace text (e.g. `--` or `/path/not/found`).
 8. Component Modularity: Always componentize reusable UI patterns. Never inline complex markup or styles. If a component doesn't exist, create it first, then use it. Keep everything modular and DRY (Don't Repeat Yourself).
@@ -30,7 +30,7 @@ All UI is DARK-ONLY. Remove/ignore any light mode patterns. Maintain a utilitari
 - The Contacts page (`/contacts` and its `/edit/contacts` redirect) is disabled through `CONTACTS_PAGE_ENABLED` until it works with the retail badge's Contacts app; keep its routes, navigation item, and footer link gated by that flag.
 - Do not change badge filesystem paths such as `/apps/example/` in app instructions or content.
 
-## Color Tokens (Dark Only)
+## Color Tokens (Dark Default)
 ```
 background: #010409
 layer-low: #101411   (grey-9)
@@ -44,6 +44,8 @@ muted-text: #909692 (grey-4)
 muted-bg: #232925
 ```
 Use existing CSS variables mapped to these.
+
+Light theme: background #F2F5F3, white cards, foreground #101411, muted text #5A615C, primary green #067A27 (passes AA on #F2F5F3).
 
 ### Acceptable Effects
 - Grid overlay (radial or repeating) using low alpha green.
@@ -101,7 +103,7 @@ Use existing CSS variables mapped to these.
 - No exclamation marks in labels or instructions. Approved app descriptions may use them.
 
 ## Review Checklist
-- [ ] Dark-only; no conditional light tokens
+- [ ] Works in dark and light themes; uses theme tokens, not literal colors
 - [ ] Monospace used for interactive + structural labels
 - [ ] No gradients on buttons or headings
 - [ ] Accent green used sparingly (not flooding UI)

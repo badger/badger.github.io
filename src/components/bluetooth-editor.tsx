@@ -330,7 +330,7 @@ export function BluetoothEditor() {
               <button type="button" onClick={() => void save()} disabled={!connected || pushing} className="inline-flex items-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-3 py-2 font-mono text-xs text-primary transition-colors hover:bg-primary/15 disabled:opacity-40"><Save className="h-4 w-4" />{pushing ? 'Pushing…' : 'Save and push'}</button>
             </div>
           </div>
-          <textarea value={contentVisible ? content : content.replace(/[^\r\n]/g, '•')} onChange={(event) => { setContent(event.target.value); setDirty(true) }} readOnly={!contentVisible} spellCheck={false} autoCapitalize="off" autoCorrect="off" placeholder="Waiting for the badge…" className="mt-5 min-h-[420px] w-full resize-y rounded-xl border border-border/60 bg-black/30 p-4 font-mono text-sm leading-6 text-foreground outline-none transition focus:border-primary/70 focus:ring-1 focus:ring-primary/30" />
+          <textarea value={contentVisible ? content : content.replace(/[^\r\n]/g, '•')} onChange={(event) => { setContent(event.target.value); setDirty(true) }} readOnly={!contentVisible} spellCheck={false} autoCapitalize="off" autoCorrect="off" placeholder="Waiting for the badge…" className="mt-5 min-h-[420px] w-full resize-y rounded-xl border border-border/60 bg-[hsl(var(--inset))] p-4 font-mono text-sm leading-6 text-foreground outline-none transition focus:border-primary/70 focus:ring-1 focus:ring-primary/30" />
         </section>
       ) : (
         <section className="surface p-6 sm:p-8">

@@ -12,8 +12,15 @@ const { title, description = 'Badger 2350 hack index: code, hardware notes, exam
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
+    <script is:inline>
+      try {
+        if (localStorage.getItem('badger-theme') === 'light') {
+          document.documentElement.classList.replace('dark', 'light')
+        }
+      } catch {}
+    </script>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
