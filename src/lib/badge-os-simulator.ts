@@ -1,7 +1,8 @@
+import { firmwareCompat } from './badge-firmware-compat'
 import { fileBytes, projectFile, simulationSource, validateFilePath, type EditorCatalog, type EditorCatalogApp, type ProjectFile } from './badge-editor-project'
 
 export type BadgeOsApp = { name: string; files: ProjectFile[] }
-export type BadgeOsCatalog = EditorCatalog & { launcher?: EditorCatalogApp }
+export type BadgeOsCatalog = EditorCatalog & { launcher?: EditorCatalogApp & { stock?: string[] } }
 
 const appRoot = '/system/apps'
 
@@ -70,7 +71,7 @@ export function badgeOsRequest(menu: BadgeOsApp, apps: BadgeOsApp[], prelude = '
       files.push({ name: `${appRoot}/${app.name === menu.name ? 'menu' : app.name}/${file.path}`, content: fileBytes({ ...file, text }) })
     }
   }
-  const program = `import editor_support\nimport sys\nsys.path[:0] = ["/system/lib", "/lib", "/system"]\n${prelude}\n${launcher}`
+  const program = `import editor_support\nimport sys\nsys.path[:0] = ["/system/lib", "/lib", "/system"]\n${firmwareCompat}\n${prelude}\n${launcher}`
   return { program, files }
 }
 
@@ -89,6 +90,7 @@ export async function loadBadgeOs() {
   if (!response.ok) throw new Error('Could not load the app catalog')
   const catalog = await response.json() as BadgeOsCatalog
   if (!catalog.launcher) throw new Error('The app catalog has no launcher')
-  const [menu, ...apps] = await Promise.all([catalog.launcher, ...catalog.apps].map(loadApp))
+  const stock = new Set(catalog.launcher.stock ?? catalog.apps.map(app => app.name))
+  const [menu, ...apps] = await Promise.all([catalog.launcher, ...catalog.apps.filter(app => stock.has(app.name))].map(loadApp))
   return badgeOsRequest(menu, apps)
 }

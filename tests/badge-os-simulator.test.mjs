@@ -28,13 +28,17 @@ function run(request) {
 test('catalog bundles the launcher menu separately from installable apps', () => {
   assert.equal(catalog.launcher.name, 'menu')
   assert.ok(catalog.launcher.files.includes('__init__.py'))
+  assert.ok(!catalog.launcher.files.some(path => path.endsWith('.mpy') || path.startsWith('src/')))
   assert.ok(!catalog.apps.some(app => app.name === 'menu'))
+  assert.ok(catalog.launcher.stock.length > 0)
+  for (const name of catalog.launcher.stock) assert.ok(catalog.apps.some(app => app.name === name), `${name} is bundled`)
 })
 
-test('BadgeOS launcher lists stock apps, launches the selection, and returns to the menu on HOME', async () => {
+test('Mona OS launcher lists stock apps, launches the selection, and returns to the menu on HOME', async () => {
   const menu = await loadApp(catalog.launcher)
-  const apps = await Promise.all(catalog.apps.map(loadApp))
-  // Scripted input: idle in the menu, move right, select, run the app, then press HOME.
+  const stock = catalog.apps.filter(app => catalog.launcher.stock.includes(app.name))
+  const apps = await Promise.all(stock.map(loadApp))
+  // Scripted input: let the opening play, select the first tile (badge), run it, then press HOME.
   const prelude = `
 import builtins, js
 _script_polls = 0
@@ -43,11 +47,11 @@ _script_launch = launch
 def _scripted_poll():
     global _script_polls
     _script_polls += 1
-    js.set_test_buttons({12: 512, 20: 1024, 60: 32, 80: 32}.get(_script_polls, 0))
+    js.set_test_buttons({30: 1024, 70: 32, 90: 32}.get(_script_polls, 0))
     _script_poll()
 def _logged_launch(path):
     print("LAUNCH", path)
-    if path == "/system/apps/menu" and _script_polls > 60:
+    if path == "/system/apps/menu" and _script_polls > 70:
         print("Returned home")
         raise KeyboardInterrupt()
     return _script_launch(path)
@@ -59,7 +63,7 @@ print("APPS", sorted(os.listdir("/system/apps")))
   const result = await run(badgeOsRequest(menu, apps, prelude))
   const output = result.output.join('\n')
   assert.match(output, /APPS .*'menu'/)
-  for (const app of catalog.apps) assert.match(output, new RegExp(`'${app.name}'`))
+  for (const app of stock) assert.match(output, new RegExp(`'${app.name}'`))
   assert.match(output, /LAUNCH \/system\/apps\/menu\nLAUNCH \/system\/apps\/badge\nLAUNCH \/system\/apps\/menu\nReturned home/)
   assert.doesNotMatch(output, /- ERROR:|Traceback/)
   assert.match(result.error, /KeyboardInterrupt/)

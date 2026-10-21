@@ -77,7 +77,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   function reveal() {
     if (failed || !framed || !modelReady || root.dataset.state === 'running') return
     root.dataset.state = 'running'
-    status.textContent = 'Running BadgeOS'
+    status.textContent = 'Running Mona OS 4.0'
   }
 
   const pause = () => worker?.postMessage({ pause: document.hidden || !visible })

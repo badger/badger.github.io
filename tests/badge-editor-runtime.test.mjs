@@ -94,10 +94,16 @@ print('Firmware contract passed')
 
 test('bundled app entry points render with their full projects in the real simulator', async t => {
   const catalog = JSON.parse(await readFile(new URL('../public/editor-apps/catalog.json', import.meta.url), 'utf8'))
+  // These apps need badge networking or firmware I/O that the simulator does not provide.
+  const hardwareOnly = { camera: /no module named 'network'/, Copilot: /no module named 'socket'/, system: /no module named 'badgeware\.io'/ }
   for (const app of catalog.apps) {
     await t.test(app.name, async () => {
       const files = await Promise.all(app.files.map(async path => projectFile(path, new Uint8Array(await readFile(new URL(`../public/editor-apps/${app.name}/${path}`, import.meta.url))))))
       const result = await run(simulationRequest({ name: app.name, sourceName: app.name, files }))
+      if (hardwareOnly[app.name]) {
+        assert.match(result.error, hardwareOnly[app.name])
+        return
+      }
       assert.ok(result.frames > 0, `${result.error}\n${result.output.join('\n')}`)
       if (app.name === 'mass_storage') {
         assert.match(result.output.join('\n'), /MSC not supported in the simulator/)

@@ -1,4 +1,5 @@
 import type { DiskDirectory } from './badge-editor-upload'
+import { firmwareCompat } from './badge-firmware-compat'
 
 export type ProjectFile = {
   path: string
@@ -282,7 +283,7 @@ export function simulationRequest(project: EditorProject) {
   }
   const path = `${root}/__init__.py`
   const program = `import editor_support
-import os, sys\nos.chdir(${JSON.stringify(root)})\nsys.path[:0] = [${JSON.stringify(root)}, "/system/lib", "/lib", "/system"]\n__file__ = ${JSON.stringify(path)}\nexec(compile(${JSON.stringify(simulationSource(entry.text))}, __file__, 'exec'))`
+import os, sys\nos.chdir(${JSON.stringify(root)})\nsys.path[:0] = [${JSON.stringify(root)}, "/system/lib", "/lib", "/system"]\n${firmwareCompat}\n__file__ = ${JSON.stringify(path)}\nexec(compile(${JSON.stringify(simulationSource(entry.text))}, __file__, 'exec'))`
   return { program, files }
 }
 

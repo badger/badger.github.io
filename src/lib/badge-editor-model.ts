@@ -87,12 +87,32 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     }
     render()
   }
+  function framing(object: Object3D, margin: number) {
+    const bounds = new Box3().setFromObject(object)
+    const size = bounds.getSize(new Vector3())
+    const distance = Math.max(size.y, size.x / camera.aspect) / (2 * Math.tan(camera.fov * Math.PI / 360)) * margin
+    return { center: bounds.getCenter(new Vector3()), distance }
+  }
+  // Zoom toward the screen: slide the orbit target from the model centre (zoomed
+  // out) to the screen centre (zoomed in), keeping the current view direction.
+  let focusing = false
+  function focusZoom() {
+    if (focusing || !model || !displayMesh) return
+    const whole = framing(model, 1.12)
+    const close = framing(displayMesh, 1.25)
+    const distance = camera.position.distanceTo(controls.target)
+    const t = Math.min(1, Math.max(0, (distance - close.distance) / (whole.distance - close.distance)))
+    const shift = close.center.lerp(whole.center, t).sub(controls.target)
+    if (shift.lengthSq() < 1e-12) return
+    focusing = true
+    controls.target.add(shift)
+    camera.position.add(shift)
+    controls.update()
+    focusing = false
+  }
   function view() {
     if (!model) return
-    const bounds = new Box3().setFromObject(screenView && displayMesh ? displayMesh : model)
-    const size = bounds.getSize(new Vector3())
-    const center = bounds.getCenter(new Vector3())
-    const distance = Math.max(size.y, size.x / camera.aspect) / (2 * Math.tan(camera.fov * Math.PI / 360)) * (screenView ? 1.25 : 1.12)
+    const { center, distance } = framing(screenView && displayMesh ? displayMesh : model, screenView ? 1.25 : 1.12)
     controls.target.copy(center)
     camera.position.copy(center).add(new Vector3(screenView ? 0 : distance * 0.04, screenView ? 0 : distance * 0.02, distance))
     controls.update()
@@ -161,6 +181,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   canvas.addEventListener('webglcontextlost', lost)
   window.addEventListener('blur', release)
   document.addEventListener('visibilitychange', release)
+  controls.addEventListener('change', focusZoom)
   controls.addEventListener('change', render)
   resetButton.addEventListener('click', reset)
   screenButton.addEventListener('click', focusScreen)

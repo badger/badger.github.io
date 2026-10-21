@@ -293,7 +293,7 @@ test('every current bundled app uses the same inclusion rules as /apps', async (
   await visit(new URL('../public/editor-apps/', import.meta.url), 'badge/apps/')
   const expected = getInstallableAppFolders(tree).map(([name]) => name).sort()
   assert.deepEqual(catalog.apps.map(app => app.name).sort(), expected)
-  assert.equal(catalog.apps.length, 23)
+  assert.equal(catalog.apps.length, 36)
   for (const app of catalog.apps) {
     assert(app.files.includes('__init__.py'))
     for (const path of app.files) await readFile(new URL(`../public/editor-apps/${app.name}/${path}`, import.meta.url))
