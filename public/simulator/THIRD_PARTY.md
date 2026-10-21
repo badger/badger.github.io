@@ -44,11 +44,12 @@ Source SHA-256: `a7cf8a12cb2d014092c7c2a9079f7f3eb126963a06aee2e95462a5e33d88636
 `scripts/build-badge-model.mjs` modifies the source model:
 
 - Replaces the lower clear shell with geometry tessellated from the Badgeware case CAD (`badgeware_solid.step`), with the PCB slot tab removed. The case is scaled to the model's PCB width.
-- Moves the five button caps and collars onto the case's button nubs, and centres the USB-C port between the up and down buttons.
+- Moves the five button caps and collars onto the case's button nubs.
+- Removes the approximate USB-C housing and socket that protruded between the up and down buttons.
 - Mirrors the rear artwork UVs so the rear print reads correctly.
 
 The upper board, its artwork, and the remaining parts are unchanged. The editor replaces the display material with its live simulator output. Rebuild with `npm run build:badge-model -- <badgeware_solid.step> [source.glb]`. The STEP file is not committed.
 
-Output SHA-256: `4245c5e8a42bc9ef7f52e1c2d5e5ea54f84287a1df8dc0e53dbf89f0fdefca6b`.
+Output SHA-256: `12519bdbdcb71a00b4c76483bcb467b5bf3a7a91db51f7faf5a4e7a433c106c2`.
 
 Three.js is bundled under its MIT license, retained in `licenses/three.txt`.
