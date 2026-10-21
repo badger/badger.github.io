@@ -190,14 +190,14 @@ test('a one-line example edit updates one file in a nine-file app without readin
   assert.deepEqual(disk.reads, [])
 })
 
-test('first install copies all nine required files even when only one example file was edited', async () => {
+test('first install copies every required file even when only one example file was edited', async () => {
   const current = await flappyProject()
   current.files[0].text += '\nvalue = 1\n'
   const disk = fakeDisk({})
   const result = await uploadEditorProject(disk.root, current)
   assert.equal(result.created, true)
-  assert.equal(result.written, 9)
-  assert.equal(result.verified.size, 9)
+  assert.equal(result.written, current.files.length)
+  assert.equal(result.verified.size, current.files.length)
   assert.equal(disk.writes.at(-1), 'apps/flappy/__init__.py')
   for (const file of current.files) assert.deepEqual(disk.files.get(`apps/flappy/${file.path}`), fileBytes(file))
 })
@@ -293,7 +293,7 @@ test('every current bundled app uses the same inclusion rules as /apps', async (
   await visit(new URL('../public/editor-apps/', import.meta.url), 'badge/apps/')
   const expected = getInstallableAppFolders(tree).map(([name]) => name).sort()
   assert.deepEqual(catalog.apps.map(app => app.name).sort(), expected)
-  assert.equal(catalog.apps.length, 23)
+  assert.equal(catalog.apps.length, 36)
   for (const app of catalog.apps) {
     assert(app.files.includes('__init__.py'))
     for (const path of app.files) await readFile(new URL(`../public/editor-apps/${app.name}/${path}`, import.meta.url))

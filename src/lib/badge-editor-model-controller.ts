@@ -3,6 +3,7 @@ export interface BadgeModelView {
   updateFrame(): void
   setButtons(mask: number): void
   setBacklight(value: number): void
+  setRotated?(value: boolean): void
   dispose(): void
 }
 
@@ -14,6 +15,7 @@ export function createBadgeModelController(load: (signal: AbortSignal, fail: (er
   let started = false
   let mask = 0
   let backlight = 1
+  let rotated = false
 
   function cleanup(candidate = view) {
     try { candidate?.dispose() } catch {}
@@ -47,7 +49,7 @@ export function createBadgeModelController(load: (signal: AbortSignal, fail: (er
           return
         }
         view = candidate
-        call(view => { view.setButtons(mask); view.setBacklight(backlight) })
+        call(view => { view.setButtons(mask); view.setBacklight(backlight); view.setRotated?.(rotated) })
         await candidate.ready
         if (!stopped) clearTimeout(timer)
       }).catch(fail)
@@ -55,6 +57,7 @@ export function createBadgeModelController(load: (signal: AbortSignal, fail: (er
     updateFrame() { call(view => view.updateFrame()) },
     setButtons(value: number) { mask = value; call(view => view.setButtons(value)) },
     setBacklight(value: number) { backlight = value; call(view => view.setBacklight(value)) },
+    setRotated(value: boolean) { rotated = value; call(view => view.setRotated?.(value)) },
     dispose() {
       stopped = true
       clearTimeout(timer)

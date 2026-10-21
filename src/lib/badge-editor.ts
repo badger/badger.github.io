@@ -4,6 +4,7 @@ import { initProjectPicker } from './badge-editor-picker'
 import { initEditorFullscreen } from './badge-editor-fullscreen'
 import { BadgeInput, initBadgeKeyboard } from './badge-editor-input'
 import { createBadgeModelController } from './badge-editor-model-controller'
+import { initBadgeMotion } from './badge-motion'
 import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, projectCheckpoint, projectFile, projectUploadBaseline, removeProjectFile, removedProjectFiles, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
 import { basicSetup } from 'codemirror'
 import { EditorView, keymap } from '@codemirror/view'
@@ -110,7 +111,6 @@ export async function initBadgeEditor() {
     element('badge-model').dataset.state = 'fallback'
     element('model-status').textContent = '3D view unavailable. You can keep using the simulator below.'
     element('model-status').hidden = false
-    element<HTMLButtonElement>('reset-badge-view').disabled = true
     element<HTMLButtonElement>('focus-badge-screen').disabled = true
     element<HTMLButtonElement>('focus-badge-full').disabled = true
     element('badge-model').querySelectorAll('canvas:not(#badge-screen)').forEach(canvas => canvas.remove())
@@ -124,6 +124,19 @@ export async function initBadgeEditor() {
     modelView.setButtons(mask)
   })
   const disposeKeyboard = initBadgeKeyboard(element('simulator-pane'), inputs)
+  const motion = new AbortController()
+  const motionControl = initBadgeMotion(element('simulator-pane'), value => worker?.postMessage({ motion: value }), motion.signal)
+  const rotateButton = element<HTMLButtonElement>('rotate-badge')
+  // Rotate and the Upside down option share one state: bit 32768 makes the
+  // firmware autorotate the display and swap the touch pad directions.
+  const applyOrientation = () => {
+    rotateButton.setAttribute('aria-pressed', String(flipped.checked))
+    modelView.setRotated(flipped.checked)
+    motionControl.setFlipped(flipped.checked)
+    worker?.postMessage({ buttons: inputMask() })
+  }
+  rotateButton.addEventListener('click', () => { flipped.checked = !flipped.checked; applyOrientation() })
+  flipped.addEventListener('change', applyOrientation)
 
   const extensions = [
         keymap.of([
@@ -405,7 +418,6 @@ export async function initBadgeEditor() {
     modelView.setBacklight(1)
   }
 
-  flipped.addEventListener('change', () => worker?.postMessage({ buttons: inputMask() }))
   for (const button of keyButtons) {
     const bit = Number(button.dataset.button)
     button.addEventListener('pointerdown', event => { button.setPointerCapture(event.pointerId); inputs.set(`button-pointer:${bit}`, bit, true) })
@@ -600,7 +612,7 @@ export async function initBadgeEditor() {
     scheduleRun()
   })
   document.addEventListener('visibilitychange', () => { releaseButtons(); worker?.postMessage({ pause: document.hidden || picker.open }) })
-  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { modelView.dispose(); disposeKeyboard(); disposeSplit(); disposeFullscreen(); picker.dispose(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
+  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { modelView.dispose(); disposeKeyboard(); motion.abort(); disposeSplit(); disposeFullscreen(); picker.dispose(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
   window.addEventListener('pageshow', event => { if (event.persisted) scheduleRun(0) })
 
   setBusy(true)

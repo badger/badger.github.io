@@ -5,7 +5,38 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 // Corner radius of the badge model's inner circuit board, in model units (metres).
 const BOARD_CORNER_RADIUS = 0.0037
 
-export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, button: (bit: number, pressed: boolean) => void, signal: AbortSignal, onError: (error: unknown) => void) {
+export interface BadgeModelControls {
+  screen: HTMLButtonElement
+  full?: HTMLButtonElement
+  status: HTMLElement
+  zoomIn?: HTMLButtonElement
+  zoomOut?: HTMLButtonElement
+}
+
+// Touch pads printed on the front_top artwork, in pixels of its 422x534 texture.
+// Bits match the gamepad mask read by editor_support (see badger/home input_test).
+type Pad = { bit: number; shape: 'circle' | 'box' | 'pill'; x0: number; y0: number; x1: number; y1: number }
+const padTexture = { width: 422, height: 534 }
+export const touchPads: Pad[] = [
+  { bit: 1024, shape: 'circle', x0: 94, y0: 402, x1: 141, y1: 448 },
+  { bit: 8192, shape: 'circle', x0: 50, y0: 446, x1: 96, y1: 493 },
+  { bit: 2048, shape: 'box', x0: 297, y0: 403, x1: 333, y1: 439 },
+  { bit: 256, shape: 'box', x0: 262, y0: 439, x1: 298, y1: 475 },
+  { bit: 512, shape: 'box', x0: 332, y0: 439, x1: 368, y1: 475 },
+  { bit: 4096, shape: 'box', x0: 297, y0: 474, x1: 333, y1: 510 },
+  { bit: 16384, shape: 'pill', x0: 161, y0: 471, x1: 192, y1: 502 },
+  { bit: 32, shape: 'pill', x0: 196, y0: 471, x1: 227, y1: 502 },
+]
+
+export function touchPadAt(u: number, v: number) {
+  const x = u * padTexture.width
+  const y = v * padTexture.height
+  return touchPads.find(pad => x >= pad.x0 && x <= pad.x1 && y >= pad.y0 && y <= pad.y1)?.bit ?? 0
+}
+
+export const zoomStep = 0.05
+
+export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, button: (bit: number, pressed: boolean) => void, signal: AbortSignal, onError: (error: unknown) => void, elements?: BadgeModelControls) {
   const display = document.createElement('canvas')
   display.width = 640
   display.height = 438
@@ -45,17 +76,19 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   const targets = new Map<Object3D, number>()
   const caps = new Map<number, { mesh: Mesh; z: number; material: MeshStandardMaterial }>()
   const discarded = new Set<Material>()
-  const resetButton = document.getElementById('reset-badge-view') as HTMLButtonElement
-  const screenButton = document.getElementById('focus-badge-screen') as HTMLButtonElement
-  const fullButton = document.getElementById('focus-badge-full') as HTMLButtonElement
-  const status = document.getElementById('model-status')!
+  const screenButton = elements?.screen ?? document.getElementById('focus-badge-screen') as HTMLButtonElement
+  const fullButton = elements?.full ?? document.getElementById('focus-badge-full') as HTMLButtonElement | null
+  const status = elements?.status ?? document.getElementById('model-status')!
   let model: Object3D | undefined
   let displayMesh: Mesh | undefined
+  let artwork: { mesh: Mesh; material: MeshStandardMaterial; source: CanvasImageSource; canvas: HTMLCanvasElement; texture: CanvasTexture } | undefined
+  let padMask = 0
   let active: { pointer: number; bit: number } | undefined
   let mask = 0
   let frame = 0
   let disposed = false
-  let screenView = true
+  let screenView = screenButton.getAttribute('aria-pressed') === 'true'
+  let rotated = false
 
   function render() {
     if (disposed || frame || document.hidden) return
@@ -74,6 +107,31 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     texture.needsUpdate = true
     render()
   }
+  function paintPads() {
+    if (!artwork) return
+    const pressed = touchPads.reduce((bits, pad) => bits | (mask & pad.bit), 0)
+    if (pressed === padMask) return
+    padMask = pressed
+    const { canvas: art, source } = artwork
+    const paint = art.getContext('2d')
+    if (!paint) return
+    paint.drawImage(source, 0, 0, art.width, art.height)
+    paint.save()
+    paint.scale(art.width / padTexture.width, art.height / padTexture.height)
+    paint.globalAlpha = 0.6
+    paint.fillStyle = paint.strokeStyle = '#5fed83'
+    paint.lineCap = 'round'
+    paint.lineWidth = 13
+    for (const pad of touchPads) {
+      if (!(pressed & pad.bit)) continue
+      paint.beginPath()
+      if (pad.shape === 'box') paint.fillRect(pad.x0, pad.y0, pad.x1 - pad.x0, pad.y1 - pad.y0)
+      else if (pad.shape === 'circle') { paint.arc((pad.x0 + pad.x1) / 2, (pad.y0 + pad.y1) / 2, (pad.x1 - pad.x0) / 2, 0, Math.PI * 2); paint.fill() }
+      else { paint.moveTo(pad.x0 + 6, pad.y1 - 6); paint.lineTo(pad.x1 - 6, pad.y0 + 6); paint.stroke() }
+    }
+    paint.restore()
+    artwork.texture.needsUpdate = true
+  }
   function setButtons(value: number) {
     mask = value
     for (const [bit, cap] of caps) {
@@ -83,28 +141,75 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
       cap.material.emissive.setHex(pressed ? 0x5fed83 : 0)
       cap.material.emissiveIntensity = pressed ? 0.6 : 0
     }
+    paintPads()
     render()
+  }
+  function zoom(direction: 1 | -1) {
+    if (!model) return
+    const offset = camera.position.clone().sub(controls.target)
+    const distance = Math.min(controls.maxDistance, Math.max(controls.minDistance, offset.length() * (direction > 0 ? 1 - zoomStep : 1 / (1 - zoomStep))))
+    camera.position.copy(controls.target).add(offset.setLength(distance))
+    controls.update()
+    render()
+  }
+  const zoomIn = () => zoom(1)
+  const zoomOut = () => zoom(-1)
+  function framing(object: Object3D, margin: number) {
+    const bounds = new Box3().setFromObject(object)
+    const size = bounds.getSize(new Vector3())
+    const distance = Math.max(size.y, size.x / camera.aspect) / (2 * Math.tan(camera.fov * Math.PI / 360)) * margin
+    return { center: bounds.getCenter(new Vector3()), distance }
+  }
+  // Zoom toward the screen: slide the orbit target from the model centre (zoomed
+  // out) to the screen centre (zoomed in), keeping the current view direction.
+  let focusing = false
+  function focusZoom() {
+    if (focusing || !model || !displayMesh) return
+    const whole = framing(model, 1.12)
+    const close = framing(displayMesh, 1.25)
+    const distance = camera.position.distanceTo(controls.target)
+    const t = Math.min(1, Math.max(0, (distance - close.distance) / (whole.distance - close.distance)))
+    const shift = close.center.lerp(whole.center, t).sub(controls.target)
+    if (shift.lengthSq() < 1e-12) return
+    focusing = true
+    controls.target.add(shift)
+    camera.position.add(shift)
+    controls.update()
+    focusing = false
   }
   function view() {
     if (!model) return
-    const bounds = new Box3().setFromObject(screenView && displayMesh ? displayMesh : model)
-    const size = bounds.getSize(new Vector3())
-    const center = bounds.getCenter(new Vector3())
-    const distance = Math.max(size.y, size.x / camera.aspect) / (2 * Math.tan(camera.fov * Math.PI / 360)) * (screenView ? 1.25 : 1.12)
+    const { center, distance } = framing(screenView && displayMesh ? displayMesh : model, screenView ? 1.25 : 1.12)
     controls.target.copy(center)
     camera.position.copy(center).add(new Vector3(screenView ? 0 : distance * 0.04, screenView ? 0 : distance * 0.02, distance))
     controls.update()
     render()
   }
-  const setView = (screen: boolean) => {
-    screenView = screen
-    screenButton.setAttribute('aria-pressed', String(screen))
-    fullButton.setAttribute('aria-pressed', String(!screen))
+  const setView = (value: boolean) => {
+    screenView = value
+    screenButton.setAttribute('aria-pressed', String(value))
+    fullButton?.setAttribute('aria-pressed', String(!value))
     view()
   }
-  const reset = () => view()
   const focusScreen = () => setView(true)
-  const focusFull = () => setView(false)
+  const showFull = () => setView(false)
+  // Turn the badge 180° about the view axis, pivoting on its centre so the
+  // camera stays put; focusZoom then follows the screen to its new position.
+  function applyRotation() {
+    if (!model) return
+    const before = new Box3().setFromObject(model).getCenter(new Vector3())
+    model.rotation.z = rotated ? Math.PI : 0
+    model.updateMatrixWorld(true)
+    model.position.add(before.sub(new Box3().setFromObject(model).getCenter(new Vector3())))
+    model.updateMatrixWorld(true)
+    if (screenView) view()
+    else { focusZoom(); controls.update(); render() }
+  }
+  function setRotated(value: boolean) {
+    if (value === rotated) return
+    rotated = value
+    applyRotation()
+  }
   const resize = new ResizeObserver(() => {
     if (disposed || !host.clientWidth || !host.clientHeight) return
     try {
@@ -126,7 +231,10 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
       const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
       return mesh.visible && materials.some(material => material && material.opacity >= 0.5)
     })
-    return first ? targets.get(first.object) || 0 : 0
+    if (!first) return 0
+    const target = targets.get(first.object)
+    if (target) return target
+    return artwork && first.object === artwork.mesh && first.uv ? touchPadAt(first.uv.x, first.uv.y) : 0
   }
   const down = (event: PointerEvent) => {
     canvas.focus({ preventScroll: true })
@@ -137,7 +245,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     event.stopImmediatePropagation()
     controls.enabled = false
     active = { pointer: event.pointerId, bit }
-    canvas.setPointerCapture(event.pointerId)
+    try { canvas.setPointerCapture(event.pointerId) } catch {}
     button(bit, true)
   }
   const release = () => {
@@ -166,10 +274,12 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   canvas.addEventListener('webglcontextlost', lost)
   window.addEventListener('blur', release)
   document.addEventListener('visibilitychange', release)
+  controls.addEventListener('change', focusZoom)
   controls.addEventListener('change', render)
-  resetButton.addEventListener('click', reset)
   screenButton.addEventListener('click', focusScreen)
-  fullButton.addEventListener('click', focusFull)
+  fullButton?.addEventListener('click', showFull)
+  elements?.zoomIn?.addEventListener('click', zoomIn)
+  elements?.zoomOut?.addEventListener('click', zoomOut)
   const ready = fetch('/simulator/models/github-mona-badge.glb', { signal }).then(async response => {
     if (!response.ok) throw new Error(`Could not load the badge model (HTTP ${response.status}).`)
     const data = await response.arrayBuffer()
@@ -188,6 +298,24 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
         displayMesh = object
       }
       if (materials.some(material => material.transparent)) materials.forEach(material => { material.depthWrite = false })
+      const art = materials[0] as MeshStandardMaterial
+      if (art.name === 'front_top' && art.map?.image && !artwork) {
+        const source = art.map.image as CanvasImageSource & { width: number; height: number }
+        const canvas = document.createElement('canvas')
+        canvas.width = source.width
+        canvas.height = source.height
+        canvas.getContext('2d')?.drawImage(source, 0, 0)
+        const texture = new CanvasTexture(canvas)
+        texture.colorSpace = SRGBColorSpace
+        texture.flipY = art.map.flipY
+        texture.wrapS = art.map.wrapS
+        texture.wrapT = art.map.wrapT
+        texture.anisotropy = art.map.anisotropy
+        texture.channel = art.map.channel
+        art.map.dispose()
+        art.map = texture
+        artwork = { mesh: object, material: art, source, canvas, texture }
+      }
       const match = object.name.match(/Black_tactile_control_(left|middle|right|up|down)$/)
       if (match) {
         const bit = ({ left: 16, middle: 8, right: 4, up: 2, down: 1 } as Record<string, number>)[match[1]]
@@ -206,11 +334,15 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     updateFrame()
     setButtons(mask)
     view()
+    if (rotated) applyRotation()
     renderer.render(scene, camera)
     if (disposed || signal.aborted) return
     host.dataset.state = 'ready'
     status.hidden = true
-    resetButton.disabled = screenButton.disabled = fullButton.disabled = false
+    screenButton.disabled = false
+    if (fullButton) fullButton.disabled = false
+    if (elements?.zoomIn) elements.zoomIn.disabled = false
+    if (elements?.zoomOut) elements.zoomOut.disabled = false
   })
 
   // The front and back artwork are flat rectangles, so clip them to the
@@ -264,6 +396,8 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     ready,
     updateFrame,
     setButtons,
+    zoom,
+    setRotated,
     setBacklight(value: number) { displayMaterial.color.setScalar(Math.max(0, Math.min(1, value))); render() },
     dispose() {
       if (disposed) return
@@ -272,9 +406,10 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
       cancelAnimationFrame(frame)
       resize.disconnect()
       controls.dispose()
-      resetButton.removeEventListener('click', reset)
       screenButton.removeEventListener('click', focusScreen)
-      fullButton.removeEventListener('click', focusFull)
+      fullButton?.removeEventListener('click', showFull)
+      elements?.zoomIn?.removeEventListener('click', zoomIn)
+      elements?.zoomOut?.removeEventListener('click', zoomOut)
       window.removeEventListener('blur', release)
       document.removeEventListener('visibilitychange', release)
       canvas.removeEventListener('webglcontextlost', lost)

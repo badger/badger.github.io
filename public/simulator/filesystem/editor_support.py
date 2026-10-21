@@ -94,9 +94,6 @@ class Firmware:
         self.native_poll()
         self.buttons.update(self.native_held())
         mask = int(js.sim_buttons())
-        mapping = ((256, BUTTON_LEFT), (512, BUTTON_RIGHT), (1024, BUTTON_SELECT), (2048, BUTTON_UP), (4096, BUTTON_DOWN), (8192, BUTTON_BACK), (16384, BUTTON_MENU))
-        self.pad.update(action for bit, action in mapping if mask & bit)
-        self.all.update(set(self.buttons.held()) | set(self.pad.held()))
         self.device._upside_down = bool(mask & 32768)
         self.device._imu_readings = self.device._imu.get_readings()
         self.device._imu_events = int(self.device._imu.double_tap_detected())
@@ -104,6 +101,13 @@ class Firmware:
             self.last_orientation = self.device._upside_down
             if self.automatic_rotation:
                 self.rotate_180(self.device._upside_down)
+        # With the display rotated, the touch pads swap directions to match it.
+        if self.rotated:
+            mapping = ((256, BUTTON_RIGHT), (512, BUTTON_LEFT), (1024, BUTTON_SELECT), (2048, BUTTON_DOWN), (4096, BUTTON_UP), (8192, BUTTON_BACK), (16384, BUTTON_MENU))
+        else:
+            mapping = ((256, BUTTON_LEFT), (512, BUTTON_RIGHT), (1024, BUTTON_SELECT), (2048, BUTTON_UP), (4096, BUTTON_DOWN), (8192, BUTTON_BACK), (16384, BUTTON_MENU))
+        self.pad.update(action for bit, action in mapping if mask & bit)
+        self.all.update(set(self.buttons.held()) | set(self.pad.held()))
 
 
 firmware = Firmware(badge)

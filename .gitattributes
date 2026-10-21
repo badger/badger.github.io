@@ -2,4 +2,3 @@
 public/simulator/filesystem/** text=auto eol=lf
 # Editor examples are generated with LF; keep them byte-identical to the sync output
 public/editor-examples/** text=auto eol=lf
-

@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus, RotateCcw } from 'lucide-react'
+import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus, RotateCw } from 'lucide-react'
 ---
 
 <Layout title="Editor / Badger" description="Write Python, test it in the browser, and upload your app to a Badger badge.">
@@ -85,14 +85,14 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
           </div>
           <div class="px-4 pb-4 pt-3">
             <div id="badge-device" class="mx-auto w-full">
-              <div class="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <div class="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
                 <span class="model-keyboard-hint">Click the badge to use your keyboard</span>
-                <div class="flex shrink-0 items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <div class="badge-view-toggle" role="group" aria-label="Badge view">
                     <button id="focus-badge-screen" class="editor-button" aria-pressed="true" title="Zoom to the badge screen" disabled>Screen</button>
                     <button id="focus-badge-full" class="editor-button" aria-pressed="false" title="Show the full badge" disabled>Full</button>
                   </div>
-                  <button id="reset-badge-view" class="editor-icon-button" aria-label="Reset badge view" title="Reset badge view" disabled><RotateCcw size={14} /></button>
+                  <button id="rotate-badge" class="editor-button" aria-pressed="false" title="Turn the badge upside down"><RotateCw size={14} /> Rotate</button>
                 </div>
               </div>
               <div id="badge-model" class="badge-model" data-state="loading">
@@ -264,6 +264,7 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
   .badge-key { width: 2.3rem; height: 2rem; border: 1px solid #30363d; border-radius: 0.35rem; background: #161b22; color: #c9d1d9; font-size: 0.75rem; touch-action: none; user-select: none; }
   .badge-key:active, .badge-key[data-pressed='true'] { color: #5fed83; border-color: #5fed83; background: #163321; }
   .badge-model { position: relative; width: 100%; height: clamp(340px, 52vh, 540px); overflow: hidden; }
+  #badge-device [aria-pressed='true'] { color: hsl(var(--primary)); border-color: hsl(var(--primary) / 0.6); }
   .badge-model :global(canvas:not(#badge-screen)) { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
   .badge-model :global(canvas:not(#badge-screen):focus-visible) { outline: 2px solid hsl(var(--primary)); outline-offset: -2px; }
   #badge-screen { display: none; image-rendering: pixelated; }
