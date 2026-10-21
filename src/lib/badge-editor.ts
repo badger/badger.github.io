@@ -230,7 +230,7 @@ export async function initBadgeEditor() {
     locationError = false
     message.hidden = false
     message.textContent = text
-    message.className = `mt-3 text-sm ${error ? 'text-red-400' : 'text-primary'}`
+    message.className = `mt-3 text-sm ${error ? 'text-red-700 dark:text-red-400' : 'text-primary'}`
   }
 
   function updateLocationMessage() {

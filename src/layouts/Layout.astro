@@ -20,6 +20,17 @@ const { title, description = 'Badger 2350 hack index: code, hardware notes, exam
           document.documentElement.classList.replace('dark', 'light')
         }
       } catch {}
+      // Pages restored from the back/forward cache skip this script, so resync with the saved preference.
+      addEventListener('pageshow', (event) => {
+        if (!event.persisted) return
+        let theme
+        try { theme = localStorage.getItem('badger-theme') === 'light' ? 'light' : 'dark' } catch { return }
+        const root = document.documentElement
+        if (root.classList.contains(theme)) return
+        root.classList.toggle('light', theme === 'light')
+        root.classList.toggle('dark', theme === 'dark')
+        dispatchEvent(new CustomEvent('badger-theme-change', { detail: theme }))
+      })
     </script>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
