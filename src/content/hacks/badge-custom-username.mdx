@@ -1,55 +1,77 @@
 ---
 title: "Set Your GitHub Handle"
-description: "Set the GitHub username in secrets.py."
+description: "Add your GitHub username and Wi-Fi details with the Settings app, or edit secrets.py over USB."
 difficulty: "beginner"
 duration: 5
 tags: ["networking", "badge-app"]
-thumbnail: "/images/apps/badge_icon.png"
+thumbnail: "/images/apps/2026/settings.svg"
 author: "Badger Team"
-date: "2025-10-27"
+date: "2026-10-22"
 hardware: ["Badger 2350"]
-github: "https://github.com/badger/home/blob/main/badge/secrets.py"
+github: "https://github.com/badger/home/blob/main/badge/apps/settings/__init__.py"
 featured: 1
 ---
 
+The **Badge** app shows your GitHub avatar, follower count, and contribution graph. It needs your GitHub username and a Wi-Fi connection. You can enter both on the badge with the **Settings** app, or edit `secrets.py` from your computer.
+
 ## Prerequisites
 
-- Wi-Fi SSID and password for a 2.4 GHz network
 - Your GitHub username (case-sensitive)
+- A 2.4 GHz Wi-Fi network (see [Wi-Fi](#wi-fi) below)
+- For the USB method: a USB-C data cable and [VS Code](https://code.visualstudio.com/) or any text editor
 
-## Steps
+## Option 1: Use the Settings app
 
-1. **Enter USB storage mode** (double-tap `Reset`).
-2. **Open the badger volume in VS Code** (`File → Open...` and choose the mounted drive).
-3. **Locate `secrets.py`** at the root of the badger volume and edit it in VS Code, replacing the placeholder values:
+1. Open **Settings** from the menu.
+2. Use **Up** and **Down** to highlight **GitHub Username**, then press **Select** (the white circle).
+
+   ![Settings app with the GitHub Username row highlighted](/images/hacks/github-handle/settings-list.png)
+
+3. Type your username on the on-screen keyboard. Move with the direction pad and press **Select** to type the highlighted key. **Back** deletes a character, `shift` switches case, and `#+=` shows symbols.
+
+   ![On-screen keyboard typing a GitHub username](/images/hacks/github-handle/settings-keyboard.png)
+
+4. Highlight **done** and press **Select**. The hint changes to **saved!**
+
+   ![Settings app showing the saved GitHub username](/images/hacks/github-handle/settings-saved.png)
+
+5. Press **Back** to leave Settings, then open the **Badge** app.
+
+The same screen lets you change **WiFi Network**, **WiFi Password**, **Contact Name**, **LinkedIn Profile**, and the **Backlight** level. The Badge and Contacts apps use your contact details.
+
+## Option 2: Edit `secrets.py` in VS Code
+
+1. **Connect the badge to your computer** with a USB-C data cable.
+2. **Enter USB mode.** Double-tap the badge's reset button, or open the **Mass Storage** app from the menu. The screen shows **USB Disk Mode** and a drive named **BADGER** appears on your computer.
+3. **Open the drive in VS Code.** Choose `File → Open Folder...` and select **BADGER**.
+4. **Edit `secrets.py`** at the root of the drive:
    ```python
-   WIFI_SSID = "your-ssid"
-   WIFI_PASSWORD = "your-password"
+   WIFI_SSID = "HYB-26"
+   WIFI_PASSWORD = "..."
    GITHUB_USERNAME = "your-handle"
+   CONTACT_NAME = "Your Name"
+   CONTACT_LINKEDIN = ""
+   REGION = "us"  # Options are us, cuba, eu, moldova, lebanon, egypt, chile, australia, nz
+   TIMEZONE = -7  # Offset from GMT as number of hours, i.e. 0, 1, -7 etc.
    ```
-4. **Save the file**, eject the badger volume, and tap `Reset` once.
+   Keep the quotes, and leave any setting you don't use as `""`.
+5. **Save the file and eject BADGER** (Finder: click ⏏; Windows: **Safely Remove Hardware**). The badge restarts automatically. If it doesn't, press reset once.
 
-## Validation
+Values you set in `secrets.py` take priority over the Settings app. Settings shows those fields with a padlock and **locked**. To edit them on the badge again, set them back to `""` in `secrets.py`.
 
-```python
-from secrets import WIFI_PASSWORD, WIFI_SSID, GITHUB_USERNAME
-...
-if not WIFI_SSID:
-    return False
-if not GITHUB_USERNAME:
-    return False
-user.handle = GITHUB_USERNAME
-```
+![Settings app showing a locked GitHub username set in secrets.py](/images/hacks/github-handle/settings-locked.png)
 
-Reference: [`badge/apps/badge/__init__.py`](https://github.com/badger/home/blob/main/badge/apps/badge/__init__.py#L36-L78).
+## Wi-Fi
+
+Your badge comes set up for the **HYB-26** network in the **Hack Your Badge** area. The badge only supports **2.4 GHz** Wi-Fi, so it can't join the main conference network, which prefers 5 GHz. To use your home Wi-Fi or your phone's hotspot, see [Connect to Wi-Fi](/hack/connect-wifi/).
 
 ## Verify
 
-- Launch the **Badge** app.
-- Hold `A+C` to force refresh; within ~10 seconds you should see your avatar, follower count, and contribution graph.
-- If you hit `Connection Failed`, double-check the Wi-Fi credentials.
+- Open the **Badge** app. Within a few seconds you should see your avatar, follower count, and contribution graph.
+- Hold **Left** and **Right** together to download your profile again.
+- If you see **Couldn't connect to WiFi**, check the network name and password, and make sure it's a 2.4 GHz network.
 
-## Safety Tips
+## Safety tips
 
-- `secrets.py` is plain text. Avoid committing it to Git—it should stay on the badge only.
-- To revert quickly, delete `/secrets.py` and reboot; the badge falls back to the built-in defaults.
+- `secrets.py` is plain text and includes your Wi-Fi password. Don't commit your copy to Git.
+- Always eject **BADGER** before unplugging the badge or pressing reset, so your changes are saved.
