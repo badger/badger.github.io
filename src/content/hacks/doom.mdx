@@ -1,0 +1,99 @@
+---
+title: "Play Doom on Your Badge"
+description: "Flash Doom onto your badge, then restore the factory firmware when you're done."
+difficulty: "advanced"
+duration: 15
+tags: ["games", "firmware"]
+thumbnail: "/images/hacks/doom/doom-on-badge.jpg"
+author: "Badger Team"
+date: "2026-10-22"
+hardware: ["Badger 2350"]
+github: "https://github.com/martinwoodward/rp2040-doom/releases/tag/20261021"
+featured: 3
+---
+
+This build of Doom runs on the badge with the 2026 controls and flips the screen when you turn the badge over. It replaces MonaOS, so you flash it as firmware and then flash the factory firmware to get your badge back.
+
+![Doom title screen running on the badge](/images/hacks/doom/doom-on-badge.jpg)
+
+> **Warning:** flashing Doom erases everything on the badge, including your apps, photos, Wi-Fi details, and GitHub username in `secrets.py`. Back up anything you want to keep first.
+
+## What you need
+
+- Your badge and a USB-C data cable
+- A Windows PC or a Mac
+- About 15 MB of free space for the two firmware files
+
+## The buttons on the back
+
+Two buttons on the back of the badge control power and firmware:
+
+- **HOME / BOOT** (left): hold it while pressing **RESET** to enter firmware mode.
+- **RESET** (right): press once to restart, double-tap for USB Disk Mode, or hold to sleep.
+
+![The HOME/BOOT and RESET buttons on the back of the badge](/images/hacks/doom/back-buttons.png)
+
+## 1. Back up your badge
+
+1. Connect the badge to your computer with a USB-C data cable.
+2. Double-tap **RESET** to enter USB Disk Mode. A drive named **BADGER** appears in File Explorer (Windows) or Finder (Mac).
+3. Copy the whole **BADGER** drive to a folder on your computer. At minimum, keep `secrets.py` and any apps or photos you've added.
+4. Eject **BADGER**.
+
+## 2. Download Doom
+
+Download `doom_universe2026.uf2` from the [Doom for Universe 2026 release](https://github.com/martinwoodward/rp2040-doom/releases/tag/20261021).
+
+## 3. Enter firmware mode
+
+1. Keep the badge connected to your computer.
+2. Press and hold **HOME / BOOT**.
+3. Press and release **RESET**.
+4. Release **HOME / BOOT**.
+
+The screen goes dark and a drive named **RP2350** appears in File Explorer (Windows) or Finder (Mac). If you see **BADGER** instead, you're in USB Disk Mode: try again, keeping **HOME / BOOT** held until after you release **RESET**.
+
+## 4. Flash Doom
+
+1. Drag `doom_universe2026.uf2` onto the **RP2350** drive.
+2. Wait for the copy to finish. The drive disappears and the badge restarts into Doom.
+
+Windows may report that the device was disconnected, and a Mac may warn that the disk wasn't ejected properly. Both are normal: the badge restarts as soon as it has the new firmware.
+
+## Controls
+
+Doom uses the touch controls on the front of the badge.
+
+![Doom controls: direction pad to move and turn, Menu, Back to use, Select to fire](/images/hacks/doom/controls.png)
+
+| Control | Action |
+| --- | --- |
+| Direction pad | Move and turn |
+| **Select** (white) | Fire |
+| **Back** (gold) | Use (open doors, press switches) |
+| **Menu** | Open the game menu |
+
+Turn the badge upside down and the screen flips to match. The [release notes](https://github.com/martinwoodward/rp2040-doom/releases/tag/20261021) list the current controls.
+
+## Restore the factory firmware
+
+When you're done playing, put MonaOS back:
+
+1. Download `badger-d71d98d-with-filesystem.uf2` from the [MonaOS v4.0 release](https://github.com/badger/home/releases/tag/mona-os-V4.0.d71d98d).
+2. Enter firmware mode: hold **HOME / BOOT**, press and release **RESET**, then release **HOME / BOOT**.
+3. Drag `badger-d71d98d-with-filesystem.uf2` onto the **RP2350** drive. This file is larger than Doom and can take a few minutes to copy.
+4. The badge restarts into MonaOS with the factory apps and settings.
+
+## Put your files back
+
+1. Double-tap **RESET** to enter USB Disk Mode.
+2. Copy `secrets.py` and any apps or photos from your backup back to the **BADGER** drive. Copy individual files and folders rather than replacing the whole drive, so you keep the fresh system files.
+3. Eject **BADGER**. The badge restarts.
+
+You can also re-enter your Wi-Fi details and GitHub username in the **Settings** app. See [Connect to Wi-Fi](/hack/connect-wifi/) and [Set your GitHub handle](/hack/badge-custom-username/).
+
+## Troubleshooting
+
+- **No RP2350 drive appears:** use a USB-C cable that carries data, not a charge-only cable, and repeat the firmware mode steps.
+- **The badge is stuck on a blank screen after flashing:** press **RESET** once. If that doesn't help, enter firmware mode and flash the file again.
+- **Something went wrong and you want the badge back:** flash `badger-d71d98d-with-filesystem.uf2` as described above. You can always enter firmware mode, whatever is installed.

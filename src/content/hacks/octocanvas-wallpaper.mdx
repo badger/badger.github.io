@@ -1,45 +1,83 @@
 ---
-title: "Render an Octocanvas Wallpaper"
-description: "Add an Octocanvas wallpaper to Gallery."
+title: "Add an Octocanvas Wallpaper to the Menu"
+description: "Turn your Octocanvas wallpaper into a photo tile on the badge's home screen menu."
 difficulty: "intermediate"
-duration: 15
-tags: ["media", "design", "filesystem"]
-thumbnail: "/images/apps/gallery_icon.png"
+duration: 10
+tags: ["media", "design", "filesystem", "launcher"]
+thumbnail: "/images/hacks/octocanvas/menu-octocanvas-tile.png"
 author: "Badger Team"
-date: "2025-10-27"
+date: "2026-10-22"
 hardware: ["Badger 2350"]
 github: "https://github.com/github/octocanvas"
 ---
 
-## Prerequisites
+[Octocanvas](https://octocanvas.io) turns your GitHub profile into a wallpaper. It has a badge-sized download, so you can add it to the home screen menu as a wide photo tile that opens full screen.
 
-- Web browser with access to [octocanvas.io](https://octocanvas.io)
-- An image editor that can resize PNGs (Preview, Photos, Paint, or an online tool)
-- Badge mounted as the badger volume
+![Menu with a wide Octocanvas tile selected](/images/hacks/octocanvas/menu-octocanvas-tile.png)
 
-## Steps
+## What you need
 
-1. **Generate the artwork**
-   - Open [octocanvas.io](https://octocanvas.io).
-   - Enter your GitHub username, pick colours/effects, and switch to the **Badge (320×240)** download. The code that powers this size sits in [`WallpaperGenerator.tsx`](https://github.com/github/octocanvas/blob/main/src/components/WallpaperGenerator.tsx#L34-L59).
-   - Click **Download** → the file lands in `~/Downloads/octocanvas-badge.png` (name may vary).
-2. **Downscale for the Gallery app (160×120)**
-  - Open the downloaded PNG in your image editor.
-  - Resize or export a copy at **160×120 px** named `octocanvas-gallery.png`.
-3. **Create the thumbnail (60×45)**
-  - Duplicate the 160×120 image, resize it to **60×45 px**, and save it as `octocanvas-gallery-thumb.png`.
-4. **Copy into the Gallery app with Finder or File Explorer**
-  - Drag `octocanvas-gallery.png` into `badger volume/apps/gallery/images/`.
-  - Drag the thumbnail into `badger volume/apps/gallery/thumbnails/` and rename it to `octocanvas-gallery.png` so the filenames match.
-5. **Review in VS Code**
-  - In VS Code, open `badger volume/apps/gallery/` to double-check both PNGs are present with matching filenames.
-6. **Eject + reset** the badge and open Gallery. Your wallpaper should sit alongside the stock art.
+- Your badge and a USB-C data cable
+- A web browser
+- An image editor: **Paint** on Windows or **Preview** on a Mac
+- **VS Code** or another text editor
+
+## 1. Generate the wallpaper
+
+1. Open [octocanvas.io](https://octocanvas.io) and stay on the **Wallpaper** tab.
+2. Enter your GitHub username and choose **Generate**.
+3. Pick an **Avatar Filter** and a **Background Theme**.
+4. Choose **Badge (320x240) Download PNG**. The file is saved to your Downloads folder as `github-wallpaper-<username>-small.png`.
+5. Rename the file to `octocanvas.png`. It's already the right size for the full-screen view.
+
+## 2. Make the wide tile image (166 × 87)
+
+The menu tile is wider than it is tall, so crop the middle of the wallpaper around your avatar and name.
+
+1. Open a copy of `octocanvas.png` in your image editor.
+2. Select a wide box around your avatar and name, about 240 × 126 pixels, and crop to it.
+   - **Windows (Paint):** choose **Select**, drag a box, then choose **Crop**.
+   - **Mac (Preview):** drag a box, then choose **Tools → Crop**.
+3. Resize the crop to exactly **166 × 87** pixels.
+   - **Windows (Paint):** **Resize → Pixels**, clear **Maintain aspect ratio**, and enter 166 and 87.
+   - **Mac (Preview):** **Tools → Adjust Size**, set the units to pixels, clear **Scale proportionally**, and enter 166 and 87.
+4. Save it as a PNG, also named `octocanvas.png`, in a different folder from the full-size file.
+
+## 3. Copy the images to the badge
+
+1. Connect the badge to your computer with a USB-C data cable.
+2. **Enter USB Disk Mode.** Double-tap the badge's **RESET** button, or open **Mass Storage** from the menu. A drive named **BADGER** appears in File Explorer (Windows) or Finder (Mac).
+3. Copy the 320 × 240 `octocanvas.png` into `BADGER/apps/menu/photos/`.
+4. Copy the 166 × 87 `octocanvas.png` into `BADGER/apps/menu/photos/tiles/`.
+
+## 4. Add the tile to the menu
+
+1. Copy `BADGER/apps/menu/gallery.py` to your computer as a backup.
+2. Open the **BADGER** drive in VS Code (**File → Open Folder...**) and open `apps/menu/gallery.py`.
+3. Add this line at the top of the `GALLERY` list:
+
+   ```python
+   GALLERY = (
+       ("octocanvas", 2, 1, 3, None),
+       ("mona-quilt", 2, 1, 7, (185, 100, 0.55)),
+       ...
+   )
+   ```
+
+   `"octocanvas"` is the file name without `.png`. `2, 1` makes a tile two cells wide and one cell tall. `3` sets its position in the menu, counting from `0`. `None` opens the wallpaper from its centre. Keep the comma at the end of the line.
+4. Save the file and eject **BADGER**. The badge restarts. If it doesn't, press **RESET** once.
+
+[Add Your Photo to the Menu](/hack/gallery-import-image/) explains each value and shows how to add square photo tiles.
 
 ## Verify
 
-- In Gallery, the new slide should display edge-to-edge with no stretching.
-- The thumbnail strip shows your custom preview. If it’s blank, check that both PNGs share the same filename.
+- Move to the wide tile with the direction pad. The label at the bottom reads **octocanvas**.
+- Press **Select** to open the wallpaper full screen. Press any button to close it.
 
-## Cleanup (optional)
+![Octocanvas wallpaper open full screen on the badge](/images/hacks/octocanvas/menu-octocanvas-open.png)
 
-Move any intermediate files (downloads and resized copies) to the trash once you are finished.
+## Troubleshooting
+
+- **The tile doesn't appear:** check that `photos/tiles/octocanvas.png` exists and the name in `gallery.py` matches it exactly.
+- **The menu doesn't start after editing `gallery.py`:** check for a missing comma or quote. Double-tap **RESET** to get back to USB Disk Mode, then fix the line or restore your backup.
+- **The tile looks squashed:** crop to a wide box (about 2:1) before resizing to 166 × 87.

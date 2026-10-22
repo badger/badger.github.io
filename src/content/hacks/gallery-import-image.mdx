@@ -1,60 +1,102 @@
 ---
-title: "Add Your Photo to Gallery"
-description: "Add a PNG and thumbnail to Gallery."
-difficulty: "beginner"
-duration: 8
-tags: ["media", "filesystem"]
-thumbnail: "/images/apps/gallery_icon.png"
+title: "Add Your Photo to the Menu"
+description: "Add your own photo as a tile on the badge's home screen menu."
+difficulty: "intermediate"
+duration: 10
+tags: ["media", "filesystem", "launcher"]
+thumbnail: "/images/hacks/menu-photo/menu-photo-tile.png"
 author: "Badger Team"
-date: "2025-10-27"
+date: "2026-10-22"
 hardware: ["Badger 2350"]
-github: "https://github.com/badger/home/tree/main/badge/apps/gallery"
+github: "https://github.com/badger/home/blob/main/badge/apps/menu/gallery.py"
 featured: 2
 ---
 
-## Prerequisites
+The home screen menu mixes app icons with photo tiles. Select a photo tile and it opens full screen. This hack adds your own photo as a new tile.
 
-- Badge mounted as the badger volume
-- An image editor that can export PNGs at specific dimensions (Preview on macOS, Paint or Photos on Windows, or an online tool)
+![Menu with a custom photo tile selected and labelled my photo](/images/hacks/menu-photo/menu-photo-tile.png)
 
-## Steps
+## What you need
 
-1. **Copy the Gallery app into override mode (first time only)**
-  - Open the badger volume in Finder or File Explorer.
-  - Duplicate the folder `system/apps/gallery` and move the copy to `apps/gallery`. This lets you edit the override version without touching the system copy.
-2. **Prepare the full-size artwork (160×120)**
-  - Open your source image in the image editor.
-  - Resize or export it to exactly **160×120 px** and save it as `badge-shot.png` (use any name you like) on your desktop.
-3. **Create the thumbnail (60×45)**
-  - Duplicate the 160×120 PNG in your editor.
-  - Resize the duplicate to **60×45 px** and save it as `badge-shot-thumb.png`.
-4. **Copy both files into the app with Finder or File Explorer**
-  - Drag `badge-shot.png` into `badger volume/apps/gallery/images/`.
-  - Drag `badge-shot-thumb.png` into `badger volume/apps/gallery/thumbnails/` and rename it so the filename matches the full-size version (for example, `badge-shot.png`).
-5. **Review in VS Code**
-  - In VS Code, open `badger volume/apps/gallery/` and make sure your two PNGs appear under `images/` and `thumbnails/` with matching names.
-6. **Eject and reset** the badge so Gallery refreshes its file list.
+- Your badge and a USB-C data cable
+- A photo on your computer
+- An image editor: **Paint** on Windows or **Preview** on a Mac
+- **VS Code** or another text editor
 
-## Files
+## How photo tiles work
 
-```python
-files = []
-for file in os.listdir("images"):
-    name, ext = file.rsplit(".", 1)
-    if ext == "png":
-        files.append({"name": file, "title": name.replace("-", " ")})
-...
-thumbnails.append(Image.load(f"thumbnails/{file['name']}"))
-```
+Each tile uses two PNG files with the same name, plus one line of code:
 
-The code expects a PNG in both `images/` and `thumbnails/` using the same filename. Source: [`badge/apps/gallery/__init__.py`](https://github.com/badger/home/blob/main/badge/apps/gallery/__init__.py#L10-L71).
+| File on the BADGER drive | Size | Purpose |
+| --- | --- | --- |
+| `apps/menu/photos/my-photo.png` | 320 × 240 px | Shown full screen when you select the tile |
+| `apps/menu/photos/tiles/my-photo.png` | 166 × 166 px (square tile) or 166 × 87 px (wide tile) | Shown in the menu grid |
+| `apps/menu/gallery.py` | one line per photo | Tells the menu the tile's name, shape, and position |
+
+The file name becomes the tile label, with dashes turned into spaces. `my-photo.png` shows as **my photo**. Use lowercase letters, numbers, and dashes only.
+
+## 1. Make the two images
+
+1. **Full-screen image (320 × 240)**
+   - Crop your photo to a landscape 4:3 shape around the part you want to show.
+     - **Windows (Paint):** choose **Select**, drag a box, then choose **Crop**.
+     - **Mac (Preview):** drag a box, then choose **Tools → Crop**.
+   - Resize it to exactly **320 × 240** pixels.
+     - **Windows (Paint):** **Resize → Pixels**, clear **Maintain aspect ratio**, and enter 320 and 240.
+     - **Mac (Preview):** **Tools → Adjust Size**, set the units to pixels, clear **Scale proportionally**, and enter 320 and 240.
+   - Save it as a PNG named `my-photo.png`. In Preview, use **File → Export** and choose **PNG**.
+2. **Tile image (166 × 166)**
+   - Open your original photo again and crop a square around the subject.
+   - Resize it to **166 × 166** pixels and save it as a PNG. Name this one `my-photo.png` as well, so keep it in a different folder from the first file.
+
+The tile image doesn't have to match the full-screen image. Use a tight crop so the subject is easy to see in the small tile.
+
+## 2. Copy the images to the badge
+
+1. Connect the badge to your computer with a USB-C data cable.
+2. **Enter USB Disk Mode.** Double-tap the badge's **RESET** button, or open **Mass Storage** from the menu. A drive named **BADGER** appears in File Explorer (Windows) or Finder (Mac).
+3. Copy the 320 × 240 `my-photo.png` into `BADGER/apps/menu/photos/`.
+4. Copy the 166 × 166 `my-photo.png` into `BADGER/apps/menu/photos/tiles/`.
+
+## 3. Add the tile to the menu
+
+1. Copy `BADGER/apps/menu/gallery.py` to your computer as a backup.
+2. Open the **BADGER** drive in VS Code (**File → Open Folder...**) and open `apps/menu/gallery.py`.
+3. Add a line for your photo at the top of the `GALLERY` list:
+
+   ```python
+   GALLERY = (
+       ("my-photo", 2, 2, 2, None),
+       ("mona-quilt", 2, 1, 7, (185, 100, 0.55)),
+       ...
+   )
+   ```
+
+   The values are:
+
+   | Value | Meaning |
+   | --- | --- |
+   | `"my-photo"` | File name without `.png` |
+   | `2, 2` | Width and height in grid cells. Use `2, 2` for a square tile (166 × 166 image) or `2, 1` for a wide tile (166 × 87 image) |
+   | `2` | Position in the menu. `0` is the first tile, so `2` puts your photo near the top |
+   | `None` | Use the centre of the photo when it opens. The built-in photos use `(x, y, zoom)` here to pick a focus point |
+
+   Keep the comma at the end of the line.
+4. Save the file and eject **BADGER**. The badge restarts. If it doesn't, press **RESET** once.
 
 ## Verify
 
-- Launch Gallery and scroll with `A/C` until you hit your new tile.
-- Confirm the thumbnail strip shows your preview and the title uses the file name (dashes become spaces).
+- Move to your tile with the direction pad. The label at the bottom shows **my photo**.
+- Press **Select** to open the photo full screen. Press any button to close it.
+
+![Custom photo open full screen on the badge](/images/hacks/menu-photo/menu-photo-open.png)
+
+## No-code alternative
+
+To skip editing `gallery.py`, replace one of the built-in photos instead. For example, overwrite `photos/mona-centered.png` (320 × 240) and `photos/tiles/mona-centered.png` (166 × 166) with your own images. Keep the original file names. The label still reads **mona centered**. Keep copies of the originals if you want to put them back.
 
 ## Troubleshooting
 
-- If the image fails to load, check for uppercase file extensions or mismatched thumbnail names.
-- Use `Reset` twice to drop back into USB mode and replace any broken files.
+- **The tile doesn't appear:** check that the tile image exists in `photos/tiles/` and that its name matches the `gallery.py` entry exactly, including lowercase letters.
+- **The menu doesn't start after editing `gallery.py`:** there's probably a typo, such as a missing comma or quote. Double-tap **RESET** to get back to USB Disk Mode, then fix the line or restore your backup.
+- **The photo looks stretched:** crop to 4:3 (full screen) or a square (tile) before resizing.
