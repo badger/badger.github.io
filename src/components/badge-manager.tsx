@@ -188,6 +188,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
   const [legacyApps, setLegacyApps] = useState<string[]>([])
   const [storeApps, setStoreApps] = useState<StoreApp[]>([])
   const [storeMessage, setStoreMessage] = useState('Loading apps from badger/home…')
+  const [storeLoading, setStoreLoading] = useState(false)
   const [pendingApps, setPendingApps] = useState<PendingApp[]>([])
   const [removeQueue, setRemoveQueue] = useState<string[]>([])
   const [dragging, setDragging] = useState(false)
@@ -273,9 +274,11 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     setStatus(statusMessage)
   }
 
-  async function loadStore() {
+  async function loadStore(refresh = false) {
+    setStoreLoading(true)
+    setStoreMessage(`${refresh ? 'Reloading' : 'Loading'} apps from badger/home…`)
     try {
-      const folders = await fetchInstallableAppFolders()
+      const folders = await fetchInstallableAppFolders({ refresh })
       const loadedApps = folders
         .map(([name, files]) => {
           const preinstalled = PREINSTALLED_APPS_BY_STORE_ID[name]
@@ -290,9 +293,12 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         })
         .sort((left, right) => left.title.localeCompare(right.title))
       setStoreApps(loadedApps)
-      setStoreMessage(`${loadedApps.length} apps · source: badger/home`)
-    } catch {
-      setStoreMessage('Could not load the app catalog. Try again.')
+      setStoreMessage(`${loadedApps.length} apps${refresh ? ' reloaded' : ''} · source: badger/home`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'The app catalog request failed.'
+      setStoreMessage(`Could not ${refresh ? 'reload' : 'load'} the app catalog: ${message}`)
+    } finally {
+      setStoreLoading(false)
     }
   }
 
@@ -792,6 +798,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         : 'No badge connected.'
     : status
   const localPendingApps = pendingApps.filter((app) => app.source === 'local')
+  const hasPendingChanges = pendingApps.length > 0 || removeQueue.length > 0
 
   return (
     <div className="badge-edit-root w-full space-y-6">
@@ -820,8 +827,8 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
             <p role="status" className="mt-2 text-sm text-muted-foreground">{storeMessage}</p>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => void loadStore()} disabled={busy}><RefreshCw /> Reload</Button>
-            <Button className="!border-primary !bg-primary !text-primary-foreground uppercase tracking-[0.12em] hover:!bg-primary/85 disabled:!bg-primary disabled:!text-primary-foreground disabled:opacity-100" size="lg" onClick={() => void saveChanges()} disabled={busy || !connected || (!pendingApps.length && !removeQueue.length)}><Save /> Save</Button>
+            <Button size="sm" variant="outline" onClick={() => void loadStore(true)} disabled={busy || storeLoading} aria-busy={storeLoading}><RefreshCw className={storeLoading ? 'animate-spin' : undefined} /> {storeLoading ? 'Reloading' : 'Reload'}</Button>
+            <Button className={`uppercase tracking-[0.12em] ${hasPendingChanges ? 'badge-edit-primary disabled:!opacity-100' : ''}`} size="sm" variant={hasPendingChanges ? 'default' : 'outline'} onClick={() => void saveChanges()} disabled={busy || !connected || !hasPendingChanges}><Save /> Save</Button>
           </div>
         </div>
         {legacyApps.length > 0 && !diskRoot && <div className="mt-5 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex gap-3"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" /><div><p className="text-sm font-medium">Old uploads need repair</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{legacyApps.join(', ')} {legacyApps.length === 1 ? 'is' : 'are'} on the badge but not indexed by its launcher.</p></div></div><Button size="sm" variant="outline" onClick={recoverLegacyApps} disabled={busy}>Update launcher</Button></div></div>}
