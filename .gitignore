@@ -2,6 +2,8 @@
 dist/
 # generated types
 .astro/
+# public app source used by deployment
+.catalog-source/
 
 # dependencies
 node_modules/
