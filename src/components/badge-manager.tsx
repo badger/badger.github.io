@@ -47,6 +47,7 @@ type AppFile = {
 type PendingApp = {
   name: string
   files: AppFile[]
+  source: 'store' | 'local'
 }
 
 type DeviceApp = {
@@ -133,7 +134,7 @@ function makePendingApps(files: AppFile[]) {
     const key = appName(entry.relativePath)
     grouped.set(key, [...(grouped.get(key) ?? []), entry])
   }
-  return [...grouped.entries()].map(([name, appFiles]) => ({ name, files: appFiles }))
+  return [...grouped.entries()].map(([name, appFiles]) => ({ name, files: appFiles, source: 'local' as const }))
 }
 
 function relativeInstallPath(entry: AppFile) {
@@ -611,7 +612,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
       const contents = await response.blob()
       return { file: new File([contents], path.split('/').at(-1) ?? path), relativePath: `${app.name}/${path}` }
     }))
-    setPendingApps((current) => [...current.filter((item) => item.name !== app.name), { name: app.name, files }])
+    setPendingApps((current) => [...current.filter((item) => item.name !== app.name), { name: app.name, files, source: 'store' }])
     setStatus(connected
       ? `${app.title} is ready to save.`
       : `${app.title} is selected. ${SERIAL_CONNECTION_MODE_ENABLED ? 'Connect your badge over serial' : 'Open the BADGER disk'} before saving.`)
@@ -790,6 +791,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         ? 'Badge connected over serial.'
         : 'No badge connected.'
     : status
+  const localPendingApps = pendingApps.filter((app) => app.source === 'local')
 
   return (
     <div className="badge-edit-root w-full space-y-6">
@@ -819,7 +821,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
           </div>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={() => void loadStore()} disabled={busy}><RefreshCw /> Reload</Button>
-            <Button size="sm" onClick={() => void saveChanges()} disabled={busy || !connected || (!pendingApps.length && !removeQueue.length)}><Save /> Save</Button>
+            <Button className="disabled:bg-primary disabled:text-primary-foreground disabled:opacity-60" size="sm" onClick={() => void saveChanges()} disabled={busy || !connected || (!pendingApps.length && !removeQueue.length)}><Save /> Save</Button>
           </div>
         </div>
         {legacyApps.length > 0 && !diskRoot && <div className="mt-5 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex gap-3"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" /><div><p className="text-sm font-medium">Old uploads need repair</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{legacyApps.join(', ')} {legacyApps.length === 1 ? 'is' : 'are'} on the badge but not indexed by its launcher.</p></div></div><Button size="sm" variant="outline" onClick={recoverLegacyApps} disabled={busy}>Update launcher</Button></div></div>}
@@ -853,15 +855,15 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
             <h2 className="text-2xl sm:text-3xl">Add local app</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Review apps selected above or choose an app folder from your computer.</p>
           </div>
-          {pendingApps.length > 0 && <button type="button" onClick={() => pickerRef.current?.click()} className="badge-edit-ghost inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"><FolderUp className="h-3.5 w-3.5" />Add folder</button>}
+          {localPendingApps.length > 0 && <button type="button" onClick={() => pickerRef.current?.click()} className="badge-edit-ghost inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"><FolderUp className="h-3.5 w-3.5" />Add folder</button>}
         </div>
         <input ref={pickerRef} type="file" className="hidden" multiple webkitdirectory="" onChange={(event) => event.target.files && addFiles(event.target.files)} />
-        {pendingApps.length === 0 ? <button type="button" data-dragging={dragging} onClick={() => pickerRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true) }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); void collectDroppedFiles(event.dataTransfer).then(stageFiles) }} className="badge-edit-dropzone mt-5 flex w-full items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 px-5 py-8 text-center transition-colors hover:border-primary/60">
+        {localPendingApps.length === 0 ? <button type="button" data-dragging={dragging} onClick={() => pickerRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true) }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); void collectDroppedFiles(event.dataTransfer).then(stageFiles) }} className="badge-edit-dropzone mt-5 flex w-full items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 px-5 py-8 text-center transition-colors hover:border-primary/60">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary/5"><FolderUp className="h-5 w-5 text-primary" /></span>
           <span className="text-left"><span className="block text-sm text-foreground">Choose an app folder</span><span className="mt-0.5 block text-xs text-muted-foreground">or drop it here</span></span>
         </button> : <>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {pendingApps.map((app) => <div key={app.name} className="flex min-w-0 items-center gap-3 rounded-lg border border-border/50 bg-background/35 p-3">
+            {localPendingApps.map((app) => <div key={app.name} className="flex min-w-0 items-center gap-3 rounded-lg border border-border/50 bg-background/35 p-3">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/10"><FileCode2 className="h-5 w-5 text-primary" /></span>
               <span className="min-w-0 flex-1"><span className="block truncate font-mono text-sm uppercase tracking-[0.1em] text-foreground">{app.name}</span><span className="mt-0.5 block text-xs text-muted-foreground">{app.files.length} file{app.files.length === 1 ? '' : 's'}</span></span>
               <button type="button" onClick={() => setPendingApps((current) => current.filter((item) => item.name !== app.name))} className="badge-edit-ghost grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:text-foreground" aria-label={`Remove ${app.name}`} title={`Remove ${app.name}`}><X className="h-4 w-4" /></button>
