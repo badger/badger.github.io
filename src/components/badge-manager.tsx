@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, CircleAlert, FileCode2, FolderUp, LoaderCircle, LogOut, PlugZap, RefreshCw, Trash2, Upload, X } from 'lucide-react'
+import { Check, CircleAlert, FileCode2, FolderUp, LoaderCircle, LogOut, PlugZap, RefreshCw, Save, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BadgeSetupGuide } from '@/components/badge-setup-guide'
 import { StoreAppCard } from '@/components/store-app-card'
 import { SERIAL_CONNECTION_MODE_ENABLED } from '@/config/features'
+import { PREINSTALLED_APPS_BY_STORE_ID } from '@/data/preinstalled-apps'
 import { fetchInstallableAppFolders } from '@/lib/github-app-catalog'
 
 declare module 'react' {
@@ -59,6 +60,7 @@ type StoreApp = {
   title: string
   files: string[]
   iconUrl?: string
+  iconColor?: string
   description?: string
 }
 
@@ -189,8 +191,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
   const [removeQueue, setRemoveQueue] = useState<string[]>([])
   const [dragging, setDragging] = useState(false)
   const [result, setResult] = useState<OperationResult | null>(null)
-  const [uploadResult, setUploadResult] = useState<OperationResult | null>(null)
-  const [removeResult, setRemoveResult] = useState<OperationResult | null>(null)
+  const [saveResult, setSaveResult] = useState<OperationResult | null>(null)
   const outputRef = useRef('')
   const serialResponseRef = useRef('')
   const readerRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null)
@@ -226,8 +227,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     setLegacyApps([])
     setRemoveQueue([])
     setResult(null)
-    setUploadResult(null)
-    setRemoveResult(null)
+    setSaveResult(null)
     setOutput('')
     outputRef.current = ''
     serialResponseRef.current = ''
@@ -276,13 +276,17 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     try {
       const folders = await fetchInstallableAppFolders()
       const loadedApps = folders
-        .map(([name, files]) => ({
-          name,
-          title: titleForApp(name),
-          files: files.sort(),
-          iconUrl: files.includes('icon.png') ? `https://raw.githubusercontent.com/badger/home/main/badge/apps/${name}/icon.png` : undefined,
-          description: Object.hasOwn(appDescriptions, name) ? appDescriptions[name] : undefined,
-        }))
+        .map(([name, files]) => {
+          const preinstalled = PREINSTALLED_APPS_BY_STORE_ID[name]
+          return {
+            name,
+            title: preinstalled?.title ?? titleForApp(name),
+            files: files.sort(),
+            iconUrl: preinstalled?.iconSrc ?? (files.includes('icon.png') ? `https://raw.githubusercontent.com/badger/home/main/badge/apps/${name}/icon.png` : undefined),
+            iconColor: preinstalled?.color,
+            description: Object.hasOwn(appDescriptions, name) ? appDescriptions[name] : preinstalled?.description,
+          }
+        })
         .sort((left, right) => left.title.localeCompare(right.title))
       setStoreApps(loadedApps)
       setStoreMessage(`${loadedApps.length} apps · source: badger/home`)
@@ -518,22 +522,6 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     await releaseSerial('Disconnected. The badge was restarted.')
   }
 
-  async function refresh() {
-    if (diskRoot) {
-      await run(async () => {
-        await readDiskBadge(diskRoot)
-      })
-      return
-    }
-    if (!portRef.current) return
-    await run(async () => {
-      await readSerialBadge()
-      await restartSerialBadge()
-      setStatus('The installed app list is up to date.')
-      setResult(null)
-    })
-  }
-
   async function readSerialBadge() {
     const appPayload = await rawExec(`import os\ndisabled=[]\ntry:\n f=open('/apps/.disabled','r');disabled=[x.strip() for x in f.readlines() if x.strip()];f.close()\nexcept OSError: pass\nfor root,kind in (('/system/apps','I'),('/apps','U')):\n try: entries=os.listdir(root)\n except OSError: entries=[]\n for n in entries:\n  if isinstance(n,str) and n!='menu' and not (kind=='I' and n in disabled):\n   try:\n    os.stat(root+'/'+n+'/__init__.py')\n    print('__BADGER_APP__'+kind+':'+n)\n   except OSError: pass\ntry:\n s=os.stat('/apps/menu/__init__.py')[6];f=open('/apps/menu/__init__.py','rb');f.seek(max(0,s-256));t=f.read();f.close();f=open('/main.py','r');m=f.read();f.close();print('__BADGER_LAUNCHER__'+('1' if ${JSON.stringify(launcherEnd.trim())} in t.decode() and '__import__("/apps/menu")' in m else '0'))\nexcept OSError: print('__BADGER_LAUNCHER__0')`)
     const found = new Map<string, DeviceApp>()
@@ -580,7 +568,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
   }
 
   function stageFiles(files: AppFile[]) {
-    setUploadResult(null)
+    setSaveResult(null)
     const additions = makePendingApps(files)
     const occupied = new Set([...apps.map((app) => app.name), ...legacyApps])
     const duplicates = additions.filter((app) => occupied.has(app.name)).map((app) => app.name)
@@ -603,8 +591,8 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     }
     setResult(null)
     setStatus(connected
-      ? `${accepted.length} app${accepted.length === 1 ? '' : 's'} ready to upload.`
-      : `${accepted.length} app${accepted.length === 1 ? '' : 's'} selected. ${SERIAL_CONNECTION_MODE_ENABLED ? 'Connect your badge over serial' : 'Open the BADGER disk'} to upload.`)
+      ? `${accepted.length} app${accepted.length === 1 ? '' : 's'} ready to save.`
+      : `${accepted.length} app${accepted.length === 1 ? '' : 's'} selected. ${SERIAL_CONNECTION_MODE_ENABLED ? 'Connect your badge over serial' : 'Open the BADGER disk'} before saving.`)
   }
 
   function addFiles(files: FileList | File[]) {
@@ -612,7 +600,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
   }
 
   async function addStoreApp(app: StoreApp) {
-    setUploadResult(null)
+    setSaveResult(null)
     if (apps.some((installed) => installed.name === app.name) || legacyApps.includes(app.name)) {
       throw new Error(`${app.title} is already on this badge.`)
     }
@@ -625,13 +613,29 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     }))
     setPendingApps((current) => [...current.filter((item) => item.name !== app.name), { name: app.name, files }])
     setStatus(connected
-      ? `${app.title} is ready to upload.`
-      : `${app.title} is selected. ${SERIAL_CONNECTION_MODE_ENABLED ? 'Connect your badge over serial' : 'Open the BADGER disk'} to upload it.`)
+      ? `${app.title} is ready to save.`
+      : `${app.title} is selected. ${SERIAL_CONNECTION_MODE_ENABLED ? 'Connect your badge over serial' : 'Open the BADGER disk'} before saving.`)
+  }
+
+  function toggleStoreApp(app: StoreApp) {
+    setSaveResult(null)
+    const installed = apps.some((item) => item.name === app.name)
+    if (installed) {
+      setRemoveQueue((current) => current.includes(app.name)
+        ? current.filter((name) => name !== app.name)
+        : [...current, app.name])
+      return
+    }
+    if (pendingApps.some((item) => item.name === app.name)) {
+      setPendingApps((current) => current.filter((item) => item.name !== app.name))
+      return
+    }
+    void run(() => addStoreApp(app), setSaveResult)
   }
 
   async function installApps() {
-    setUploadResult(null)
-    await run(async () => {
+    setSaveResult(null)
+    return run(async () => {
       if (!pendingApps.length) return
       const occupied = new Set([...apps.map((app) => app.name), ...legacyApps])
       const conflicts = pendingApps.filter((app) => occupied.has(app.name)).map((app) => app.name)
@@ -664,7 +668,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         setStatus(message)
         const operationResult: OperationResult = { tone: 'success', message }
         setResult(operationResult)
-        setUploadResult(operationResult)
+        setSaveResult(operationResult)
         return
       }
       await rawExec("import os\ntry: os.mkdir('/apps')\nexcept OSError: pass")
@@ -710,13 +714,13 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
       setStatus(message)
       const operationResult: OperationResult = { tone: 'success', message }
       setResult(operationResult)
-      setUploadResult(operationResult)
-    }, setUploadResult)
+      setSaveResult(operationResult)
+    }, setSaveResult)
   }
 
   async function removeApps() {
-    setRemoveResult(null)
-    await run(async () => {
+    setSaveResult(null)
+    return run(async () => {
       if (!removeQueue.length) return
       if (diskRoot) {
         const appsRoot = await diskRoot.getDirectoryHandle('apps')
@@ -728,7 +732,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         setStatus(message)
         const operationResult: OperationResult = { tone: 'success', message }
         setResult(operationResult)
-        setRemoveResult(operationResult)
+        setSaveResult(operationResult)
         return
       }
       const removed = [...removeQueue]
@@ -746,8 +750,17 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
       setStatus(message)
       const operationResult: OperationResult = { tone: 'success', message }
       setResult(operationResult)
-      setRemoveResult(operationResult)
-    }, setRemoveResult)
+      setSaveResult(operationResult)
+    }, setSaveResult)
+  }
+
+  async function saveChanges() {
+    setSaveResult(null)
+    if (removeQueue.length) {
+      const removed = await removeApps()
+      if (!removed) return
+    }
+    if (pendingApps.length) await installApps()
   }
 
   async function recoverLegacyApps() {
@@ -779,7 +792,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     : status
 
   return (
-    <div className="badge-edit-root mx-auto max-w-6xl space-y-6">
+    <div className="badge-edit-root w-full space-y-6">
       <section id="connect-badge" className="scroll-mt-28 rounded-lg border border-primary/20 bg-card/80 p-5 sm:p-6">
         <h2 className="text-2xl sm:text-3xl">Connect your badge</h2>
         <div className="mt-5 flex flex-col gap-3 rounded-lg bg-background/70 px-4 py-3 sm:flex-row sm:items-center">
@@ -804,40 +817,41 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
             <h2 className="text-2xl sm:text-3xl">Available apps</h2>
             <p role="status" className="mt-2 text-sm text-muted-foreground">{storeMessage}</p>
           </div>
-          <Button size="sm" variant="outline" onClick={() => void loadStore()} disabled={busy}><RefreshCw /> Reload</Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => void loadStore()} disabled={busy}><RefreshCw /> Reload</Button>
+            <Button size="sm" onClick={() => void saveChanges()} disabled={busy || !connected || (!pendingApps.length && !removeQueue.length)}><Save /> Save</Button>
+          </div>
         </div>
+        {legacyApps.length > 0 && !diskRoot && <div className="mt-5 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex gap-3"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" /><div><p className="text-sm font-medium">Old uploads need repair</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{legacyApps.join(', ')} {legacyApps.length === 1 ? 'is' : 'are'} on the badge but not indexed by its launcher.</p></div></div><Button size="sm" variant="outline" onClick={recoverLegacyApps} disabled={busy}>Update launcher</Button></div></div>}
         <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {storeApps.map((app) => {
             const queued = pendingApps.some((item) => item.name === app.name)
             const installed = apps.some((item) => item.name === app.name)
+            const removalQueued = removeQueue.includes(app.name)
             const needsRepair = legacyApps.includes(app.name)
             return <StoreAppCard
               key={app.name}
               title={app.title}
               iconUrl={app.iconUrl}
+              iconColor={app.iconColor}
               description={app.description}
               queued={queued}
               installed={installed}
+              removalQueued={removalQueued}
               needsRepair={needsRepair}
               busy={busy}
-              onAdd={() => void run(() => addStoreApp(app))}
+              onToggle={() => toggleStoreApp(app)}
             />
           })}
         </div>
-        {connected && <div className="mt-8 border-t border-border/40 pt-6">
-          <div className="flex items-center justify-between gap-3"><div><h3 className="font-mono text-sm uppercase tracking-[0.12em]">Installed apps</h3><p className="mt-1 text-xs text-muted-foreground">Removing firmware apps hides them. Menu and Startup are protected.</p></div><Button size="sm" variant="outline" onClick={() => void refresh()} disabled={busy}><RefreshCw /> Refresh</Button></div>
-          {legacyApps.length > 0 && !diskRoot && <div className="mt-4 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4"><div className="flex gap-3"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" /><div><p className="text-sm font-medium">Old uploads need repair</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{legacyApps.join(', ')} {legacyApps.length === 1 ? 'is' : 'are'} in writable storage, but this badge launcher does not index that location yet.</p></div></div><Button className="mt-3" size="sm" variant="outline" onClick={recoverLegacyApps} disabled={busy}>Update launcher</Button></div>}
-          <div className="mt-3 space-y-2">{apps.length ? apps.map((app) => <label key={app.name} className="flex cursor-pointer items-center justify-between rounded-lg bg-background/45 px-3 py-2 text-sm"><span>{app.name} <span className="text-muted-foreground">{app.size ? `${Math.ceil(app.size / 1024)} KB` : app.firmware ? 'Firmware' : 'Uploaded'}</span></span><input type="checkbox" aria-label={`Select ${app.name} for removal`} checked={removeQueue.includes(app.name)} onChange={() => { setRemoveResult(null); setRemoveQueue((current) => current.includes(app.name) ? current.filter((name) => name !== app.name) : [...current, app.name]) }} /></label>) : <p className="text-sm text-muted-foreground">No removable apps found.</p>}</div>
-          <Button className="mt-4 w-full" variant="destructive" onClick={removeApps} disabled={!removeQueue.length || busy}><Trash2 /> Remove {removeQueue.length || ''} selected</Button>
-          {removeResult && <div role={removeResult.tone === 'error' ? 'alert' : 'status'} className={`mt-4 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${removeResult.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100'}`}>{removeResult.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{removeResult.message}</span><button type="button" onClick={() => setRemoveResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss removal message"><X className="h-4 w-4" /></button></div>}
-        </div>}
+        {saveResult && <div role={saveResult.tone === 'error' ? 'alert' : 'status'} className={`mt-5 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${saveResult.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100'}`}>{saveResult.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{saveResult.message}</span><button type="button" onClick={() => setSaveResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss save message"><X className="h-4 w-4" /></button></div>}
       </section>
 
       <section id="add-local-app" className="scroll-mt-28 rounded-lg border border-border/50 bg-card/80 p-6 sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl">Add local app</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Upload apps selected above or choose an app folder from your computer.</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Review apps selected above or choose an app folder from your computer.</p>
           </div>
           {pendingApps.length > 0 && <button type="button" onClick={() => pickerRef.current?.click()} className="badge-edit-ghost inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"><FolderUp className="h-3.5 w-3.5" />Add folder</button>}
         </div>
@@ -854,11 +868,9 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
             </div>)}
           </div>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="flex items-center gap-2 text-xs text-muted-foreground">{connected ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <PlugZap className="h-4 w-4 shrink-0 text-primary" />}{connected ? 'Ready to upload' : 'Connect a badge to upload'}</p>
-            {connected && <Button className="badge-edit-primary shrink-0" onClick={installApps} disabled={busy}><Upload />Upload {pendingApps.length} app{pendingApps.length === 1 ? '' : 's'}</Button>}
+            <p className="flex items-center gap-2 text-xs text-muted-foreground">{connected ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <PlugZap className="h-4 w-4 shrink-0 text-primary" />}{connected ? 'Ready. Select Save in Available apps to apply changes.' : 'Connect a badge before saving changes.'}</p>
           </div>
         </>}
-        {uploadResult && <div role={uploadResult.tone === 'error' ? 'alert' : 'status'} className={`mt-4 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${uploadResult.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100'}`}>{uploadResult.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{uploadResult.message}</span><button type="button" onClick={() => setUploadResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss upload message"><X className="h-4 w-4" /></button></div>}
       </section>
 
       {connected && port && <details className="rounded-xl border border-border/50 bg-card/65 px-5 py-4"><summary className="cursor-pointer font-mono text-sm">Serial console</summary><pre className="mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-[hsl(var(--inset))] p-4 font-mono text-xs text-muted-foreground">{output || 'Waiting for serial output.'}</pre></details>}

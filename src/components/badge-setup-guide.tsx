@@ -20,15 +20,16 @@ export function BadgeSetupGuide() {
         <section>
           <h3 className="font-mono text-xs uppercase tracking-[0.14em] text-foreground">Install and manage apps</h3>
           <ul className="mt-3 list-disc space-y-2 pl-5 marker:text-primary">
-            <li>In App store, select <strong className="font-medium text-foreground">Add</strong> for each app. Then select <strong className="font-medium text-foreground">Upload</strong>. Add only selects an app; it does not install it.</li>
-            <li>To use your own app, choose an app folder or drop it into the Local app area. Then select Upload.</li>
+            <li>In Available apps, select <strong className="font-medium text-foreground">+</strong> to add an app or <strong className="font-medium text-foreground">−</strong> to remove an installed app. A checkmark means the change is queued.</li>
+            <li>To use your own app, choose an app folder or drop it into Add local app.</li>
+            <li>Select <strong className="font-medium text-foreground">Save</strong> beside Reload to apply all queued changes.</li>
           </ul>
         </section>
 
         <section>
           <h3 className="font-mono text-xs uppercase tracking-[0.14em] text-foreground">Finish safely</h3>
           <ol className="mt-3 list-decimal space-y-2 pl-5 marker:text-primary">
-            <li>Wait for all uploads to finish.</li>
+            <li>Wait for Save to finish.</li>
             <li>Select <strong className="font-medium text-foreground">Eject</strong> on this site. Then use your operating system’s eject control (for example, Finder or File Explorer) before unplugging the cable.</li>
             <li>Press RESET once to restart the badge and return to its launcher.</li>
           </ol>

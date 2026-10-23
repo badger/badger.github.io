@@ -45,3 +45,24 @@ export const PREINSTALLED_APPS: (PreinstalledApp & { color: string; iconSrc: str
   iconSrc: `/images/apps/2026/${app.icon}.svg`,
   color: app.icon === 'monas-expedition' ? EXPEDITION_COLOR : MENU_PALETTE[menuIndex++ % MENU_PALETTE.length],
 }))
+
+const STORE_IDS_BY_ICON: Record<string, string[]> = {
+  badge: ['badge'],
+  contacts: ['contacts'],
+  'mona-paint': ['mona_paint'],
+  'flappy-mona': ['flappy_mona'],
+  snake: ['snake'],
+  'mona-pet': ['mona_pet', 'monapet'],
+  rogue: ['rogue'],
+  life: ['life'],
+  'merge-conflict': ['merge_conflict'],
+  brattal: ['brattal'],
+  pong: ['pong'],
+  iss: ['iss'],
+  'mass-storage': ['mass_storage'],
+  settings: ['settings'],
+}
+
+export const PREINSTALLED_APPS_BY_STORE_ID = Object.fromEntries(
+  PREINSTALLED_APPS.flatMap((app) => (STORE_IDS_BY_ICON[app.icon] ?? []).map((id) => [id, app])),
+) as Record<string, (typeof PREINSTALLED_APPS)[number]>
