@@ -35,7 +35,7 @@ const guides = [
   {
     id: 'set-up',
     title: 'Set Up Your Badge',
-    description: 'Get MonaOS running, connect the badge, and confirm your profile works.',
+    description: 'Get MonaOS running and connect the badge to a 2.4 GHz Wi-Fi network.',
     steps: [
       {
         title: 'Charge the battery',
@@ -48,16 +48,15 @@ const guides = [
         aliases: ['power-on'],
       },
       {
-        title: 'Configure Settings',
-        description: 'Open Settings and enter a 2.4 GHz Wi-Fi network, your GitHub username, contact details, and preferred backlight level.',
+        title: 'Configure Wi-Fi',
+        description: 'Open Settings and enter the exact name and password for a 2.4 GHz Wi-Fi network. Network names and passwords are case-sensitive.',
         links: [
           { href: '/hack/connect-wifi/', label: 'Wi-Fi guide' },
-          { href: '/hack/badge-custom-username/', label: 'Settings guide' },
         ],
       },
       {
-        title: 'Verify the setup',
-        description: 'Open the Badge app. Your avatar and contribution graph should load after the badge connects to Wi-Fi.',
+        title: 'Verify the connection',
+        description: 'Press RESET once, then open the ISS app. A live map confirms that the badge connected to Wi-Fi.',
       },
     ],
   },
