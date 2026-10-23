@@ -821,7 +821,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
           </div>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={() => void loadStore()} disabled={busy}><RefreshCw /> Reload</Button>
-            <Button className="disabled:bg-primary disabled:text-primary-foreground disabled:opacity-60" size="sm" onClick={() => void saveChanges()} disabled={busy || !connected || (!pendingApps.length && !removeQueue.length)}><Save /> Save</Button>
+            <Button className="uppercase tracking-[0.12em] disabled:bg-primary disabled:text-primary-foreground disabled:opacity-60" size="lg" onClick={() => void saveChanges()} disabled={busy || !connected || (!pendingApps.length && !removeQueue.length)}><Save /> Save</Button>
           </div>
         </div>
         {legacyApps.length > 0 && !diskRoot && <div className="mt-5 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex gap-3"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" /><div><p className="text-sm font-medium">Old uploads need repair</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{legacyApps.join(', ')} {legacyApps.length === 1 ? 'is' : 'are'} on the badge but not indexed by its launcher.</p></div></div><Button size="sm" variant="outline" onClick={recoverLegacyApps} disabled={busy}>Update launcher</Button></div></div>}
