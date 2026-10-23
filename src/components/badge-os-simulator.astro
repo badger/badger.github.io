@@ -1,5 +1,6 @@
 ---
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CornerDownLeft, House, Maximize, Minus, Plus, RotateCw, ScanSearch } from 'lucide-react'
+import BadgeImage from '@/components/badge-image.astro'
 
 const badgeButtons = [
   { icon: ArrowLeft, name: 'Left', bit: 16 },
@@ -16,8 +17,8 @@ const sideButtons = [
 <div id="badge-os-simulator" data-state="fallback" class="badge-os-stack">
   <figure data-simulator class="rounded-lg border border-border/40 bg-card p-4 sm:p-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <p data-status class="font-mono text-xs uppercase tracking-[0.12em] text-primary" aria-live="polite">Simulator</p>
-      <div class="flex flex-wrap items-center gap-2">
+      <p data-status class="font-mono text-xs uppercase tracking-[0.12em] text-primary" aria-live="polite">Badge image</p>
+      <div data-interactive class="flex flex-wrap items-center gap-2">
         <button type="button" data-model-screen class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="false" title="Zoom to the screen" disabled><ScanSearch size={14} />Screen</button>
         <button type="button" data-model-full class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="true" title="Show the whole badge" disabled><Maximize size={14} />Full</button>
         <button type="button" data-model-rotate class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="false" title="Turn the badge upside down" disabled><RotateCw size={14} />Rotate</button>
@@ -25,7 +26,7 @@ const sideButtons = [
     </div>
     <div class="badge-os-stage">
       <div data-fallback class="badge-os-fallback">
-        <p data-fallback-message class="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">Loading 3D badge</p>
+        <BadgeImage />
       </div>
       <div data-model class="badge-os-model">
         <canvas data-screen width="320" height="240" hidden></canvas>
@@ -36,7 +37,7 @@ const sideButtons = [
         </div>
       </div>
     </div>
-    <div class="mx-auto flex max-w-[420px] flex-wrap items-center justify-center gap-4 sm:justify-between" role="group" aria-label="Badge controls">
+    <div data-interactive class="mx-auto flex max-w-[420px] flex-wrap items-center justify-center gap-4 sm:justify-between" role="group" aria-label="Badge controls">
       <div class="flex gap-2">
         {badgeButtons.map(({ icon: Icon, name, bit }) => (
           <button type="button" class="badge-os-key badge-os-control text-foreground" data-button={bit} aria-label={`Badge ${name} button`} title={name} disabled>
@@ -52,9 +53,12 @@ const sideButtons = [
         ))}
       </div>
     </div>
-    <figcaption class="mx-auto max-w-3xl pt-4 text-center text-sm leading-6 text-muted-foreground">
+    <figcaption data-interactive class="mx-auto max-w-3xl pt-4 text-center text-sm leading-6 text-muted-foreground">
       Use the controls above, or use the arrow keys to move, Enter to select, and Esc for Home. Drag the badge to rotate it; scroll or use +/− to zoom; use Rotate to flip it; device tilt controls motion. MonaOS 4.0 and stock apps run in the browser. HTTP requests depend on CORS, and socket apps such as Camera and Copilot require a physical badge.
       <a href="https://leereilly.net/h4x0r3d-badge/#hardware" target="_blank" rel="noreferrer" class="ml-1 font-mono text-xs text-primary hover:text-primary/80">3D model source ↗</a>
+    </figcaption>
+    <figcaption data-fallback-caption class="pt-4 text-center text-sm text-muted-foreground">
+      Front and back of the Badger 2350.
     </figcaption>
   </figure>
 </div>
@@ -63,10 +67,12 @@ const sideButtons = [
   .badge-os-stack { position: relative; }
   .badge-os-stage { position: relative; width: 100%; height: clamp(340px, 60vh, 600px); overflow: hidden; }
   .badge-os-fallback, .badge-os-model { position: absolute; inset: 0; }
-  .badge-os-fallback { display: grid; place-items: center; border-radius: 0.5rem; background: hsl(var(--muted) / 0.2); padding: 1rem; text-align: center; }
+  .badge-os-fallback { display: grid; place-items: center; padding: 0.5rem; }
   .badge-os-model { visibility: hidden; }
   .badge-os-stack[data-state='running'] .badge-os-fallback { display: none; }
   .badge-os-stack[data-state='running'] .badge-os-model { visibility: visible; }
+  .badge-os-stack:not([data-state='running']) [data-interactive] { display: none; }
+  .badge-os-stack[data-state='running'] [data-fallback-caption] { display: none; }
   .badge-os-model :global(canvas:not([data-screen])) { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
   .badge-os-model :global(canvas:not([data-screen]):focus-visible) { outline: 2px solid hsl(var(--primary)); outline-offset: -2px; }
   .badge-os-zoom { position: absolute; right: 0.5rem; bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.375rem; }

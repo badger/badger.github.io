@@ -30,7 +30,6 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   const simulator = root.querySelector<HTMLElement>('[data-simulator]')!
   const screen = root.querySelector<HTMLCanvasElement>('[data-screen]')!
   const status = root.querySelector<HTMLElement>('[data-status]')!
-  const fallbackMessage = root.querySelector<HTMLElement>('[data-fallback-message]')!
   const controls = {
     screen: root.querySelector<HTMLButtonElement>('[data-model-screen]')!,
     full: root.querySelector<HTMLButtonElement>('[data-model-full]') ?? undefined,
@@ -41,8 +40,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   const keys = [...root.querySelectorAll<HTMLButtonElement>('[data-button]')]
   const rotateButton = root.querySelector<HTMLButtonElement>('[data-model-rotate]')!
   if (!supportsSimulator()) {
-    status.textContent = 'Simulator unavailable'
-    fallbackMessage.textContent = 'Use the badge image above. This browser cannot run the interactive simulator.'
+    status.textContent = 'Badge image'
     return
   }
 
@@ -65,8 +63,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     controller.abort()
     model.dispose()
     root.dataset.state = 'fallback'
-    status.textContent = 'Simulator unavailable'
-    fallbackMessage.textContent = 'Use the badge image above. The interactive simulator could not start.'
+    status.textContent = 'Badge image'
     rotateButton.disabled = true
     for (const key of keys) key.disabled = true
   }
@@ -127,7 +124,6 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   async function boot() {
     root.dataset.state = 'loading'
     status.textContent = 'Booting'
-    fallbackMessage.textContent = 'Loading 3D badge'
     model.start()
     try {
       const request = await loadBadgeOs()

@@ -1,7 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import BadgeOsSimulator from '@/components/badge-os-simulator.astro'
-import BadgeImage from '@/components/badge-image.astro'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Battery, Cpu, Monitor, Radio, Shield, Usb } from 'lucide-react'
 
@@ -114,17 +113,10 @@ const specifications = [
     </div>
   </section>
 
-  <section class="border-t border-border/70 bg-muted/25 py-12 sm:py-16">
+  <section id="badge-simulator" class="scroll-mt-28 border-t border-border/70 bg-muted/25 py-12 sm:py-16">
     <div class="container">
-      <div>
-        <h2 class="mb-6 text-3xl sm:text-4xl">Badge hardware</h2>
-        <BadgeImage />
-      </div>
-
-      <div id="badge-simulator" class="mt-12 scroll-mt-28 sm:mt-16">
-        <h2 class="mb-6 text-3xl sm:text-4xl">Badge simulator</h2>
-        <BadgeOsSimulator />
-      </div>
+      <h2 class="mb-6 text-3xl sm:text-4xl">Badge simulator</h2>
+      <BadgeOsSimulator />
     </div>
   </section>
 </Layout>
