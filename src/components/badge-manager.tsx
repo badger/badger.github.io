@@ -640,6 +640,16 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     void run(() => addStoreApp(app), setSaveResult)
   }
 
+  function clearSelections() {
+    setPendingApps([])
+    setRemoveQueue([])
+    setResult(null)
+    setSaveResult(null)
+    setStatus(connected
+      ? 'Selection cleared. No changes are queued.'
+      : `Selection cleared. ${SERIAL_CONNECTION_MODE_ENABLED ? 'Connect a badge running MicroPython.' : 'Open the BADGER disk to add apps to your badge.'}`)
+  }
+
   async function installApps() {
     setSaveResult(null)
     return run(async () => {
@@ -826,8 +836,9 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
             <h2 className="text-2xl sm:text-3xl">Available apps</h2>
             <p role="status" className="mt-2 text-sm text-muted-foreground">{storeMessage}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => void loadStore(true)} disabled={busy || storeLoading} aria-busy={storeLoading}><RefreshCw className={storeLoading ? 'animate-spin' : undefined} /> {storeLoading ? 'Reloading' : 'Reload'}</Button>
+            <Button size="sm" variant="outline" onClick={clearSelections} disabled={busy || !hasPendingChanges}><X /> Clear selection</Button>
             <Button className={`uppercase tracking-[0.12em] ${hasPendingChanges ? 'badge-edit-primary disabled:!opacity-100' : ''}`} size="sm" variant={hasPendingChanges ? 'default' : 'outline'} onClick={() => void saveChanges()} disabled={busy || !connected || !hasPendingChanges}><Save /> Save</Button>
           </div>
         </div>
