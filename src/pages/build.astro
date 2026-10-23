@@ -140,7 +140,7 @@ const buildPaths = [
     })
   }
 
-  const revealFragment = () => {
+  const revealFragment = ({ syncPlatform = true }: { syncPlatform?: boolean } = {}) => {
     let targetId: string
     try {
       targetId = decodeURIComponent(window.location.hash.slice(1))
@@ -160,6 +160,7 @@ const buildPaths = [
 
     const section = target?.closest<HTMLElement>('[data-platform]')
     if (!platformPicker || !target || !section) return
+    if (!syncPlatform) return
 
     platformPicker.value = section.dataset.platform ?? 'windows'
     showSelectedPlatform()
@@ -169,9 +170,18 @@ const buildPaths = [
 
   platformPicker?.addEventListener('change', () => {
     showSelectedPlatform()
+    revealFragment({ syncPlatform: false })
+  })
+  window.addEventListener('hashchange', () => revealFragment())
+  document.addEventListener('click', (event) => {
+    const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null
+    if (!link) return
+    const destination = new URL(link.href, window.location.href)
+    const normalizePath = (path: string) => path.replace(/\/$/, '') || '/'
+    if (!destination.hash || destination.hash !== window.location.hash || normalizePath(destination.pathname) !== normalizePath(window.location.pathname)) return
+    event.preventDefault()
     revealFragment()
   })
-  window.addEventListener('hashchange', revealFragment)
   showSelectedPlatform()
   revealFragment()
 </script>

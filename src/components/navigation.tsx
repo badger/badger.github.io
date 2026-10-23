@@ -89,24 +89,39 @@ const navigationGroups: NavigationGroup[] = [
 export function Navigation() {
   const [pathname, setPathname] = useState('/')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileOpenGroup, setMobileOpenGroup] = useState<string | null>(null)
+  const [desktopOpenGroup, setDesktopOpenGroup] = useState<string | null>(null)
 
   useEffect(() => {
     setPathname(window.location.pathname)
   }, [])
 
   useEffect(() => {
-    if (!mobileOpen) return
+    if (!mobileOpen && !desktopOpenGroup) return
 
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMobileOpen(false)
+      if (event.key !== 'Escape') return
+      setMobileOpen(false)
+      setMobileOpenGroup(null)
+      setDesktopOpenGroup(null)
     }
 
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
-  }, [mobileOpen])
+  }, [desktopOpenGroup, mobileOpen])
 
   const pathMatches = (path: string) => pathname === path || pathname.startsWith(`${path}/`)
   const isGroupActive = (group: NavigationGroup) => group.matches.some(pathMatches)
+  const activeGroupHref = navigationGroups.find(isGroupActive)?.href ?? null
+  const closeMobileMenu = () => {
+    setMobileOpen(false)
+    setMobileOpenGroup(null)
+  }
+  const toggleMobileMenu = () => {
+    const nextOpen = !mobileOpen
+    setMobileOpen(nextOpen)
+    setMobileOpenGroup(nextOpen ? activeGroupHref : null)
+  }
 
   return (
     <nav aria-label="Primary navigation" className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/95">
@@ -119,20 +134,33 @@ export function Navigation() {
         <div className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex">
           {navigationGroups.map((group) => {
             const active = isGroupActive(group)
+            const open = desktopOpenGroup === group.href
             const Icon = group.icon
             return (
-              <div key={group.href} className="group/nav relative">
+              <div
+                key={group.href}
+                className="relative"
+                onMouseEnter={() => setDesktopOpenGroup(group.href)}
+                onMouseLeave={() => setDesktopOpenGroup((current) => current === group.href ? null : current)}
+                onFocusCapture={() => setDesktopOpenGroup(group.href)}
+                onBlurCapture={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) {
+                    setDesktopOpenGroup((current) => current === group.href ? null : current)
+                  }
+                }}
+              >
                 <a
                   href={group.href}
                   aria-current={pathname === group.href ? 'page' : undefined}
+                  aria-expanded={open}
                   data-active={active}
                   className="site-nav-link inline-flex items-center gap-2 rounded-md px-3 py-2 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:bg-primary/5 hover:text-foreground focus-visible:bg-primary/5 focus-visible:text-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
                 >
                   <Icon className="h-3.5 w-3.5" aria-hidden="true" />
                   {group.label}
-                  <ChevronDown className="h-3 w-3 transition-transform duration-150 group-hover/nav:rotate-180 group-focus-within/nav:rotate-180" aria-hidden="true" />
+                  <ChevronDown className={`h-3 w-3 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
                 </a>
-                <div className="invisible absolute left-1/2 top-full w-80 -translate-x-1/2 pt-2 opacity-0 transition-[opacity,visibility] duration-150 group-hover/nav:visible group-hover/nav:opacity-100 group-focus-within/nav:visible group-focus-within/nav:opacity-100">
+                <div className={`absolute left-1/2 top-full w-80 -translate-x-1/2 pt-2 transition-[opacity,visibility] duration-150 ${open ? 'visible opacity-100' : 'invisible pointer-events-none opacity-0'}`}>
                   <div className="rounded-lg border border-border/80 bg-popover p-2">
                     {group.items.map((item) => (
                       <a
@@ -157,7 +185,7 @@ export function Navigation() {
             type="button"
             aria-expanded={mobileOpen}
             aria-controls="mobile-navigation"
-            onClick={() => setMobileOpen((current) => !current)}
+            onClick={toggleMobileMenu}
             className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border/60 text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground lg:hidden"
           >
             {mobileOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
@@ -166,13 +194,21 @@ export function Navigation() {
         </div>
       </div>
       {mobileOpen && (
-        <div id="mobile-navigation" className="container border-t border-border/60 py-3 lg:hidden">
+        <div id="mobile-navigation" className="container max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-t border-border/60 py-3 lg:hidden">
           <div className="grid gap-2">
             {navigationGroups.map((group) => {
               const active = isGroupActive(group)
               const Icon = group.icon
               return (
-                <details key={group.href} className="group/mobile rounded-lg border border-border/60 bg-card/50" defaultOpen={active}>
+                <details
+                  key={group.href}
+                  className="group/mobile rounded-lg border border-border/60 bg-card/50"
+                  open={mobileOpenGroup === group.href}
+                  onToggle={(event) => {
+                    if (event.currentTarget.open) setMobileOpenGroup(group.href)
+                    else setMobileOpenGroup((current) => current === group.href ? null : current)
+                  }}
+                >
                   <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
                     <span
                       data-active={active}
@@ -186,7 +222,7 @@ export function Navigation() {
                   <div className="grid gap-1 border-t border-border/50 p-2">
                     <a
                       href={group.href}
-                      onClick={() => setMobileOpen(false)}
+                      onClick={closeMobileMenu}
                       className="rounded-md px-3 py-2.5 font-mono text-xs uppercase tracking-[0.1em] text-primary transition-colors hover:bg-primary/5"
                     >
                       {group.landingLabel}
@@ -195,7 +231,7 @@ export function Navigation() {
                       <a
                         key={item.href}
                         href={item.href}
-                        onClick={() => setMobileOpen(false)}
+                        onClick={closeMobileMenu}
                         className="rounded-md px-3 py-2.5 transition-colors hover:bg-primary/5"
                       >
                         <span className="block font-mono text-xs uppercase tracking-[0.1em] text-foreground">{item.label}</span>
