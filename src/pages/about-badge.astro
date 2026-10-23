@@ -2,33 +2,40 @@
 import Layout from '@/layouts/Layout.astro'
 import BadgeOsSimulator from '@/components/badge-os-simulator.astro'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Battery, Cpu, Hand, Monitor, Radio, Shield, Usb, Wifi } from 'lucide-react'
+import { Battery, Cpu, Monitor, Radio, Shield, Usb } from 'lucide-react'
 
 const specifications = [
   {
-    title: 'Processor and memory',
+    title: 'Compute & storage',
     icon: Cpu,
     details: [
       ['Processor', 'RP2350 dual-core ARM Cortex-M33 @ 200MHz'],
       ['Memory', '512kB SRAM'],
       ['Storage', '16MB QSPI XiP flash'],
     ],
+    uses: 'Runs MonaOS and MicroPython apps, with local storage for firmware, apps, and assets.',
   },
   {
-    title: 'Display',
+    title: 'Display & interaction',
     icon: Monitor,
     details: [
       ['Screen', '320x240 full-color IPS display'],
       ['Backlight', '4-zone LED backlight'],
+      ['Buttons', 'Five front-facing buttons'],
+      ['Motion', 'Accelerometer'],
+      ['Touch', '8 capacitive touch sensors'],
     ],
+    uses: 'Shows app interfaces and supports button, tilt, and touch-controlled interactions.',
   },
   {
-    title: 'Wireless',
-    icon: Wifi,
+    title: 'Connectivity',
+    icon: Radio,
     details: [
-      ['WiFi', '2.4GHz WiFi'],
+      ['Wi-Fi', '2.4GHz Wi-Fi'],
       ['Bluetooth', 'Bluetooth 5'],
+      ['Infrared', 'IR receiver and transmitter'],
     ],
+    uses: 'Connects network apps, Bluetooth projects, infrared beacons, and remote controls.',
   },
   {
     title: 'Power',
@@ -38,65 +45,46 @@ const specifications = [
       ['Runtime', 'Up to 8 hours'],
       ['Monitoring', 'Battery voltage monitoring and charge status'],
     ],
+    uses: 'Supports portable use, charging status, and battery-aware apps.',
   },
   {
-    title: 'Controls and sensors',
-    icon: Hand,
-    details: [
-      ['Buttons', 'Five front-facing buttons'],
-      ['Motion', 'Accelerometer'],
-      ['Touch', '8 capacitive touch sensors'],
-    ],
-  },
-  {
-    title: 'Ports and programming',
+    title: 'Ports & expansion',
     icon: Usb,
     details: [
       ['USB-C', 'Charging and programming'],
-      ['Expansion and debug', 'Qw/ST and SWD ports for accessories and debugging'],
+      ['Expansion', 'Qw/ST port for accessories'],
+      ['Debug', 'SWD port for hardware debugging'],
       ['Board controls', 'RESET / BOOTSEL buttons'],
     ],
+    uses: 'Charges the badge, transfers apps, flashes firmware, connects accessories, and supports debugging.',
   },
   {
-    title: 'Infrared',
-    icon: Radio,
-    details: [
-      ['Hardware', 'IR receiver and transmitter'],
-      ['Uses', 'Beacon hunting and remote control'],
-    ],
-  },
-  {
-    title: 'Case',
+    title: 'Enclosure',
     icon: Shield,
     details: [
       ['Material', 'Durable polycarbonate case'],
       ['Attachment', 'Lanyard fixings'],
     ],
+    uses: 'Protects the display and electronics while providing a wearable attachment point.',
   },
 ]
 ---
 
-<Layout title="2026 Badger 2350 Hardware" description="2026 Badger 2350 hardware specifications, components, and connections.">
-  <section class="border-b border-border/70 py-20 sm:py-24">
+<Layout title="About the Badger" description="Use the Badger 2350 simulator and inspect its hardware specifications, components, and connections.">
+  <section id="overview" class="scroll-mt-28 border-b border-border/70 pb-8 pt-14 sm:pb-10 sm:pt-16">
     <div class="container">
-      <h1 class="text-5xl leading-[0.98] sm:text-6xl">System Breakdown</h1>
-      <p class="mt-6 max-w-prose text-muted-foreground">Hardware specifications for the 2026 Badger 2350 badge.</p>
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-primary">About</p>
+      <h1 class="mt-4 text-5xl leading-[0.98] sm:text-6xl">About the Badger</h1>
+      <p class="mt-6 max-w-prose text-muted-foreground">Inspect the 2026 Badger 2350 hardware, ports, controls, and sensors, then use MonaOS in the browser.</p>
     </div>
   </section>
 
-  <section class="py-20">
+  <section id="specifications" class="scroll-mt-28 pb-12 pt-8 sm:pb-16 sm:pt-10">
     <div class="container">
-      <h2 class="mb-8 text-3xl sm:text-4xl">The Badge</h2>
-      <BadgeOsSimulator />
-    </div>
-  </section>
-
-  <section class="border-t border-border/70 bg-muted/25 py-20">
-    <div class="container">
-      <h2 class="mb-8 text-3xl sm:text-4xl">Specifications</h2>
+      <h2 class="mb-8 text-3xl sm:text-4xl">Hardware &amp; specs</h2>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {specifications.map(({ title, icon: Icon, details }) => (
-          <Card>
+        {specifications.map(({ title, icon: Icon, details, uses }) => (
+          <Card className="flex h-full flex-col">
             <CardHeader>
               <CardTitle>
                 <h3 class="flex items-center gap-3 font-mono text-sm uppercase tracking-[0.12em]">
@@ -105,19 +93,30 @@ const specifications = [
                 </h3>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <dl class="grid gap-4 text-sm">
+            <CardContent className="flex flex-1 flex-col">
+              <dl class="flex flex-1 flex-col gap-4 text-sm">
                 {details.map(([label, value]) => (
                   <div>
                     <dt class="font-mono">{label}</dt>
                     <dd class="text-muted-foreground">{value}</dd>
                   </div>
                 ))}
+                <div class="mt-auto border-t border-border/60 pt-4">
+                  <dt class="font-mono">Uses</dt>
+                  <dd class="text-muted-foreground">{uses}</dd>
+                </div>
               </dl>
             </CardContent>
           </Card>
         ))}
       </div>
+    </div>
+  </section>
+
+  <section id="badge-simulator" class="scroll-mt-28 border-t border-border/70 bg-muted/25 py-12 sm:py-16">
+    <div class="container">
+      <h2 class="mb-6 text-3xl sm:text-4xl">Badge simulator</h2>
+      <BadgeOsSimulator />
     </div>
   </section>
 </Layout>

@@ -1,0 +1,49 @@
+---
+interface Props {
+  href: string
+  title: string
+  description: string
+  icon: any
+  id?: string
+  compact?: boolean
+  dataBuildPath?: string
+}
+
+const {
+  href,
+  title,
+  description,
+  icon: Icon,
+  id,
+  compact = false,
+  dataBuildPath,
+} = Astro.props as Props
+---
+
+<a
+  id={id}
+  href={href}
+  data-build-path={dataBuildPath}
+  class:list={[
+    'surface surface-hover group flex min-w-0 items-start gap-3 scroll-mt-28 no-underline',
+    compact ? 'p-4' : 'p-5',
+  ]}
+>
+  <span class:list={[
+    'grid shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary/5 text-primary',
+    compact ? 'h-9 w-9' : 'h-10 w-10',
+  ]}>
+    <Icon class={compact ? 'h-4 w-4' : 'h-5 w-5'} aria-hidden="true" />
+  </span>
+  <span class="min-w-0">
+    <span class="block break-words font-mono text-xs uppercase tracking-[0.12em] text-foreground transition-colors group-hover:text-primary">
+      {title}
+    </span>
+    <span class:list={[
+      'mt-1 block leading-5 text-muted-foreground',
+      compact ? 'text-xs' : 'text-sm',
+    ]}>
+      {description}
+    </span>
+  </span>
+</a>

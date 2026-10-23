@@ -14,12 +14,16 @@ interface Props {
   titleHighlight?: string
   description?: string
   actions?: Action[]
+  compact?: boolean
 }
 
-const { title, titleHighlight, description, actions = [] } = Astro.props as Props
+const { title, titleHighlight, description, actions = [], compact = false } = Astro.props as Props
 ---
 
-<section class="relative overflow-hidden border-b border-border/70 py-20 sm:py-24">
+<section class:list={[
+  'relative overflow-hidden border-b border-border/70',
+  compact ? 'py-12 sm:py-16' : 'py-20 sm:py-24',
+]}>
   <div class="grid-texture pointer-events-none absolute inset-0 opacity-30"></div>
   <div class="container relative">
     <div class="max-w-3xl space-y-6">

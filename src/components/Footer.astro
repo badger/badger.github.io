@@ -4,40 +4,53 @@ import { APP_CATALOG_PAGE_ENABLED, BLUETOOTH_EDITOR_ENABLED, CONTACTS_PAGE_ENABL
 
 <footer class="border-t border-border/80 bg-background/80">
   <div class="container py-12">
-    <div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.25fr_repeat(4,1fr)]">
       <div class="max-w-xs">
         <div class="flex items-center gap-3">
           <img src="/favicon.svg" alt="" class="h-8 w-8" />
           <h2 class="font-display text-xl">Badger</h2>
         </div>
+        <p class="mt-4 text-sm leading-6 text-muted-foreground">Apps, build tools, and hardware instructions for the Badger 2350.</p>
+        <a href="https://github.com/badger/badger.github.io" target="_blank" rel="noopener" class="mt-4 inline-block font-mono text-xs uppercase tracking-[0.1em] text-primary transition-colors hover:text-primary/80">Site source</a>
       </div>
 
       <div>
-        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Guides</h3>
+        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Start Here</h3>
         <ul class="space-y-2 text-sm text-muted-foreground">
-          <li><a href="/get-started" class="transition-colors hover:text-primary">Get started</a></li>
-          <li><a href="/build" class="transition-colors hover:text-primary">Build</a></li>
-          {APP_CATALOG_PAGE_ENABLED && <li><a href="/browse-apps" class="transition-colors hover:text-primary">Browse apps</a></li>}
-          <li><a href="/hacks" class="transition-colors hover:text-primary">Browse hacks</a></li>
+          <li><a href="/get-started#set-up" class="transition-colors hover:text-primary">Set up your badge</a></li>
+          <li><a href="/get-started#controls" class="transition-colors hover:text-primary">Learn the controls</a></li>
+          <li><a href="/get-started#personalize" class="transition-colors hover:text-primary">Personalize your badge</a></li>
+          <li><a href="/get-started#troubleshooting" class="transition-colors hover:text-primary">Troubleshooting</a></li>
         </ul>
       </div>
 
       <div>
-        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Tools</h3>
+        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">About</h3>
         <ul class="space-y-2 text-sm text-muted-foreground">
-          <li><a href="/about-badge" class="transition-colors hover:text-primary">Hardware map</a></li>
-          <li><a href="/editor" class="transition-colors hover:text-primary">Python editor and simulator</a></li>
-          <li><a href="/apps" class="transition-colors hover:text-primary">Apps and USB editor</a></li>
-          {BLUETOOTH_EDITOR_ENABLED && <li><a href="/edit/bluetooth" class="transition-colors hover:text-primary">Bluetooth editor</a></li>}
-          {CONTACTS_PAGE_ENABLED && <li><a href="/contacts" class="transition-colors hover:text-primary">Contacts</a></li>}
+          <li><a href="/about-badge" class="transition-colors hover:text-primary">Badge overview</a></li>
+          <li><a href="/about-badge#specifications" class="transition-colors hover:text-primary">Hardware &amp; specs</a></li>
+          <li><a href="/about-badge#badge-simulator" class="transition-colors hover:text-primary">Badge simulator</a></li>
           <li><a href="https://github.com/badger/home" target="_blank" rel="noopener" class="transition-colors hover:text-primary">Firmware repo</a></li>
         </ul>
       </div>
 
       <div>
-        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Community</h3>
+        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">App Store</h3>
         <ul class="space-y-2 text-sm text-muted-foreground">
-          <li><a href="https://github.com/badger/badger.github.io" target="_blank" rel="noopener" class="transition-colors hover:text-primary">Site source</a></li>
+          <li><a href="/apps#available-apps" class="transition-colors hover:text-primary">Available apps</a></li>
+          <li><a href="/apps#add-local-app" class="transition-colors hover:text-primary">Add local app</a></li>
+          {APP_CATALOG_PAGE_ENABLED && <li><a href="/browse-apps" class="transition-colors hover:text-primary">Browse app guides</a></li>}
+          {CONTACTS_PAGE_ENABLED && <li><a href="/contacts" class="transition-colors hover:text-primary">Contacts</a></li>}
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Build</h3>
+        <ul class="space-y-2 text-sm text-muted-foreground">
+          <li><a href="/build" class="transition-colors hover:text-primary">Copilot build guides</a></li>
+          <li><a href="/simulator" class="transition-colors hover:text-primary">Simulator</a></li>
+          <li><a href="/hacks" class="transition-colors hover:text-primary">Start from a hack</a></li>
+          {BLUETOOTH_EDITOR_ENABLED && <li><a href="/edit/bluetooth" class="transition-colors hover:text-primary">Bluetooth editor</a></li>}
         </ul>
       </div>
     </div>

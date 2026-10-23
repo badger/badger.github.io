@@ -38,7 +38,11 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     zoomOut: root.querySelector<HTMLButtonElement>('[data-model-zoom-out]') ?? undefined,
   }
   const keys = [...root.querySelectorAll<HTMLButtonElement>('[data-button]')]
-  if (!supportsSimulator()) return
+  const rotateButton = root.querySelector<HTMLButtonElement>('[data-model-rotate]')!
+  if (!supportsSimulator()) {
+    status.textContent = 'Badge image'
+    return
+  }
 
   const controller = new AbortController()
   const { signal } = controller
@@ -59,6 +63,9 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     controller.abort()
     model.dispose()
     root.dataset.state = 'fallback'
+    status.textContent = 'Badge image'
+    rotateButton.disabled = true
+    for (const key of keys) key.disabled = true
   }
 
   const model = createBadgeModelController(async (modelSignal, modelFail) => {
@@ -83,7 +90,6 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   const removeKeyboard = initBadgeKeyboard(simulator, input)
   signal.addEventListener('abort', removeKeyboard)
   const motion = initBadgeMotion(root, value => worker?.postMessage({ motion: value }), signal)
-  const rotateButton = root.querySelector<HTMLButtonElement>('[data-model-rotate]')!
   rotateButton.addEventListener('click', () => {
     rotated = !rotated
     rotateButton.setAttribute('aria-pressed', String(rotated))
@@ -95,7 +101,9 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   function reveal() {
     if (failed || !framed || !modelReady || root.dataset.state === 'running') return
     root.dataset.state = 'running'
-    status.textContent = 'Running Mona OS 4.0'
+    status.textContent = 'Running MonaOS 4.0'
+    rotateButton.disabled = false
+    for (const key of keys) key.disabled = false
   }
 
   // The first-frame watchdog only runs while the simulator is unpaused, so
@@ -115,6 +123,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
 
   async function boot() {
     root.dataset.state = 'loading'
+    status.textContent = 'Booting'
     model.start()
     try {
       const request = await loadBadgeOs()

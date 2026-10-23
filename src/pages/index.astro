@@ -2,10 +2,10 @@
 import Layout from '@/layouts/Layout.astro'
 import PreinstalledAppCard from '@/components/preinstalled-app-card.astro'
 import { HackCard } from '@/components/hack-card'
+import NavigationCard from '@/components/navigation-card.astro'
 import { OutlinedButton } from '@/components/outlined-button'
 import { getCollection } from 'astro:content'
-import { ArrowUpRight, BookOpen, Grid3x3, Hammer, PlugZap } from 'lucide-react'
-import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
+import { BookOpen, Cpu, Hammer, PlugZap, Power } from 'lucide-react'
 import { PREINSTALLED_APPS } from '@/data/preinstalled-apps'
 
 const allHacks = await getCollection('hacks')
@@ -13,42 +13,59 @@ const featuredHacks = allHacks
   .filter((hack) => typeof hack.data.featured === 'number' && hack.data.featured >= 1 && hack.data.featured <= 3)
   .sort((left, right) => (left.data.featured ?? 0) - (right.data.featured ?? 0))
   .slice(0, 3)
+
+const pathways = [
+  {
+    href: '/get-started',
+    title: 'Start Here',
+    description: 'Set up, personalize and troubleshoot your badge.',
+    icon: Power,
+  },
+  {
+    href: '/about-badge',
+    title: 'About',
+    description: 'Use the simulator and inspect the hardware.',
+    icon: Cpu,
+  },
+  {
+    href: '/apps',
+    title: 'App Store',
+    description: 'Install available apps or upload your own.',
+    icon: PlugZap,
+  },
+  {
+    href: '/build',
+    title: 'Build',
+    description: 'Use Copilot, the editor, simulator, or a hack.',
+    icon: Hammer,
+  },
+]
 ---
 
 <Layout title="Badger / 2026 Field Guide" description="A living field guide to apps, hacks, and hardware workflows for the Badger 2350.">
-  <section class="relative overflow-hidden border-b border-border/70 py-20 sm:py-28">
+  <section class="relative overflow-hidden border-b border-border/70 py-12 sm:py-16">
     <div class="grid-texture pointer-events-none absolute inset-0 opacity-35"></div>
     <div class="container relative">
-      <div class="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
-        <div class="max-w-2xl space-y-8">
+      <div class="grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+        <div class="max-w-2xl space-y-7">
           <div class="space-y-5">
             <h1 class="max-w-xl text-5xl leading-[0.98] sm:text-7xl">
               Hack. Tinker. <span class="text-primary">Repeat.</span>
             </h1>
-            <p class="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+            <p class="max-w-none text-base leading-7 text-muted-foreground lg:whitespace-nowrap">
               Apps, hacks, and hardware notes for the Badger 2350. Updated for 2026.
             </p>
           </div>
 
           <div class="flex flex-wrap gap-3">
-            {APP_CATALOG_PAGE_ENABLED && (
-              <a href="/browse-apps" class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
-                Browse apps
-                <Grid3x3 className="h-4 w-4" />
-              </a>
-            )}
-            <a href="/apps" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
-              Manage apps
-              <PlugZap className="h-4 w-4" />
-            </a>
-            <a href="/build" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
-              <Hammer className="h-4 w-4" />
-              Build apps
+            <a href="/get-started" class="inline-flex h-11 items-center gap-2.5 rounded-md border border-primary bg-primary px-5 font-mono text-sm uppercase tracking-[0.12em] text-primary-foreground transition-colors hover:bg-primary/85">
+              <Power className="h-4 w-4" />
+              Start Here
             </a>
           </div>
         </div>
 
-        <div class="relative mx-auto w-full max-w-[28rem]">
+        <div class="relative mx-auto hidden w-full max-w-[24rem] lg:block">
           <div class="surface overflow-hidden p-2">
             <img src="/images/hero.jpg" alt="Badger 2350 hardware badge" class="aspect-[3/4] w-full rounded-lg object-cover" />
           </div>
@@ -57,49 +74,46 @@ const featuredHacks = allHacks
     </div>
   </section>
 
-  <section class="border-b border-border/70 py-16">
+  <section class="border-b border-border/70 py-8 sm:py-10">
     <div class="container">
-      <div class="grid gap-6 md:grid-cols-2">
-        <a href="/get-started" class="surface surface-hover group p-6">
-          <h2 class="text-2xl">Get to first boot</h2>
-          <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">Open guide <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
-        </a>
-        <a href="/about-badge" class="surface surface-hover group p-6">
-          <h2 class="text-2xl">Hardware map</h2>
-          <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">View hardware <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="py-20 sm:py-24">
-    <div class="container">
-      <div class="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div class="section-heading space-y-3">
-          <h2 class="text-3xl sm:text-4xl">Pre-installed apps</h2>
-          <p class="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">{PREINSTALLED_APPS.length} apps ship on the Universe 2026 badge</p>
-        </div>
-        <OutlinedButton href="/apps" variant="subtle" client:load><span>Get more apps</span><PlugZap className="h-3.5 w-3.5" /></OutlinedButton>
-      </div>
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {PREINSTALLED_APPS.map((app) => (
-          <PreinstalledAppCard title={app.title} description={app.description} iconSrc={app.iconSrc} color={app.color} />
+      <h2 class="mb-6 text-3xl sm:text-4xl">Choose a path</h2>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {pathways.map((pathway) => (
+          <NavigationCard {...pathway} compact />
         ))}
       </div>
     </div>
   </section>
 
-  <section class="border-t border-border/70 bg-muted/25 py-20 sm:py-24">
+  <section class="border-b border-border/70 bg-muted/25 py-12 sm:py-16">
     <div class="container">
-      <div class="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div class="section-heading">
-          <h2 class="text-3xl sm:text-4xl">Hacks</h2>
+          <h2 class="text-3xl sm:text-4xl">Start from a hack</h2>
+          <p class="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Follow a prepared project, then change it on your badge.</p>
         </div>
-        <OutlinedButton href="/hacks" variant="subtle" client:load><span>All hacks</span><BookOpen className="h-3.5 w-3.5" /></OutlinedButton>
+        <OutlinedButton href="/hacks" variant="subtle" client:load><BookOpen className="h-3.5 w-3.5" /><span>All hacks</span></OutlinedButton>
       </div>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {featuredHacks.map((hack) => (
           <HackCard title={hack.data.title} description={hack.data.description} difficulty={hack.data.difficulty} duration={hack.data.duration} thumbnail={hack.data.thumbnail} slug={hack.slug} client:load />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12 sm:py-16">
+    <div class="container">
+      <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div class="section-heading space-y-3">
+          <h2 class="text-3xl sm:text-4xl">Pre-installed apps</h2>
+          <p class="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">{PREINSTALLED_APPS.length} apps ship on the Universe 2026 badge</p>
+        </div>
+        <OutlinedButton href="/apps" variant="subtle" client:load><PlugZap className="h-3.5 w-3.5" /><span>Open App Store</span></OutlinedButton>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {PREINSTALLED_APPS.map((app) => (
+          <PreinstalledAppCard title={app.title} description={app.description} iconSrc={app.iconSrc} color={app.color} />
         ))}
       </div>
     </div>
