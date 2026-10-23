@@ -14,13 +14,14 @@ Dark is the default theme. A light theme is available through the navigation the
 
 ## App Store Descriptions and Navigation
 
-- The `/apps/` app store's descriptions are generated from the first sentence of each app's `README.md` in `badger/home` (same logic as `badger/badgerfactory` PR #19).
+- The `/apps/` app store reads `public/app-catalog.json` from this website, never GitHub's API in the browser. App descriptions are generated from the first sentence of each app's `README.md` in `badger/home`.
 - When adding an installable app to the store, give its README a plain-text first sentence. Keys are the exact `badger/home/badge/apps/` folder names and must match `^[a-z0-9][a-z0-9_-]*$`.
-- The `Update app descriptions` workflow runs nightly (and on demand), reads `badger/home` `main`, and runs `npm run sync:app-descriptions` and opens a PR. You can also run it on a website branch.
-- `src/data/app-descriptions.json` is generated; do not edit it by hand or maintain a second description list.
+- The `Deploy` workflow checks out public `badger/home/main` and runs `npm run sync:app-catalog -- .catalog-source` before building. App changes reaching `badger/home/main` trigger it through the companion GitHub App workflow; no releases, generated-data commits, or data-update PRs are needed.
+- `public/app-catalog.json` and `src/data/app-descriptions.json` are generated together; do not edit them by hand or maintain a separate description source. For local updates run `npm run sync:app-catalog -- /path/to/home`.
 - Do not depend on `badger/badgerfactory` for descriptions; the sync reads only public `badger/home` content.
 - Preserve existing description wording, including exclamation marks; app descriptions are an exception to the punctuation rule for labels and instructions.
-- Keep app downloads in `badger/home`; builds and browser code must not need private-repository access.
+- Keep app downloads in `badger/home`, pinned to the catalog's source commit; builds and browser code must not need private-repository access.
+- Keep the cross-repository App private key in badger/home's main-only `catalog-sync` environment secret, never in code, logs, browser files, or build artifacts. The App is installed only on this website repository with Actions write permission; source changes still require PRs.
 - The store and description coverage exclude `menu`, `startup`, and `quest` through the shared catalog helper.
 - Local app content descriptions still serve `/browse-apps/` and individual app pages.
 - The global **Apps** tab opens the app store and USB/disk tools at `/apps`.

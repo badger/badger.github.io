@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchInstallableAppFolders } from '@/lib/github-app-catalog'
+import { fetchAppCatalog } from '@/lib/github-app-catalog'
 
 export interface AppCountProps {
   fallback: number
@@ -11,9 +11,9 @@ export function AppCount({ fallback }: AppCountProps) {
   useEffect(() => {
     let active = true
 
-    fetchInstallableAppFolders()
-      .then((folders) => {
-        if (active) setCount(folders.length)
+    fetchAppCatalog()
+      .then((catalog) => {
+        if (active) setCount(catalog.apps.length)
       })
       .catch(() => {
         if (active) setCount(fallback)

@@ -1,0 +1,562 @@
+{
+  "revision": "dd686d841f3653e7bef5e0ba78f288b0cc03c303",
+  "apps": [
+    {
+      "name": "30_minutes_to_alpha_centauri",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/cargo.png",
+        "assets/game_over.png",
+        "assets/hud.png",
+        "assets/hyperion_bg.png",
+        "assets/hyperion_obst.png",
+        "assets/hyperion_wall.png",
+        "assets/intercom.png",
+        "assets/level_hyperion.png",
+        "assets/package_load.png",
+        "assets/player.png",
+        "assets/title.png",
+        "assets/win.png",
+        "cutscene.py",
+        "icon.png"
+      ],
+      "description": "Pilot a cargo ship through obstacles to complete a space delivery."
+    },
+    {
+      "name": "badge",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "Display your GitHub profile and contribution graph."
+    },
+    {
+      "name": "bee_amazed",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/background.png",
+        "assets/bee-down.png",
+        "assets/bee-left.png",
+        "assets/bee-right.png",
+        "assets/bee-up.png",
+        "assets/flower.png",
+        "assets/hedge.png",
+        "icon.png"
+      ],
+      "description": "Guide a bee through mazes that get harder with each level."
+    },
+    {
+      "name": "brattal",
+      "files": [
+        "README.md",
+        "__init__.py"
+      ],
+      "description": "A two-lane arcade shooter."
+    },
+    {
+      "name": "camera",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/LICENSE-MDI.txt",
+        "assets/NOTICE.txt",
+        "assets/camera-wireless.png",
+        "assets/camera-wireless.svg",
+        "assets/camera.svg",
+        "assets/mona.png",
+        "camera_ble.py",
+        "camera_core.py",
+        "camera_launcher_icon.py",
+        "camera_pairing.py",
+        "icon.png",
+        "screenshot.png"
+      ],
+      "description": "Use the badge as a live viewfinder and shutter for a Wi-Fi ESP32-CAM, then review the photos you take."
+    },
+    {
+      "name": "clock",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/digital_dots.png",
+        "assets/digital_dots_invert.png",
+        "assets/digital_num.png",
+        "assets/digital_num_invert.png",
+        "assets/icons.png",
+        "assets/nixie_bg.png",
+        "assets/nixie_fg.png",
+        "assets/nixie_num.png",
+        "daylightsaving.py",
+        "icon.png",
+        "usermessage.py"
+      ],
+      "description": "Display the time with selectable clock styles and time zones."
+    },
+    {
+      "name": "commits",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "Break GitHub-colored bricks with a paddle."
+    },
+    {
+      "name": "contacts",
+      "files": [
+        "README.md",
+        "__init__.py"
+      ],
+      "description": "Exchange contact cards with other badges."
+    },
+    {
+      "name": "Copilot",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/LICENSE.txt",
+        "assets/attention-00.png",
+        "assets/attention-01.png",
+        "assets/attention-02.png",
+        "assets/attention-03.png",
+        "assets/attention-04.png",
+        "assets/attention-05.png",
+        "assets/attention-06.png",
+        "assets/attention-07.png",
+        "assets/attention-08.png",
+        "assets/attention-09.png",
+        "assets/attention-10.png",
+        "assets/attention-11.png",
+        "assets/blink-1.png",
+        "assets/blink-2.png",
+        "assets/blink-3.png",
+        "assets/blink-4.png",
+        "assets/complete-00.png",
+        "assets/complete-01.png",
+        "assets/complete-02.png",
+        "assets/complete-03.png",
+        "assets/complete-04.png",
+        "assets/complete-05.png",
+        "assets/complete-06.png",
+        "assets/complete-07.png",
+        "assets/complete-08.png",
+        "assets/complete-09.png",
+        "assets/complete-10.png",
+        "assets/complete-11.png",
+        "assets/down-00.png",
+        "assets/down-01.png",
+        "assets/down-02.png",
+        "assets/down-03.png",
+        "assets/down-04.png",
+        "assets/down-05.png",
+        "assets/down-06.png",
+        "assets/down-07.png",
+        "assets/down-08.png",
+        "assets/down-09.png",
+        "assets/down-10.png",
+        "assets/down-11.png",
+        "assets/left-00.png",
+        "assets/left-01.png",
+        "assets/left-02.png",
+        "assets/left-03.png",
+        "assets/left-04.png",
+        "assets/left-05.png",
+        "assets/left-06.png",
+        "assets/left-07.png",
+        "assets/left-08.png",
+        "assets/left-09.png",
+        "assets/left-10.png",
+        "assets/left-11.png",
+        "assets/neutral.png",
+        "assets/right-00.png",
+        "assets/right-01.png",
+        "assets/right-02.png",
+        "assets/right-03.png",
+        "assets/right-04.png",
+        "assets/right-05.png",
+        "assets/right-06.png",
+        "assets/right-07.png",
+        "assets/right-08.png",
+        "assets/right-09.png",
+        "assets/right-10.png",
+        "assets/right-11.png",
+        "assets/sources.json",
+        "assets/surprise-00.png",
+        "assets/surprise-01.png",
+        "assets/surprise-02.png",
+        "assets/surprise-03.png",
+        "assets/surprise-04.png",
+        "assets/surprise-05.png",
+        "assets/surprise-06.png",
+        "assets/surprise-07.png",
+        "assets/surprise-08.png",
+        "assets/surprise-09.png",
+        "assets/surprise-10.png",
+        "assets/surprise-11.png",
+        "assets/up-00.png",
+        "assets/up-01.png",
+        "assets/up-02.png",
+        "assets/up-03.png",
+        "assets/up-04.png",
+        "assets/up-05.png",
+        "assets/up-06.png",
+        "assets/up-07.png",
+        "assets/up-08.png",
+        "assets/up-09.png",
+        "assets/up-10.png",
+        "assets/up-11.png",
+        "assets/working-00.png",
+        "assets/working-01.png",
+        "assets/working-02.png",
+        "assets/working-03.png",
+        "assets/working-04.png",
+        "assets/working-05.png",
+        "assets/working-06.png",
+        "assets/working-07.png",
+        "assets/working-08.png",
+        "assets/working-09.png",
+        "assets/working-10.png",
+        "assets/working-11.png",
+        "copilot_monitor.py",
+        "icon.png"
+      ]
+    },
+    {
+      "name": "demos",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "demos/__init__.py",
+        "demos/blur.py",
+        "demos/blur_brush.py",
+        "demos/circles.py",
+        "demos/dither.py",
+        "demos/erase_brush.py",
+        "demos/fill_rules.py",
+        "demos/gradient.py",
+        "demos/image_brush.py",
+        "demos/intersect.py",
+        "demos/joins_caps.py",
+        "demos/lighten_darken.py",
+        "demos/line_clip.py",
+        "demos/lines.py",
+        "demos/pattern.py",
+        "demos/pixelate.py",
+        "demos/raycast.py",
+        "demos/shape.py",
+        "demos/sprites.py",
+        "demos/stroke.py",
+        "demos/text.py",
+        "demos/text_align.py",
+        "demos/transform_sprite.py",
+        "demos/triangles.py",
+        "demos/vector_shapes.py",
+        "demos/vector_text.py",
+        "icon.png"
+      ],
+      "description": "Browse graphics demos showing shapes, text, sprites, and other display effects."
+    },
+    {
+      "name": "extend_a_squirrel",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/acorn10.png",
+        "assets/acorn15.png",
+        "assets/acorn_multi.png",
+        "assets/bg.png",
+        "assets/gameover.png",
+        "assets/sqirl.png",
+        "assets/title.png",
+        "draw_tufty.py",
+        "icon.png"
+      ],
+      "description": "Guide a growing squirrel through a Snake-style game without hitting its tail."
+    },
+    {
+      "name": "flappy_mona",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/background.png",
+        "assets/cloud.png",
+        "assets/grass.png",
+        "assets/mona.png",
+        "assets/obstacles.png",
+        "icon.png",
+        "mona.py",
+        "obstacle.py"
+      ],
+      "description": "Keep Mona safe and defying gravity."
+    },
+    {
+      "name": "gallery",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png",
+        "images/duck.png"
+      ],
+      "description": "Browse images with a thumbnail carousel."
+    },
+    {
+      "name": "ghost_signal",
+      "files": [
+        "README.md",
+        "__init__.py"
+      ],
+      "description": "Match a moving wave pattern to get the highest accuracy possible."
+    },
+    {
+      "name": "hydrate",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "Track your water intake against a daily goal."
+    },
+    {
+      "name": "input_test",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "Test the badge's touch controls, buttons, and motion input."
+    },
+    {
+      "name": "iss",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "world.geo.json"
+      ],
+      "description": "Track the International Space Station on a live world map."
+    },
+    {
+      "name": "life",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "Watch cell patterns evolve in Conway's Game of Life."
+    },
+    {
+      "name": "mass_storage",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "Restart the badge in USB storage mode to manage its files."
+    },
+    {
+      "name": "merge_conflict",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "games.py",
+        "mona-code.png",
+        "mona-dance.png",
+        "mona-dead.png",
+        "mona-default.png",
+        "mona-eating.png",
+        "mona-heart.png",
+        "mona-notify.png",
+        "replay.py",
+        "ui.py"
+      ],
+      "description": "A collection of short 2 player games, including badge-link play."
+    },
+    {
+      "name": "mona_paint",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "ui.py"
+      ],
+      "description": "A tilt-aware paint program with drawing tools and undo."
+    },
+    {
+      "name": "mona_pet",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/background/background_day.png",
+        "assets/background/background_dusk.png",
+        "assets/background/background_night.png",
+        "assets/mona-sprites/mona-code.png",
+        "assets/mona-sprites/mona-dance.png",
+        "assets/mona-sprites/mona-dead.png",
+        "assets/mona-sprites/mona-default.png",
+        "assets/mona-sprites/mona-eating.png",
+        "assets/mona-sprites/mona-heart.png",
+        "assets/mona-sprites/mona-love.png",
+        "assets/mona-sprites/mona-notify.png",
+        "assets/mona-sprites/mona-sleep.png",
+        "assets/ui/buttons.png",
+        "assets/ui/frame.png",
+        "clock.py",
+        "food.py",
+        "icons.py",
+        "match.py",
+        "tufty.py",
+        "ui.py"
+      ],
+      "description": "A virtual pet with feeding, cleaning, and matching games."
+    },
+    {
+      "name": "monapet",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/arrows.png",
+        "assets/icons.png",
+        "assets/mona-sprites/mona-code.png",
+        "assets/mona-sprites/mona-dance.png",
+        "assets/mona-sprites/mona-dead.png",
+        "assets/mona-sprites/mona-default.png",
+        "assets/mona-sprites/mona-eating.png",
+        "assets/mona-sprites/mona-heart.png",
+        "assets/mona-sprites/mona-love.png",
+        "assets/mona-sprites/mona-notify.png",
+        "assets/portrait.png",
+        "icon.png",
+        "mona.py",
+        "ui.py"
+      ],
+      "description": "Care for your very own Mona!"
+    },
+    {
+      "name": "pong",
+      "files": [
+        "README.md",
+        "__init__.py"
+      ],
+      "description": "Badge-link multiplayer Pong."
+    },
+    {
+      "name": "rogue",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "build.py",
+        "content.py",
+        "game.py",
+        "items.py",
+        "monsters.py",
+        "render.py",
+        "rings.py",
+        "save.py",
+        "scrolls.py",
+        "world.py"
+      ],
+      "description": "Explore dungeons and fight monsters in a turn-based game."
+    },
+    {
+      "name": "sense",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "View temperature, humidity, pressure, light, and motion sensor readings."
+    },
+    {
+      "name": "settings",
+      "files": [
+        "README.md",
+        "__init__.py"
+      ],
+      "description": "Edit network, profile, and backlight settings."
+    },
+    {
+      "name": "show",
+      "files": [
+        "README.md",
+        "__init__.py"
+      ],
+      "description": "Start the firmware's local Sparkle light show."
+    },
+    {
+      "name": "sketchy_sketch",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/nope.ppf",
+        "icon.png",
+        "ui.py"
+      ],
+      "description": "Draw on the badge by moving a cursor with the directional controls."
+    },
+    {
+      "name": "snake",
+      "files": [
+        "README.md",
+        "__init__.py"
+      ],
+      "description": "A continuously moving snake game."
+    },
+    {
+      "name": "snarky_sciuridae",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "assets/background/background_day.png",
+        "assets/background/background_dusk.png",
+        "assets/background/background_night.png",
+        "assets/squirrel-sprites/clean.png",
+        "assets/squirrel-sprites/dance.png",
+        "assets/squirrel-sprites/dead.png",
+        "assets/squirrel-sprites/dig.png",
+        "assets/squirrel-sprites/eat.png",
+        "assets/squirrel-sprites/idle.png",
+        "assets/squirrel-sprites/lick.png",
+        "assets/squirrel-sprites/notify.png",
+        "assets/squirrel-sprites/run.png",
+        "assets/squirrel-sprites/sleep.png",
+        "assets/squirrel-sprites/tail.png",
+        "assets/ui/buttons_48x14.png",
+        "assets/ui/icons.png",
+        "assets/ui/overlay_scanlines.png",
+        "assets/ui/tufty_frame_beige.png",
+        "icon.png",
+        "ui.py",
+        "vpet.py"
+      ],
+      "description": "Care for your very own Squirrel!"
+    },
+    {
+      "name": "system",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "View the badge's time and battery status and sync its clock over Wi-Fi."
+    },
+    {
+      "name": "tennis",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "Play a Pong-style game against a computer-controlled paddle."
+    },
+    {
+      "name": "tomato",
+      "files": [
+        "README.md",
+        "__init__.py",
+        "icon.png"
+      ],
+      "description": "Your very own Pomodoro Timer!"
+    }
+  ]
+}
