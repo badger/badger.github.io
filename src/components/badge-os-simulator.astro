@@ -14,10 +14,10 @@ const sideButtons = [
 ]
 ---
 
-<div id="badge-os-simulator" data-state="fallback" class="badge-os-stack">
+<div id="badge-os-simulator" data-state="loading" class="badge-os-stack">
   <figure data-simulator class="rounded-lg border border-border/40 bg-card p-4 sm:p-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <p data-status class="font-mono text-xs uppercase tracking-[0.12em] text-primary" aria-live="polite">Badge image</p>
+      <p data-status class="font-mono text-xs uppercase tracking-[0.12em] text-primary" aria-live="polite">Booting</p>
       <div data-interactive class="flex flex-wrap items-center gap-2">
         <button type="button" data-model-screen class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="false" title="Zoom to the screen" disabled><ScanSearch size={14} />Screen</button>
         <button type="button" data-model-full class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="true" title="Show the whole badge" disabled><Maximize size={14} />Full</button>
@@ -25,6 +25,9 @@ const sideButtons = [
       </div>
     </div>
     <div class="badge-os-stage">
+      <div data-loading class="badge-os-loading">
+        <p class="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">Loading 3D badge</p>
+      </div>
       <div data-fallback class="badge-os-fallback">
         <BadgeImage />
       </div>
@@ -66,13 +69,16 @@ const sideButtons = [
 <style>
   .badge-os-stack { position: relative; }
   .badge-os-stage { position: relative; width: 100%; height: clamp(340px, 60vh, 600px); overflow: hidden; }
-  .badge-os-fallback, .badge-os-model { position: absolute; inset: 0; }
-  .badge-os-fallback { display: grid; place-items: center; padding: 0.5rem; }
+  .badge-os-loading, .badge-os-fallback, .badge-os-model { position: absolute; inset: 0; }
+  .badge-os-loading, .badge-os-fallback { display: none; place-items: center; padding: 0.5rem; }
+  .badge-os-loading { border-radius: 0.5rem; background: hsl(var(--muted) / 0.2); text-align: center; }
   .badge-os-model { visibility: hidden; }
-  .badge-os-stack[data-state='running'] .badge-os-fallback { display: none; }
+  .badge-os-stack[data-state='loading'] .badge-os-loading { display: grid; }
+  .badge-os-stack[data-state='fallback'] .badge-os-fallback { display: grid; }
   .badge-os-stack[data-state='running'] .badge-os-model { visibility: visible; }
   .badge-os-stack:not([data-state='running']) [data-interactive] { display: none; }
-  .badge-os-stack[data-state='running'] [data-fallback-caption] { display: none; }
+  [data-fallback-caption] { display: none; }
+  .badge-os-stack[data-state='fallback'] [data-fallback-caption] { display: block; }
   .badge-os-model :global(canvas:not([data-screen])) { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
   .badge-os-model :global(canvas:not([data-screen]):focus-visible) { outline: 2px solid hsl(var(--primary)); outline-offset: -2px; }
   .badge-os-zoom { position: absolute; right: 0.5rem; bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.375rem; }
