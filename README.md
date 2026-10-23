@@ -16,6 +16,14 @@ The **Apps** tab opens `/apps`, which contains the app store and USB/disk tools.
 Old `/edit` links redirect to `/apps`. The optional app-browsing catalog lives at
 `/browse-apps`. The Bluetooth editor is disabled by default.
 
+## Build routes
+
+`/build` lists the build paths. The Copilot guides are at `/build/app`,
+`/build/vscode`, and `/build/cli`, with Windows and macOS instructions together.
+Shared steps live in `src/components/build-guide-*.astro`; tool-specific content
+lives in `src/content/build-guides/`. Old tool and platform fragment links redirect
+to the matching guide.
+
 ## 🛠️ Tech Stack
 
 - **Framework**: [Astro](https://astro.build/)
