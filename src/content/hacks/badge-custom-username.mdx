@@ -1,9 +1,9 @@
 ---
-title: "Set Your GitHub Handle"
-description: "Add your GitHub username and Wi-Fi details with the Settings app, or edit secrets.py over USB."
+title: "Configure Your Badge Settings"
+description: "Set Wi-Fi, GitHub, contact, and display preferences on the badge or over USB."
 difficulty: "beginner"
-duration: 5
-tags: ["networking", "badge-app"]
+duration: 10
+tags: ["networking", "badge-app", "personalization"]
 thumbnail: "/images/apps/2026/settings.svg"
 author: "Badger Team"
 date: "2026-10-22"
@@ -12,32 +12,50 @@ github: "https://github.com/badger/home/blob/main/badge/apps/settings/__init__.p
 featured: 1
 ---
 
-The **Badge** app shows your GitHub avatar, follower count, and contribution graph. It needs your GitHub username and a Wi-Fi connection. You can enter both on the badge with the **Settings** app, or edit `secrets.py` from your computer.
+Use the **Settings** app to configure the badge without writing code. It stores your Wi-Fi connection, GitHub username, contact card, and display brightness.
+
+The available settings are:
+
+| Setting | What it controls |
+| --- | --- |
+| **WiFi Network** | The 2.4 GHz network used by online apps |
+| **WiFi Password** | The password for that network |
+| **GitHub Username** | Your avatar, profile, contribution graph, and GitHub contact link |
+| **Contact Name** | The name shown when you share contact details |
+| **LinkedIn Profile** | Your LinkedIn username or full profile URL |
+| **Backlight** | The display brightness |
 
 ## Prerequisites
 
-- Your GitHub username (case-sensitive)
-- A 2.4 GHz Wi-Fi network (see [Wi-Fi](#wi-fi) below)
+- The settings you want to add. You can leave fields you do not use empty.
+- A 2.4 GHz Wi-Fi network for online apps (see [Wi-Fi](#wi-fi) below)
 - For the USB method: a USB-C data cable and [VS Code](https://code.visualstudio.com/) or any text editor
 
 ## Option 1: Use the Settings app
 
 1. Open **Settings** from the menu.
-2. Use **Up** and **Down** to highlight **GitHub Username**, then press **Select** (the white circle).
+2. Use **Up** and **Down** to move through the settings.
 
    ![Settings app with the GitHub Username row highlighted](/images/hacks/github-handle/settings-list.png)
 
-3. Type your username on the on-screen keyboard. Move with the direction pad and press **Select** to type the highlighted key. **Back** deletes a character, `shift` switches case, and `#+=` shows symbols.
+3. To change **WiFi Network**, **WiFi Password**, **GitHub Username**, **Contact Name**, or **LinkedIn Profile**, highlight the field and press **Select** (the white circle).
+4. Type the value on the on-screen keyboard. Move with the direction pad and press **Select** to type the highlighted key. **Back** deletes a character, `shift` switches case, and `#+=` shows symbols.
 
    ![On-screen keyboard typing a GitHub username](/images/hacks/github-handle/settings-keyboard.png)
 
-4. Highlight **done** and press **Select**. The hint changes to **saved!**
+5. Highlight **done** and press **Select**. The hint changes to **saved!**
 
    ![Settings app showing the saved GitHub username](/images/hacks/github-handle/settings-saved.png)
 
-5. Press **Back** to leave Settings, then open the **Badge** app.
+6. Repeat those steps for each text field you want to configure:
+   - Enter the Wi-Fi network name and password exactly, including capital letters.
+   - Enter only your GitHub username, without `@` or `github.com/`.
+   - Enter the name you want other badge owners to receive.
+   - Enter either your LinkedIn username or a full `linkedin.com/in/...` profile URL.
+7. Highlight **Backlight**, then press **Left** or **Right** to change the brightness in 10% steps. The badge saves the new level automatically.
+8. Press **Back** to leave Settings.
 
-The same screen lets you change **WiFi Network**, **WiFi Password**, **Contact Name**, **LinkedIn Profile**, and the **Backlight** level. The Badge and Contacts apps use your contact details.
+The screenshots show the GitHub username workflow, but the same keyboard and save controls apply to every text field.
 
 ## Option 2: Edit `secrets.py` in VS Code
 
@@ -50,11 +68,11 @@ The same screen lets you change **WiFi Network**, **WiFi Password**, **Contact N
    WIFI_PASSWORD = "..."
    GITHUB_USERNAME = "your-handle"
    CONTACT_NAME = "Your Name"
-   CONTACT_LINKEDIN = ""
+   CONTACT_LINKEDIN = "your-linkedin-handle"
    REGION = "us"  # Options are us, cuba, eu, moldova, lebanon, egypt, chile, australia, nz
    TIMEZONE = -7  # Offset from GMT as number of hours, i.e. 0, 1, -7 etc.
    ```
-   Keep the quotes, and leave any setting you don't use as `""`.
+   Keep the quotes, and leave any text setting you do not use as `""`. `REGION` and `TIMEZONE` are additional computer-edited settings used by apps such as Clock. Change the backlight from the Settings app.
 5. **Save the file and eject BADGER** (Finder: click ⏏; Windows: **Safely Remove Hardware**). The badge restarts automatically. If it doesn't, press reset once.
 
 Values you set in `secrets.py` take priority over the Settings app. Settings shows those fields with a padlock and **locked**. To edit them on the badge again, set them back to `""` in `secrets.py`.
@@ -67,9 +85,10 @@ Your badge comes set up for the **HYB-26** network in the **Hack Your Badge** ar
 
 ## Verify
 
-- Open the **Badge** app. Within a few seconds you should see your avatar, follower count, and contribution graph.
-- Hold **Left** and **Right** together to download your profile again.
-- If you see **Couldn't connect to WiFi**, check the network name and password, and make sure it's a 2.4 GHz network.
+- Open the **Badge** app. Your GitHub profile and contribution graph should load after Wi-Fi connects.
+- Open **Contacts** and check that your name, GitHub username, and LinkedIn profile appear on your contact card.
+- Return to **Settings** and confirm the backlight remains at the selected level.
+- If an online app reports a connection error, check the network name and password and confirm the network uses 2.4 GHz.
 
 ## Safety tips
 
