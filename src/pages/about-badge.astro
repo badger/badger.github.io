@@ -77,15 +77,20 @@ const specifications = [
 ---
 
 <Layout title="About the Badger" description="Use the Badger 2350 simulator and inspect its hardware specifications, components, and connections.">
-  <section id="overview" class="scroll-mt-28 border-b border-border/70 py-16 sm:py-20">
+  <section id="overview" class="scroll-mt-28 border-b border-border/70 pb-6 pt-14 sm:pb-8 sm:pt-16">
     <div class="container">
       <p class="font-mono text-xs uppercase tracking-[0.16em] text-primary">About</p>
       <h1 class="mt-4 text-5xl leading-[0.98] sm:text-6xl">About the Badger</h1>
       <p class="mt-6 max-w-prose text-muted-foreground">Inspect the 2026 Badger 2350 hardware, ports, controls, and sensors, then use MonaOS in the browser.</p>
+
+      <div id="badge-simulator" class="mt-7 scroll-mt-28 sm:mt-8">
+        <h2 class="mb-6 text-3xl sm:text-4xl">Badge simulator</h2>
+        <BadgeOsSimulator />
+      </div>
     </div>
   </section>
 
-  <section id="specifications" class="scroll-mt-28 py-16 sm:py-20">
+  <section id="specifications" class="scroll-mt-28 pb-12 pt-8 sm:pb-16 sm:pt-10">
     <div class="container">
       <h2 class="mb-8 text-3xl sm:text-4xl">Hardware &amp; specs</h2>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -112,13 +117,6 @@ const specifications = [
           </Card>
         ))}
       </div>
-    </div>
-  </section>
-
-  <section id="badge-simulator" class="scroll-mt-28 border-t border-border/70 bg-muted/25 py-16 sm:py-20">
-    <div class="container">
-      <h2 class="mb-8 text-3xl sm:text-4xl">Badge simulator</h2>
-      <BadgeOsSimulator />
     </div>
   </section>
 </Layout>

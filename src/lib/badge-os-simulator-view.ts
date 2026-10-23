@@ -95,7 +95,9 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   function reveal() {
     if (failed || !framed || !modelReady || root.dataset.state === 'running') return
     root.dataset.state = 'running'
-    status.textContent = 'Running Mona OS 4.0'
+    status.textContent = 'Running MonaOS 4.0'
+    rotateButton.disabled = false
+    for (const key of keys) key.disabled = false
   }
 
   // The first-frame watchdog only runs while the simulator is unpaused, so
@@ -115,6 +117,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
 
   async function boot() {
     root.dataset.state = 'loading'
+    status.textContent = 'Booting'
     model.start()
     try {
       const request = await loadBadgeOs()
