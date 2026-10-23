@@ -1,6 +1,5 @@
 // Rebuilds public/simulator/models/github-mona-badge.glb from the H4X0R3D source model,
 // replacing its approximate clear lower shell with tessellated Badgeware case CAD geometry
-// and moving the buttons and USB-C port onto the case features.
 import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { NodeIO } from '@gltf-transform/core'
@@ -126,8 +125,7 @@ const moveTo = (names, [x, y], axes = [true, true]) => {
   }
 }
 for (const name of BUTTONS) moveTo([`Black tactile control ${name}`, `Metal button collar ${name}`], map(...nubFor[name]))
-// The USB-C port sits in the rear pocket between the up and down buttons.
-moveTo(USB, map(0, (side[0][1] + side[1][1]) / 2), [false, true])
+for (const name of USB) node(name).dispose()
 
 for (const name of REAR_ARTWORK) {
   const primitive = node(name).getMesh().listPrimitives()[0]
