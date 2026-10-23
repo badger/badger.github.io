@@ -883,9 +883,9 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
 
   return (
     <div className="badge-edit-root mx-auto max-w-6xl space-y-6">
-      <section className="rounded-2xl border border-primary/20 bg-card/80 p-6 shadow-lg backdrop-blur sm:p-8">
+      <section id="connect-badge" className="scroll-mt-28 rounded-lg border border-primary/20 bg-card/80 p-6 sm:p-8">
         <div className="space-y-5">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Badger Apps</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">App Store</h1>
           <BadgeSetupGuide />
           <div className="flex flex-wrap justify-end gap-2">
             {connected
@@ -904,9 +904,9 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
       </section>
 
       <div className={`grid gap-6 ${connected ? 'lg:grid-cols-[1.05fr_0.95fr]' : ''}`}>
-        <section className="rounded-2xl border border-border/50 bg-card/80 p-6 shadow-lg">
+        <section id="app-store" className="scroll-mt-28 rounded-lg border border-border/50 bg-card/80 p-6">
           <div className="flex items-start justify-between gap-4">
-            <div><h2 className="text-xl font-semibold">App store</h2><p role="status" className="mt-1 text-sm text-muted-foreground">{storeMessage}</p></div>
+            <div><h2 className="text-xl font-semibold">Available apps</h2><p role="status" className="mt-1 text-sm text-muted-foreground">{storeMessage}</p></div>
             <Button size="sm" variant="outline" onClick={() => void loadStore()} disabled={busy}><RefreshCw /> Reload</Button>
           </div>
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
@@ -928,7 +928,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
             })}
           </div>
           <input ref={pickerRef} type="file" className="hidden" multiple webkitdirectory="" onChange={(event) => event.target.files && addFiles(event.target.files)} />
-          <div className="mt-6 border-t border-border/40 pt-5">
+          <div id="local-app" className="scroll-mt-28 mt-6 border-t border-border/40 pt-5">
             <div className="flex items-center justify-between gap-4">
               <h3 className="text-sm font-medium">Local app</h3>
               {pendingApps.length > 0 && <button type="button" onClick={() => pickerRef.current?.click()} className="badge-edit-ghost inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"><FolderUp className="h-3.5 w-3.5" />Add folder</button>}

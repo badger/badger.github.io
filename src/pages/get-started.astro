@@ -1,130 +1,197 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import ListingHero from '@/components/listing-hero.astro'
+import NavigationCard from '@/components/navigation-card.astro'
+import StartGuideSection from '@/components/start-guide-section.astro'
+import { Gamepad2, Palette, Power, Wrench } from 'lucide-react'
 
-interface LinkStep {
-  type: 'link'
-  before: string
-  href: string
-  label: string
-  after: string
-}
-
-type Step = string | LinkStep
-
-interface Task {
-  id: string
-  label: string
-  steps: Step[]
-}
-
-const tasks: Task[] = [
+const pathways = [
   {
-    id: 'power-on',
-    label: 'Power On',
-    steps: [
-      'Press RESET on the back of your badge once. MonaOS runs the launch animation.',
-      'Press the HOME button on the back of your badge once. This starts the app launcher.'
-    ],
+    href: '#set-up',
+    title: 'Set Up Your Badge',
+    description: 'Charge, start and configure it',
+    icon: Power,
   },
   {
-    id: 'sleep',
-    label: 'Sleep Mode',
-    steps: [
-      'Press and hold the RESET button on the back for roughly three seconds.',
-      'Wake up by pressing RESET again only once or pressing any front button.',
-    ],
+    href: '#personalize',
+    title: 'Personalize Your Badge',
+    description: 'Profile, apps and menu images',
+    icon: Palette,
   },
   {
-    id: 'power-off',
-    label: 'Power Off',
-    steps: [
-      'Simultaneously press and hold UP, DOWN, and RESET button for about three seconds until the display and LEDs turn off.',
-      'Verify by pressing any front button to ensure the badge does not power on.',
-    ],
+    href: '#controls',
+    title: 'Learn the Controls',
+    description: 'Buttons, power and USB modes',
+    icon: Gamepad2,
   },
   {
-    id: 'charging',
-    label: 'Charge Battery',
-    steps: [
-      'Connect USB-C power (5 V). The onboard charger auto-detects the pack.',
-      'Watch the rear CHG LED which lights up when charging.',
-    ],
-  },
-  {
-    id: 'usb-disk',
-    label: 'USB Disk Mode',
-    steps: [
-      'Double-press RESET quickly. The bootloader mounts as `BADGER` and a message on the badge screen will let you know you\'re in disk mode.',
-      'Connect your badge to your computer and copy apps or assets onto the drive. Keep filenames ≤ 31 characters for FAT.',
-      'Eject the drive from your OS, then tap RESET once to reboot into MonaOS.',
-    ],
-  },
-  {
-    id: 'flash',
-    label: 'Flash Firmware',
-    steps: [
-      {
-        type: 'link',
-        before: 'Download the `.uf2` asset from the newest release at ',
-        href: 'https://github.com/badger/home/releases',
-        label: 'https://github.com/badger/home/releases',
-        after: '. Check the release notes and back up your files before flashing; factory-restoration images delete the badge filesystem.',
-      },
-      'Plug your badge into your computer.',
-      'Hold HOME, tap RESET once, then release HOME when the `RP2350` drive appears in your Finder window or File Explorer. Your badge screen will go dark.',
-      'Drag the .uf2 file onto the `RP2350` volume. The badge reboots automatically after flashing. This can take a few minutes.',
-    ],
+    href: '#troubleshooting',
+    title: 'Troubleshooting',
+    description: 'Fix startup and connection issues',
+    icon: Wrench,
   },
 ]
 
+const guides = [
+  {
+    id: 'set-up',
+    title: 'Set Up Your Badge',
+    description: 'Get MonaOS running, connect the badge, and confirm your profile works.',
+    steps: [
+      {
+        title: 'Charge the battery',
+        description: 'Connect USB-C power at 5 V. The CHG light on the back turns on while the battery is charging.',
+        aliases: ['charging'],
+      },
+      {
+        title: 'Start MonaOS',
+        description: 'Press RESET on the back once. After the launch animation, press HOME once to open the app launcher.',
+        aliases: ['power-on'],
+      },
+      {
+        title: 'Configure Settings',
+        description: 'Open Settings and enter a 2.4 GHz Wi-Fi network, your GitHub username, contact details, and preferred backlight level.',
+        links: [
+          { href: '/hack/connect-wifi/', label: 'Wi-Fi guide' },
+          { href: '/hack/badge-custom-username/', label: 'GitHub profile guide' },
+        ],
+      },
+      {
+        title: 'Verify the setup',
+        description: 'Open the Badge app. Your avatar and contribution graph should load after the badge connects to Wi-Fi.',
+      },
+    ],
+  },
+  {
+    id: 'personalize',
+    title: 'Personalize Your Badge',
+    description: 'Configure your identity, install apps, and change what appears in the launcher.',
+    steps: [
+      {
+        title: 'Set your profile and contact details',
+        description: 'Use Settings to enter your GitHub username, name, LinkedIn profile, Wi-Fi details, and backlight level.',
+        links: [
+          { href: '/hack/badge-custom-username/', label: 'Set your GitHub handle' },
+        ],
+      },
+      {
+        title: 'Install apps',
+        description: 'Double-press RESET to mount the BADGER disk, open the App Store, choose apps, and upload them to the badge.',
+        links: [
+          { href: '/apps', label: 'Open App Store' },
+        ],
+      },
+      {
+        title: 'Add a photo tile',
+        description: 'Convert a photo into a launcher tile and copy the generated app folder to your badge.',
+        links: [
+          { href: '/hack/gallery-import-image/', label: 'Add your photo' },
+        ],
+      },
+      {
+        title: 'Add an Octocanvas wallpaper',
+        description: 'Turn an Octocanvas image into a launcher tile using the prepared image workflow.',
+        links: [
+          { href: '/hack/octocanvas-wallpaper/', label: 'Add a wallpaper' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'controls',
+    title: 'Learn the Controls',
+    description: 'Use the launcher, manage power, and choose the correct USB mode.',
+    steps: [
+      {
+        title: 'Navigate apps',
+        description: 'Use the directional controls to move through menus. Press Select to open an item and Back to return inside an app.',
+      },
+      {
+        title: 'Return to the launcher',
+        description: 'Press HOME on the back once to leave the current app and return to the MonaOS launcher.',
+      },
+      {
+        title: 'Sleep or power off',
+        description: 'Hold RESET for about three seconds to sleep. To power off, hold UP, DOWN, and RESET together for about three seconds.',
+        aliases: ['sleep', 'power-off'],
+      },
+      {
+        title: 'Open USB Disk Mode',
+        description: 'Double-press RESET quickly. Wait for USB Disk Mode on the screen and a drive named BADGER on your computer.',
+        aliases: ['usb-disk'],
+      },
+      {
+        title: 'Recognize firmware mode',
+        description: 'Holding HOME while tapping RESET mounts a drive named RP2350. Use that mode only when flashing firmware, not when installing apps.',
+      },
+    ],
+  },
+  {
+    id: 'troubleshooting',
+    title: 'Troubleshooting',
+    description: 'Resolve the most common startup, USB, Wi-Fi, and firmware problems.',
+    steps: [
+      {
+        title: 'The badge does not start',
+        description: 'Connect USB-C power, wait for the CHG light, then press RESET once. Try a different cable or power source if the light stays off.',
+      },
+      {
+        title: 'The BADGER drive does not appear',
+        description: 'Confirm the cable transfers data, double-press RESET again, and select the BADGER drive root rather than its apps folder.',
+      },
+      {
+        title: 'An RP2350 drive appears',
+        description: 'Do not copy app files to it. Press RESET once to restart, then double-press RESET to enter USB Disk Mode.',
+      },
+      {
+        title: 'Wi-Fi does not connect',
+        description: 'Use a 2.4 GHz network and check that the network name and password match exactly, including capitalization.',
+        links: [
+          { href: '/hack/connect-wifi/', label: 'Check Wi-Fi setup' },
+        ],
+      },
+      {
+        title: 'Restore the firmware',
+        description: 'Back up your badge files, download the newest UF2 release, enter RP2350 mode, and copy the UF2 file to that drive. Factory restoration images erase the badge filesystem.',
+        aliases: ['flash'],
+        links: [
+          { href: 'https://github.com/badger/home/releases', label: 'Firmware releases', external: true },
+        ],
+      },
+    ],
+  },
+]
 ---
 
-<Layout title="Get Started" description="Core badge workflows, distilled.">
-  <ListingHero
-    title="Get"
-    titleHighlight="Started"
-  />
+<Layout title="Start Here / Badger" description="Set up, personalize, control, and troubleshoot the Badger 2350.">
+  <section class="relative overflow-hidden border-b border-border/70 py-14 sm:py-16">
+    <div class="grid-texture pointer-events-none absolute inset-0 opacity-30"></div>
+    <div class="container relative">
+      <p class="font-mono text-xs uppercase tracking-[0.16em] text-primary">Start Here</p>
+      <h1 class="mt-4 max-w-2xl text-5xl leading-[0.98] sm:text-6xl">
+        Get your badge <span class="text-primary">running.</span>
+      </h1>
+      <p class="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+        Set it up, personalize it, learn the controls, or fix a common problem.
+      </p>
+
+      <nav aria-label="Start Here sections" class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {pathways.map((pathway) => (
+          <NavigationCard {...pathway} compact />
+        ))}
+      </nav>
+    </div>
+  </section>
 
   <section class="py-12 sm:py-16">
-    <div class="container grid gap-5 md:grid-cols-2">
-      {tasks.map((task: Task) => (
-        <article id={task.id} class="surface min-w-0 overflow-hidden scroll-mt-32 md:scroll-mt-40">
-          <header class="border-b border-border/70 px-6 py-5">
-            <a
-              href={`#${task.id}`}
-              class="inline-flex font-mono text-sm uppercase tracking-[0.16em] text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60"
-              aria-label={`Permalink to ${task.label}`}
-            >
-              <span>{task.label}</span>
-            </a>
-          </header>
-          <ol class="divide-y divide-border/60">
-            {task.steps.map((step: Step, index: number) => (
-              <li class="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 px-6 py-4">
-                <span class="pt-0.5 font-mono text-xs tracking-[0.14em] text-primary/70">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span class="text-sm leading-6 text-foreground/90 sm:text-base sm:leading-7">
-                  {typeof step === 'string' ? step : (
-                    <>
-                      {step.before}
-                      <a
-                        href={step.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="text-primary underline decoration-primary/60 underline-offset-4 transition-colors hover:text-primary/80 hover:decoration-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60"
-                      >
-                        {step.label}
-                      </a>
-                      {step.after}
-                    </>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </article>
+    <div class="container grid gap-6">
+      {guides.map((guide, index) => (
+        <StartGuideSection
+          id={guide.id}
+          number={index + 1}
+          title={guide.title}
+          description={guide.description}
+          steps={guide.steps}
+        />
       ))}
     </div>
   </section>
