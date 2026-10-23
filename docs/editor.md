@@ -1,6 +1,6 @@
-# Browser editor
+# Browser simulator
 
-The `/editor` page uses CodeMirror for editing and a locally hosted MicroPython WASM worker for simulation. It loads the saved project on startup and runs it automatically. With Auto-run enabled, source changes restart the simulation after a 650 ms pause in typing. Stop disables automatic simulation; Run, F5, or Command/Ctrl+Enter runs the current project manually.
+The `/simulator` page uses CodeMirror for editing and a locally hosted MicroPython WASM worker for simulation. It loads the saved project on startup and runs it automatically. With Auto-run enabled, source changes restart the simulation after a 650 ms pause in typing. Stop disables automatic simulation; Run, F5, or Command/Ctrl+Enter runs the current project manually.
 
 Projects contain an `__init__.py` entry point, companion Python and text files, and binary assets. The file sidebar lets users switch between files, edit text, preview images, and add files. Each simulation stages the complete project in the virtual filesystem, sets its working directory and import path, and executes the entry point using its actual filename. A fresh worker terminates the previous program and resets its virtual state. The display receives RGBA framebuffer messages. Pointer and keyboard controls release held buttons when focus changes, and execution pauses in hidden tabs.
 

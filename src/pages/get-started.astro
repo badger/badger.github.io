@@ -12,16 +12,16 @@ const pathways = [
     icon: Power,
   },
   {
-    href: '#personalize',
-    title: 'Personalize Your Badge',
-    description: 'Profile, apps and menu images',
-    icon: Palette,
-  },
-  {
     href: '#controls',
     title: 'Learn the Controls',
     description: 'Buttons, power and USB modes',
     icon: Gamepad2,
+  },
+  {
+    href: '#personalize',
+    title: 'Personalize Your Badge',
+    description: 'Profile, apps and menu images',
+    icon: Palette,
   },
   {
     href: '#troubleshooting',
@@ -159,9 +159,14 @@ const guides = [
     ],
   },
 ]
+
+const guideOrder = ['set-up', 'controls', 'personalize', 'troubleshooting']
+const orderedGuides = guideOrder
+  .map((id) => guides.find((guide) => guide.id === id))
+  .filter((guide): guide is (typeof guides)[number] => Boolean(guide))
 ---
 
-<Layout title="Start Here / Badger" description="Set up, personalize, control, and troubleshoot the Badger 2350.">
+<Layout title="Start Here / Badger" description="Set up, control, personalize, and troubleshoot the Badger 2350.">
   <section class="relative overflow-hidden border-b border-border/70 py-14 sm:py-16">
     <div class="grid-texture pointer-events-none absolute inset-0 opacity-30"></div>
     <div class="container relative">
@@ -170,7 +175,7 @@ const guides = [
         Get your badge <span class="text-primary">running.</span>
       </h1>
       <p class="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-        Set it up, personalize it, learn the controls, or fix a common problem.
+        Set it up, learn the controls, personalize it, or fix a common problem.
       </p>
 
       <nav aria-label="Start Here sections" class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -183,7 +188,7 @@ const guides = [
 
   <section class="py-12 sm:py-16">
     <div class="container grid gap-6">
-      {guides.map((guide, index) => (
+      {orderedGuides.map((guide, index) => (
         <StartGuideSection
           id={guide.id}
           number={index + 1}
