@@ -30,6 +30,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   const simulator = root.querySelector<HTMLElement>('[data-simulator]')!
   const screen = root.querySelector<HTMLCanvasElement>('[data-screen]')!
   const status = root.querySelector<HTMLElement>('[data-status]')!
+  const fallbackMessage = root.querySelector<HTMLElement>('[data-fallback-message]')!
   const controls = {
     screen: root.querySelector<HTMLButtonElement>('[data-model-screen]')!,
     full: root.querySelector<HTMLButtonElement>('[data-model-full]') ?? undefined,
@@ -38,7 +39,12 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     zoomOut: root.querySelector<HTMLButtonElement>('[data-model-zoom-out]') ?? undefined,
   }
   const keys = [...root.querySelectorAll<HTMLButtonElement>('[data-button]')]
-  if (!supportsSimulator()) return
+  const rotateButton = root.querySelector<HTMLButtonElement>('[data-model-rotate]')!
+  if (!supportsSimulator()) {
+    status.textContent = 'Simulator unavailable'
+    fallbackMessage.textContent = 'Use the badge image above. This browser cannot run the interactive simulator.'
+    return
+  }
 
   const controller = new AbortController()
   const { signal } = controller
@@ -59,6 +65,10 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     controller.abort()
     model.dispose()
     root.dataset.state = 'fallback'
+    status.textContent = 'Simulator unavailable'
+    fallbackMessage.textContent = 'Use the badge image above. The interactive simulator could not start.'
+    rotateButton.disabled = true
+    for (const key of keys) key.disabled = true
   }
 
   const model = createBadgeModelController(async (modelSignal, modelFail) => {
@@ -83,7 +93,6 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   const removeKeyboard = initBadgeKeyboard(simulator, input)
   signal.addEventListener('abort', removeKeyboard)
   const motion = initBadgeMotion(root, value => worker?.postMessage({ motion: value }), signal)
-  const rotateButton = root.querySelector<HTMLButtonElement>('[data-model-rotate]')!
   rotateButton.addEventListener('click', () => {
     rotated = !rotated
     rotateButton.setAttribute('aria-pressed', String(rotated))
@@ -118,6 +127,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
   async function boot() {
     root.dataset.state = 'loading'
     status.textContent = 'Booting'
+    fallbackMessage.textContent = 'Loading 3D badge'
     model.start()
     try {
       const request = await loadBadgeOs()

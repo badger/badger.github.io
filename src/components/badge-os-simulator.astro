@@ -1,6 +1,5 @@
 ---
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CornerDownLeft, House, Maximize, Minus, Plus, RotateCw, ScanSearch } from 'lucide-react'
-import BadgeImage from '@/components/badge-image.astro'
 
 const badgeButtons = [
   { icon: ArrowLeft, name: 'Left', bit: 16 },
@@ -17,7 +16,7 @@ const sideButtons = [
 <div id="badge-os-simulator" data-state="fallback" class="badge-os-stack">
   <figure data-simulator class="rounded-lg border border-border/40 bg-card p-4 sm:p-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <p data-status class="font-mono text-xs uppercase tracking-[0.12em] text-primary" aria-live="polite">Badge image</p>
+      <p data-status class="font-mono text-xs uppercase tracking-[0.12em] text-primary" aria-live="polite">Simulator</p>
       <div class="flex flex-wrap items-center gap-2">
         <button type="button" data-model-screen class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="false" title="Zoom to the screen" disabled><ScanSearch size={14} />Screen</button>
         <button type="button" data-model-full class="badge-os-key badge-os-tool font-mono text-foreground" aria-pressed="true" title="Show the whole badge" disabled><Maximize size={14} />Full</button>
@@ -26,7 +25,7 @@ const sideButtons = [
     </div>
     <div class="badge-os-stage">
       <div data-fallback class="badge-os-fallback">
-        <BadgeImage />
+        <p data-fallback-message class="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">Loading 3D badge</p>
       </div>
       <div data-model class="badge-os-model">
         <canvas data-screen width="320" height="240" hidden></canvas>
@@ -64,7 +63,7 @@ const sideButtons = [
   .badge-os-stack { position: relative; }
   .badge-os-stage { position: relative; width: 100%; height: clamp(340px, 60vh, 600px); overflow: hidden; }
   .badge-os-fallback, .badge-os-model { position: absolute; inset: 0; }
-  .badge-os-fallback { display: grid; place-items: center; padding: 0.5rem; }
+  .badge-os-fallback { display: grid; place-items: center; border-radius: 0.5rem; background: hsl(var(--muted) / 0.2); padding: 1rem; text-align: center; }
   .badge-os-model { visibility: hidden; }
   .badge-os-stack[data-state='running'] .badge-os-fallback { display: none; }
   .badge-os-stack[data-state='running'] .badge-os-model { visibility: visible; }
