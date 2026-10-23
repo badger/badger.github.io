@@ -28,6 +28,8 @@ jobs:
         run: npm run test:app-descriptions
       - name: Check editor projects
         run: npm run test:editor
+      - name: Verify Doom runtime and shareware assets
+        run: npm run verify:doom-assets -- --require
       - name: Build
         run: npm run build
         env:
