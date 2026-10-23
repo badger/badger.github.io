@@ -61,7 +61,7 @@ const navigationGroups: NavigationGroup[] = [
     matches: ['/apps', '/app', '/browse-apps'],
     items: [
       { href: '/apps#available-apps', label: 'Available Apps', description: 'Choose apps to install' },
-      { href: '/apps#add-local-app', label: 'Add Local App', description: 'Upload your own app folder' },
+      { href: '/apps#add-local-app', label: 'Add Local App', description: 'Upload your own app' },
       ...(APP_CATALOG_PAGE_ENABLED
         ? [{ href: '/browse-apps', label: 'Browse App Guides', description: 'Read optional app documentation' }]
         : []),
@@ -80,7 +80,7 @@ const navigationGroups: NavigationGroup[] = [
       { href: '/build#copilot-app', label: 'Copilot App', description: 'Build in the desktop app' },
       { href: '/build#vscode', label: 'VS Code', description: 'Build with Copilot Chat' },
       { href: '/build#copilot-cli', label: 'Copilot CLI', description: 'Build from a terminal' },
-      { href: '/simulator', label: 'Simulator', description: 'Run badge Python in the browser' },
+      { href: '/simulator', label: 'Developer Simulator', description: 'Edit MonaOS live in the browser' },
       { href: '/hacks', label: 'Start From a Hack', description: 'Follow a prepared project' },
     ],
   },

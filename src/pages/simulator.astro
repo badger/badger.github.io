@@ -3,9 +3,9 @@ import Layout from '@/layouts/Layout.astro'
 import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus, RotateCw } from 'lucide-react'
 ---
 
-<Layout title="Simulator / Badger" description="Write Python, run it in the browser, and upload your app to a Badger badge.">
+<Layout title="Developer Simulator" description="Write Python, run it in the browser, and upload your app to a Badger badge.">
   <section class="container py-10 sm:py-14">
-    <h1 class="mb-6 text-4xl sm:text-5xl">Simulator</h1>
+    <h1 class="mb-6 text-4xl sm:text-5xl">Developer Simulator</h1>
 
     <div id="badge-editor" class="font-sans">
       <div id="editor-workspace" class="surface overflow-hidden">
@@ -100,8 +100,8 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
       </div>
 
       <div id="badge-connection" class="surface mt-3 px-4 py-3">
-        <div class="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <h2 class="flex items-center gap-2 font-mono text-xs"><Usb size={15} className="text-primary" /> Edit apps on your badge</h2>
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <h2 class="flex items-center gap-2 text-2xl sm:text-3xl"><Usb size={22} className="text-primary" /> Edit apps on your badge</h2>
           <span id="disk-status" role="status" class="font-mono text-[0.65rem] text-muted-foreground">No badge connected</span>
         </div>
         <div class="flex flex-wrap items-center justify-between gap-3">

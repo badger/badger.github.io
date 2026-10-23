@@ -19,8 +19,8 @@ export function getInstallableAppFolders(tree: GitHubTreeEntry[]) {
   return [...folders.entries()].filter(([, files]) => files.includes('__init__.py'))
 }
 
-export async function fetchInstallableAppFolders() {
-  const response = await fetch(GITHUB_APPS_TREE_URL)
+export async function fetchInstallableAppFolders({ refresh = false }: { refresh?: boolean } = {}) {
+  const response = await fetch(GITHUB_APPS_TREE_URL, refresh ? { cache: 'no-store' } : undefined)
   if (!response.ok) throw new Error(`GitHub app catalog request failed with ${response.status}`)
   const payload = await response.json() as { tree?: GitHubTreeEntry[] }
   return getInstallableAppFolders(payload.tree ?? [])
