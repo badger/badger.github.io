@@ -5,7 +5,16 @@ import { HackListItem } from '@/components/hack-list-item'
 import { getCollection } from 'astro:content'
 
 const allHacks = await getCollection('hacks')
-const sortedHacks = allHacks.sort((left, right) => new Date(right.data.date).getTime() - new Date(left.data.date).getTime())
+const difficultyOrder = {
+  beginner: 0,
+  intermediate: 1,
+  advanced: 2,
+} as const
+const sortedHacks = allHacks.sort((left, right) => {
+  const difficultyDifference = difficultyOrder[left.data.difficulty] - difficultyOrder[right.data.difficulty]
+  if (difficultyDifference !== 0) return difficultyDifference
+  return new Date(right.data.date).getTime() - new Date(left.data.date).getTime()
+})
 const counts = {
   all: sortedHacks.length,
   beginner: sortedHacks.filter((hack) => hack.data.difficulty === 'beginner').length,

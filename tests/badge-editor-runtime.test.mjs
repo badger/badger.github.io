@@ -158,18 +158,12 @@ test('bundled app entry points render with their full projects in the real simul
   const catalog = JSON.parse(await readFile(new URL('../public/editor-apps/catalog.json', import.meta.url), 'utf8'))
   // These apps need badge networking or firmware I/O that the simulator does not provide.
   const hardwareOnly = { camera: /no module named 'socket'/, Copilot: /no module named 'socket'/, system: /no module named 'badgeware\.io'/ }
-  // These apps stop with a simulator limitation message instead of running.
-  const simulatorLimited = { show: /Sparkle shows not supported in the simulator/ }
   for (const app of catalog.apps) {
     await t.test(app.name, async () => {
       const files = await Promise.all(app.files.map(async path => projectFile(path, new Uint8Array(await readFile(new URL(`../public/editor-apps/${app.name}/${path}`, import.meta.url))))))
       const result = await run(simulationRequest({ name: app.name, sourceName: app.name, files }))
       if (hardwareOnly[app.name]) {
         assert.match(result.error, hardwareOnly[app.name])
-        return
-      }
-      if (simulatorLimited[app.name]) {
-        assert.match(result.output.join('\n'), simulatorLimited[app.name])
         return
       }
       assert.ok(result.frames > 0, `${result.error}\n${result.output.join('\n')}`)
@@ -259,7 +253,30 @@ print('Shipping firmware passed')
   assert.match(result.output.join('\n'), /Shipping firmware passed/)
 })
 
-test('Sparkle light shows report the simulator limitation', async () => {
-  const result = await run(request('import sparkle\nsparkle.request_local_show()\n'))
-  assert.match(result.output.join('\n'), /Sparkle shows not supported in the simulator/)
+test('Sparkle local shows bounce the Invertocat without Bluetooth and stop after three SELECT presses', async () => {
+  const result = await run(request(`
+import sparkle, js
+assert sparkle.request_local_show() and not sparkle.request_local_show()
+frames = [0]
+def count():
+    frames[0] += 1
+    return True
+machine_reset = []
+import machine
+machine.reset = lambda: machine_reset.append(True)
+presses = iter((0, 0, 1024, 0, 1024, 0, 1024))
+_poll = badge.poll
+def poll():
+    js.set_test_buttons(next(presses, 0))
+    _poll()
+badge.poll = poll
+run(count)
+assert machine_reset and frames[0] == 0
+run(count)
+assert frames[0] == 1
+print('Sparkle show passed')
+`), { frameLimit: 40 })
+  assert.equal(result.error, '')
+  assert.match(result.output.join('\n'), /Sparkle show passed/)
+  assert.ok(result.frames > 1)
 })

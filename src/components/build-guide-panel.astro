@@ -1,12 +1,14 @@
 ---
 interface Props {
   title: string
+  id: string
+  tool: string
 }
 
-const { title } = Astro.props
+const { title, id, tool } = Astro.props
 ---
 
-<details class="group rounded-lg border border-border/60 bg-card/70 open:border-primary/40">
+<details id={id} data-build-tool={tool} class="group scroll-mt-28 rounded-lg border border-border/60 bg-card/70 open:border-primary/40">
   <summary class="cursor-pointer list-none px-5 py-4 font-mono text-sm uppercase tracking-[0.08em] text-foreground outline-none transition-colors marker:hidden hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset sm:px-6">
     <span class="flex items-center justify-between gap-4">
       {title}

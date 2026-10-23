@@ -2,31 +2,69 @@
 import Layout from '@/layouts/Layout.astro'
 import ListingHero from '@/components/listing-hero.astro'
 import BuildGuidePanel from '@/components/build-guide-panel.astro'
+import NavigationCard from '@/components/navigation-card.astro'
 import VSCodeGuide from '@/content/build-guides/02-vscode.mdx'
 import CopilotAppGuide from '@/content/build-guides/01-copilot-app.mdx'
 import CopilotCLIGuide from '@/content/build-guides/03-copilot-cli.mdx'
 import MacVSCodeGuide from '@/content/build-guides/mac/02-vscode.mdx'
 import MacCopilotAppGuide from '@/content/build-guides/mac/01-copilot-app.mdx'
 import MacCopilotCLIGuide from '@/content/build-guides/mac/03-copilot-cli.mdx'
+import { BookOpen, Code2, Laptop, MonitorPlay, Terminal } from 'lucide-react'
 
 const platforms = [
   {
     id: 'windows',
     label: 'Windows',
     guides: [
-      { title: 'Build with the GitHub Copilot App', Content: CopilotAppGuide },
-      { title: 'Build with VS Code', Content: VSCodeGuide },
-      { title: 'Build with GitHub Copilot CLI', Content: CopilotCLIGuide },
+      { id: 'copilot-app', title: 'Build with the GitHub Copilot App', Content: CopilotAppGuide },
+      { id: 'vscode', title: 'Build with VS Code', Content: VSCodeGuide },
+      { id: 'copilot-cli', title: 'Build with GitHub Copilot CLI', Content: CopilotCLIGuide },
     ],
   },
   {
     id: 'mac',
     label: 'macOS',
     guides: [
-      { title: 'Build with the GitHub Copilot App', Content: MacCopilotAppGuide },
-      { title: 'Build with VS Code', Content: MacVSCodeGuide },
-      { title: 'Build with GitHub Copilot CLI', Content: MacCopilotCLIGuide },
+      { id: 'copilot-app', title: 'Build with the GitHub Copilot App', Content: MacCopilotAppGuide },
+      { id: 'vscode', title: 'Build with VS Code', Content: MacVSCodeGuide },
+      { id: 'copilot-cli', title: 'Build with GitHub Copilot CLI', Content: MacCopilotCLIGuide },
     ],
+  },
+]
+
+const buildPaths = [
+  {
+    href: '#copilot-app',
+    title: 'Copilot App',
+    description: 'Describe an app in the desktop app and copy it to a connected badge.',
+    icon: Laptop,
+    dataBuildPath: 'copilot-app',
+  },
+  {
+    href: '#vscode',
+    title: 'VS Code',
+    description: 'Build locally with Copilot Chat and the prepared badge tools.',
+    icon: Code2,
+    dataBuildPath: 'vscode',
+  },
+  {
+    href: '#copilot-cli',
+    title: 'Copilot CLI',
+    description: 'Build from a local terminal using plain-language instructions.',
+    icon: Terminal,
+    dataBuildPath: 'copilot-cli',
+  },
+  {
+    href: '/simulator',
+    title: 'Simulator',
+    description: 'Run badge Python and test controls in the browser.',
+    icon: MonitorPlay,
+  },
+  {
+    href: '/hacks',
+    title: 'Start From a Hack',
+    description: 'Follow a prepared project and modify the result.',
+    icon: BookOpen,
   },
 ]
 ---
@@ -35,9 +73,30 @@ const platforms = [
   <ListingHero
     title="Build"
     description="Choose your operating system and Copilot tool. Connect your badge, describe your idea, and let Copilot guide the build and testing."
+    compact
   />
-  <section class="container py-10 sm:py-14">
+
+  <section class="border-b border-border/70 py-10 sm:py-12">
+    <div class="container">
+      <div class="mb-6">
+        <h2 class="text-3xl sm:text-4xl">Choose a build path</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+          Build locally with Copilot, test in the browser, or begin with a prepared hack.
+        </p>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        {buildPaths.map((path) => <NavigationCard {...path} />)}
+      </div>
+    </div>
+  </section>
+
+  <section id="local-build-guides" class="container scroll-mt-28 py-8 sm:py-10">
     <div class="platform-picker mx-auto max-w-4xl space-y-6">
+      <div class="relative h-0" aria-hidden="true">
+        {platforms[0].guides.map(({ id }) => (
+          <span id={id} data-build-path={id} class="absolute -top-28"></span>
+        ))}
+      </div>
       <div class="space-y-2">
         <label for="build-platform" class="block font-mono text-sm uppercase tracking-[0.12em]">
           Choose your operating system
@@ -59,8 +118,8 @@ const platforms = [
           hidden={id !== 'windows'}
           class="space-y-3"
         >
-          {guides.map(({ title, Content }) => (
-            <BuildGuidePanel title={title}>
+          {guides.map(({ id: guideId, title, Content }) => (
+            <BuildGuidePanel id={`${id}-${guideId}`} tool={guideId} title={title}>
               <Content />
             </BuildGuidePanel>
           ))}
@@ -81,7 +140,7 @@ const platforms = [
     })
   }
 
-  const revealFragment = () => {
+  const revealFragment = ({ syncPlatform = true }: { syncPlatform?: boolean } = {}) => {
     let targetId: string
     try {
       targetId = decodeURIComponent(window.location.hash.slice(1))
@@ -89,8 +148,19 @@ const platforms = [
       return
     }
     const target = document.getElementById(targetId)
+    const selectedSection = document.querySelector<HTMLElement>(`[data-platform="${platformPicker?.value}"]`)
+    const buildTool = target?.dataset.buildPath
+
+    if (buildTool && selectedSection) {
+      const guide = selectedSection.querySelector<HTMLDetailsElement>(`[data-build-tool="${buildTool}"]`)
+      guide?.setAttribute('open', '')
+      guide?.scrollIntoView()
+      return
+    }
+
     const section = target?.closest<HTMLElement>('[data-platform]')
     if (!platformPicker || !target || !section) return
+    if (!syncPlatform) return
 
     platformPicker.value = section.dataset.platform ?? 'windows'
     showSelectedPlatform()
@@ -98,8 +168,20 @@ const platforms = [
     target.scrollIntoView()
   }
 
-  platformPicker?.addEventListener('change', showSelectedPlatform)
-  window.addEventListener('hashchange', revealFragment)
+  platformPicker?.addEventListener('change', () => {
+    showSelectedPlatform()
+    revealFragment({ syncPlatform: false })
+  })
+  window.addEventListener('hashchange', () => revealFragment())
+  document.addEventListener('click', (event) => {
+    const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null
+    if (!link) return
+    const destination = new URL(link.href, window.location.href)
+    const normalizePath = (path: string) => path.replace(/\/$/, '') || '/'
+    if (!destination.hash || destination.hash !== window.location.hash || normalizePath(destination.pathname) !== normalizePath(window.location.pathname)) return
+    event.preventDefault()
+    revealFragment()
+  })
   showSelectedPlatform()
   revealFragment()
 </script>

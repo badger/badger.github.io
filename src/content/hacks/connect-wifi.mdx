@@ -1,0 +1,74 @@
+---
+title: "Connect to Wi-Fi"
+description: "Connect your badge to a 2.4 GHz network at home or through your phone's hotspot."
+difficulty: "beginner"
+duration: 5
+tags: ["networking"]
+thumbnail: "/images/apps/2026/settings.svg"
+author: "Badger Team"
+date: "2026-10-22"
+hardware: ["Badger 2350"]
+github: "https://github.com/badger/home/blob/main/badge/apps/settings/__init__.py"
+---
+
+import { sitePath } from '@/lib/site-path'
+
+Apps like **Badge** and **ISS** need Wi-Fi. Your badge comes set up for the **HYB-26** network in the **Hack Your Badge** area, so it works there straight away. When you leave that area, or once you get home, point it at a different network.
+
+## Which networks work?
+
+The badge's radio only supports **2.4 GHz** Wi-Fi. The main conference network prefers 5 GHz, so the badge can't connect to it.
+
+Good options are:
+
+- **Hack Your Badge (HYB-26)**: already configured, nothing to do.
+- **Your home Wi-Fi**: most routers broadcast a 2.4 GHz network alongside 5 GHz. If yours uses separate names, pick the 2.4 GHz one.
+- **Your phone's hotspot**:
+  - **iPhone**: go to **Settings → Personal Hotspot** and turn on **Maximize Compatibility**.
+  - **Android**: in the hotspot settings, set **AP band** to **2.4 GHz**. The wording varies by phone.
+
+Network names and passwords are case-sensitive.
+
+## Option 1: Use the Settings app
+
+1. Open **Settings** from the menu. **WiFi Network** is highlighted at the top. Press **Select** (the white circle).
+
+   <img src={sitePath('/images/hacks/wifi/settings-wifi-network.png')} alt="Settings app with the WiFi Network row highlighted" />
+
+2. Type the network name on the on-screen keyboard. Move with the direction pad and press **Select** to type the highlighted key. **Back** deletes a character, `shift` switches case, and `#+=` shows symbols. Highlight **done** and press **Select**.
+
+   <img src={sitePath('/images/hacks/wifi/settings-wifi-keyboard.png')} alt="On-screen keyboard typing a Wi-Fi network name" />
+
+3. Press **Down** to highlight **WiFi Password**, press **Select**, and type the password the same way. The password is visible while you type and hidden once saved. Choose **done**. The hint changes to **saved!**
+
+   <img src={sitePath('/images/hacks/wifi/settings-wifi-saved.png')} alt="Settings app showing the new network and saved password" />
+
+4. Press **Back** to leave Settings, then press reset once so the badge reconnects with the new details.
+
+## Option 2: Edit `secrets.py` in VS Code
+
+1. **Connect the badge to your computer** with a USB-C data cable.
+2. **Enter USB mode.** Double-tap the badge's reset button, or open the **Mass Storage** app from the menu. A drive named **BADGER** appears on your computer.
+3. **Open the drive in VS Code** (`File → Open Folder...` and select **BADGER**) and edit `secrets.py`:
+   ```python
+   WIFI_SSID = "MyHotspot"
+   WIFI_PASSWORD = "your-password"
+   ```
+4. **Save the file and eject BADGER.** The badge restarts automatically. If it doesn't, press reset once.
+
+Values in `secrets.py` take priority over the Settings app, and Settings shows them as **locked**. To edit them on the badge again, set them back to `""` in `secrets.py`.
+
+To switch back to the Hack Your Badge network, set **WiFi Network** to `HYB-26` and ask at the Hack Your Badge station for the password.
+
+## Verify
+
+- Open the **Badge** app. If you've <a href={sitePath('/hack/badge-custom-username/')}>configured your GitHub username</a>, your avatar and contribution graph download within a few seconds.
+- If you see **Couldn't connect to WiFi**, check that:
+  - the network is 2.4 GHz (or your phone's hotspot is in 2.4 GHz / compatibility mode),
+  - the name and password match exactly, including capital letters,
+  - your phone's hotspot screen is open, as some phones turn the hotspot off when idle.
+
+## Safety tips
+
+- `secrets.py` stores your Wi-Fi password in plain text. Don't commit your copy to Git or share it.
+- Always eject **BADGER** before unplugging the badge, so your changes are saved.

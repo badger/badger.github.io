@@ -1,0 +1,63 @@
+---
+import { sitePath } from '@/lib/site-path'
+
+interface GuideLink {
+  href: string
+  label: string
+  external?: boolean
+}
+
+interface GuideStep {
+  title: string
+  description: string
+  links?: GuideLink[]
+  aliases?: string[]
+}
+
+interface Props {
+  id: string
+  number: number
+  title: string
+  description: string
+  steps: GuideStep[]
+}
+
+const { id, number, title, description, steps } = Astro.props as Props
+---
+
+<article id={id} class="surface scroll-mt-28 overflow-hidden">
+  <header class="grid gap-4 px-5 py-6 sm:grid-cols-[3rem_1fr] sm:px-7">
+    <span class="font-mono text-sm tracking-[0.14em] text-primary">{String(number).padStart(2, '0')}</span>
+    <div>
+      <h2 class="text-2xl sm:text-3xl">{title}</h2>
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">{description}</p>
+    </div>
+  </header>
+
+  <ol class="divide-y divide-border/60 border-t border-border/70">
+    {steps.map((step, index) => (
+      <li class="relative grid gap-3 px-5 py-5 sm:grid-cols-[3rem_1fr] sm:px-7">
+        {step.aliases?.map((alias) => <span id={alias} class="absolute -top-28" aria-hidden="true"></span>)}
+        <span class="font-mono text-xs tracking-[0.14em] text-primary/70">{String(index + 1).padStart(2, '0')}</span>
+        <div>
+          <h3 class="font-mono text-sm uppercase tracking-[0.12em] text-foreground">{step.title}</h3>
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">{step.description}</p>
+          {step.links && step.links.length > 0 && (
+            <div class="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+              {step.links.map((link) => (
+                <a
+                  href={sitePath(link.href)}
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noreferrer noopener' : undefined}
+                  class="font-mono text-xs uppercase tracking-[0.1em] text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:decoration-primary"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </li>
+    ))}
+  </ol>
+</article>
