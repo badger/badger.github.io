@@ -6,7 +6,6 @@ interface Props {
   icon: any
   id?: string
   compact?: boolean
-  dataBuildPath?: string
 }
 
 const {
@@ -16,14 +15,12 @@ const {
   icon: Icon,
   id,
   compact = false,
-  dataBuildPath,
 } = Astro.props as Props
 ---
 
 <a
   id={id}
   href={href}
-  data-build-path={dataBuildPath}
   class:list={[
     'surface surface-hover group flex min-w-0 items-start gap-3 scroll-mt-28 no-underline',
     compact ? 'p-4' : 'p-5',
