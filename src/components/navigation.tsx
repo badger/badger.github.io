@@ -60,9 +60,8 @@ const navigationGroups: NavigationGroup[] = [
     icon: PlugZap,
     matches: ['/apps', '/app', '/browse-apps'],
     items: [
-      { href: '/apps#connect-badge', label: 'Connect Your Badge', description: 'Open the BADGER disk over USB' },
-      { href: '/apps#app-store', label: 'Browse Apps', description: 'Choose apps to install' },
-      { href: '/apps#local-app', label: 'Add a Local App', description: 'Upload your own app folder' },
+      { href: '/apps#available-apps', label: 'Available Apps', description: 'Choose apps to install' },
+      { href: '/apps#add-local-app', label: 'Add Local App', description: 'Upload your own app folder' },
       ...(APP_CATALOG_PAGE_ENABLED
         ? [{ href: '/browse-apps', label: 'Browse App Guides', description: 'Read optional app documentation' }]
         : []),

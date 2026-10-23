@@ -14,9 +14,6 @@ const featuredHacks = allHacks
   .sort((left, right) => (left.data.featured ?? 0) - (right.data.featured ?? 0))
   .slice(0, 3)
 
-const featuredApps = PREINSTALLED_APPS.slice(0, 6)
-const remainingApps = PREINSTALLED_APPS.slice(6)
-
 const pathways = [
   {
     href: '/get-started',
@@ -33,7 +30,7 @@ const pathways = [
   {
     href: '/apps',
     title: 'App Store',
-    description: 'Install apps and manage a connected badge.',
+    description: 'Install available apps or upload your own.',
     icon: PlugZap,
   },
   {
@@ -65,14 +62,6 @@ const pathways = [
               <Power className="h-4 w-4" />
               Start Here
             </a>
-            <a href="/apps" class="inline-flex h-11 items-center gap-2.5 rounded-md border border-border/90 px-5 font-mono text-sm uppercase tracking-[0.12em] transition-colors hover:border-primary/60 hover:bg-primary/5 hover:text-primary">
-              <PlugZap className="h-4 w-4" />
-              App Store
-            </a>
-            <a href="/build" class="inline-flex h-11 items-center gap-2.5 rounded-md border border-border/90 px-5 font-mono text-sm uppercase tracking-[0.12em] transition-colors hover:border-primary/60 hover:bg-primary/5 hover:text-primary">
-              <Hammer className="h-4 w-4" />
-              Build
-            </a>
           </div>
         </div>
 
@@ -87,6 +76,7 @@ const pathways = [
 
   <section class="border-b border-border/70 py-10 sm:py-12">
     <div class="container">
+      <h2 class="mb-7 text-3xl sm:text-4xl">Choose a path</h2>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {pathways.map((pathway) => (
           <NavigationCard {...pathway} compact />
@@ -122,21 +112,10 @@ const pathways = [
         <OutlinedButton href="/apps" variant="subtle" client:load><PlugZap className="h-3.5 w-3.5" /><span>Open App Store</span></OutlinedButton>
       </div>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {featuredApps.map((app) => (
+        {PREINSTALLED_APPS.map((app) => (
           <PreinstalledAppCard title={app.title} description={app.description} iconSrc={app.iconSrc} color={app.color} />
         ))}
       </div>
-      <details class="group mt-4 rounded-lg border border-border/60 bg-card/50">
-        <summary class="cursor-pointer list-none px-5 py-4 font-mono text-xs uppercase tracking-[0.12em] text-primary marker:hidden">
-          <span class="group-open:hidden">Show all {PREINSTALLED_APPS.length} pre-installed apps</span>
-          <span class="hidden group-open:inline">Hide additional apps</span>
-        </summary>
-        <div class="grid gap-4 border-t border-border/60 p-4 md:grid-cols-2 lg:grid-cols-3">
-          {remainingApps.map((app) => (
-            <PreinstalledAppCard title={app.title} description={app.description} iconSrc={app.iconSrc} color={app.color} />
-          ))}
-        </div>
-      </details>
     </div>
   </section>
 </Layout>

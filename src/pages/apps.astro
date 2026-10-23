@@ -1,11 +1,16 @@
 ---
 import Layout from '@/layouts/Layout.astro'
+import ListingHero from '@/components/listing-hero.astro'
 import { BadgeManager } from '@/components/badge-manager'
 import appDescriptions from '@/data/app-descriptions.json'
 ---
 
-<Layout title="App Store / Badger" description="Connect a Badger, install apps, upload local projects, and manage badge settings.">
-  <section class="py-14 sm:py-20">
+<Layout title="App Store / Badger" description="Connect a Badger, install available apps, or upload a local app.">
+  <ListingHero
+    title="App Store"
+    description="Connect your badge, choose apps from badger/home, or upload a local app folder."
+  />
+  <section class="py-12 sm:py-16">
     <div class="container">
       <BadgeManager appDescriptions={appDescriptions} client:load />
     </div>

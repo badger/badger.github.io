@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, CircleAlert, Eye, EyeOff, FileCode2, FolderUp, LoaderCircle, LogOut, PlugZap, RefreshCw, RotateCcw, Trash2, Upload, X } from 'lucide-react'
+import { Check, CircleAlert, FileCode2, FolderUp, LoaderCircle, LogOut, PlugZap, RefreshCw, Trash2, Upload, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BadgeSetupGuide } from '@/components/badge-setup-guide'
 import { StoreAppCard } from '@/components/store-app-card'
@@ -61,8 +61,6 @@ type StoreApp = {
   iconUrl?: string
   description?: string
 }
-
-type AutosaveState = 'saved' | 'pending' | 'saving' | 'error'
 
 type OperationResult = {
   tone: 'success' | 'error'
@@ -189,20 +187,12 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
   const [storeMessage, setStoreMessage] = useState('Loading apps from badger/home…')
   const [pendingApps, setPendingApps] = useState<PendingApp[]>([])
   const [removeQueue, setRemoveQueue] = useState<string[]>([])
-  const [secrets, setSecrets] = useState('')
-  const [initialSecrets, setInitialSecrets] = useState('')
-  const [secretsDirty, setSecretsDirty] = useState(false)
-  const [autosaveState, setAutosaveState] = useState<AutosaveState>('saved')
-  const [secretsVisible, setSecretsVisible] = useState(false)
   const [dragging, setDragging] = useState(false)
   const [result, setResult] = useState<OperationResult | null>(null)
   const [uploadResult, setUploadResult] = useState<OperationResult | null>(null)
   const [removeResult, setRemoveResult] = useState<OperationResult | null>(null)
   const outputRef = useRef('')
   const serialResponseRef = useRef('')
-  const secretsRef = useRef('')
-  const lastSavedSecretsRef = useRef('')
-  const failedSecretsRef = useRef<string | null>(null)
   const readerRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null)
   const abortReaderRef = useRef(false)
   const serialInterruptedRef = useRef(false)
@@ -225,12 +215,6 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     void loadStore()
   }, [])
 
-  useEffect(() => {
-    if (!connected || busy || !secretsDirty || lastSavedSecretsRef.current === secrets || failedSecretsRef.current === secrets) return
-    const timer = window.setTimeout(() => void saveSecrets(secrets), 700)
-    return () => window.clearTimeout(timer)
-  }, [autosaveState, busy, connected, secrets, secretsDirty])
-
   function appendOutput(value: string) {
     serialResponseRef.current += value
     outputRef.current = `${outputRef.current}${value}`.slice(-12000)
@@ -244,46 +228,9 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     setResult(null)
     setUploadResult(null)
     setRemoveResult(null)
-    setSecrets('')
-    setInitialSecrets('')
-    setSecretsDirty(false)
-    setAutosaveState('saved')
-    setSecretsVisible(false)
     setOutput('')
     outputRef.current = ''
     serialResponseRef.current = ''
-    secretsRef.current = ''
-    lastSavedSecretsRef.current = ''
-    failedSecretsRef.current = null
-  }
-
-  function loadSecrets(value: string) {
-    setSecrets(value)
-    setInitialSecrets(value)
-    setSecretsDirty(false)
-    setAutosaveState('saved')
-    secretsRef.current = value
-    lastSavedSecretsRef.current = value
-    failedSecretsRef.current = null
-  }
-
-  function updateSecrets(value: string) {
-    setSecrets(value)
-    secretsRef.current = value
-    failedSecretsRef.current = null
-    const dirty = value !== lastSavedSecretsRef.current
-    setSecretsDirty(dirty)
-    setAutosaveState(dirty ? 'pending' : 'saved')
-  }
-
-  function revertSecrets() {
-    updateSecrets(initialSecrets)
-  }
-
-  function retrySecrets() {
-    failedSecretsRef.current = null
-    setAutosaveState('pending')
-    setSecretsDirty(secretsRef.current !== lastSavedSecretsRef.current)
   }
 
   async function releaseSerial(statusMessage: string, activePort = portRef.current) {
@@ -589,7 +536,6 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
 
   async function readSerialBadge() {
     const appPayload = await rawExec(`import os\ndisabled=[]\ntry:\n f=open('/apps/.disabled','r');disabled=[x.strip() for x in f.readlines() if x.strip()];f.close()\nexcept OSError: pass\nfor root,kind in (('/system/apps','I'),('/apps','U')):\n try: entries=os.listdir(root)\n except OSError: entries=[]\n for n in entries:\n  if isinstance(n,str) and n!='menu' and not (kind=='I' and n in disabled):\n   try:\n    os.stat(root+'/'+n+'/__init__.py')\n    print('__BADGER_APP__'+kind+':'+n)\n   except OSError: pass\ntry:\n s=os.stat('/apps/menu/__init__.py')[6];f=open('/apps/menu/__init__.py','rb');f.seek(max(0,s-256));t=f.read();f.close();f=open('/main.py','r');m=f.read();f.close();print('__BADGER_LAUNCHER__'+('1' if ${JSON.stringify(launcherEnd.trim())} in t.decode() and '__import__("/apps/menu")' in m else '0'))\nexcept OSError: print('__BADGER_LAUNCHER__0')`)
-    const secretPayload = await rawExec("import ubinascii;\ntry:\n f=open('/secrets.py','rb');print(ubinascii.b2a_base64(f.read()).decode().strip());f.close()\nexcept OSError: print('')")
     const found = new Map<string, DeviceApp>()
     const writable = new Set<string>()
     let launcherReady = false
@@ -609,7 +555,6 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     const discoveredApps = [...found.values()].sort((left, right) => left.name.localeCompare(right.name))
     setApps(discoveredApps)
     setLegacyApps(launcherReady ? [] : [...writable].sort((left, right) => left.localeCompare(right)))
-    loadSecrets(secretPayload ? decoder.decode(Uint8Array.from(atob(secretPayload), (char) => char.charCodeAt(0))) : '')
   }
 
   async function readDiskBadge(root: DiskDirectoryHandle) {
@@ -631,12 +576,6 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     }
     setApps(found.sort((left, right) => left.name.localeCompare(right.name)))
     setLegacyApps([])
-    try {
-      const secretFile = await root.getFileHandle('secrets.py')
-      loadSecrets(await (await secretFile.getFile()).text())
-    } catch {
-      loadSecrets('')
-    }
     setStatus(`BADGER disk ${root.name} is connected. The installed app list is up to date.`)
   }
 
@@ -699,14 +638,6 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
       if (conflicts.length) throw new Error(`${conflicts.join(', ')} ${conflicts.length === 1 ? 'is' : 'are'} already on the badge. Remove the existing app before uploading another copy.`)
       const appCount = pendingApps.length
       setStatus('Preparing app upload…')
-      const secretsToSave = secretsRef.current
-      if (secretsToSave !== lastSavedSecretsRef.current) {
-        await writeSecrets(secretsToSave)
-        lastSavedSecretsRef.current = secretsToSave
-        failedSecretsRef.current = null
-        setSecretsDirty(false)
-        setAutosaveState('saved')
-      }
       if (diskRoot) {
         const appsRoot = await diskRoot.getDirectoryHandle('apps', { create: true })
         for (const app of pendingApps) {
@@ -839,40 +770,6 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     })
   }
 
-  async function writeSecrets(value: string) {
-    if (diskRoot) {
-      const writable = await (await diskRoot.getFileHandle('secrets.py', { create: true })).createWritable()
-      await writable.write(value)
-      await writable.close()
-      return
-    }
-    const encoded = base64(value)
-    await rawExec(`import ubinascii;f=open('/secrets.py','wb');f.write(ubinascii.a2b_base64('${encoded}'));f.close()`)
-  }
-
-  async function saveSecrets(value = secretsRef.current) {
-    setBusy(true)
-    setResult(null)
-    setAutosaveState('saving')
-    try {
-      await writeSecrets(value)
-      if (!diskRoot) await restartSerialBadge()
-      lastSavedSecretsRef.current = value
-      failedSecretsRef.current = null
-      const stillDirty = secretsRef.current !== value
-      setSecretsDirty(stillDirty)
-      setAutosaveState(stillDirty ? 'pending' : 'saved')
-      setStatus('Saved secrets.py.')
-    } catch (error) {
-      failedSecretsRef.current = value
-      setAutosaveState('error')
-      const message = error instanceof Error ? error.message : 'Could not save secrets.py automatically.'
-      setResult({ tone: 'error', message })
-    } finally {
-      setBusy(false)
-    }
-  }
-
   const displayedStatus = result?.tone === 'error'
     ? diskRoot
       ? 'BADGER disk connected.'
@@ -882,10 +779,13 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     : status
 
   return (
-    <div className="badge-edit-root mx-auto max-w-6xl space-y-6">
+    <div className="badge-edit-root mx-auto max-w-6xl space-y-8">
       <section id="connect-badge" className="scroll-mt-28 rounded-lg border border-primary/20 bg-card/80 p-6 sm:p-8">
-        <div className="space-y-5">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">App Store</h1>
+        <div className="flex flex-col gap-5">
+          <div>
+            <h2 className="text-2xl sm:text-3xl">Connect your badge</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Open the BADGER disk to install, upload, refresh, or remove apps.</p>
+          </div>
           <BadgeSetupGuide />
           <div className="flex flex-wrap justify-end gap-2">
             {connected
@@ -903,76 +803,71 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
         {result && <div role={result.tone === 'error' ? 'alert' : 'status'} className={`mt-3 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${result.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100'}`}>{result.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{result.message}</span><button type="button" onClick={() => setResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss message"><X className="h-4 w-4" /></button></div>}
       </section>
 
-      <div className={`grid gap-6 ${connected ? 'lg:grid-cols-[1.05fr_0.95fr]' : ''}`}>
-        <section id="app-store" className="scroll-mt-28 rounded-lg border border-border/50 bg-card/80 p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div><h2 className="text-xl font-semibold">Available apps</h2><p role="status" className="mt-1 text-sm text-muted-foreground">{storeMessage}</p></div>
-            <Button size="sm" variant="outline" onClick={() => void loadStore()} disabled={busy}><RefreshCw /> Reload</Button>
+      <section id="available-apps" className="scroll-mt-28 rounded-lg border border-border/50 bg-card/80 p-6 sm:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-2xl sm:text-3xl">Available apps</h2>
+            <p role="status" className="mt-2 text-sm text-muted-foreground">{storeMessage}</p>
           </div>
-          <div className="mt-5 grid gap-2 sm:grid-cols-2">
-            {storeApps.map((app) => {
-              const queued = pendingApps.some((item) => item.name === app.name)
-              const installed = apps.some((item) => item.name === app.name)
-              const needsRepair = legacyApps.includes(app.name)
-              return <StoreAppCard
-                key={app.name}
-                title={app.title}
-                iconUrl={app.iconUrl}
-                description={app.description}
-                queued={queued}
-                installed={installed}
-                needsRepair={needsRepair}
-                busy={busy}
-                onAdd={() => void run(() => addStoreApp(app))}
-              />
-            })}
-          </div>
-          <input ref={pickerRef} type="file" className="hidden" multiple webkitdirectory="" onChange={(event) => event.target.files && addFiles(event.target.files)} />
-          <div id="local-app" className="scroll-mt-28 mt-6 border-t border-border/40 pt-5">
-            <div className="flex items-center justify-between gap-4">
-              <h3 className="text-sm font-medium">Local app</h3>
-              {pendingApps.length > 0 && <button type="button" onClick={() => pickerRef.current?.click()} className="badge-edit-ghost inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"><FolderUp className="h-3.5 w-3.5" />Add folder</button>}
-            </div>
-            {pendingApps.length === 0 ? <button type="button" data-dragging={dragging} onClick={() => pickerRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true) }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); void collectDroppedFiles(event.dataTransfer).then(stageFiles) }} className="badge-edit-dropzone mt-3 flex w-full items-center justify-center gap-3 rounded-xl border border-dashed border-border/70 px-5 py-6 text-center transition-colors hover:border-primary/60">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary/5"><FolderUp className="h-4 w-4 text-primary" /></span>
-              <span className="text-left"><span className="block text-sm text-foreground">Choose an app folder</span><span className="mt-0.5 block text-xs text-muted-foreground">or drop it here</span></span>
-            </button> : <>
-              <div className="mt-3 space-y-2">
-                {pendingApps.map((app) => <div key={app.name} className="flex min-w-0 items-center gap-3 rounded-xl border border-border/50 bg-background/35 p-3">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10"><FileCode2 className="h-4 w-4 text-primary" /></span>
-                  <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-foreground">{app.name}</span><span className="mt-0.5 block text-xs text-muted-foreground">{app.files.length} file{app.files.length === 1 ? '' : 's'}</span></span>
-                  <button type="button" onClick={() => setPendingApps((current) => current.filter((item) => item.name !== app.name))} className="badge-edit-ghost grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:text-foreground" aria-label={`Remove ${app.name}`} title={`Remove ${app.name}`}><X className="h-4 w-4" /></button>
-                </div>)}
-              </div>
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="flex items-center gap-2 text-xs text-muted-foreground">{connected ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <PlugZap className="h-4 w-4 shrink-0 text-primary" />}{connected ? 'Ready to upload' : 'Connect a badge to upload'}</p>
-                {connected && <Button className="badge-edit-primary shrink-0" onClick={installApps} disabled={busy}><Upload />Upload {pendingApps.length} app{pendingApps.length === 1 ? '' : 's'}</Button>}
-              </div>
-            </>}
-          </div>
-          {uploadResult && <div role={uploadResult.tone === 'error' ? 'alert' : 'status'} className={`mt-4 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${uploadResult.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100'}`}>{uploadResult.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{uploadResult.message}</span><button type="button" onClick={() => setUploadResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss upload message"><X className="h-4 w-4" /></button></div>}
-          {connected && <div className="mt-7 border-t border-border/40 pt-5">
-            <div className="flex items-center justify-between gap-3"><div><h3 className="text-sm font-medium">Installed apps</h3><p className="mt-1 text-xs text-muted-foreground">Removing firmware apps hides them. Menu and Startup are protected.</p></div><Button size="sm" variant="outline" onClick={() => void refresh()} disabled={busy}><RefreshCw /> Refresh</Button></div>
-            {legacyApps.length > 0 && !diskRoot && <div className="mt-4 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4"><div className="flex gap-3"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" /><div><p className="text-sm font-medium">Old uploads need repair</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{legacyApps.join(', ')} {legacyApps.length === 1 ? 'is' : 'are'} in writable storage, but this badge launcher does not index that location yet.</p></div></div><Button className="mt-3" size="sm" variant="outline" onClick={recoverLegacyApps} disabled={busy}>Update launcher</Button></div>}
-            <div className="mt-3 space-y-2">{apps.length ? apps.map((app) => <label key={app.name} className="flex cursor-pointer items-center justify-between rounded-lg bg-background/45 px-3 py-2 text-sm"><span>{app.name} <span className="text-muted-foreground">{app.size ? `${Math.ceil(app.size / 1024)} KB` : app.firmware ? 'Firmware' : 'Uploaded'}</span></span><input type="checkbox" aria-label={`Select ${app.name} for removal`} checked={removeQueue.includes(app.name)} onChange={() => { setRemoveResult(null); setRemoveQueue((current) => current.includes(app.name) ? current.filter((name) => name !== app.name) : [...current, app.name]) }} /></label>) : <p className="text-sm text-muted-foreground">No removable apps found.</p>}</div>
-            <Button className="mt-4 w-full" variant="destructive" onClick={removeApps} disabled={!removeQueue.length || busy}><Trash2 /> Remove {removeQueue.length || ''} selected</Button>
-            {removeResult && <div role={removeResult.tone === 'error' ? 'alert' : 'status'} className={`mt-4 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${removeResult.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100'}`}>{removeResult.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{removeResult.message}</span><button type="button" onClick={() => setRemoveResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss removal message"><X className="h-4 w-4" /></button></div>}
-          </div>}
-        </section>
+          <Button size="sm" variant="outline" onClick={() => void loadStore()} disabled={busy}><RefreshCw /> Reload</Button>
+        </div>
+        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {storeApps.map((app) => {
+            const queued = pendingApps.some((item) => item.name === app.name)
+            const installed = apps.some((item) => item.name === app.name)
+            const needsRepair = legacyApps.includes(app.name)
+            return <StoreAppCard
+              key={app.name}
+              title={app.title}
+              iconUrl={app.iconUrl}
+              description={app.description}
+              queued={queued}
+              installed={installed}
+              needsRepair={needsRepair}
+              busy={busy}
+              onAdd={() => void run(() => addStoreApp(app))}
+            />
+          })}
+        </div>
+        {connected && <div className="mt-8 border-t border-border/40 pt-6">
+          <div className="flex items-center justify-between gap-3"><div><h3 className="font-mono text-sm uppercase tracking-[0.12em]">Installed apps</h3><p className="mt-1 text-xs text-muted-foreground">Removing firmware apps hides them. Menu and Startup are protected.</p></div><Button size="sm" variant="outline" onClick={() => void refresh()} disabled={busy}><RefreshCw /> Refresh</Button></div>
+          {legacyApps.length > 0 && !diskRoot && <div className="mt-4 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4"><div className="flex gap-3"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" /><div><p className="text-sm font-medium">Old uploads need repair</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{legacyApps.join(', ')} {legacyApps.length === 1 ? 'is' : 'are'} in writable storage, but this badge launcher does not index that location yet.</p></div></div><Button className="mt-3" size="sm" variant="outline" onClick={recoverLegacyApps} disabled={busy}>Update launcher</Button></div>}
+          <div className="mt-3 space-y-2">{apps.length ? apps.map((app) => <label key={app.name} className="flex cursor-pointer items-center justify-between rounded-lg bg-background/45 px-3 py-2 text-sm"><span>{app.name} <span className="text-muted-foreground">{app.size ? `${Math.ceil(app.size / 1024)} KB` : app.firmware ? 'Firmware' : 'Uploaded'}</span></span><input type="checkbox" aria-label={`Select ${app.name} for removal`} checked={removeQueue.includes(app.name)} onChange={() => { setRemoveResult(null); setRemoveQueue((current) => current.includes(app.name) ? current.filter((name) => name !== app.name) : [...current, app.name]) }} /></label>) : <p className="text-sm text-muted-foreground">No removable apps found.</p>}</div>
+          <Button className="mt-4 w-full" variant="destructive" onClick={removeApps} disabled={!removeQueue.length || busy}><Trash2 /> Remove {removeQueue.length || ''} selected</Button>
+          {removeResult && <div role={removeResult.tone === 'error' ? 'alert' : 'status'} className={`mt-4 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${removeResult.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100'}`}>{removeResult.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{removeResult.message}</span><button type="button" onClick={() => setRemoveResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss removal message"><X className="h-4 w-4" /></button></div>}
+        </div>}
+      </section>
 
-        {connected && <section className="rounded-2xl border border-border/50 bg-card/80 p-6 shadow-lg">
-          <div className="flex items-start justify-between gap-3"><div className="flex items-start gap-3"><FileCode2 className="mt-1 h-5 w-5 text-primary" /><h2 className="text-xl font-semibold">secrets.py</h2></div><button type="button" onClick={() => setSecretsVisible((current) => !current)} className="rounded-lg border border-border/60 p-2 text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground" aria-label={secretsVisible ? 'Hide secrets' : 'Show secrets'} title={secretsVisible ? 'Hide secrets' : 'Show secrets'}>{secretsVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div>
-          <textarea value={secretsVisible ? secrets : secrets.replace(/[^\r\n]/g, '•')} onChange={(event) => updateSecrets(event.target.value)} readOnly={!secretsVisible} spellCheck="false" placeholder={'WIFI_SSID = "..."\nWIFI_PASSWORD = "..."'} className="mt-5 min-h-[360px] w-full resize-y rounded-xl border border-border/60 bg-[hsl(var(--inset))] p-4 font-mono text-sm leading-6 text-foreground outline-none transition focus:border-primary/70 focus:ring-1 focus:ring-primary/30" />
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-            <span className={`flex items-center gap-2 font-mono text-xs ${autosaveState === 'error' ? 'text-red-700 dark:text-red-300' : 'text-muted-foreground'}`}>{autosaveState === 'saving' ? <LoaderCircle className="h-4 w-4 animate-spin text-primary" /> : autosaveState === 'error' ? <CircleAlert className="h-4 w-4" /> : <Check className="h-4 w-4 text-primary" />}{autosaveState === 'pending' ? 'Saving shortly…' : autosaveState === 'saving' ? 'Saving automatically…' : autosaveState === 'error' ? 'Autosave failed' : 'Saved automatically'}</span>
-            <div className="flex gap-2">{autosaveState === 'error' && <Button size="sm" variant="outline" onClick={retrySecrets} disabled={busy}>Retry</Button>}<Button size="sm" variant="outline" onClick={revertSecrets} disabled={secrets === initialSecrets || autosaveState === 'saving'} title="Restore secrets.py to the version loaded when this badge connected"><RotateCcw /> Revert</Button></div>
+      <section id="add-local-app" className="scroll-mt-28 rounded-lg border border-border/50 bg-card/80 p-6 sm:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl">Add local app</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Upload apps selected above or choose an app folder from your computer.</p>
           </div>
-          {diskRoot && <div className="mt-5 flex gap-3 rounded-lg bg-primary/5 p-4 text-sm text-muted-foreground"><CircleAlert className="h-5 w-5 shrink-0 text-primary" /><p>All writes are closed before the editor releases BADGER. Use your computer’s eject control before unplugging the USB cable.</p></div>}
-        </section>}
-      </div>
+          {pendingApps.length > 0 && <button type="button" onClick={() => pickerRef.current?.click()} className="badge-edit-ghost inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"><FolderUp className="h-3.5 w-3.5" />Add folder</button>}
+        </div>
+        <input ref={pickerRef} type="file" className="hidden" multiple webkitdirectory="" onChange={(event) => event.target.files && addFiles(event.target.files)} />
+        {pendingApps.length === 0 ? <button type="button" data-dragging={dragging} onClick={() => pickerRef.current?.click()} onDragEnter={(event) => { event.preventDefault(); setDragging(true) }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); void collectDroppedFiles(event.dataTransfer).then(stageFiles) }} className="badge-edit-dropzone mt-5 flex w-full items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 px-5 py-8 text-center transition-colors hover:border-primary/60">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary/5"><FolderUp className="h-5 w-5 text-primary" /></span>
+          <span className="text-left"><span className="block text-sm text-foreground">Choose an app folder</span><span className="mt-0.5 block text-xs text-muted-foreground">or drop it here</span></span>
+        </button> : <>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {pendingApps.map((app) => <div key={app.name} className="flex min-w-0 items-center gap-3 rounded-lg border border-border/50 bg-background/35 p-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/10"><FileCode2 className="h-5 w-5 text-primary" /></span>
+              <span className="min-w-0 flex-1"><span className="block truncate font-mono text-sm uppercase tracking-[0.1em] text-foreground">{app.name}</span><span className="mt-0.5 block text-xs text-muted-foreground">{app.files.length} file{app.files.length === 1 ? '' : 's'}</span></span>
+              <button type="button" onClick={() => setPendingApps((current) => current.filter((item) => item.name !== app.name))} className="badge-edit-ghost grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:text-foreground" aria-label={`Remove ${app.name}`} title={`Remove ${app.name}`}><X className="h-4 w-4" /></button>
+            </div>)}
+          </div>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="flex items-center gap-2 text-xs text-muted-foreground">{connected ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <PlugZap className="h-4 w-4 shrink-0 text-primary" />}{connected ? 'Ready to upload' : 'Connect a badge to upload'}</p>
+            {connected && <Button className="badge-edit-primary shrink-0" onClick={installApps} disabled={busy}><Upload />Upload {pendingApps.length} app{pendingApps.length === 1 ? '' : 's'}</Button>}
+          </div>
+        </>}
+        {uploadResult && <div role={uploadResult.tone === 'error' ? 'alert' : 'status'} className={`mt-4 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${uploadResult.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100'}`}>{uploadResult.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{uploadResult.message}</span><button type="button" onClick={() => setUploadResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss upload message"><X className="h-4 w-4" /></button></div>}
+      </section>
 
       {connected && port && <details className="rounded-xl border border-border/50 bg-card/65 px-5 py-4"><summary className="cursor-pointer font-mono text-sm">Serial console</summary><pre className="mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-[hsl(var(--inset))] p-4 font-mono text-xs text-muted-foreground">{output || 'Waiting for serial output.'}</pre></details>}
-      {busy && autosaveState !== 'saving' && <div className="fixed inset-0 z-50 grid place-items-center bg-black/35 backdrop-blur-sm"><div className="flex max-w-md items-center gap-3 rounded-xl border border-primary/30 bg-card px-5 py-4 font-mono text-sm shadow-xl"><LoaderCircle className="h-5 w-5 shrink-0 animate-spin text-primary" /> {status}</div></div>}
+      {busy && <div className="fixed inset-0 z-50 grid place-items-center bg-black/35 backdrop-blur-sm"><div className="flex max-w-md items-center gap-3 rounded-xl border border-primary/30 bg-card px-5 py-4 font-mono text-sm shadow-xl"><LoaderCircle className="h-5 w-5 shrink-0 animate-spin text-primary" /> {status}</div></div>}
     </div>
   )
 }
