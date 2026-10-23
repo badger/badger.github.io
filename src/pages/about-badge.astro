@@ -75,14 +75,19 @@ const specifications = [
     <div class="container">
       <p class="font-mono text-xs uppercase tracking-[0.16em] text-primary">About</p>
       <h1 class="mt-4 text-5xl leading-[0.98] sm:text-6xl">About the Badger</h1>
-      <p class="mt-6 max-w-prose text-muted-foreground">Inspect the 2026 Badger 2350 hardware, ports, controls, and sensors, then use MonaOS in the browser.</p>
+      <p class="mt-6 text-muted-foreground">Inspect the 2026 Badger 2350 hardware, ports, controls, and sensors, then use MonaOS in the browser.</p>
     </div>
   </section>
 
-  <section id="specifications" class="scroll-mt-28 pb-12 pt-8 sm:pb-16 sm:pt-10">
-    <div class="container">
-      <h2 class="mb-8 text-3xl sm:text-4xl">Hardware &amp; specs</h2>
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+  <div class="container grid items-start gap-8 pb-12 pt-8 sm:pb-16 sm:pt-10 lg:grid-cols-2">
+    <section id="badge-simulator" class="min-w-0 scroll-mt-28">
+      <h2 class="mb-6 text-3xl sm:text-4xl">Badge simulator</h2>
+      <BadgeOsSimulator />
+    </section>
+
+    <section id="specifications" class="min-w-0 scroll-mt-28">
+      <h2 class="mb-6 text-3xl sm:text-4xl">Hardware &amp; specs</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
         {specifications.map(({ title, icon: Icon, details, uses }) => (
           <Card className="flex h-full flex-col">
             <CardHeader>
@@ -110,13 +115,6 @@ const specifications = [
           </Card>
         ))}
       </div>
-    </div>
-  </section>
-
-  <section id="badge-simulator" class="scroll-mt-28 border-t border-border/70 bg-muted/25 py-12 sm:py-16">
-    <div class="container">
-      <h2 class="mb-6 text-3xl sm:text-4xl">Badge simulator</h2>
-      <BadgeOsSimulator />
-    </div>
-  </section>
+    </section>
+  </div>
 </Layout>

@@ -1,5 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro'
+import BadgeControlSymbols from '@/components/badge-control-symbols.astro'
 import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus, RotateCw } from 'lucide-react'
 ---
 
@@ -69,6 +70,7 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
                 </div>
               </div>
               <div id="badge-model" class="badge-model" data-state="loading">
+                <BadgeControlSymbols />
                 <canvas id="badge-screen" width="320" height="240" tabindex="0" aria-label="Simulated badge display. Arrow keys control the badge, Space selects. WASD and J control the gamepad."></canvas>
                 <div id="screen-placeholder" class="pointer-events-none absolute inset-0 grid place-content-center gap-2 text-center"><Code2 size={28} className="mx-auto text-primary" /><span class="text-xs text-[#8b949e]">Your code starts here.</span></div>
                 <p id="model-status" role="status" class="pointer-events-none absolute inset-x-4 bottom-3 text-center text-xs text-muted-foreground">Loading 3D view… You can use the simulator now.</p>
