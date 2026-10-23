@@ -779,15 +779,14 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     : status
 
   return (
-    <div className="badge-edit-root mx-auto max-w-6xl space-y-8">
-      <section id="connect-badge" className="scroll-mt-28 rounded-lg border border-primary/20 bg-card/80 p-6 sm:p-8">
-        <div className="flex flex-col gap-5">
-          <div>
-            <h2 className="text-2xl sm:text-3xl">Connect your badge</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Open the BADGER disk to install, upload, refresh, or remove apps.</p>
-          </div>
-          <BadgeSetupGuide />
-          <div className="flex flex-wrap justify-end gap-2">
+    <div className="badge-edit-root mx-auto max-w-6xl space-y-6">
+      <section id="connect-badge" className="scroll-mt-28 rounded-lg border border-primary/20 bg-card/80 p-5 sm:p-6">
+        <h2 className="text-2xl sm:text-3xl">Connect your badge</h2>
+        <div className="mt-5 flex flex-col gap-3 rounded-lg bg-background/70 px-4 py-3 sm:flex-row sm:items-center">
+          <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${connected ? 'bg-primary shadow-[0_0_12px_rgba(95,237,131,0.9)]' : 'bg-muted-foreground'}`} />
+          <span className="flex min-h-6 min-w-0 flex-1 items-center font-mono text-sm">{displayedStatus}</span>
+          {connected && <span className="shrink-0 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 font-mono text-xs text-primary">{diskRoot ? 'Disk mode' : 'Serial mode'}</span>}
+          <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
             {connected
               ? diskRoot
                 ? <Button onClick={() => ejectDisk()} variant="outline"><LogOut /> Eject</Button>
@@ -795,11 +794,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
               : <>{SERIAL_CONNECTION_MODE_ENABLED && <Button onClick={connect} disabled={busy}><PlugZap /> Connect serial</Button>}<Button onClick={connectDisk} variant="outline" disabled={busy}><FolderUp /> Open BADGER disk</Button></>}
           </div>
         </div>
-        <div className="mt-6 flex flex-wrap items-center gap-3 rounded-lg bg-background/70 px-4 py-3 font-mono text-sm">
-          <span className={`h-2.5 w-2.5 rounded-full ${connected ? 'bg-primary shadow-[0_0_12px_rgba(95,237,131,0.9)]' : 'bg-muted-foreground'}`} />
-          <span className="flex min-h-6 min-w-0 flex-1 items-center">{displayedStatus}</span>
-          {connected && <span className="rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs text-primary">{diskRoot ? 'Disk mode' : 'Serial mode'}</span>}
-        </div>
+        <div className="mt-4"><BadgeSetupGuide /></div>
         {result && <div role={result.tone === 'error' ? 'alert' : 'status'} className={`mt-3 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${result.tone === 'success' ? 'border-primary/30 bg-primary/10 text-foreground' : 'border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100'}`}>{result.tone === 'success' ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <CircleAlert className="h-4 w-4 shrink-0" />}<span className="min-w-0 flex-1">{result.message}</span><button type="button" onClick={() => setResult(null)} className="rounded p-1 opacity-70 transition hover:opacity-100" aria-label="Dismiss message"><X className="h-4 w-4" /></button></div>}
       </section>
 

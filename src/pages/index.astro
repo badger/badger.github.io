@@ -43,10 +43,10 @@ const pathways = [
 ---
 
 <Layout title="Badger / 2026 Field Guide" description="A living field guide to apps, hacks, and hardware workflows for the Badger 2350.">
-  <section class="relative overflow-hidden border-b border-border/70 py-14 sm:py-20">
+  <section class="relative overflow-hidden border-b border-border/70 py-12 sm:py-16">
     <div class="grid-texture pointer-events-none absolute inset-0 opacity-35"></div>
     <div class="container relative">
-      <div class="grid items-center gap-12 lg:grid-cols-[1.2fr_0.8fr]">
+      <div class="grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
         <div class="max-w-2xl space-y-7">
           <div class="space-y-5">
             <h1 class="max-w-xl text-5xl leading-[0.98] sm:text-7xl">
@@ -65,7 +65,7 @@ const pathways = [
           </div>
         </div>
 
-        <div class="relative mx-auto hidden w-full max-w-[28rem] lg:block">
+        <div class="relative mx-auto hidden w-full max-w-[24rem] lg:block">
           <div class="surface overflow-hidden p-2">
             <img src="/images/hero.jpg" alt="Badger 2350 hardware badge" class="aspect-[3/4] w-full rounded-lg object-cover" />
           </div>
@@ -74,9 +74,9 @@ const pathways = [
     </div>
   </section>
 
-  <section class="border-b border-border/70 py-10 sm:py-12">
+  <section class="border-b border-border/70 py-8 sm:py-10">
     <div class="container">
-      <h2 class="mb-7 text-3xl sm:text-4xl">Choose a path</h2>
+      <h2 class="mb-6 text-3xl sm:text-4xl">Choose a path</h2>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {pathways.map((pathway) => (
           <NavigationCard {...pathway} compact />
@@ -85,9 +85,9 @@ const pathways = [
     </div>
   </section>
 
-  <section class="border-b border-border/70 bg-muted/25 py-16 sm:py-20">
+  <section class="border-b border-border/70 bg-muted/25 py-12 sm:py-16">
     <div class="container">
-      <div class="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div class="section-heading">
           <h2 class="text-3xl sm:text-4xl">Start from a hack</h2>
           <p class="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Follow a prepared project, then change it on your badge.</p>
@@ -102,9 +102,9 @@ const pathways = [
     </div>
   </section>
 
-  <section class="py-16 sm:py-20">
+  <section class="py-12 sm:py-16">
     <div class="container">
-      <div class="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div class="section-heading space-y-3">
           <h2 class="text-3xl sm:text-4xl">Pre-installed apps</h2>
           <p class="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">{PREINSTALLED_APPS.length} apps ship on the Universe 2026 badge</p>

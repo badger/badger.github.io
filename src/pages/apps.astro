@@ -9,8 +9,9 @@ import appDescriptions from '@/data/app-descriptions.json'
   <ListingHero
     title="App Store"
     description="Connect your badge, choose apps from badger/home, or upload a local app folder."
+    compact
   />
-  <section class="py-12 sm:py-16">
+  <section class="py-8 sm:py-12">
     <div class="container">
       <BadgeManager appDescriptions={appDescriptions} client:load />
     </div>
