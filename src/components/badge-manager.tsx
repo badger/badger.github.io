@@ -837,9 +837,9 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
             <p role="status" className="mt-2 text-sm text-muted-foreground">{storeMessage}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={() => void loadStore(true)} disabled={busy || storeLoading} aria-busy={storeLoading}><RefreshCw className={storeLoading ? 'animate-spin' : undefined} /> {storeLoading ? 'Reloading' : 'Reload'}</Button>
-            <Button size="sm" variant="outline" onClick={clearSelections} disabled={busy || !hasPendingChanges}><X /> Clear selection</Button>
+            <Button className="uppercase tracking-[0.12em]" size="sm" variant="outline" onClick={() => void loadStore(true)} disabled={busy || storeLoading} aria-busy={storeLoading}><RefreshCw className={storeLoading ? 'animate-spin' : undefined} /> {storeLoading ? 'Reloading' : 'Reload'}</Button>
             <Button className={`uppercase tracking-[0.12em] ${hasPendingChanges ? 'badge-edit-primary disabled:!opacity-100' : ''}`} size="sm" variant={hasPendingChanges ? 'default' : 'outline'} onClick={() => void saveChanges()} disabled={busy || !connected || !hasPendingChanges}><Save /> Save</Button>
+            <Button className="uppercase tracking-[0.12em]" size="sm" variant="outline" onClick={clearSelections} disabled={busy || !hasPendingChanges}><X /> Clear selection</Button>
           </div>
         </div>
         {legacyApps.length > 0 && !diskRoot && <div className="mt-5 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex gap-3"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" /><div><p className="text-sm font-medium">Old uploads need repair</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{legacyApps.join(', ')} {legacyApps.length === 1 ? 'is' : 'are'} on the badge but not indexed by its launcher.</p></div></div><Button size="sm" variant="outline" onClick={recoverLegacyApps} disabled={busy}>Update launcher</Button></div></div>}
