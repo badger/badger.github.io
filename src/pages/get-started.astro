@@ -63,18 +63,18 @@ const guides = [
   {
     id: 'personalize',
     title: 'Personalize Your Badge',
-    description: 'Configure your identity, install apps, and change what appears in the launcher.',
+    description: 'Configure your contact card, install apps, and change what appears in the launcher.',
     steps: [
       {
-        title: 'Set your profile and contact details',
-        description: 'Use Settings to enter your GitHub username, name, LinkedIn profile, Wi-Fi details, and backlight level.',
+        title: 'Configure your contact card',
+        description: 'Open Settings to enter your name, GitHub username, and LinkedIn profile.',
         links: [
           { href: '/hack/badge-custom-username/', label: 'Configure badge settings' },
         ],
       },
       {
         title: 'Install apps',
-        description: 'Double-press RESET to mount the BADGER disk, open the App Store, choose apps, and upload them to the badge.',
+        description: 'Connect the badge to your computer with a USB data cable, then quickly press RESET twice to enter USB Disk Mode. When the BADGER drive is available, open the App Store. Select Open BADGER disk, choose the BADGER drive itself, and allow access. Select + beside each app you want to install, then select Save. Wait for saving to finish. Select Eject on the site, then eject BADGER from your computer before unplugging.',
         links: [
           { href: '/apps', label: 'Open App Store' },
         ],
@@ -110,16 +110,16 @@ const guides = [
       },
       {
         title: 'Sleep or power off',
-        description: 'Hold RESET for about three seconds to sleep. To power off, hold UP, DOWN, and RESET together for about three seconds.',
+        description: 'Hold RESET for about three seconds to put the badge to sleep. Press any front button to wake it. To turn the badge off, hold UP, DOWN, and RESET together for about three seconds. After power off, RESET is the only button that turns it back on.',
         aliases: ['sleep', 'power-off'],
       },
       {
         title: 'Open USB Disk Mode',
-        description: 'Double-press RESET quickly. Wait for USB Disk Mode on the screen and a drive named BADGER on your computer.',
+        description: 'Connect the badge to your computer with a USB data cable. Quickly press RESET twice. Wait for USB Disk Mode on the screen. Then, a drive named BADGER should become available on your computer.',
         aliases: ['usb-disk'],
       },
       {
-        title: 'Recognize firmware mode',
+        title: 'Enter firmware update mode',
         description: 'Holding HOME while tapping RESET mounts a drive named RP2350. Use that mode only when flashing firmware, not when installing apps.',
       },
     ],
