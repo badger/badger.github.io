@@ -26,6 +26,12 @@ test('HUD decoder reads palette and column posts, rejecting missing or malformed
   }
   assert.deepEqual(decodeDoomHud(wad), { width: 1, height: 2, pixels: [20, 30, 40, 255, 20, 30, 40, 255] })
   assert.throws(() => decodeDoomHud(Buffer.from('bad')), /WAD/)
+  for (const remaining of [1, 2]) {
+    const truncated = Buffer.from(wad)
+    truncated.writeUInt32LE(patch.length - remaining, 12 + palette.length + 8)
+    truncated.fill(0, 12 + palette.length + patch.length - remaining, directory)
+    assert.throws(() => decodeDoomHud(truncated), /Invalid WAD HUD post/)
+  }
   wad.write('ABSENT', directory + 24)
   assert.throws(() => decodeDoomHud(wad), /STBAR/)
 })

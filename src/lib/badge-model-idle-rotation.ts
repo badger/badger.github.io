@@ -55,10 +55,12 @@ export function initBadgeIdleRotation(host: HTMLElement, rotate: (seconds: numbe
   window.addEventListener('pointerup', release, { signal, capture: true })
   window.addEventListener('pointercancel', release, { signal, capture: true })
   window.addEventListener('keydown', event => {
+    if (!event.isTrusted) return
     keys.add(event.code)
     activity()
   }, { signal, capture: true })
   window.addEventListener('keyup', event => {
+    if (!event.isTrusted) return
     keys.delete(event.code)
     activity()
   }, { signal, capture: true })

@@ -33,7 +33,10 @@ Doom:
 `runtime/doom.mjs` embeds the reviewed Emscripten loader and adds the local
 adapter required by the badge texture/input APIs. `runtime/doom.wasm` is rebuilt
 with Emscripten 3.1.45 and `runtime/OPL-WEBAUDIO.patch` to let the built-in OPL
-music synthesizer initialize without blocking WebAudio. Music starts after the
+music synthesizer initialize without blocking WebAudio. `runtime/GAME-STATE.patch`
+exposes native player-session state so automatic cheats ignore attract-mode demos
+and restart safely for new games. Shift and Alt both strafe; neither runs.
+Music starts after the
 first user input and pauses with the game, including while YouTube is open.
 The GPLv2 text is retained in
 `runtime/COPYING.txt`; exact source and rebuild information is in

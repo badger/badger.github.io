@@ -64,7 +64,9 @@ function fixture(t) {
   }
   const send = (target, type, properties = {}) => {
     const event = new Event(type)
-    Object.assign(event, properties)
+    Object.defineProperty(event, 'isTrusted', { value: properties.isTrusted ?? true })
+    const { isTrusted, ...rest } = properties
+    Object.assign(event, rest)
     target.dispatchEvent(event)
   }
   return { host, document, window, motion, observer, rotations, rotation, frames, timers, advance, frame, send }
@@ -142,4 +144,22 @@ test('hidden, offscreen, reduced-motion and modal states stop rotation; disposal
   assert.equal(f.observer.disconnected, true)
   f.send(f.host, 'pointerleave')
   assert.equal(f.timers.size, 0)
+})
+
+test('automatic cheat keys do not postpone rotation or release held physical keys', t => {
+  const f = fixture(t)
+  f.send(f.window, 'keydown', { code: 'KeyI' })
+  f.send(f.window, 'keyup', { code: 'KeyI', isTrusted: false })
+  f.advance(60_000)
+  assert.equal(f.frames.size, 0)
+  f.send(f.window, 'keyup', { code: 'KeyI' })
+  for (let i = 0; i < 6; i++) {
+    f.advance(5000)
+    f.send(f.window, 'keydown', { code: 'KeyI', isTrusted: false })
+    f.send(f.window, 'keyup', { code: 'KeyI', isTrusted: false })
+  }
+  assert.equal(f.frames.size, 1)
+  f.frame()
+  f.frame(50)
+  assert.deepEqual(f.rotations, [0.05])
 })

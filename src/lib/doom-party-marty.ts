@@ -1,5 +1,6 @@
 import { sitePath } from './site-path'
 import { dispatchDoomCharacter } from './doom-input'
+import type { DoomGameState } from './doom-runtime'
 
 // STBAR border samples from the bundled Doom 1 shareware WAD, outside changing HUD fields.
 const hudSamples = [
@@ -49,19 +50,37 @@ export function isDoomGameplay(context: CanvasRenderingContext2D) {
   return true
 }
 
-export function createDoomPowerMode() {
+export function createDoomPowerMode(readGameState: () => DoomGameState | undefined = () => undefined) {
   let active = false
   let started = false
+  let initializing = false
+  let session: number | undefined
   let pending = ''
   let nextKey = 0
   let nextRefill = 0
   return {
     activate() { active = true },
     render(hud: boolean, now = performance.now()) {
-      if (!active || !hud) return
-      if (hud && !started) {
+      if (!active) return
+      const state = readGameState()
+      if (session !== state?.session) {
+        session = state?.session
+        started = false
+        initializing = false
+        pending = ''
+        nextKey = 0
+      }
+      if (!state?.gameplay || !hud) {
+        if (initializing) started = false
+        initializing = false
+        pending = ''
+        return
+      }
+      if (!started) {
         started = true
-        pending = 'iddqdidkfa'
+        initializing = true
+        // Flush the native cheat parser before restarting an interrupted prefix.
+        pending = `x${state.godMode ? '' : 'iddqd'}idkfa`
         nextRefill = now + 5000
       }
       if (started && !pending && now >= nextRefill) {
@@ -75,6 +94,7 @@ export function createDoomPowerMode() {
         dispatchDoomCharacter(letter, 'keypress')
         dispatchDoomCharacter(letter, 'keyup')
         nextKey = now + 50
+        if (!pending) initializing = false
       }
     },
   }
@@ -101,7 +121,10 @@ export function createPartyMarty(
     reportError('Party Marty video unavailable. Doom cheats remain active.')
   }
   const play = () => {
-    if (active && faceEnabled && !paused && !failed) void video.play().catch(fail)
+    if (active && faceEnabled && !paused && !failed) void video.play().catch(error => {
+      if (error instanceof DOMException && error.name === 'AbortError') return
+      fail(error)
+    })
   }
   root.addEventListener('keydown', event => {
     const target = event.target instanceof Element ? event.target : null

@@ -9,6 +9,7 @@ const prepare = await readFile(new URL('../scripts/prepare-doom-runtime.mjs', im
 const contract = await readFile(new URL('../scripts/doom-runtime-contract.mjs', import.meta.url), 'utf8')
 const runtimeBuild = await readFile(new URL('../scripts/build-doom-runtime.mjs', import.meta.url), 'utf8')
 const deploy = await readFile(new URL('../.github/workflows/deploy.yml', import.meta.url), 'utf8')
+const ci = await readFile(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8')
 const readme = await readFile(new URL('../public/doom/README.md', import.meta.url), 'utf8')
 
 test('runtime preparation requires a separate approved provenance contract', () => {
@@ -87,14 +88,15 @@ test('required verification rejects a self-asserted public manifest without sepa
   }
 })
 
-test('deployment verifies committed pinned assets before building', () => {
+test('CI and deployment verify committed pinned assets before building', () => {
   assert.match(runtimeBuild, /a77edfd8bbc7e66b119a49c954f69a8b24e59206/)
-  assert.match(runtimeBuild, /a5a10b9bc2ad755f068e4ed9e3556caa44d82a2d2f50d61139e6f0903c69f87f/)
+  assert.match(runtimeBuild, /821bb114e90679afa807bc2a185899f5460b5c052df8b9d56515911fea71221a/)
   assert.match(runtimeBuild, /1d7d43be501e67d927e415e0b8f3e29c3bf33075e859721816f652a526cac771/)
   assert.match(runtimeBuild, /postMainLoop\(\)/)
   assert.match(runtimeBuild, /preserveDrawingBuffer = true/)
   assert.doesNotMatch(runtimeBuild, /framePump/)
   assert.match(deploy, /Verify Doom runtime and shareware assets[\s\S]*verify:doom-assets -- --require[\s\S]*Build site/)
+  assert.match(ci, /Verify Doom runtime and shareware assets[\s\S]*verify:doom-assets -- --require[\s\S]*name: Build/)
   assert.doesNotMatch(deploy, /DOOM_RUNTIME_ENABLED|DOOM_WAD_B64|releases\/latest|\/latest(?:\/|$)/)
   assert.match(readme, /committed/)
 })

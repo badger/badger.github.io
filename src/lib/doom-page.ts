@@ -52,7 +52,7 @@ export function initDoomPage(root: HTMLElement) {
     idleRotation: !mobileView,
     capture: new URLSearchParams(globalThis.location?.search).has('capture'),
     displayOverlay: video,
-    canvasLabel: 'Interactive 3D badge. Drag to rotate, scroll to zoom. Touch pads and keyboard control Doom. Lower physical buttons: left opens r/itrunsdoom, middle opens Can it run Doom, right opens Doom source, up plays a video in the badge, down opens GitHub Universe.',
+    canvasLabel: 'Interactive 3D badge. Drag to rotate, scroll to zoom. Touch pads and keyboard control Doom. Lower physical buttons: left opens Doom source, middle opens GitHub Universe, right opens Can it run Doom, up opens r/itrunsdoom, down plays a video in the badge.',
   }
   const abort = new AbortController()
   const { signal } = abort
@@ -88,7 +88,7 @@ export function initDoomPage(root: HTMLElement) {
     status.hidden = state === 'Running'
     loadState.textContent = state
   }
-  const powerMode = createDoomPowerMode()
+  const powerMode = createDoomPowerMode(() => runtime?.gameState())
   const partyMarty = createPartyMarty(root, root.querySelector<HTMLVideoElement>('[data-party-marty-video]')!, signal, message => {
     setRuntimeStatus(message, 'Video unavailable')
   }, powerMode, () => avatar.clear())
@@ -103,6 +103,10 @@ export function initDoomPage(root: HTMLElement) {
   const pauseOverlays = (paused: boolean) => {
     partyMarty.setPaused(paused)
     avatar.setPaused(paused)
+  }
+  const focusDisplay = () => {
+    if (fallback.hidden) modelHost.querySelector<HTMLElement>('canvas[role="img"]')?.focus({ preventScroll: true })
+    else canvas.focus({ preventScroll: true })
   }
   function openVideo() {
     if (videoOpen) return
@@ -138,8 +142,7 @@ export function initDoomPage(root: HTMLElement) {
     if (!document.hidden && !documentOpen) runtime?.resume()
     pauseOverlays(document.hidden || documentOpen)
     syncSelfie()
-    if (fallbackMode) canvas.focus({ preventScroll: true })
-    else modelHost.querySelector<HTMLElement>('canvas[role="img"]')?.focus({ preventScroll: true })
+    focusDisplay()
   }
   function activateBadgeAction(action: DoomBadgeAction) {
     if (action.kind === 'video') openVideo()
@@ -192,6 +195,8 @@ export function initDoomPage(root: HTMLElement) {
     applyOrientation(false)
     modelHost.dataset.state = 'fallback'
     fallback.hidden = false
+    fallback.inert = false
+    canvas.tabIndex = 0
     video.removeAttribute('style')
     fallback.append(video)
     controls.status.textContent = 'WebGL unavailable · 2D display active'
@@ -204,6 +209,9 @@ export function initDoomPage(root: HTMLElement) {
       rotate.disabled = false
       modelHost.dataset.state = 'ready'
       fallback.hidden = true
+      fallback.inert = true
+      canvas.tabIndex = -1
+      if (document.activeElement === canvas) focusDisplay()
       syncSelfie()
     }, () => {})
     return view
@@ -238,7 +246,7 @@ export function initDoomPage(root: HTMLElement) {
         document.title = pageTitle
         setRuntimeStatus('Running approved Doom runtime with Doom 1 v1.9 shareware', 'Running')
         if (documentOpen || document.hidden || videoOpen) runtime.pause()
-        else if (!mobileView) canvas.focus()
+        else if (!mobileView) focusDisplay()
         updateFrame()
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
@@ -308,7 +316,28 @@ export function initDoomPage(root: HTMLElement) {
     if (document.hidden || documentOpen || videoOpen) runtime?.pause()
     else runtime?.resume()
   }, { signal })
-  window.addEventListener('pagehide', () => {
+  window.addEventListener('pagehide', event => {
+    if (!event.persisted) {
+      dispose()
+      return
+    }
+    clearBadgeInput()
+    void runtime?.syncSaves().catch(() => {})
+    runtime?.pause()
+    pauseOverlays(true)
+  }, { signal })
+  window.addEventListener('pageshow', event => {
+    if (!event.persisted) return
+    const paused = document.hidden || documentOpen || videoOpen
+    pauseOverlays(paused)
+    if (!paused) runtime?.resume()
+    syncSelfie()
+  }, { signal })
+
+  void boot()
+
+  function dispose() {
+    if (signal.aborted) return
     partyMarty.dispose()
     avatar.dispose()
     videoFrame.removeAttribute('src')
@@ -319,24 +348,11 @@ export function initDoomPage(root: HTMLElement) {
     audio?.close().catch(() => {})
     abort.abort()
     removeKeyboard()
-  }, { signal })
-
-  void boot()
+  }
 
   return {
     start: boot,
     key(key: DoomKey, pressed: boolean) { if (!videoOpen) input.set(`api:${key}`, key, pressed) },
-    dispose() {
-      partyMarty.dispose()
-      avatar.dispose()
-      videoFrame.removeAttribute('src')
-      clearBadgeInput()
-      void runtime?.syncSaves().catch(() => {})
-      runtime?.dispose()
-      model.dispose()
-      audio?.close().catch(() => {})
-      abort.abort()
-      removeKeyboard()
-    },
+    dispose,
   }
 }

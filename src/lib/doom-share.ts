@@ -183,6 +183,8 @@ export function initDoomShare(root: HTMLElement) {
       event.preventDefault()
     }
   }, { signal })
-  window.addEventListener('pagehide', () => abort.abort(), { signal, once: true })
+  window.addEventListener('pagehide', event => {
+    if (!event.persisted) abort.abort()
+  }, { signal })
   return () => abort.abort()
 }

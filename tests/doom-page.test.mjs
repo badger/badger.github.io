@@ -102,7 +102,7 @@ test('secret Doom route is noindex and absent from navigation and footer', () =>
 test('compact hero merges the punchline, leads with firmware and keeps Universe secondary', async () => {
   const callout = await readFile(new URL('../src/components/universe-callout.astro', import.meta.url), 'utf8')
   assert.match(panel, /But does it run DOOM\?<\/h1>/)
-  assert.match(panel, /On a GitHub badge\? Of course it does\.<\/p>/)
+  assert.match(panel, /On a GitHub Universe badge\? Of course it does\.<\/p>/)
   assert.match(panel, /<DoomDownload \/>\s*<UniverseCallout \/>/)
   assert.doesNotMatch(page, /Secret editor route/)
   assert.ok(callout.includes('href="https://githubuniverse.com/?utm_source=GitHub&utm_medium=Site&utm_campaign=virtual_badge_uni_26"'))
@@ -144,7 +144,7 @@ test('Doom leads with the original cheat pro tip before the avatar guidance', as
   const tips = await readFile(new URL('../src/components/doom-pro-tip.astro', import.meta.url), 'utf8')
   assert.match(panel, /<DoomProTip \/>/)
   assert.match(tips, /<code[^>]*>IDSPISPOPD<\/code>/)
-  assert.match(tips, /to walk through walls\. Your GitHub avatar also enables god mode, all weapons and refilling ammo\./)
+  assert.match(tips, /During gameplay, type <code[^>]*>IDSPISPOPD<\/code> to walk through walls\s*<picture/)
   assert.ok(tips.includes('https://github.com/id-Software/DOOM/blob/a77dfb96cb91780ca334d0d4cfd86957558007e0/linuxdoom-1.10/st_stuff.c#L426-L431'))
   assert.match(tips, /Explore cheat codes in the original source code/)
   assert.doesNotMatch(controlHelp, /IDSPISPOPD|Explore cheat codes/)
@@ -163,7 +163,7 @@ test('legal notices and keyboard controls use collapsed native disclosures', asy
   const legal = await readFile(new URL('../src/components/doom-legal.astro', import.meta.url), 'utf8')
   assert.match(panel, /<DoomLegal \/>/)
   assert.match(legal, /<details name="doom-help" data-doom-legal>/)
-  assert.match(legal, /<summary>Legal<\/summary>/)
+  assert.match(legal, /<summary>Boring legal stuff<\/summary>/)
   assert.match(legal, /© id Software/)
   assert.match(legal, /Not affiliated with id Software, Bethesda Softworks, or Microsoft/)
   assert.match(legal, /Shareware license/)
@@ -171,6 +171,8 @@ test('legal notices and keyboard controls use collapsed native disclosures', asy
   assert.match(legal, /Corresponding source/)
   assert.match(controlHelp, /<details name="doom-help" data-doom-control-help>/)
   assert.match(controlHelp, /<summary>Controls<\/summary>/)
+  assert.match(component, /<DoomMobileControls \/>\s*<DoomBadgeLinks \/>\s*<DoomControls \/>/)
+  assert.doesNotMatch(panel, /<DoomControls/)
   assert.doesNotMatch(`${legal}\n${controlHelp}`, /<details[^>]*\bopen\b/)
 })
 
@@ -259,9 +261,13 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   const videoToolbar = new Element()
   const partyVideo = Object.assign(new Element(), { pause() {}, load() {} })
   const modelHost = new Element()
+  const modelCanvas = new Element()
+  let focused
+  canvas.focus = () => { focused = canvas }
+  modelCanvas.focus = () => { focused = modelCanvas }
   const selfieSave = Object.assign(new Element(), { disabled: true })
   const selfiePanel = new Element()
-  modelHost.querySelector = () => canvas
+  modelHost.querySelector = () => modelCanvas
   const elements = new Map([
     ['[data-doom-screen]', canvas],
     ['[data-doom-runtime-screen]', runtimeCanvas],
@@ -325,12 +331,14 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
 
   const changes = []
   const playback = []
+  let disposed = 0
   globalThis.__doomRuntime = {
+    gameState: () => ({ session: 0, gameplay: false, godMode: false }),
     key: (key, pressed) => changes.push([key, pressed]),
     pause() { playback.push('pause') },
     resume() { playback.push('resume') },
     syncSaves: async () => {},
-    dispose() {},
+    dispose() { disposed++ },
   }
   const { initDoomPage } = await compileDoomPage()
   const messages = []
@@ -340,6 +348,10 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   const page = initDoomPage(root)
   await page.start()
   await Promise.resolve()
+  const fallback = elements.get('[data-doom-fallback]')
+  assert.equal(fallback.hidden, true)
+  assert.equal(fallback.inert, true)
+  assert.equal(canvas.tabIndex, -1)
   await t.test('Save image is enabled with a username and ready 3D view outside gameplay', () => {
     assert.equal(modelHost.dataset.state, 'ready')
     location.search = '?u=octocat'
@@ -435,10 +447,10 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
 
   toggleRotation()
   for (const [bit, href] of [
-    [16, 'https://www.reddit.com/r/itrunsdoom/'],
-    [8, 'https://canitrundoom.org/'],
-    [4, 'https://github.com/id-Software/DOOM'],
-    [1, 'https://githubuniverse.com/?utm_source=GitHub&utm_medium=Site&utm_campaign=virtual_badge_uni_26'],
+    [16, 'https://github.com/id-software/doom'],
+    [8, 'https://githubuniverse.com/?utm_source=GitHub&utm_medium=Site&utm_campaign=virtual_badge_uni_26'],
+    [4, 'https://canitrundoom.org/'],
+    [2, 'https://www.reddit.com/r/itrunsdoom/'],
   ]) {
     modelInput(bit, true)
     toggleRotation()
@@ -448,8 +460,8 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   }
 
   modelInput(1024, true)
-  modelInput(2, true)
-  modelInput(2, false)
+  modelInput(1, true)
+  modelInput(1, false)
   assert.deepEqual(changes.splice(0), [
     ['ControlLeft', true],
     ['ControlLeft', false],
@@ -471,6 +483,7 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   assert.deepEqual(playback.splice(0), ['pause', 'pause'])
 
   videoClose.dispatchEvent(new Event('click'))
+  assert.equal(focused, modelCanvas)
   assert.equal(videoFrame.src, undefined)
   assert.equal(video.hidden, true)
   assert.equal(videoToolbar.hidden, true)
@@ -480,9 +493,21 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   page.key('Space', false)
   assert.deepEqual(changes.splice(0), [['Space', true], ['Space', false]])
 
+  page.key('ArrowUp', true)
+  window.dispatchEvent(Object.assign(new Event('pagehide'), { persisted: true }))
+  assert.equal(disposed, 0)
+  assert.deepEqual(changes.splice(0), [['ArrowUp', true], ['ArrowUp', false]])
+  assert.deepEqual(playback.splice(0), ['pause'])
+  window.dispatchEvent(Object.assign(new Event('pageshow'), { persisted: true }))
+  assert.deepEqual(playback.splice(0), ['resume'])
+  page.key('ArrowLeft', true)
+  page.key('ArrowLeft', false)
+  assert.deepEqual(changes.splice(0), [['ArrowLeft', true], ['ArrowLeft', false]])
+
   videoOpen.dispatchEvent(new Event('click'))
   assert.equal(video.hidden, false)
   page.dispose()
+  assert.equal(disposed, 1)
   assert.equal(videoFrame.src, undefined)
 })
 

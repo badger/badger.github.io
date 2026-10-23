@@ -28,6 +28,8 @@ export function initDoomProTip(root: HTMLElement) {
     clearTimeout(timer)
     abort.abort()
   }
-  window.addEventListener('pagehide', dispose, { signal, once: true })
+  window.addEventListener('pagehide', event => {
+    if (!event.persisted) dispose()
+  }, { signal })
   return dispose
 }

@@ -30,19 +30,64 @@ test('avatar and Party Marty share an idempotent power mode with repeated ammo r
     }
   })
   const keys = []
-  document.addEventListener('keydown', event => keys.push(event.key))
-  const power = createDoomPowerMode()
+  const state = { session: 1, gameplay: false, godMode: false }
+  let cheatCursor = 0
+  document.addEventListener('keydown', event => {
+    keys.push(event.key)
+    cheatCursor = event.key === 'iddqd'[cheatCursor] ? cheatCursor + 1 : 0
+    if (cheatCursor === 5) {
+      state.godMode = !state.godMode
+      cheatCursor = 0
+    }
+  })
+  const power = createDoomPowerMode(() => state)
   power.activate()
   for (let now = 0; now < 1000; now += 60) power.render(false, now)
   assert.deepEqual(keys, [])
+  for (let now = 0; now < 1000; now += 60) power.render(true, now)
+  assert.deepEqual(keys, [], 'A demo HUD must not start cheats')
+  state.session++
+  state.gameplay = true
   for (let now = 1000; now < 2000; now += 60) power.render(true, now)
-  assert.equal(keys.join(''), 'iddqdidkfa')
+  assert.equal(keys.join(''), 'xiddqdidkfa')
+  assert.equal(state.godMode, true)
   power.activate()
   power.activate()
   for (let now = 6000; now < 6500; now += 60) power.render(true, now)
-  assert.equal(keys.join(''), 'iddqdidkfaidkfa')
+  assert.equal(keys.join(''), 'xiddqdidkfaidkfa')
   for (let now = 11000; now < 12000; now += 60) power.render(false, now)
-  assert.equal(keys.join(''), 'iddqdidkfaidkfa', 'Ammo refills must not send cheat keys outside gameplay')
+  assert.equal(keys.join(''), 'xiddqdidkfaidkfa', 'Ammo refills must not send cheat keys outside gameplay')
+  state.session++
+  state.godMode = false
+  power.render(true, 13000)
+  assert.equal(keys.at(-1), 'x')
+  power.render(true, 13060)
+  power.render(true, 13120)
+  assert.equal(cheatCursor, 2)
+  state.gameplay = false
+  power.render(false, 13200)
+  state.gameplay = true
+  const restart = keys.length
+  for (let now = 14000; now < 15000; now += 60) power.render(true, now)
+  assert.equal(keys.slice(restart).join(''), 'xiddqdidkfa', 'Interrupted initialization resets the native parser and restarts from its first character')
+  assert.equal(state.godMode, true, 'Restarting after a partial id prefix must actually enable god mode')
+  state.session++
+  state.godMode = false
+  const nextGame = keys.length
+  for (let now = 15000; now < 16000; now += 60) power.render(true, now)
+  assert.equal(keys.slice(nextGame).join(''), 'xiddqdidkfa', 'A new game gets its own complete initialization')
+  assert.equal(state.godMode, true)
+  state.session++
+  state.godMode = false
+  for (let now = 16000; now < 16360; now += 60) power.render(true, now)
+  assert.equal(state.godMode, true)
+  state.gameplay = false
+  power.render(false, 16400)
+  state.gameplay = true
+  const alreadyGod = keys.length
+  for (let now = 17000; now < 18000; now += 60) power.render(true, now)
+  assert.equal(keys.slice(alreadyGod).join(''), 'xidkfa', 'Resuming initialization must not toggle existing god mode off')
+  assert.equal(state.godMode, true)
 })
 
 async function hudContext() {
@@ -110,16 +155,21 @@ test('Party Marty is typed once, replaces only the HUD face, grants god mode, an
   const root = new Element()
   let plays = 0
   let pauses = 0
+  let rejectPlay
   const video = Object.assign(new Element(), {
     readyState: 4,
-    play: async () => { plays++ },
+    play: () => {
+      plays++
+      return new Promise((_resolve, reject) => { rejectPlay = reject })
+    },
     pause: () => { pauses++ },
     removeAttribute(name) { delete this[name] },
     load() {},
   })
   const errors = []
   const abort = new AbortController()
-  const party = createPartyMarty(root, video, abort.signal, message => errors.push(message))
+  const power = createDoomPowerMode(() => ({ session: 1, gameplay: true, godMode: false }))
+  const party = createPartyMarty(root, video, abort.signal, message => errors.push(message), power)
   const typed = (text, modifiers = {}) => {
     for (const key of text) root.dispatchEvent(new KeyboardEvent('keydown', { key, ...modifiers }))
   }
@@ -137,13 +187,16 @@ test('Party Marty is typed once, replaces only the HUD face, grants god mode, an
   typed('partymarty')
   assert.equal(plays, 1)
   for (let now = 0; now < 1000; now += 60) party.render(context, now)
-  assert.equal(keys.join(''), 'iddqdidkfa')
-  assert.equal(characters.join(''), 'iddqdidkfa')
+  assert.equal(keys.join(''), 'xiddqdidkfa')
+  assert.equal(characters.join(''), 'xiddqdidkfa')
   assert.deepEqual(context.draws[0], [video, 143, 169, 35, 31])
   assert.equal(context.imageSmoothingEnabled, true)
   for (let now = 5000; now < 5500; now += 60) party.render(context, now)
-  assert.equal(keys.join(''), 'iddqdidkfaidkfa')
+  assert.equal(keys.join(''), 'xiddqdidkfaidkfa')
   party.setPaused(true)
+  rejectPlay(new DOMException('Playback interrupted by pause', 'AbortError'))
+  await Promise.resolve()
+  assert.deepEqual(errors, [])
   const draws = context.draws.length
   party.render(context, 10000)
   assert.equal(context.draws.length, draws)
@@ -159,6 +212,8 @@ test('Party Marty is typed once, replaces only the HUD face, grants god mode, an
   assert.equal(plays, 3)
   assert.equal(keys.join('').match(/iddqd/g).length, 1)
   party.dispose()
+  rejectPlay(new DOMException('Playback interrupted by disposal', 'AbortError'))
+  await Promise.resolve()
   abort.abort()
   assert.equal(video.src, undefined)
   assert.deepEqual(errors, [])

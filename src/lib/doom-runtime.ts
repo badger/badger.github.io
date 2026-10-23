@@ -3,11 +3,18 @@ import type { DoomKey } from './doom-input'
 import { sitePath } from './site-path'
 
 export interface DoomRuntime {
+  gameState(): DoomGameState
   key(key: DoomKey, pressed: boolean): void
   pause(): void
   resume(): void
   syncSaves(): Promise<void>
   dispose(): void
+}
+
+export interface DoomGameState {
+  session: number
+  gameplay: boolean
+  godMode: boolean
 }
 
 export interface DoomRuntimeFactory {

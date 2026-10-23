@@ -18,8 +18,26 @@ const socialPageURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
+    <script is:inline>
+      try {
+        if (localStorage.getItem('badger-theme') === 'light') {
+          document.documentElement.classList.replace('dark', 'light')
+        }
+      } catch {}
+      // Cached pages skip this script, so resync with the saved preference on restoration.
+      addEventListener('pageshow', (event) => {
+        if (!event.persisted) return
+        let theme
+        try { theme = localStorage.getItem('badger-theme') === 'light' ? 'light' : 'dark' } catch { return }
+        const root = document.documentElement
+        if (root.classList.contains(theme)) return
+        root.classList.toggle('light', theme === 'light')
+        root.classList.toggle('dark', theme === 'dark')
+        dispatchEvent(new CustomEvent('badger-theme-change', { detail: theme }))
+      })
+    </script>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     {socialImage && <>

@@ -28,6 +28,8 @@ test('adapter shares the unlocked audio context and pauses music with the game',
       pause() { onFrame('pause') },
       resume() { onFrame('resume') },
     } }
+    Module._badger_game_state = () => 3
+    Module._badger_game_session = () => 7
     Module.preRun()
     onFrame({
       audioContext: Module.SDL2.audioContext,
@@ -53,6 +55,7 @@ test('adapter shares the unlocked audio context and pauses music with the game',
     onFrame: event => events.push(event ?? 'draw'),
   })
   const loop = events.shift()
+  assert.deepEqual(runtime.gameState(), { session: 7, gameplay: true, godMode: true })
   assert.equal(loop.audioContext, audioContext)
   loop.frame()
   runtime.pause()
@@ -76,6 +79,10 @@ test('bundled engine binds single-tap fire to Ctrl and double-tap use to Space',
   const binding = name => Number(config.match(new RegExp(`^${name}\\s+(\\d+)$`, 'm'))[1])
   assert.equal(binding('key_fire'), 29)
   assert.equal(binding('key_use'), 57)
+  assert.equal(binding('key_strafe'), 56, 'Alt uses SDL/Doom scan code 56')
+  assert.equal(binding('key_strafe_alt'), 42, 'Shift uses SDL/Doom scan code 42')
+  assert.equal(binding('key_speed'), 0)
+  assert.equal(binding('key_speed_alt'), 0)
 })
 
 test('missing runtime manifest is an explicit blocker before any WAD request', async () => {

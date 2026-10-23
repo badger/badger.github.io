@@ -8,13 +8,13 @@
   "adapterContractVersion": 1,
   "javascript": {
     "path": "/doom/runtime/doom.mjs",
-    "size": 272233,
-    "sha256": "eff913de80fffe23355092326a36b75a3847220c46087b6417d83d4941b2602d"
+    "size": 272782,
+    "sha256": "5100891d5afa8036749d0d01fd869772b6b1d9e0340dce75564709709a3d735e"
   },
   "wasm": {
     "path": "/doom/runtime/doom.wasm",
-    "size": 2300423,
-    "sha256": "f95f19c3887991db8a2e0f8c5d365b6dd15c49bd38bc5417a6606be3aed83be2"
+    "size": 2300606,
+    "sha256": "cb77e46ed17ec2411d9a09e5c87fb3d95947923d1097185e054df3aac29184be"
   },
   "license": {
     "path": "/doom/runtime/COPYING.txt",
@@ -23,7 +23,7 @@
   },
   "correspondingSource": {
     "path": "/doom/runtime/SOURCE.md",
-    "size": 1950,
-    "sha256": "1e0141642343d7ef06ed3e9c8fd066d8518c579a78bd49d519638d19b2df3fa2"
+    "size": 2172,
+    "sha256": "5aa68730785b12d02eb3edd275f08d648758af9625684f9667522e4f87fdcb26"
   }
 }

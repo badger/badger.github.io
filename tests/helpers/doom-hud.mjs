@@ -28,6 +28,7 @@ export function decodeDoomHud(bytes) {
       if (cursor >= patch.length) throw new Error('Invalid WAD HUD column.')
       const top = patch[cursor++]
       if (top === 255) break
+      if (cursor + 2 > patch.length) throw new Error('Invalid WAD HUD post.')
       const length = patch[cursor++]
       cursor++
       if (cursor + length + 1 > patch.length || top + length > height) throw new Error('Invalid WAD HUD post.')

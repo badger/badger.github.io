@@ -206,13 +206,13 @@ export function createDoomAvatar(
     visible() { return gameplay && !!face },
     render(context: CanvasRenderingContext2D) {
       gameplay = !paused && isDoomGameplay(context)
+      if (powered) powerMode.render(gameplay)
       if (!gameplay) {
         input.reset()
         capturedKeys.clear()
         return
       }
       if (!powered) return
-      powerMode.render(true)
       if (!face) return
       const smoothing = context.imageSmoothingEnabled
       context.imageSmoothingEnabled = false

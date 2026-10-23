@@ -91,6 +91,24 @@ test('leaving the page cancels the timer and removes avatar-change listeners', t
   assert.equal(discovery.hidden, false)
 })
 
+test('cached departures preserve the discovery timer and URL listeners until a real departure', t => {
+  const { original, avatar, discovery, location, document, window } = setup(t)
+  t.mock.timers.tick(5000)
+  const cached = Object.assign(new Event('pagehide'), { persisted: true })
+  window.dispatchEvent(cached)
+  window.dispatchEvent(Object.assign(new Event('pageshow'), { persisted: true }))
+  t.mock.timers.tick(5000)
+  assert.equal(original.hidden, true)
+  assert.equal(avatar.hidden, false)
+  location.search = '?u=octocat'
+  document.dispatchEvent(new Event('doom:avatar-change'))
+  assert.equal(discovery.hidden, true)
+  window.dispatchEvent(Object.assign(new Event('pagehide'), { persisted: false }))
+  location.search = ''
+  document.dispatchEvent(new Event('doom:avatar-change'))
+  assert.equal(discovery.hidden, true)
+})
+
 test('typing a username hides the entire tip before or after the delay', t => {
   const { root, location, document, window, change } = setup(t)
   location.search = '?u=octocat'

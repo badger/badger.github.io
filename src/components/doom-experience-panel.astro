@@ -4,14 +4,13 @@ import UniverseCallout from './universe-callout.astro'
 import DoomProTip from './doom-pro-tip.astro'
 import DoomShare from './doom-share.astro'
 import DoomInstallationHelp from './doom-installation-help.astro'
-import DoomControls from './doom-controls.astro'
 import DoomLegal from './doom-legal.astro'
 ---
 
 <article class="doom-experience-panel" aria-labelledby="doom-title">
   <header>
     <h1 id="doom-title">But does it run DOOM?</h1>
-    <p class="doom-subheading">On a GitHub badge? Of course it does.</p>
+    <p class="doom-subheading">On a GitHub Universe badge? Of course it does.</p>
   </header>
   <div class="doom-calls-to-action">
     <DoomDownload />
@@ -21,7 +20,6 @@ import DoomLegal from './doom-legal.astro'
   <DoomShare />
   <footer class="doom-panel-footer" aria-label="Badge help and legal information">
     <DoomInstallationHelp />
-    <DoomControls />
     <DoomLegal />
   </footer>
 </article>

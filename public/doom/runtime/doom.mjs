@@ -51,6 +51,14 @@ export function createDoomRuntime(options) {
       context[value ? 'suspend' : 'resume']().catch(error => console.warn('[doom] Audio state could not be updated.', error))
     }
     const api = {
+      gameState() {
+        const state = Module._badger_game_state()
+        return {
+          session: Module._badger_game_session(),
+          gameplay: Boolean(state & 1),
+          godMode: Boolean(state & 2),
+        }
+      },
       key: dispatchKey,
       pause() {
         if (disposed || paused) return
@@ -93,7 +101,7 @@ export function createDoomRuntime(options) {
       preRun() {
         if (options.audioContext) Module.SDL2 = { audioContext: options.audioContext }
         FS.createDataFile('/', 'DOOM1.WAD', wad, true, true, true)
-        FS.createDataFile('/', 'default.cfg', "use_libsamplerate             0\nforce_software_renderer       0\nstartup_delay                 2000\nshow_diskicon                 1\ncrispy_soundfix               1\ngrabmouse                     0\nfullscreen                    0\nsfx_volume                    8\nmusic_volume                  8\nshow_messages                 1\nkey_right                     25\nkey_left                      24\nkey_up                        17\nkey_down                      31\nkey_strafeleft                30\nkey_straferight               32\nkey_fire                      29\nkey_use                       57\nkey_strafe                    46\nkey_speed                     42\nkey_strafe_alt                46\nkey_speed_alt                 42\nkey_fullscreen                33\nuse_mouse                     1\nuse_joystick                  0\nscreenblocks                  10\ndetaillevel                   0\nsnd_channels                  8\nsnd_musicdevice               3\nsnd_sfxdevice                 3\nsnd_sbport                    0\nsnd_sbirq                     0\nsnd_sbdma                     0\nsnd_mport                     0\nusegamma                      0\nchatmacro0                    \"No\"\nchatmacro1                    \"I'm ready to kick butt!\"\nchatmacro2                    \"I'm OK.\"\nchatmacro3                    \"I'm not looking too good!\"\nchatmacro4                    \"Help!\"\nchatmacro5                    \"You suck!\"\nchatmacro6                    \"Next time, scumbag...\"\nchatmacro7                    \"Come here!\"\nchatmacro8                    \"I'll take care of it.\"\nchatmacro9                    \"Yes\"\n", true, true)
+        FS.createDataFile('/', 'default.cfg', "use_libsamplerate             0\nforce_software_renderer       0\nstartup_delay                 2000\nshow_diskicon                 1\ncrispy_soundfix               1\ngrabmouse                     0\nfullscreen                    0\nsfx_volume                    8\nmusic_volume                  8\nshow_messages                 1\nkey_right                     25\nkey_left                      24\nkey_up                        17\nkey_down                      31\nkey_strafeleft                30\nkey_straferight               32\nkey_fire                      29\nkey_use                       57\nkey_strafe                    56\nkey_speed                     0\nkey_strafe_alt                42\nkey_speed_alt                 0\nkey_fullscreen                33\nuse_mouse                     1\nuse_joystick                  0\nscreenblocks                  10\ndetaillevel                   0\nsnd_channels                  8\nsnd_musicdevice               3\nsnd_sfxdevice                 3\nsnd_sbport                    0\nsnd_sbirq                     0\nsnd_sbdma                     0\nsnd_mport                     0\nusegamma                      0\nchatmacro0                    \"No\"\nchatmacro1                    \"I'm ready to kick butt!\"\nchatmacro2                    \"I'm OK.\"\nchatmacro3                    \"I'm not looking too good!\"\nchatmacro4                    \"Help!\"\nchatmacro5                    \"You suck!\"\nchatmacro6                    \"Next time, scumbag...\"\nchatmacro7                    \"Come here!\"\nchatmacro8                    \"I'll take care of it.\"\nchatmacro9                    \"Yes\"\n", true, true)
         try { FS.mkdir('/doom-saves') } catch {}
         if (typeof IDBFS !== 'undefined') {
           try {
@@ -8707,6 +8715,10 @@ var _free = a0 => (_free = wasmExports["free"])(a0);
 
 var ___errno_location = () => (___errno_location = wasmExports["__errno_location"])();
 
+var _badger_game_state = Module["_badger_game_state"] = () => (_badger_game_state = Module["_badger_game_state"] = wasmExports["badger_game_state"])();
+
+var _badger_game_session = Module["_badger_game_session"] = () => (_badger_game_session = Module["_badger_game_session"] = wasmExports["badger_game_session"])();
+
 var ___funcs_on_exit = () => (___funcs_on_exit = wasmExports["__funcs_on_exit"])();
 
 var _emscripten_builtin_memalign = (a0, a1) => (_emscripten_builtin_memalign = wasmExports["emscripten_builtin_memalign"])(a0, a1);
@@ -8761,6 +8773,8 @@ var dynCall_iiji = Module["dynCall_iiji"] = (a0, a1, a2, a3, a4) => (dynCall_iij
 
 var dynCall_iid = Module["dynCall_iid"] = (a0, a1, a2) => (dynCall_iid = Module["dynCall_iid"] = wasmExports["dynCall_iid"])(a0, a1, a2);
 
+var dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = (a0, a1, a2, a3, a4, a5, a6, a7, a8) => (dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = wasmExports["dynCall_iiiiiiiii"])(a0, a1, a2, a3, a4, a5, a6, a7, a8);
+
 var dynCall_viiiii = Module["dynCall_viiiii"] = (a0, a1, a2, a3, a4, a5) => (dynCall_viiiii = Module["dynCall_viiiii"] = wasmExports["dynCall_viiiii"])(a0, a1, a2, a3, a4, a5);
 
 var dynCall_iiiiiiii = Module["dynCall_iiiiiiii"] = (a0, a1, a2, a3, a4, a5, a6, a7) => (dynCall_iiiiiiii = Module["dynCall_iiiiiiii"] = wasmExports["dynCall_iiiiiiii"])(a0, a1, a2, a3, a4, a5, a6, a7);
@@ -8768,8 +8782,6 @@ var dynCall_iiiiiiii = Module["dynCall_iiiiiiii"] = (a0, a1, a2, a3, a4, a5, a6,
 var dynCall_iiiiiiiiii = Module["dynCall_iiiiiiiiii"] = (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) => (dynCall_iiiiiiiiii = Module["dynCall_iiiiiiiiii"] = wasmExports["dynCall_iiiiiiiiii"])(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
 
 var dynCall_iiiiiiiiiiiiiiff = Module["dynCall_iiiiiiiiiiiiiiff"] = (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15) => (dynCall_iiiiiiiiiiiiiiff = Module["dynCall_iiiiiiiiiiiiiiff"] = wasmExports["dynCall_iiiiiiiiiiiiiiff"])(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
-
-var dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = (a0, a1, a2, a3, a4, a5, a6, a7, a8) => (dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = wasmExports["dynCall_iiiiiiiii"])(a0, a1, a2, a3, a4, a5, a6, a7, a8);
 
 var dynCall_viiiiiii = Module["dynCall_viiiiiii"] = (a0, a1, a2, a3, a4, a5, a6, a7) => (dynCall_viiiiiii = Module["dynCall_viiiiiii"] = wasmExports["dynCall_viiiiiii"])(a0, a1, a2, a3, a4, a5, a6, a7);
 
