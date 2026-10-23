@@ -3,6 +3,7 @@ import { BookOpen, Code2, ContactRound, Grid3x3, Hammer, Home, PlugZap, Power, S
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
 import { APP_CATALOG_PAGE_ENABLED, CONTACTS_PAGE_ENABLED } from '@/config/features'
+import { sitePath } from '@/lib/site-path'
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -23,21 +24,21 @@ const smGridCols: Record<number, string> = {
 }
 
 export function Navigation() {
-  const [pathname, setPathname] = useState('/')
+  const [pathname, setPathname] = useState(sitePath('/'))
 
   useEffect(() => {
     setPathname(window.location.pathname)
   }, [])
 
   const isActive = (href: string) => href === '/'
-    ? pathname === '/'
-    : pathname === href || pathname.startsWith(`${href}/`)
+    ? pathname === sitePath('/')
+    : pathname === sitePath(href) || pathname.startsWith(`${sitePath(href)}/`)
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/90 backdrop-blur-xl">
+    <nav className="top-0 z-50 w-full border-b border-border/80 bg-background/90 backdrop-blur-xl lg:sticky">
       <div className="container flex h-[4.5rem] items-center justify-between gap-6">
-        <a href="/" className="group flex shrink-0 items-center gap-3" aria-label="Badger home">
-          <img src="/favicon.svg" alt="" className="h-9 w-9 transition-transform duration-200 group-hover:rotate-[-6deg]" />
+        <a href={sitePath('/')} className="group flex shrink-0 items-center gap-3" aria-label="Badger home">
+          <img src={sitePath('/favicon.svg')} alt="" className="h-9 w-9 transition-transform duration-200 group-hover:rotate-[-6deg]" />
           <span className="font-display text-2xl font-semibold tracking-tight">Badger</span>
         </a>
 
@@ -47,7 +48,7 @@ export function Navigation() {
             return (
               <a
                 key={href}
-                href={href}
+                href={sitePath(href)}
                 aria-current={active ? 'page' : undefined}
                 data-active={active}
                 className="site-nav-link inline-flex items-center gap-2 rounded-md px-3 py-2 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:bg-primary/5 hover:text-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
@@ -69,7 +70,7 @@ export function Navigation() {
           return (
             <a
               key={href}
-              href={href}
+              href={sitePath(href)}
               aria-current={active ? 'page' : undefined}
               data-active={active}
               className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md px-1 text-center font-mono text-[0.65rem] uppercase text-muted-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
@@ -82,4 +83,3 @@ export function Navigation() {
     </nav>
   )
 }
-

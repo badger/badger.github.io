@@ -8,12 +8,12 @@ import { initBadgeMotion } from './badge-motion'
 import { bytesEqual, fileBytes, hasProjectChanges, listBadgeApps, projectCheckpoint, projectFile, projectUploadBaseline, removeProjectFile, removedProjectFiles, readBadgeProject, readProjectDraft, recordProjectUpload, saveProjectDraft, simulationRequest, uploadProjectFiles, validateFilePath, validateProjectLocation, type EditorCatalog, type EditorProject, type SimulatorExamples } from './badge-editor-project'
 import { basicSetup } from 'codemirror'
 import { EditorView, keymap } from '@codemirror/view'
-import { Compartment, EditorState } from '@codemirror/state'
+import { EditorState } from '@codemirror/state'
 import { indentWithTab, undo, redo, undoDepth, redoDepth } from '@codemirror/commands'
 import { python } from '@codemirror/lang-python'
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags } from '@lezer/highlight'
-import { getActiveTheme } from './theme'
+import { sitePath } from './site-path'
 
 const starter = `import badgeware
 import math
@@ -139,7 +139,6 @@ export async function initBadgeEditor() {
   rotateButton.addEventListener('click', () => { flipped.checked = !flipped.checked; applyOrientation() })
   flipped.addEventListener('change', applyOrientation)
 
-  const darkMode = new Compartment()
   const extensions = [
         keymap.of([
           { key: 'F5', run: () => { runCode(); return true } },
@@ -152,28 +151,24 @@ export async function initBadgeEditor() {
         EditorState.tabSize.of(4),
         EditorView.contentAttributes.of({ 'aria-label': 'Python source code', spellcheck: 'false' }),
         EditorView.theme({
-          '&': { height: '100%', backgroundColor: 'var(--code-editor-bg)', color: 'var(--code-editor-fg)', fontSize: '13px' },
+          '&': { height: '100%', backgroundColor: '#0d1117', color: '#c9d1d9', fontSize: '13px' },
           '.cm-scroller': { overflow: 'auto', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', lineHeight: '1.8' },
-          '.cm-content': { padding: '18px 0', caretColor: 'var(--code-editor-caret)' },
+          '.cm-content': { padding: '18px 0', caretColor: '#5fed83' },
           '.cm-line': { padding: '0 16px' },
-          '.cm-gutters': { backgroundColor: 'var(--code-editor-bg)', color: 'var(--code-editor-gutter)', border: 'none', padding: '0 4px' },
-          '.cm-activeLine, .cm-activeLineGutter': { backgroundColor: 'var(--code-editor-active-line)' },
+          '.cm-gutters': { backgroundColor: '#0d1117', color: '#6e7681', border: 'none', padding: '0 4px' },
+          '.cm-activeLine, .cm-activeLineGutter': { backgroundColor: '#161b22' },
           '&.cm-focused': { outline: 'none' },
-          '&.cm-focused .cm-cursor': { borderLeftColor: 'var(--code-editor-caret)' },
-          '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection': { backgroundColor: 'var(--code-editor-selection)' },
-          // Keep syntax colours on selected text instead of the global/system highlight text colour.
-          '& ::selection': { color: 'currentcolor' },
-          '.cm-panels': { backgroundColor: 'var(--code-editor-panel)', color: 'var(--code-editor-fg)' },
-        }),
-        darkMode.of(EditorView.darkTheme.of(getActiveTheme() === 'dark')),
+          '&.cm-focused .cm-cursor': { borderLeftColor: '#5fed83' },
+          '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection': { backgroundColor: '#26452f' },
+          '.cm-panels': { backgroundColor: '#161b22', color: '#c9d1d9' },
+        }, { dark: true }),
         syntaxHighlighting(HighlightStyle.define([
-          { tag: tags.keyword, color: 'var(--code-keyword)' },
-          { tag: [tags.string, tags.special(tags.string)], color: 'var(--code-string)' },
-          { tag: tags.number, color: 'var(--code-number)' },
-          { tag: [tags.bool, tags.null], color: 'var(--code-constant)' },
-          { tag: tags.comment, color: 'var(--code-comment)' },
-          { tag: tags.function(tags.variableName), color: 'var(--code-function)' },
-          { tag: [tags.className, tags.typeName], color: 'var(--code-type)' },
+          { tag: tags.keyword, color: '#ff7b72' },
+          { tag: [tags.string, tags.special(tags.string)], color: '#a5d6ff' },
+          { tag: [tags.number, tags.bool, tags.null], color: '#79c0ff' },
+          { tag: tags.comment, color: '#8b949e' },
+          { tag: tags.function(tags.variableName), color: '#d2a8ff' },
+          { tag: [tags.className, tags.typeName], color: '#ffa657' },
         ])),
     EditorView.updateListener.of(update => {
       updateHistoryButtons(update.state)
@@ -194,13 +189,6 @@ export async function initBadgeEditor() {
     }),
   ]
   const editor = new EditorView({ parent: element('code-editor'), state: EditorState.create({ doc: starter, extensions: [...extensions, EditorState.readOnly.of(true)] }) })
-  // Cached per-file states keep the dark flag they were created with, so sync after every setState.
-  const syncEditorTheme = () => {
-    const dark = getActiveTheme() === 'dark'
-    if (editor.state.facet(EditorView.darkTheme) === dark) return
-    editor.dispatch({ effects: darkMode.reconfigure(EditorView.darkTheme.of(dark)) })
-  }
-  window.addEventListener('badger-theme-change', syncEditorTheme)
   const disposeSplit = initEditorSplit(() => editor.requestMeasure())
   const disposeFullscreen = initEditorFullscreen(() => editor.requestMeasure())
   const picker = initProjectPicker(async item => {
@@ -232,7 +220,7 @@ export async function initBadgeEditor() {
     locationError = false
     message.hidden = false
     message.textContent = text
-    message.className = `mt-3 text-sm ${error ? 'text-red-700 dark:text-red-400' : 'text-primary'}`
+    message.className = `mt-3 text-sm ${error ? 'text-red-400' : 'text-primary'}`
   }
 
   function updateLocationMessage() {
@@ -292,7 +280,6 @@ export async function initBadgeEditor() {
       element('code-editor').hidden = false
       assetPreview.hidden = true
       editor.setState(states.get(path) || EditorState.create({ doc: file.text, extensions }))
-      syncEditorTheme()
       currentEditorPath = path
       editor.requestMeasure()
     } else {
@@ -384,7 +371,7 @@ export async function initBadgeEditor() {
     runtimeStatus.textContent = 'Loading MicroPython…'
     stopButton.disabled = false
     saveDraft()
-    const activeWorker = new Worker('/simulator/micropython.worker.js', { type: 'module' })
+    const activeWorker = new Worker(sitePath('/simulator/micropython.worker.js'), { type: 'module' })
     worker = activeWorker
     const fail = (reason: string) => {
       if (worker !== activeWorker) return
@@ -626,20 +613,20 @@ export async function initBadgeEditor() {
     scheduleRun()
   })
   document.addEventListener('visibilitychange', () => { releaseButtons(); worker?.postMessage({ pause: document.hidden || picker.open }) })
-  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { modelView.dispose(); disposeKeyboard(); motion.abort(); disposeSplit(); disposeFullscreen(); picker.dispose(); window.removeEventListener('badger-theme-change', syncEditorTheme); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
+  window.addEventListener('pagehide', event => { saveDraft(); stopWorker(); if (!event.persisted) { modelView.dispose(); disposeKeyboard(); motion.abort(); disposeSplit(); disposeFullscreen(); picker.dispose(); editor.destroy(); if (previewUrl) URL.revokeObjectURL(previewUrl) } })
   window.addEventListener('pageshow', event => { if (event.persisted) scheduleRun(0) })
 
   setBusy(true)
   void (async () => {
     try {
-      const response = await fetch('/editor-apps/catalog.json')
+      const response = await fetch(sitePath('/editor-apps/catalog.json'))
       if (!response.ok) throw new Error('Could not load the app examples.')
       picker.setApps(await response.json() as EditorCatalog)
     } catch { picker.setFailure('apps', 'Could not load the app collection. Reload to try again.') }
   })()
   void (async () => {
     try {
-      const response = await fetch('/editor-examples/catalog.json')
+      const response = await fetch(sitePath('/editor-examples/catalog.json'))
       if (!response.ok) throw new Error('Could not load the examples.')
       picker.setExamples(await response.json() as SimulatorExamples)
     } catch { picker.setFailure('examples', 'Could not load the example collection. Reload to try again.') }

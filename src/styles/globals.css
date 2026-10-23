@@ -29,100 +29,6 @@
     --chart-3: 135 5% 15%;
     --chart-4: 140 5% 22%;
     --chart-5: 137 6% 7%;
-
-    --page-glow: rgba(95, 237, 131, 0.07);
-    --page-sheen: rgba(255, 255, 255, 0.015);
-    --grid-dot: rgba(95, 237, 131, 0.24);
-    --surface-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
-    --code-bg: 140 16% 4%;
-    --inset: 0 0% 0% / 0.3;
-    --control: 137 7% 8%;
-    --control-hover: 137 7% 11%;
-    --control-danger: 353 25% 11%;
-    --control-danger-hover: 353 32% 14%;
-    --dot-line: rgba(255, 255, 255, 0.5);
-
-    --code-editor-bg: #0d1117;
-    --code-editor-fg: #c9d1d9;
-    --code-editor-gutter: #6e7681;
-    --code-editor-active-line: #161b22;
-    --code-editor-selection: #26452f;
-    --code-editor-caret: #5fed83;
-    --code-editor-panel: #161b22;
-    --code-keyword: #ff7b72;
-    --code-string: #a5d6ff;
-    --code-number: #79c0ff;
-    --code-constant: #79c0ff;
-    --code-comment: #8b949e;
-    --code-function: #d2a8ff;
-    --code-type: #ffa657;
-    --sim-key-bg: #161b22;
-    --sim-key-border: #30363d;
-    --sim-key-fg: #c9d1d9;
-    --sim-key-pressed-bg: #163321;
-    --sim-key-pressed-fg: #5fed83;
-    color-scheme: dark;
-  }
-
-  :root.light {
-    --background: 140 13% 95.5%;
-    --foreground: 137 11% 7%;
-    --card: 0 0% 100%;
-    --card-foreground: 137 11% 7%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 137 11% 7%;
-    --primary: 137 91% 25%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 137 14% 91%;
-    --secondary-foreground: 137 11% 7%;
-    --muted: 140 12% 91%;
-    --muted-foreground: 138 4% 36%;
-    --accent: 137 14% 91%;
-    --accent-foreground: 137 91% 25%;
-    --destructive: 356 72% 47%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 140 9% 82%;
-    --input: 140 9% 78%;
-    --ring: 137 91% 25%;
-    --chart-1: 137 91% 25%;
-    --chart-2: 138 4% 36%;
-    --chart-3: 137 14% 91%;
-    --chart-4: 140 9% 82%;
-    --chart-5: 0 0% 100%;
-
-    --page-glow: rgba(15, 191, 62, 0.09);
-    --page-sheen: rgba(255, 255, 255, 0.7);
-    --grid-dot: rgba(8, 135, 43, 0.2);
-    --surface-shadow: 0 1px 2px rgba(16, 20, 17, 0.04), 0 10px 30px rgba(16, 20, 17, 0.06);
-    --code-bg: 140 20% 98.5%;
-    --inset: 140 13% 95.5% / 1;
-    --control: 0 0% 100%;
-    --control-hover: 140 12% 93%;
-    --control-danger: 353 80% 97%;
-    --control-danger-hover: 353 75% 94%;
-    --dot-line: rgba(16, 20, 17, 0.35);
-
-    /* Based on VS Code Default Light (light_vs) with Light+ function/type colors */
-    --code-editor-bg: #ffffff;
-    --code-editor-fg: #000000;
-    --code-editor-gutter: #237893;
-    --code-editor-active-line: #f5f7f6;
-    --code-editor-selection: #add6ff;
-    --code-editor-caret: #000000;
-    --code-editor-panel: #f3f3f3;
-    --code-keyword: #0000ff;
-    --code-string: #a31515;
-    --code-number: #098658;
-    --code-constant: #0000ff;
-    --code-comment: #008000;
-    --code-function: #795e26;
-    --code-type: #267f99;
-    --sim-key-bg: #ffffff;
-    --sim-key-border: hsl(140 9% 78%);
-    --sim-key-fg: #101411;
-    --sim-key-pressed-bg: hsl(137 91% 25% / 0.1);
-    --sim-key-pressed-fg: hsl(137 91% 25%);
-    color-scheme: light;
   }
 
   * {
@@ -139,8 +45,8 @@
     font-size: 1rem;
     line-height: 1.6;
     background-image:
-      radial-gradient(circle at 78% 0%, var(--page-glow), transparent 26rem),
-      linear-gradient(180deg, var(--page-sheen), transparent 26rem);
+      radial-gradient(circle at 78% 0%, rgba(95, 237, 131, 0.07), transparent 26rem),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 26rem);
     background-attachment: fixed;
   }
 
@@ -177,7 +83,7 @@
 @layer components {
   .surface {
     @apply rounded-xl border border-border/80 bg-card/80;
-    box-shadow: var(--surface-shadow);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
   }
 
   .surface-hover {
@@ -198,7 +104,7 @@
   }
 
   .grid-texture {
-    background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(95, 237, 131, 0.24) 1px, transparent 1px);
     background-size: 22px 22px;
     mask-image: linear-gradient(180deg, black, transparent 82%);
   }
@@ -239,7 +145,7 @@
 }
 
 .badge-edit-root button {
-  background-color: hsl(var(--control)) !important;
+  background-color: hsl(137 7% 8%) !important;
   background-image: none !important;
   box-shadow: none !important;
   color: hsl(var(--foreground)) !important;
@@ -247,18 +153,18 @@
 }
 
 .badge-edit-root button:hover {
-  background-color: hsl(var(--control-hover)) !important;
+  background-color: hsl(137 7% 11%) !important;
   background-image: none !important;
   box-shadow: none !important;
   text-shadow: none;
 }
 
 .badge-edit-root button[class*="border-red"] {
-  background-color: hsl(var(--control-danger)) !important;
+  background-color: hsl(353 25% 11%) !important;
 }
 
 .badge-edit-root button[class*="border-red"]:hover {
-  background-color: hsl(var(--control-danger-hover)) !important;
+  background-color: hsl(353 32% 14%) !important;
 }
 
 .badge-edit-root button.badge-edit-dropzone {
@@ -328,33 +234,8 @@
 }
 
 .prose pre {
-  @apply my-6 overflow-x-auto rounded-xl border border-primary/15 p-5 text-sm shadow-none;
-    background-color: hsl(var(--code-bg));
-  }
-
-  .prose pre span[style*="--shiki-dark"],
-  .astro-code,
-  .astro-code span {
-    color: var(--shiki-dark);
-  }
-
-  .astro-code {
-    background-color: var(--shiki-dark-bg) !important;
-  }
-
-  :root.light .prose pre span[style*="--shiki-light"],
-  :root.light .astro-code,
-  :root.light .astro-code span {
-    color: var(--shiki-light);
-  }
-
-  :root.light .astro-code {
-    background-color: hsl(var(--code-bg)) !important;
-  }
-
-  .prose pre.astro-code code {
-    color: inherit;
-  }
+  @apply my-6 overflow-x-auto rounded-xl border border-primary/15 bg-[#080b09] p-5 text-sm shadow-none;
+}
 
 .prose pre code {
   @apply font-mono text-sm leading-6 text-foreground/90;

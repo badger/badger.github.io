@@ -1,4 +1,5 @@
 ---
+import { sitePath } from '@/lib/site-path'
 import Layout from '@/layouts/Layout.astro'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -36,7 +37,7 @@ const imageSrc = getPlaceholderImage('led-pattern.jpg')
   <!-- Back Navigation -->
   <nav class="border-b bg-background/95 backdrop-blur">
     <div class="container py-4">
-      <a href="/hacks" class="inline-flex items-center gap-2 font-mono text-sm text-muted-foreground transition-colors hover:text-primary">
+      <a href={sitePath('/hacks')} class="inline-flex items-center gap-2 font-mono text-sm text-muted-foreground transition-colors hover:text-primary">
         <ArrowLeft class="h-4 w-4" />
         Back to Hacks
       </a>

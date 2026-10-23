@@ -1,5 +1,6 @@
 import { firmwareCompat } from './badge-firmware-compat'
 import { fileBytes, projectFile, simulationSource, validateFilePath, type EditorCatalog, type EditorCatalogApp, type ProjectFile } from './badge-editor-project'
+import { sitePath } from './site-path'
 
 export type BadgeOsApp = { name: string; files: ProjectFile[] }
 export type BadgeOsCatalog = EditorCatalog & { launcher?: EditorCatalogApp & { stock?: string[] } }
@@ -94,7 +95,7 @@ export function badgeOsRequest(menu: BadgeOsApp, apps: BadgeOsApp[], prelude = '
 async function loadApp(app: EditorCatalogApp): Promise<BadgeOsApp> {
   const files = await Promise.all(app.files.map(async path => {
     validateFilePath(path)
-    const response = await fetch(`/editor-apps/${encodeURIComponent(app.name)}/${path.split('/').map(encodeURIComponent).join('/')}`)
+    const response = await fetch(sitePath(`/editor-apps/${encodeURIComponent(app.name)}/${path.split('/').map(encodeURIComponent).join('/')}`))
     if (!response.ok) throw new Error(`Could not load ${app.name}/${path}`)
     return projectFile(path, new Uint8Array(await response.arrayBuffer()))
   }))
@@ -102,7 +103,7 @@ async function loadApp(app: EditorCatalogApp): Promise<BadgeOsApp> {
 }
 
 export async function loadBadgeOs() {
-  const response = await fetch('/editor-apps/catalog.json')
+  const response = await fetch(sitePath('/editor-apps/catalog.json'))
   if (!response.ok) throw new Error('Could not load the app catalog')
   const catalog = await response.json() as BadgeOsCatalog
   if (!catalog.launcher) throw new Error('The app catalog has no launcher')

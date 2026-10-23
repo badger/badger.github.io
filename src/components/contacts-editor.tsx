@@ -262,7 +262,7 @@ export function ContactsEditor() {
       </section>
 
       {!supported && <div className="flex gap-3 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4 text-sm text-amber-100"><CircleAlert className="h-5 w-5 shrink-0" /><p>Web Bluetooth is unavailable here. Use Chrome or Edge on desktop or Android over HTTPS or localhost.</p></div>}
-      {error && <div className="flex gap-3 rounded-xl border border-red-400/30 bg-red-400/5 p-4 text-sm text-red-700 dark:text-red-200"><CircleAlert className="h-5 w-5 shrink-0" /><p>{error}</p></div>}
+      {error && <div className="flex gap-3 rounded-xl border border-red-400/30 bg-red-400/5 p-4 text-sm text-red-200"><CircleAlert className="h-5 w-5 shrink-0" /><p>{error}</p></div>}
       {notice && <div className="flex gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm text-foreground"><Check className="h-5 w-5 shrink-0 text-primary" /><p>{notice}</p></div>}
 
       <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
@@ -280,7 +280,7 @@ export function ContactsEditor() {
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => void refresh()} disabled={!connected || loadingContacts} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 font-mono text-xs text-foreground hover:border-primary/60 disabled:opacity-40"><RefreshCw className={`h-4 w-4 ${loadingContacts ? 'animate-spin' : ''}`} />Refresh</button>
               <button type="button" onClick={download} disabled={!csv} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 font-mono text-xs text-foreground hover:border-primary/60 disabled:opacity-40"><Download className="h-4 w-4" />CSV</button>
-              <button type="button" onClick={() => void clearContacts()} disabled={!connected} className="inline-flex items-center gap-2 rounded-lg border border-red-400/30 px-3 py-2 font-mono text-xs text-red-700 dark:text-red-300 hover:bg-red-400/5 disabled:opacity-40"><Trash2 className="h-4 w-4" />Clear</button>
+              <button type="button" onClick={() => void clearContacts()} disabled={!connected} className="inline-flex items-center gap-2 rounded-lg border border-red-400/30 px-3 py-2 font-mono text-xs text-red-300 hover:bg-red-400/5 disabled:opacity-40"><Trash2 className="h-4 w-4" />Clear</button>
             </div>
           </div>
           {contacts.length ? <div className="mt-6 overflow-x-auto rounded-lg border border-border/60"><table className="w-full min-w-[520px] border-collapse text-left text-sm"><thead><tr className="border-b border-border/60 bg-background/60 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-muted-foreground"><th className="px-4 py-3 font-normal">Name</th><th className="px-4 py-3 font-normal">LinkedIn</th></tr></thead><tbody>{contacts.map((cells, index) => <tr key={`${cells[0]}-${index}`} className="border-b border-border/40 last:border-0"><td className="px-4 py-3 text-foreground">{cells[0]}</td><td className="px-4 py-3">{validLinkedIn(cells[1] || '') ? <a href={cells[1]} target="_blank" rel="noreferrer" className="text-primary hover:underline">{cells[1].replace(/^https:\/\/(www\.)?/, '')}</a> : <span className="text-muted-foreground">{cells[1]}</span>}</td></tr>)}</tbody></table></div> : <div className="mt-6 rounded-lg border border-dashed border-border p-8 text-center text-sm leading-6 text-muted-foreground">{connected ? 'No exchanged contacts are stored on this badge yet.' : 'Connect to preview the badge contact list.'}</div>}

@@ -1,0 +1,55 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import DoomSimulator from '@/components/doom-simulator.astro'
+import DoomExperiencePanel from '@/components/doom-experience-panel.astro'
+import DoomSourceArt from '@/components/doom-source-art.astro'
+---
+
+<DoomSourceArt />
+<Layout title="But does it run DOOM? | GitHub Badger" description="Play Doom 1 v1.9 shareware on a virtual GitHub Badger badge in your browser. Play with your GitHub avatar." robots="noindex,nofollow" viewportFit="cover"
+  socialImage={{ src: '/images/d00m3d-og.gif', alt: 'GitHub Badger badge running the Doom shareware demo', width: 800, height: 420 }}>
+  <section class="doom-layout">
+    <DoomSimulator />
+    <DoomExperiencePanel />
+  </section>
+</Layout>
+
+<style>
+  .doom-layout {
+    display: grid;
+    grid-template-areas: 'game' 'panel';
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 1.25rem 1rem;
+    align-items: start;
+  }
+  .doom-layout :global(.doom-experience-panel) { grid-area: panel; }
+  .doom-layout :global(#doom-simulator) { grid-area: game; min-width: 0; }
+
+  @media (min-width: 1024px) {
+    :global(body:has(.doom-layout)) {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      min-height: 0;
+      overflow: hidden;
+    }
+    :global(body:has(.doom-layout) > main) { flex: 1; min-height: 0; }
+    :global(body:has(.doom-layout) > footer) { display: none; }
+    .doom-layout {
+      grid-template-areas: 'panel game';
+      grid-template-columns: clamp(22rem, 32vw, 32rem) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+      height: 100%;
+      padding: 1.5rem;
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+    .doom-layout :global(.doom-experience-panel) {
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .doom-layout :global(#doom-simulator) { height: 100%; }
+  }
+</style>

@@ -39,17 +39,8 @@ export default defineConfig({
       ],
     }),
   ],
-  site: 'https://badger.github.io',
-  base: '/',
-  markdown: {
-    shikiConfig: {
-      themes: {
-        light: 'github-light',
-        dark: 'github-dark',
-      },
-      defaultColor: false,
-    },
-  },
+  site: process.env.SITE_URL || 'https://badger.github.io',
+  base: process.env.BASE_PATH || '/',
   vite: {
     server: {
       // Disable caching in dev mode

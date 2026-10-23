@@ -2,6 +2,7 @@ import { BadgeInput, initBadgeKeyboard } from './badge-editor-input'
 import { createBadgeModelController } from './badge-editor-model-controller'
 import { initBadgeMotion } from './badge-motion'
 import { loadBadgeOs } from './badge-os-simulator'
+import { sitePath } from './site-path'
 
 const bootTimeout = 20000
 const frameTimeout = 10000
@@ -119,7 +120,7 @@ export function initBadgeOsSimulator(root: HTMLElement) {
     try {
       const request = await loadBadgeOs()
       if (failed) return
-      const next = new Worker('/simulator/micropython.worker.js', { type: 'module' })
+      const next = new Worker(sitePath('/simulator/micropython.worker.js'), { type: 'module' })
       worker = next
       watchdog(bootTimeout, 'Simulator boot timed out')
       next.onerror = event => { event.preventDefault(); fail(event.message || 'Worker error') }

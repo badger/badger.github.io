@@ -1,4 +1,5 @@
 ---
+import { sitePath } from '@/lib/site-path'
 import Layout from '@/layouts/Layout.astro'
 import PreinstalledAppCard from '@/components/preinstalled-app-card.astro'
 import { HackCard } from '@/components/hack-card'
@@ -32,16 +33,16 @@ const featuredHacks = allHacks
 
           <div class="flex flex-wrap gap-3">
             {APP_CATALOG_PAGE_ENABLED && (
-              <a href="/browse-apps" class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
+              <a href={sitePath('/browse-apps')} class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-mono text-sm text-primary-foreground transition-colors hover:bg-primary/85">
                 Browse apps
                 <Grid3x3 className="h-4 w-4" />
               </a>
             )}
-            <a href="/apps" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
+            <a href={sitePath('/apps')} class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
               Manage apps
               <PlugZap className="h-4 w-4" />
             </a>
-            <a href="/build" class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
+            <a href={sitePath('/build')} class="inline-flex h-11 items-center gap-2 rounded-md border border-border/90 px-5 font-mono text-sm transition-colors hover:border-primary/60 hover:text-primary">
               <Hammer className="h-4 w-4" />
               Build apps
             </a>
@@ -50,7 +51,7 @@ const featuredHacks = allHacks
 
         <div class="relative mx-auto w-full max-w-[28rem]">
           <div class="surface overflow-hidden p-2">
-            <img src="/images/hero.jpg" alt="Badger 2350 hardware badge" class="aspect-[3/4] w-full rounded-lg object-cover" />
+            <img src={sitePath('/images/hero.jpg')} alt="Badger 2350 hardware badge" class="aspect-[3/4] w-full rounded-lg object-cover" />
           </div>
         </div>
       </div>
@@ -60,11 +61,11 @@ const featuredHacks = allHacks
   <section class="border-b border-border/70 py-16">
     <div class="container">
       <div class="grid gap-6 md:grid-cols-2">
-        <a href="/get-started" class="surface surface-hover group p-6">
+        <a href={sitePath('/get-started')} class="surface surface-hover group p-6">
           <h2 class="text-2xl">Get to first boot</h2>
           <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">Open guide <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
         </a>
-        <a href="/about-badge" class="surface surface-hover group p-6">
+        <a href={sitePath('/about-badge')} class="surface surface-hover group p-6">
           <h2 class="text-2xl">Hardware map</h2>
           <span class="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-primary">View hardware <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
         </a>

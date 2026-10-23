@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "engine": "WebSockets Doom (Chocolate Doom port)",
+  "engineVersion": "0.0.1",
+  "upstreamSourceRevision": "a77edfd8bbc7e66b119a49c954f69a8b24e59206",
+  "upstreamSourceUrl": "https://github.com/Saketh-Chandra/doom-wasm-pwa/tree/a77edfd8bbc7e66b119a49c954f69a8b24e59206",
+  "emscriptenVersion": "3.1.45",
+  "adapterContractVersion": 1,
+  "javascript": {
+    "path": "/doom/runtime/doom.mjs",
+    "size": 272233,
+    "sha256": "eff913de80fffe23355092326a36b75a3847220c46087b6417d83d4941b2602d"
+  },
+  "wasm": {
+    "path": "/doom/runtime/doom.wasm",
+    "size": 2300423,
+    "sha256": "f95f19c3887991db8a2e0f8c5d365b6dd15c49bd38bc5417a6606be3aed83be2"
+  },
+  "license": {
+    "path": "/doom/runtime/COPYING.txt",
+    "size": 17984,
+    "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+  },
+  "correspondingSource": {
+    "path": "/doom/runtime/SOURCE.md",
+    "size": 1950,
+    "sha256": "1e0141642343d7ef06ed3e9c8fd066d8518c579a78bd49d519638d19b2df3fa2"
+  }
+}

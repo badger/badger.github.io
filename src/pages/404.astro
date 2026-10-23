@@ -1,0 +1,18 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { sitePath } from '@/lib/site-path'
+---
+
+<Layout title="Page not found" robots="noindex,nofollow">
+  <section class="mx-auto max-w-3xl px-4 py-16">
+    <h1 class="text-3xl">Page not found</h1>
+    <p class="mt-4 text-muted-foreground">Check the path or return to the index.</p>
+    <a href={sitePath('/')} class="mt-6 inline-block font-mono text-sm text-primary">Return to index</a>
+  </section>
+</Layout>
+
+<script>
+  import { doomAliasDestination } from '@/lib/doom-aliases'
+  const destination = doomAliasDestination(location.pathname, import.meta.env.BASE_URL)
+  if (destination) location.replace(destination + location.search + location.hash)
+</script>

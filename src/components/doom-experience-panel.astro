@@ -1,0 +1,47 @@
+---
+import DoomDownload from './doom-download.astro'
+import UniverseCallout from './universe-callout.astro'
+import DoomProTip from './doom-pro-tip.astro'
+import DoomShare from './doom-share.astro'
+import DoomInstallationHelp from './doom-installation-help.astro'
+import DoomControls from './doom-controls.astro'
+import DoomLegal from './doom-legal.astro'
+---
+
+<article class="doom-experience-panel" aria-labelledby="doom-title">
+  <header>
+    <h1 id="doom-title">But does it run DOOM?</h1>
+    <p class="doom-subheading">On a GitHub badge? Of course it does.</p>
+  </header>
+  <div class="doom-calls-to-action">
+    <DoomDownload />
+    <UniverseCallout />
+  </div>
+  <DoomProTip />
+  <DoomShare />
+  <footer class="doom-panel-footer" aria-label="Badge help and legal information">
+    <DoomInstallationHelp />
+    <DoomControls />
+    <DoomLegal />
+  </footer>
+</article>
+
+<style>
+  .doom-experience-panel { min-width: 0; padding: 1.5rem; border: 1px solid hsl(var(--border) / 0.4); border-radius: 0.5rem; background: hsl(var(--card)); }
+  h1 { font-size: clamp(2rem, 2.8vw, 2.75rem); line-height: 1.08; color: hsl(var(--primary)); text-wrap: balance; }
+  .doom-subheading { margin-top: 1rem; color: hsl(var(--muted-foreground)); font-size: 1.125rem; line-height: 1.6; }
+  .doom-calls-to-action { display: grid; gap: 0.75rem; margin-top: 1.75rem; }
+  .doom-experience-panel :global([data-doom-pro-tip]), .doom-experience-panel :global([data-doom-share]) { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid hsl(var(--border) / 0.6); }
+  .doom-panel-footer { display: grid; grid-template-columns: minmax(0, 1fr); margin-top: 1rem; }
+  .doom-panel-footer :global(> details > summary) { display: flex; align-items: center; min-height: 44px; list-style: none; cursor: pointer; color: hsl(var(--muted-foreground)); font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.6875rem; }
+  .doom-panel-footer :global(summary::-webkit-details-marker) { display: none; }
+  .doom-panel-footer :global(summary:hover), .doom-panel-footer :global(details[open] > summary) { color: hsl(var(--foreground)); }
+  .doom-panel-footer :global(summary:focus-visible) { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+  .doom-panel-footer :global(.doom-help-content) { padding: 0.75rem 0; color: hsl(var(--muted-foreground)); font-size: 0.75rem; line-height: 1.75; }
+  .doom-panel-footer :global(details:not([open]) > .doom-help-content) { display: none; }
+  @media (max-width: 639px) {
+    .doom-experience-panel { padding: 1.25rem; }
+    h1 { font-size: clamp(1.75rem, 7vw, 2.25rem); }
+    .doom-subheading { font-size: 1rem; }
+  }
+</style>

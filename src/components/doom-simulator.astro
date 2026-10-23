@@ -1,0 +1,109 @@
+---
+import { Expand, Maximize, Minus, Plus, RotateCw, ScanSearch, SlidersHorizontal } from 'lucide-react'
+import DoomBadgeLinks from './doom-badge-links.astro'
+import DoomVideo from './doom-video.astro'
+import DoomMobileControls from './doom-mobile-controls.astro'
+import { sitePath } from '@/lib/site-path'
+---
+
+<section id="doom-simulator" tabindex="-1" aria-label="Doom simulator">
+  <header class="doom-toolbar flex flex-wrap items-center justify-between gap-4 pb-4">
+    <div class="doom-load-status">
+      <span data-doom-load-state class="sr-only">Auto loading</span>
+      <p data-doom-status role="status" class="mt-1 font-mono text-xs text-muted-foreground">Loading Doom runtime</p>
+    </div>
+    <div class="doom-view-controls flex flex-wrap items-center gap-2">
+      <button data-model-screen class="doom-tool" aria-pressed="false" disabled><ScanSearch /> Screen</button>
+      <button data-model-full class="doom-tool" aria-pressed="true" disabled><Maximize /> Full</button>
+      <button data-doom-view-options class="doom-icon doom-mobile-tool" aria-label="View options" aria-expanded="false" aria-controls="doom-secondary-tools"><SlidersHorizontal /></button>
+      <button data-doom-fullscreen class="doom-icon doom-mobile-tool" aria-label="Enter fullscreen" aria-pressed="false"><Expand /></button>
+      <div id="doom-secondary-tools" class="doom-secondary-tools">
+        <button data-model-rotate class="doom-tool" aria-pressed="false"><RotateCw /> Rotate</button>
+        <button data-model-zoom-in class="doom-icon" aria-label="Zoom in" disabled><Plus /></button>
+        <button data-model-zoom-out class="doom-icon" aria-label="Zoom out" disabled><Minus /></button>
+      </div>
+    </div>
+  </header>
+  <video data-party-marty-video hidden preload="none" muted loop playsinline></video>
+
+  <div class="doom-stage">
+    <div data-doom-model data-state="idle" class="doom-model">
+      <img data-doom-preview src={sitePath('/images/doom-badge-preview.webp')} alt="GitHub badge with DOOM running on its screen" width="293" height="600" fetchpriority="high" class="doom-preview" />
+      <canvas data-doom-runtime-screen width="320" height="200" aria-hidden="true"></canvas>
+      <div data-doom-fallback class="doom-fallback">
+        <canvas data-doom-screen width="320" height="200" tabindex="0" aria-label="Doom display. Use arrow keys, Ctrl or J to fire, Space or K to use, Shift or Alt to strafe, Escape for menu, and Enter to confirm."></canvas>
+        <DoomVideo />
+      </div>
+      <p data-model-status class="pointer-events-none absolute inset-x-4 bottom-3 text-center font-mono text-xs text-muted-foreground">Loading 3D badge view</p>
+    </div>
+
+    <div class="doom-inputs mt-4">
+      <DoomMobileControls />
+      <DoomBadgeLinks />
+    </div>
+  </div>
+</section>
+
+<style>
+  .doom-model { position: relative; height: clamp(360px, 68vh, 850px); overflow: hidden; background: hsl(var(--background)); }
+  .doom-preview { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: contain; padding: 0.75rem; pointer-events: none; }
+  .doom-model[data-state="ready"] .doom-preview, .doom-model[data-state="fallback"] .doom-preview { display: none; }
+  .doom-model :global(> canvas) { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
+  .doom-model :global(> canvas:focus-visible) { outline: 2px solid hsl(var(--primary)); outline-offset: -2px; }
+  .doom-model :global(> canvas[data-doom-runtime-screen]) { position: absolute; left: 0; top: 0; width: 320px; height: 200px; opacity: 0; pointer-events: none; }
+  .doom-fallback { display: grid; height: 100%; place-items: center; padding: 1rem; }
+  .doom-fallback[hidden] { position: absolute; left: 0; top: 0; display: block; width: 320px; height: 200px; padding: 0; opacity: 0; pointer-events: none; overflow: hidden; }
+  .doom-fallback[hidden] canvas { width: 320px; height: 200px; border: 0; }
+  .doom-fallback canvas { width: min(100%, 960px); aspect-ratio: 8 / 5; image-rendering: pixelated; border: 1px solid hsl(var(--border) / 0.4); background: hsl(var(--background)); }
+  .doom-tool, .doom-icon { display: inline-flex; align-items: center; justify-content: center; gap: 0.625rem; border: 1px solid hsl(var(--border) / 0.4); border-radius: 0.375rem; background: transparent; font-family: ui-monospace, monospace; transition: border-color 150ms, background-color 150ms; }
+  .doom-tool:hover:not(:disabled), .doom-icon:hover:not(:disabled) { border-color: hsl(var(--primary) / 0.5); background: hsl(var(--primary) / 0.05); }
+  .doom-tool { height: 2.25rem; padding: 0 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.75rem; }
+  .doom-tool :global(svg), .doom-icon :global(svg) { width: 1rem; height: 1rem; }
+  .doom-icon { width: 2.25rem; height: 2.25rem; }
+  .doom-tool:disabled, .doom-icon:disabled { opacity: 0.45; }
+  .doom-tool:focus-visible, .doom-icon:focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 2px; }
+  .doom-secondary-tools { display: flex; gap: 0.5rem; }
+  .doom-mobile-tool { display: none; }
+
+  @media (max-width: 1023px) {
+    #doom-simulator { scroll-margin-top: 1rem; }
+    .doom-toolbar { gap: 0.5rem; padding-bottom: 0.75rem; }
+    .doom-load-status:has([data-doom-status][hidden]) { display: none; }
+    .doom-view-controls { width: 100%; flex-wrap: wrap; }
+    .doom-view-controls > .doom-tool { flex: 1; padding-inline: 0.5rem; }
+    .doom-tool, .doom-icon { min-height: 44px; height: 44px; }
+    .doom-icon { width: 44px; }
+    .doom-mobile-tool { display: inline-flex; }
+    .doom-secondary-tools { display: none; flex-basis: 100%; justify-content: flex-end; }
+    #doom-simulator[data-view-options="true"] .doom-secondary-tools { display: flex; }
+    .doom-model { height: clamp(280px, 48svh, 480px); min-height: 180px; }
+    .doom-fallback canvas { max-height: 100%; object-fit: contain; }
+    #doom-simulator[data-fullscreen="true"] { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; padding: max(0.5rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.5rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left)); overflow-y: auto; background: hsl(var(--background)); }
+    #doom-simulator[data-fullscreen="true"] .doom-stage { flex: 1; min-height: 0; }
+    :global(body.doom-fullscreen-open) { overflow: hidden; }
+  }
+
+  @media (max-width: 1023px) and (orientation: landscape) {
+    .doom-stage { display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: 0.75rem; align-items: start; }
+    .doom-model { height: max(180px, calc(100dvh - 5rem)); aspect-ratio: auto; }
+    .doom-inputs { min-width: 0; margin-top: 0; }
+    #doom-simulator[data-fullscreen="true"] .doom-model { height: 100%; min-height: 180px; }
+  }
+
+  @media (min-width: 1024px) {
+    #doom-simulator { display: flex; flex-direction: column; min-height: 0; }
+    .doom-toolbar { flex-shrink: 0; padding: 1rem; }
+    .doom-stage { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+    .doom-model { flex: 1; min-height: 0; height: auto; }
+    .doom-inputs { flex-shrink: 0; margin-top: 0; padding: 1rem; }
+  }
+</style>
+
+<script>
+  import { initDoomPage } from '@/lib/doom-page'
+  import { doomAliasDestination } from '@/lib/doom-aliases'
+  const destination = doomAliasDestination(location.pathname, import.meta.env.BASE_URL)
+  const root = document.getElementById('doom-simulator')
+  if (destination) location.replace(destination + location.search + location.hash)
+  else if (root) initDoomPage(root)
+</script>

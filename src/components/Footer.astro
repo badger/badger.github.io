@@ -1,5 +1,6 @@
 ---
 import { APP_CATALOG_PAGE_ENABLED, BLUETOOTH_EDITOR_ENABLED, CONTACTS_PAGE_ENABLED } from '@/config/features'
+import { sitePath } from '@/lib/site-path'
 ---
 
 <footer class="border-t border-border/80 bg-background/80">
@@ -7,7 +8,7 @@ import { APP_CATALOG_PAGE_ENABLED, BLUETOOTH_EDITOR_ENABLED, CONTACTS_PAGE_ENABL
     <div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
       <div class="max-w-xs">
         <div class="flex items-center gap-3">
-          <img src="/favicon.svg" alt="" class="h-8 w-8" />
+          <img src={sitePath('/favicon.svg')} alt="" class="h-8 w-8" />
           <h2 class="font-display text-xl">Badger</h2>
         </div>
       </div>
@@ -15,21 +16,21 @@ import { APP_CATALOG_PAGE_ENABLED, BLUETOOTH_EDITOR_ENABLED, CONTACTS_PAGE_ENABL
       <div>
         <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Guides</h3>
         <ul class="space-y-2 text-sm text-muted-foreground">
-          <li><a href="/get-started" class="transition-colors hover:text-primary">Get started</a></li>
-          <li><a href="/build" class="transition-colors hover:text-primary">Build</a></li>
-          {APP_CATALOG_PAGE_ENABLED && <li><a href="/browse-apps" class="transition-colors hover:text-primary">Browse apps</a></li>}
-          <li><a href="/hacks" class="transition-colors hover:text-primary">Browse hacks</a></li>
+          <li><a href={sitePath('/get-started')} class="transition-colors hover:text-primary">Get started</a></li>
+          <li><a href={sitePath('/build')} class="transition-colors hover:text-primary">Build</a></li>
+          {APP_CATALOG_PAGE_ENABLED && <li><a href={sitePath('/browse-apps')} class="transition-colors hover:text-primary">Browse apps</a></li>}
+          <li><a href={sitePath('/hacks')} class="transition-colors hover:text-primary">Browse hacks</a></li>
         </ul>
       </div>
 
       <div>
         <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.16em] text-foreground">Tools</h3>
         <ul class="space-y-2 text-sm text-muted-foreground">
-          <li><a href="/about-badge" class="transition-colors hover:text-primary">Hardware map</a></li>
-          <li><a href="/editor" class="transition-colors hover:text-primary">Python editor and simulator</a></li>
-          <li><a href="/apps" class="transition-colors hover:text-primary">Apps and USB editor</a></li>
-          {BLUETOOTH_EDITOR_ENABLED && <li><a href="/edit/bluetooth" class="transition-colors hover:text-primary">Bluetooth editor</a></li>}
-          {CONTACTS_PAGE_ENABLED && <li><a href="/contacts" class="transition-colors hover:text-primary">Contacts</a></li>}
+          <li><a href={sitePath('/about-badge')} class="transition-colors hover:text-primary">Hardware map</a></li>
+          <li><a href={sitePath('/editor')} class="transition-colors hover:text-primary">Python editor and simulator</a></li>
+          <li><a href={sitePath('/apps')} class="transition-colors hover:text-primary">Apps and USB editor</a></li>
+          {BLUETOOTH_EDITOR_ENABLED && <li><a href={sitePath('/edit/bluetooth')} class="transition-colors hover:text-primary">Bluetooth editor</a></li>}
+          {CONTACTS_PAGE_ENABLED && <li><a href={sitePath('/contacts')} class="transition-colors hover:text-primary">Contacts</a></li>}
           <li><a href="https://github.com/badger/home" target="_blank" rel="noopener" class="transition-colors hover:text-primary">Firmware repo</a></li>
         </ul>
       </div>

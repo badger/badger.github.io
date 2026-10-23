@@ -311,9 +311,9 @@ export function BluetoothEditor() {
       </section>
 
       {!supported && <div className="flex gap-3 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4 text-sm text-amber-100"><CircleAlert className="h-5 w-5 shrink-0" /><p>Web Bluetooth is unavailable here. Use Chrome or Edge on desktop or Android over HTTPS or localhost.</p></div>}
-      {error && <div className="flex gap-3 rounded-xl border border-red-400/30 bg-red-400/5 p-4 text-sm text-red-700 dark:text-red-200"><CircleAlert className="h-5 w-5 shrink-0" /><p>{error}</p></div>}
+      {error && <div className="flex gap-3 rounded-xl border border-red-400/30 bg-red-400/5 p-4 text-sm text-red-200"><CircleAlert className="h-5 w-5 shrink-0" /><p>{error}</p></div>}
       {appliedVersion !== null && <div className="flex gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm text-foreground"><Check className="h-5 w-5 shrink-0 text-primary" /><p>Saved as v{appliedVersion}. Press RESET on the back of the badge to load the new settings.</p></div>}
-      {testResult && <div className={`flex gap-3 rounded-xl border p-4 text-sm ${testResult.ok ? 'border-primary/30 bg-primary/5 text-foreground' : 'border-red-400/30 bg-red-400/5 text-red-700 dark:text-red-200'}`}><FlaskConical className="h-5 w-5 shrink-0" /><p>{testResult.ok ? `Datasync passed in ${testResult.ms} ms. Sent ${testResult.sent} bytes and received ${testResult.received}.` : testResult.error || 'Datasync test failed.'}</p></div>}
+      {testResult && <div className={`flex gap-3 rounded-xl border p-4 text-sm ${testResult.ok ? 'border-primary/30 bg-primary/5 text-foreground' : 'border-red-400/30 bg-red-400/5 text-red-200'}`}><FlaskConical className="h-5 w-5 shrink-0" /><p>{testResult.ok ? `Datasync passed in ${testResult.ms} ms. Sent ${testResult.sent} bytes and received ${testResult.received}.` : testResult.error || 'Datasync test failed.'}</p></div>}
 
       {connected && <div className="flex gap-1 rounded-lg border border-border/60 bg-card/70 p-1">
         <button type="button" onClick={() => setView('editor')} className={`flex-1 rounded-md px-3 py-2 font-mono text-xs uppercase tracking-[0.12em] transition-colors ${view === 'editor' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}>Editor</button>
@@ -330,7 +330,7 @@ export function BluetoothEditor() {
               <button type="button" onClick={() => void save()} disabled={!connected || pushing} className="inline-flex items-center gap-2 rounded-lg border border-primary/45 bg-primary/10 px-3 py-2 font-mono text-xs text-primary transition-colors hover:bg-primary/15 disabled:opacity-40"><Save className="h-4 w-4" />{pushing ? 'Pushing…' : 'Save and push'}</button>
             </div>
           </div>
-          <textarea value={contentVisible ? content : content.replace(/[^\r\n]/g, '•')} onChange={(event) => { setContent(event.target.value); setDirty(true) }} readOnly={!contentVisible} spellCheck={false} autoCapitalize="off" autoCorrect="off" placeholder="Waiting for the badge…" className="mt-5 min-h-[420px] w-full resize-y rounded-xl border border-border/60 bg-[hsl(var(--inset))] p-4 font-mono text-sm leading-6 text-foreground outline-none transition focus:border-primary/70 focus:ring-1 focus:ring-primary/30" />
+          <textarea value={contentVisible ? content : content.replace(/[^\r\n]/g, '•')} onChange={(event) => { setContent(event.target.value); setDirty(true) }} readOnly={!contentVisible} spellCheck={false} autoCapitalize="off" autoCorrect="off" placeholder="Waiting for the badge…" className="mt-5 min-h-[420px] w-full resize-y rounded-xl border border-border/60 bg-black/30 p-4 font-mono text-sm leading-6 text-foreground outline-none transition focus:border-primary/70 focus:ring-1 focus:ring-primary/30" />
         </section>
       ) : (
         <section className="surface p-6 sm:p-8">

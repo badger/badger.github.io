@@ -1,0 +1,70 @@
+---
+import { Camera, Link, Share2 } from 'lucide-react'
+import DoomSelfie from './doom-selfie.astro'
+import { socialURL, type SocialPlatform } from '@/lib/doom-share'
+const platforms: { id: SocialPlatform; label: string }[] = [
+  { id: 'x', label: 'X' },
+  { id: 'linkedin', label: 'LinkedIn' },
+  { id: 'threads', label: 'Threads' },
+  { id: 'facebook', label: 'Facebook' },
+  { id: 'bluesky', label: 'Bluesky' },
+]
+---
+
+<div data-doom-share class="doom-share">
+  <h2 class="doom-share-heading">Show off your DOOM badge</h2>
+  <div class="doom-share-controls">
+    <button type="button" data-doom-selfie-save hidden disabled aria-label="Capture my DOOM badge" aria-describedby="doom-selfie-feedback"
+      title="Drag the badge to pose it. Save a 1200 × 630 PNG with your avatar and DOOM on screen. The image preserves your current view and zoom."><Camera aria-hidden="true" /><span>Capture badge</span></button>
+    <button type="button" data-share-open aria-expanded="false" aria-controls="doom-share-options"><Share2 aria-hidden="true" /><span>Share</span></button>
+    <button type="button" data-share-copy><Link aria-hidden="true" /><span>Copy link</span></button>
+  </div>
+  <div id="doom-share-options" data-share-menu popover="auto" aria-label="Share your DOOM badge">
+    <p class="mb-2 font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">Share your badge</p>
+    <button type="button" data-share-native hidden><Share2 aria-hidden="true" />Share via device</button>
+    <nav aria-label="Share Doom" class="doom-social-platforms">
+      {platforms.map(platform => (
+        <a data-share-platform={platform.id} href={socialURL(platform.id, Astro.url.href)}
+          target="_blank" rel="noopener noreferrer" aria-label={`Share on ${platform.label} (opens a new tab)`}>{platform.label}</a>
+      ))}
+      <button type="button" data-share-mastodon>Mastodon</button>
+    </nav>
+    <form data-share-mastodon-form hidden class="mt-2">
+      <label for="doom-mastodon-server" class="block text-muted-foreground">Your Mastodon server</label>
+      <div class="mt-1 flex flex-wrap gap-2">
+        <input id="doom-mastodon-server" name="server" placeholder="mastodon.social" required maxlength="253"
+          autocomplete="url" inputmode="url" autocapitalize="none" spellcheck="false" />
+        <button type="submit">Open composer</button>
+      </div>
+    </form>
+  </div>
+  <DoomSelfie />
+  <p data-share-status role="status" class="text-xs text-muted-foreground"></p>
+  <input data-share-fallback hidden readonly aria-label="Share link" class="mt-1 w-full" />
+</div>
+
+<style>
+  .doom-share { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.75rem; }
+  .doom-share-heading { margin-bottom: 1rem; font-family: inherit; font-size: 1rem; font-weight: 400; letter-spacing: 0; }
+  .doom-share-controls { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0.5rem; }
+  .doom-share-controls > button { justify-content: center; min-height: 64px; padding: 0.75rem 0.5rem; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; font-size: 0.75rem; line-height: 1.5; transition: border-color 150ms, background-color 150ms; }
+  .doom-share-controls > button:hover:not(:disabled) { border-color: hsl(var(--primary) / 0.5); background: hsl(var(--primary) / 0.05); }
+  [data-share-menu] { position: fixed; inset: auto; z-index: 30; width: min(20rem, calc(100vw - 2rem)); margin: 0; padding: 1rem; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; background: hsl(var(--card)); color: hsl(var(--foreground)); font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.75rem; box-shadow: 0 12px 32px hsl(var(--background) / 0.5); }
+  .doom-social-platforms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
+  [data-share-native] { width: 100%; border-bottom: 1px solid hsl(var(--border) / 0.4); }
+  button, a { display: inline-flex; align-items: center; gap: 0.625rem; min-height: 2.75rem; color: hsl(var(--foreground)); cursor: pointer; }
+  button:hover:not(:disabled), a:hover { color: hsl(var(--primary)); }
+  button:disabled { opacity: 0.45; cursor: default; }
+  button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+  :global(.doom-share svg) { width: 1rem; height: 1rem; flex-shrink: 0; }
+  [data-share-status]:empty { display: none; }
+  [data-share-status]:not(:empty) { margin-top: 0.75rem; }
+  [hidden] { display: none !important; }
+  input { min-width: 0; max-width: 100%; padding: 0.5rem; background: hsl(var(--background)); color: hsl(var(--foreground)); border: 1px solid hsl(var(--border)); border-radius: 0.25rem; }
+  input::placeholder { color: hsl(var(--muted-foreground)); }
+</style>
+
+<script>
+  import { initDoomShare } from '@/lib/doom-share'
+  for (const root of document.querySelectorAll<HTMLElement>('[data-doom-share]')) initDoomShare(root)
+</script>

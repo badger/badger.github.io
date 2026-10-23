@@ -1,6 +1,9 @@
 import { Box3, CanvasTexture, DirectionalLight, DoubleSide, HemisphereLight, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, PerspectiveCamera, Raycaster, Scene, SRGBColorSpace, Vector2, Vector3, WebGLRenderer, type Material, type Object3D } from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { displayOverlayMatrix } from './badge-display-overlay'
+import { initBadgeIdleRotation } from './badge-model-idle-rotation'
+import { sitePath } from './site-path'
 
 // Corner radius of the badge model's inner circuit board, in model units (metres).
 const BOARD_CORNER_RADIUS = 0.0037
@@ -11,6 +14,11 @@ export interface BadgeModelControls {
   status: HTMLElement
   zoomIn?: HTMLButtonElement
   zoomOut?: HTMLButtonElement
+  displayFit?: 'contain' | 'stretch'
+  idleRotation?: boolean
+  capture?: boolean
+  displayOverlay?: HTMLElement
+  canvasLabel?: string
 }
 
 // Touch pads printed on the front_top artwork, in pixels of its 422x534 texture.
@@ -49,8 +57,9 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   const canvas = renderer.domElement
   canvas.tabIndex = 0
   canvas.setAttribute('role', 'img')
-  canvas.setAttribute('aria-label', 'Interactive 3D badge. Drag to rotate, scroll to zoom. Arrow keys control the badge, Space selects. WASD and J control the gamepad.')
+  canvas.setAttribute('aria-label', elements?.canvasLabel ?? 'Interactive 3D badge. Drag to rotate, scroll to zoom. Arrow keys control the badge, Space selects. WASD and J control the gamepad.')
   host.append(canvas)
+  const displayOverlay = elements?.displayOverlay
   const scene = new Scene()
   const camera = new PerspectiveCamera(35, 1, 0.001, 2)
   const controls = new OrbitControls(camera, canvas)
@@ -83,27 +92,48 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   let displayMesh: Mesh | undefined
   let artwork: { mesh: Mesh; material: MeshStandardMaterial; source: CanvasImageSource; canvas: HTMLCanvasElement; texture: CanvasTexture } | undefined
   let padMask = 0
-  let active: { pointer: number; bit: number } | undefined
+  const active = new Map<number, number>()
   let mask = 0
   let frame = 0
   let disposed = false
   let screenView = screenButton.getAttribute('aria-pressed') === 'true'
   let rotated = false
+  let displayRotated = false
+  let idleRotation: ReturnType<typeof initBadgeIdleRotation> | undefined
 
   function render() {
     if (disposed || frame || document.hidden) return
     frame = requestAnimationFrame(() => {
       frame = 0
       if (disposed) return
-      try { renderer.render(scene, camera) } catch (error) { onError(error) }
+      try {
+        renderer.render(scene, camera)
+        renderOverlay()
+      } catch (error) { onError(error) }
     })
+  }
+  function renderOverlay() {
+    if (!displayOverlay || !displayMesh || displayOverlay.hidden) return
+    const matrix = displayOverlayMatrix(displayMesh, camera, host.clientWidth, host.clientHeight, displayRotated)
+    displayOverlay.style.visibility = matrix ? 'visible' : 'hidden'
+    if (matrix) displayOverlay.style.transform = `matrix3d(${matrix.elements.join(',')})`
   }
   function updateFrame() {
     context.fillStyle = '#000'
     context.fillRect(0, 0, display.width, display.height)
-    const scale = Math.min(display.width / screen.width, display.height / screen.height)
     context.imageSmoothingEnabled = false
-    context.drawImage(screen, (display.width - screen.width * scale) / 2, (display.height - screen.height * scale) / 2, screen.width * scale, screen.height * scale)
+    context.save()
+    if (displayRotated) {
+      context.translate(display.width, display.height)
+      context.rotate(Math.PI)
+    }
+    if (elements?.displayFit === 'stretch') {
+      context.drawImage(screen, 0, 0, display.width, display.height)
+    } else {
+      const scale = Math.min(display.width / screen.width, display.height / screen.height)
+      context.drawImage(screen, (display.width - screen.width * scale) / 2, (display.height - screen.height * scale) / 2, screen.width * scale, screen.height * scale)
+    }
+    context.restore()
     texture.needsUpdate = true
     render()
   }
@@ -135,8 +165,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   function setButtons(value: number) {
     mask = value
     for (const [bit, cap] of caps) {
-      const gamepad = ({ 16: 256, 8: 512, 4: 1024, 2: 2048, 1: 4096 } as Record<number, number>)[bit]
-      const pressed = Boolean(value & (bit | gamepad))
+      const pressed = Boolean(value & bit)
       cap.mesh.position.z = cap.z - (pressed ? 0.0012 : 0)
       cap.material.emissive.setHex(pressed ? 0x5fed83 : 0)
       cap.material.emissiveIntensity = pressed ? 0.6 : 0
@@ -181,7 +210,8 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     if (!model) return
     const { center, distance } = framing(screenView && displayMesh ? displayMesh : model, screenView ? 1.25 : 1.12)
     controls.target.copy(center)
-    camera.position.copy(center).add(new Vector3(screenView ? 0 : distance * 0.04, screenView ? 0 : distance * 0.02, distance))
+    const angled = elements?.idleRotation && !screenView
+    camera.position.copy(center).add(new Vector3(screenView ? 0 : distance * (angled ? 0.2 : 0.04), screenView ? 0 : distance * (angled ? 0.08 : 0.02), distance))
     controls.update()
     render()
   }
@@ -209,6 +239,11 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     if (value === rotated) return
     rotated = value
     applyRotation()
+  }
+  function setDisplayRotated(value: boolean) {
+    if (value === displayRotated) return
+    displayRotated = value
+    updateFrame()
   }
   const resize = new ResizeObserver(() => {
     if (disposed || !host.clientWidth || !host.clientHeight) return
@@ -238,30 +273,33 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   }
   const down = (event: PointerEvent) => {
     canvas.focus({ preventScroll: true })
-    if (event.button !== 0 || active) return
+    if (event.button !== 0 || active.has(event.pointerId)) return
     const bit = hit(event)
     if (!bit) return
     event.preventDefault()
     event.stopImmediatePropagation()
     controls.enabled = false
-    active = { pointer: event.pointerId, bit }
+    active.set(event.pointerId, bit)
     try { canvas.setPointerCapture(event.pointerId) } catch {}
     button(bit, true)
   }
-  const release = () => {
-    if (!active) return
-    const previous = active
-    active = undefined
-    button(previous.bit, false)
-    controls.enabled = true
-    if (canvas.hasPointerCapture(previous.pointer)) canvas.releasePointerCapture(previous.pointer)
+  const release = (pointer?: number) => {
+    const pointers = pointer === undefined ? [...active.keys()] : [pointer]
+    for (const id of pointers) {
+      const bit = active.get(id)
+      if (!bit) continue
+      active.delete(id)
+      button(bit, false)
+      if (canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id)
+    }
+    if (!active.size) controls.enabled = true
   }
   const up = (event: PointerEvent) => {
-    if (event.pointerId !== active?.pointer) return
+    if (!active.has(event.pointerId)) return
     event.stopImmediatePropagation()
-    release()
+    release(event.pointerId)
   }
-  const move = (event: PointerEvent) => { canvas.style.cursor = active || hit(event) ? 'pointer' : 'grab' }
+  const move = (event: PointerEvent) => { canvas.style.cursor = active.size || hit(event) ? 'pointer' : 'grab' }
   const lost = (event: Event) => {
     event.preventDefault()
     onError(new Error('The browser lost its 3D graphics context.'))
@@ -270,21 +308,23 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
   canvas.addEventListener('pointermove', move)
   canvas.addEventListener('pointerup', up, true)
   canvas.addEventListener('pointercancel', up, true)
-  canvas.addEventListener('lostpointercapture', release)
+  const lostCapture = (event: PointerEvent) => release(event.pointerId)
+  canvas.addEventListener('lostpointercapture', lostCapture)
   canvas.addEventListener('webglcontextlost', lost)
-  window.addEventListener('blur', release)
-  document.addEventListener('visibilitychange', release)
+  const releaseAll = () => release()
+  window.addEventListener('blur', releaseAll)
+  document.addEventListener('visibilitychange', releaseAll)
   controls.addEventListener('change', focusZoom)
   controls.addEventListener('change', render)
   screenButton.addEventListener('click', focusScreen)
   fullButton?.addEventListener('click', showFull)
   elements?.zoomIn?.addEventListener('click', zoomIn)
   elements?.zoomOut?.addEventListener('click', zoomOut)
-  const ready = fetch('/simulator/models/github-mona-badge.glb', { signal }).then(async response => {
+  const ready = fetch(sitePath('/simulator/models/github-mona-badge.glb'), { signal }).then(async response => {
     if (!response.ok) throw new Error(`Could not load the badge model (HTTP ${response.status}).`)
     const data = await response.arrayBuffer()
     signal.throwIfAborted()
-    return new GLTFLoader().parseAsync(data, '/simulator/models/')
+    return new GLTFLoader().parseAsync(data, sitePath('/simulator/models/'))
   }).then(gltf => {
     model = gltf.scene
     scene.add(model)
@@ -296,6 +336,10 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
         object.material = displayMaterial
         object.renderOrder = 10
         displayMesh = object
+        if (displayOverlay) {
+          object.geometry.computeBoundingBox()
+          host.append(displayOverlay)
+        }
       }
       if (materials.some(material => material.transparent)) materials.forEach(material => { material.depthWrite = false })
       const art = materials[0] as MeshStandardMaterial
@@ -336,6 +380,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     view()
     if (rotated) applyRotation()
     renderer.render(scene, camera)
+    renderOverlay()
     if (disposed || signal.aborted) return
     host.dataset.state = 'ready'
     status.hidden = true
@@ -343,6 +388,29 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     if (fullButton) fullButton.disabled = false
     if (elements?.zoomIn) elements.zoomIn.disabled = false
     if (elements?.zoomOut) elements.zoomOut.disabled = false
+    if (elements?.capture) {
+      const target = controls.target.clone()
+      const offset = camera.position.clone().sub(target)
+      const capture = (event: Event) => {
+        const { angle } = (event as CustomEvent<{ angle: number }>).detail
+        if (!Number.isFinite(angle)) throw new Error('Capture angle must be finite.')
+        controls.target.copy(target)
+        camera.position.copy(offset).applyAxisAngle(camera.up, angle).add(target)
+        controls.update()
+        updateFrame()
+        cancelAnimationFrame(frame)
+        frame = 0
+        renderer.render(scene, camera)
+      }
+      host.addEventListener('badge:capture', capture, { signal })
+      host.dataset.captureReady = 'true'
+    } else if (elements?.idleRotation) {
+      idleRotation = initBadgeIdleRotation(host, seconds => {
+        camera.position.sub(controls.target).applyAxisAngle(camera.up, seconds * 0.06).add(controls.target)
+        controls.update()
+        render()
+      })
+    }
   })
 
   // The front and back artwork are flat rectangles, so clip them to the
@@ -398,11 +466,28 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     setButtons,
     zoom,
     setRotated,
+    setDisplayRotated,
+    capture(width: number, height: number) {
+      if (!model || disposed) throw new Error('The 3D badge is not ready.')
+      const image = document.createElement('canvas')
+      image.width = width
+      image.height = height
+      const paint = image.getContext('2d')
+      if (!paint) throw new Error('Image export is unavailable in this browser.')
+      updateFrame()
+      renderer.render(scene, camera)
+      const scale = Math.min(width / canvas.width, height / canvas.height)
+      const drawWidth = canvas.width * scale
+      const drawHeight = canvas.height * scale
+      paint.drawImage(canvas, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight)
+      return image
+    },
     setBacklight(value: number) { displayMaterial.color.setScalar(Math.max(0, Math.min(1, value))); render() },
     dispose() {
       if (disposed) return
       disposed = true
-      release()
+      idleRotation?.dispose()
+      releaseAll()
       cancelAnimationFrame(frame)
       resize.disconnect()
       controls.dispose()
@@ -410,12 +495,14 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
       fullButton?.removeEventListener('click', showFull)
       elements?.zoomIn?.removeEventListener('click', zoomIn)
       elements?.zoomOut?.removeEventListener('click', zoomOut)
-      window.removeEventListener('blur', release)
-      document.removeEventListener('visibilitychange', release)
+      window.removeEventListener('blur', releaseAll)
+      document.removeEventListener('visibilitychange', releaseAll)
       canvas.removeEventListener('webglcontextlost', lost)
+      canvas.removeEventListener('lostpointercapture', lostCapture)
       disposeModel()
       displayMaterial.dispose()
       renderer.dispose()
+      if (displayOverlay?.parentElement === host) displayOverlay.remove()
       canvas.remove()
     },
   }
