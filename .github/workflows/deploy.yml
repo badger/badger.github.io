@@ -32,13 +32,13 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Verify Doom runtime and shareware assets
         run: npm run verify:doom-assets -- --require
-      - name: Build site
-        run: npm run build
+      - name: Build and verify site URLs
+        run: |
+          npm run build
+          node scripts/verify-site-paths.mjs "$BASE_PATH" "$SITE_URL"
         env:
-          SITE_URL: ${{ steps.pages.outputs.origin }}
+          SITE_URL: ${{ github.repository == 'badger/badger.github.io' && 'https://badger.github.io' || steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
-      - name: Verify built site URLs
-        run: node scripts/verify-site-paths.mjs "${{ steps.pages.outputs.base_path }}" "${{ steps.pages.outputs.origin }}"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
