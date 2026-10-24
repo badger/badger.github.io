@@ -1,0 +1,17 @@
+<div data-doom-video hidden>
+  <iframe
+    data-doom-video-frame
+    title="Badge video player"
+    width="640"
+    height="438"
+    allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+  ></iframe>
+</div>
+
+<style>
+  [data-doom-video] { position: absolute; left: 0; top: 0; width: 640px; height: 438px; transform-origin: 0 0; background: hsl(var(--background)); }
+  iframe { display: block; width: 100%; height: 100%; border: 0; }
+  :global(.doom-fallback) [data-doom-video] { position: absolute; inset: 1rem; width: calc(100% - 2rem); height: calc(100% - 2rem); }
+</style>

@@ -1,6 +1,7 @@
 ---
 import type { GetStaticPaths } from 'astro'
 import { CONTACTS_PAGE_ENABLED } from '@/config/features'
+import { sitePath } from '@/lib/site-path'
 
 export const getStaticPaths = (() => {
   if (!CONTACTS_PAGE_ENABLED) return []
@@ -8,7 +9,7 @@ export const getStaticPaths = (() => {
   return [{ params: { contacts: 'contacts' } }]
 }) satisfies GetStaticPaths
 
-const destination = '/contacts'
+const destination = sitePath('/contacts')
 ---
 
 <!doctype html>
@@ -16,13 +17,13 @@ const destination = '/contacts'
   <head>
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex" />
-    <link rel="canonical" href="https://badger.github.io/contacts" />
+    <link rel="canonical" href={new URL(destination, Astro.site)} />
     <title>Contacts moved | Badger</title>
     <script is:inline define:vars={{ destination }}>
       window.location.replace(`${destination}${window.location.search}${window.location.hash}`)
     </script>
   </head>
   <body>
-    <p>Contacts moved to <a href="/contacts">/contacts</a>.</p>
+    <p>Contacts moved to <a href={destination}>/contacts</a>.</p>
   </body>
 </html>

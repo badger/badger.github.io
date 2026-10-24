@@ -1,7 +1,8 @@
 ---
 import '@/styles/globals.css'
+import { sitePath } from '@/lib/site-path'
 
-const destination = '/simulator'
+const destination = sitePath('/simulator')
 ---
 
 <!doctype html>
@@ -10,13 +11,13 @@ const destination = '/simulator'
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="canonical" href="https://badger.github.io/simulator" />
+    <link rel="canonical" href={new URL(destination, Astro.site)} />
     <title>Simulator moved | Badger</title>
     <script is:inline define:vars={{ destination }}>
       window.location.replace(`${destination}${window.location.search}${window.location.hash}`)
     </script>
   </head>
   <body>
-    <p>Simulator moved to <a href="/simulator">/simulator</a>.</p>
+    <p>Simulator moved to <a href={destination}>/simulator</a>.</p>
   </body>
 </html>

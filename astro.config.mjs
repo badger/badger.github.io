@@ -39,8 +39,8 @@ export default defineConfig({
       ],
     }),
   ],
-  site: 'https://badger.github.io',
-  base: '/',
+  site: process.env.SITE_URL || 'https://badger.github.io',
+  base: process.env.BASE_PATH || '/',
   markdown: {
     shikiConfig: {
       themes: {

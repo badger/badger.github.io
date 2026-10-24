@@ -11,9 +11,11 @@ hardware: ["Badger 2350"]
 github: "https://github.com/github/octocanvas"
 ---
 
+import { sitePath } from '@/lib/site-path'
+
 [Octocanvas](https://octocanvas.io) turns your GitHub profile into a wallpaper. It has a badge-sized download, so you can add it to the home screen menu as a wide photo tile that opens full screen.
 
-![Menu with a wide Octocanvas tile selected](/images/hacks/octocanvas/menu-octocanvas-tile.png)
+<img src={sitePath('/images/hacks/octocanvas/menu-octocanvas-tile.png')} alt="Menu with a wide Octocanvas tile selected" />
 
 ## What you need
 
@@ -67,14 +69,14 @@ The menu tile is wider than it is tall, so crop the middle of the wallpaper arou
    `"octocanvas"` is the file name without `.png`. `2, 1` makes a tile two cells wide and one cell tall. `3` sets its position in the menu, counting from `0`. `None` opens the wallpaper from its centre. Keep the comma at the end of the line.
 4. Save the file and eject **BADGER**. The badge restarts. If it doesn't, press **RESET** once.
 
-[Add Your Photo to the Menu](/hack/gallery-import-image/) explains each value and shows how to add square photo tiles.
+<a href={sitePath('/hack/gallery-import-image/')}>Add Your Photo to the Menu</a> explains each value and shows how to add square photo tiles.
 
 ## Verify
 
 - Move to the wide tile with the direction pad. The label at the bottom reads **octocanvas**.
 - Press **Select** to open the wallpaper full screen. Press any button to close it.
 
-![Octocanvas wallpaper open full screen on the badge](/images/hacks/octocanvas/menu-octocanvas-open.png)
+<img src={sitePath('/images/hacks/octocanvas/menu-octocanvas-open.png')} alt="Octocanvas wallpaper open full screen on the badge" />
 
 ## Troubleshooting
 

@@ -1,0 +1,18 @@
+---
+import { Download } from 'lucide-react'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { sitePath } from '@/lib/site-path'
+
+---
+
+<div class="doom-download">
+  <a
+    href={sitePath('/doom/downloads/doom.uf2')}
+    download="doom.uf2"
+    class={cn(buttonVariants({ variant: 'outline' }), 'h-auto min-h-12 w-full justify-start gap-2.5 whitespace-normal rounded-lg border-primary/70 bg-primary/10 py-3 text-xs uppercase tracking-[0.12em] text-primary hover:bg-primary/15')}
+  >
+    <Download aria-hidden="true" />
+    Get DOOM for your badge
+  </a>
+</div>

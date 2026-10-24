@@ -2,6 +2,7 @@ import { loadExampleProject, loadSimulatorExample, simulationRequest, type Edito
 
 import { initThumbnails } from './badge-editor-thumbnails'
 import appDescriptions from '../data/app-descriptions.json'
+import { sitePath } from './site-path'
 
 type Collection = 'apps' | 'examples' | 'badge'
 type PickerItem = { key: string; title: string; description: string; category: string; load: () => Promise<EditorProject> }
@@ -56,7 +57,7 @@ export function initProjectPicker(onChoose: (item: PickerItem) => Promise<void>,
     try {
       const project = await load(item)
       if (current !== generation || !dialog.open) return
-      const worker = new Worker('/simulator/micropython.worker.js', { type: 'module' })
+      const worker = new Worker(sitePath('/simulator/micropython.worker.js'), { type: 'module' })
       preview = worker
       const fail = () => {
         if (preview !== worker) return

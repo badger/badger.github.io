@@ -1,0 +1,11 @@
+<div data-doom-selfie class="doom-selfie" hidden>
+  <p id="doom-selfie-feedback" data-doom-selfie-status role="status"></p>
+</div>
+
+<style>
+  .doom-selfie { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.75rem; }
+  .doom-selfie[hidden] { display: none; }
+  p { color: hsl(var(--muted-foreground)); line-height: 1.5; }
+  [data-doom-selfie-status]:not(:empty) { margin-top: 0.75rem; }
+  [data-doom-selfie-status]:empty { display: none; }
+</style>

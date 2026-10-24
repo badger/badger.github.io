@@ -12,6 +12,8 @@ github: "https://github.com/badger/home/blob/main/badge/apps/settings/__init__.p
 featured: 1
 ---
 
+import { sitePath } from '@/lib/site-path'
+
 Use the **Settings** app to configure the badge without writing code. It stores your Wi-Fi connection, GitHub username, contact card, and display brightness.
 
 The available settings are:
@@ -36,16 +38,16 @@ The available settings are:
 1. Open **Settings** from the menu.
 2. Use **Up** and **Down** to move through the settings.
 
-   ![Settings app with the GitHub Username row highlighted](/images/hacks/github-handle/settings-list.png)
+   <img src={sitePath('/images/hacks/github-handle/settings-list.png')} alt="Settings app with the GitHub Username row highlighted" />
 
 3. To change **WiFi Network**, **WiFi Password**, **GitHub Username**, **Contact Name**, or **LinkedIn Profile**, highlight the field and press **Select** (the white circle).
 4. Type the value on the on-screen keyboard. Move with the direction pad and press **Select** to type the highlighted key. **Back** deletes a character, `shift` switches case, and `#+=` shows symbols.
 
-   ![On-screen keyboard typing a GitHub username](/images/hacks/github-handle/settings-keyboard.png)
+   <img src={sitePath('/images/hacks/github-handle/settings-keyboard.png')} alt="On-screen keyboard typing a GitHub username" />
 
 5. Highlight **done** and press **Select**. The hint changes to **saved!**
 
-   ![Settings app showing the saved GitHub username](/images/hacks/github-handle/settings-saved.png)
+   <img src={sitePath('/images/hacks/github-handle/settings-saved.png')} alt="Settings app showing the saved GitHub username" />
 
 6. Repeat those steps for each text field you want to configure:
    - Enter the Wi-Fi network name and password exactly, including capital letters.
@@ -77,11 +79,11 @@ The screenshots show the GitHub username workflow, but the same keyboard and sav
 
 Values you set in `secrets.py` take priority over the Settings app. Settings shows those fields with a padlock and **locked**. To edit them on the badge again, set them back to `""` in `secrets.py`.
 
-![Settings app showing a locked GitHub username set in secrets.py](/images/hacks/github-handle/settings-locked.png)
+<img src={sitePath('/images/hacks/github-handle/settings-locked.png')} alt="Settings app showing a locked GitHub username set in secrets.py" />
 
 ## Wi-Fi
 
-Your badge comes set up for the **HYB-26** network in the **Hack Your Badge** area. The badge only supports **2.4 GHz** Wi-Fi, so it can't join the main conference network, which prefers 5 GHz. To use your home Wi-Fi or your phone's hotspot, see [Connect to Wi-Fi](/hack/connect-wifi/).
+Your badge comes set up for the **HYB-26** network in the **Hack Your Badge** area. The badge only supports **2.4 GHz** Wi-Fi, so it can't join the main conference network, which prefers 5 GHz. To use your home Wi-Fi or your phone's hotspot, see <a href={sitePath('/hack/connect-wifi/')}>Connect to Wi-Fi</a>.
 
 ## Verify
 

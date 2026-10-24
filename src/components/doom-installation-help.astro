@@ -1,0 +1,17 @@
+---
+import { sitePath } from '@/lib/site-path'
+---
+
+<details name="doom-help" data-doom-installation>
+  <summary>Installation help</summary>
+  <div class="doom-help-content space-y-3">
+    <p>This is standalone Doom firmware, not a MonaOS app. Flashing replaces the firmware currently running on your badge.</p>
+    <p>Back up your badge files before flashing.</p>
+    <ol class="list-decimal space-y-2 pl-5">
+      <li>Download <a class="text-primary underline" href={sitePath('/doom/downloads/doom.uf2')} download="doom.uf2">doom.uf2</a> and connect your badge to your computer with a USB data cable.</li>
+      <li>Hold HOME, tap RESET once, then release HOME when the RP2350 drive appears in Finder or File Explorer. The badge screen will go dark.</li>
+      <li>Copy doom.uf2 onto the RP2350 drive, not the BADGER drive. Wait for flashing to finish. The badge reboots automatically into Doom.</li>
+    </ol>
+    <p>To return to MonaOS, download the firmware from <a class="text-primary underline" href="https://github.com/badger/home/releases">badger/home releases</a> and repeat the flashing steps with that .uf2 file. Check the release notes first: factory-restoration images delete the badge filesystem.</p>
+  </div>
+</details>

@@ -1,4 +1,5 @@
 import { simulationRequest, type EditorProject } from './badge-editor-project'
+import { sitePath } from './site-path'
 
 type Thumbnail = { width: number; height: number; pixels: Uint8ClampedArray }
 type Card = { key: string; canvas: HTMLCanvasElement; cover: HTMLElement; label: HTMLElement; load: () => Promise<EditorProject> }
@@ -33,7 +34,7 @@ export function initThumbnails(root: HTMLElement) {
         if (current !== generation) break
         if (document.hidden) { queue.unshift(card); break }
         await new Promise<void>(resolve => {
-          const active = new Worker('/simulator/micropython.worker.js', { type: 'module' })
+          const active = new Worker(sitePath('/simulator/micropython.worker.js'), { type: 'module' })
           worker = active
           let latest: Thumbnail | null = null
           let rendered: Thumbnail | null = null
