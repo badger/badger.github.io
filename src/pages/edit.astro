@@ -1,7 +1,8 @@
 ---
 import '@/styles/globals.css'
+import { sitePath } from '@/lib/site-path'
 
-const destination = '/apps'
+const destination = sitePath('/apps')
 ---
 
 <!doctype html>
@@ -10,13 +11,13 @@ const destination = '/apps'
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="canonical" href="https://badger.github.io/apps" />
+    <link rel="canonical" href={new URL(destination, Astro.site)} />
     <title>Apps moved | Badger</title>
     <script is:inline define:vars={{ destination }}>
       window.location.replace(`${destination}${window.location.search}${window.location.hash}`)
     </script>
   </head>
   <body>
-    <p>Apps moved to <a href="/apps">/apps</a>.</p>
+    <p>Apps moved to <a href={destination}>/apps</a>.</p>
   </body>
 </html>

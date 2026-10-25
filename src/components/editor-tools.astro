@@ -1,6 +1,7 @@
 ---
 import { Bluetooth, Usb } from 'lucide-react'
 import { BLUETOOTH_EDITOR_ENABLED } from '@/config/features'
+import { sitePath } from '@/lib/site-path'
 
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/'
 const tools = [
@@ -11,10 +12,10 @@ const tools = [
 
 {BLUETOOTH_EDITOR_ENABLED && <nav aria-label="Badge editor tools" class="mx-auto mb-6 grid max-w-6xl gap-2 sm:grid-cols-2">
   {tools.map(({ href, label, icon: Icon }) => {
-    const active = pathname === href
+    const active = pathname === sitePath(href)
     return (
       <a
-        href={href}
+        href={sitePath(href)}
         aria-current={active ? 'page' : undefined}
         class:list={[
           'surface surface-hover flex items-center gap-3 px-4 py-3 no-underline',

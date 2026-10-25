@@ -12,6 +12,11 @@
     "sync:editor-apps": "node --experimental-strip-types scripts/sync-editor-apps.mjs",
     "sync:editor-examples": "node scripts/sync-editor-examples.mjs",
     "build:badge-model": "node scripts/build-badge-model.mjs",
+    "build:doom-runtime": "node scripts/build-doom-runtime.mjs",
+    "prepare:doom-wad": "node scripts/prepare-doom-wad.mjs",
+    "prepare:doom-runtime": "node scripts/prepare-doom-runtime.mjs",
+    "provision:doom-assets": "node scripts/provision-doom-assets.mjs",
+    "verify:doom-assets": "node scripts/verify-doom-assets.mjs",
     "test:editor": "node --test tests/*.test.mjs"
   },
   "dependencies": {

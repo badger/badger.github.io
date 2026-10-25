@@ -1,3 +1,5 @@
+import { sitePath } from './site-path'
+
 const guidePaths = new Map([
   ['copilot-app', '/build/app'],
   ['vscode', '/build/vscode'],
@@ -7,7 +9,8 @@ const guidePaths = new Map([
 export function legacyBuildGuidePath(fragment: string) {
   try {
     const tool = decodeURIComponent(fragment.replace(/^#/, '')).replace(/^(windows|mac)-/, '')
-    return guidePaths.get(tool)
+    const path = guidePaths.get(tool)
+    return path ? sitePath(path) : undefined
   } catch {
     return undefined
   }

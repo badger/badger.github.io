@@ -1,0 +1,52 @@
+---
+import { Lightbulb } from 'lucide-react'
+import GithubInvertocat from './github-invertocat.astro'
+import { sitePath } from '@/lib/site-path'
+---
+
+<aside data-doom-pro-tip class="border-t border-border/40 pt-5" aria-labelledby="doom-tip-title">
+  <h2 id="doom-tip-title" class="flex items-center gap-2.5 font-mono text-xs uppercase tracking-[0.14em]">
+    <Lightbulb size={16} className="text-primary" aria-hidden="true" />
+    Pro tip
+  </h2>
+  <div data-doom-tip-default>
+    <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+      During gameplay, type <code class="text-foreground">IDSPISPOPD</code> to walk through walls
+      <picture class="ml-1 inline-block align-middle">
+        <source media="(prefers-reduced-motion: reduce)" srcset={sitePath('/images/mona-mindblown.webp')} />
+        <img class="inline-block" src={sitePath('/images/mona-mindblown.gif')} alt="Mindblown Mona" width="32" height="32" loading="lazy" decoding="async" />
+      </picture>
+    </p>
+    <a class="mt-3 inline-flex min-h-11 items-center gap-2.5 text-primary hover:underline" href="https://github.com/id-Software/DOOM/blob/a77dfb96cb91780ca334d0d4cfd86957558007e0/linuxdoom-1.10/st_stuff.c#L426-L431">
+      <GithubInvertocat /><span>Explore cheat codes in the original source code</span>
+    </a>
+  </div>
+  <div data-doom-tip-avatar hidden>
+    <p class="doom-touch-tip mt-3 text-sm leading-relaxed text-muted-foreground">
+      Add <code class="text-foreground">?u=YOUR-GITHUB-USERNAME</code> to the page URL to play with your avatar, then capture your DOOM badge below.
+    </p>
+    <div class="doom-keyboard-tip">
+      <div data-doom-tip-discovery>
+        <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Once the game has started, click the badge screen, type <code class="text-foreground">@YOUR-GITHUB-USERNAME</code>, then press Enter for a surprise.
+        </p>
+      </div>
+      <p data-doom-tip-change hidden class="mt-3 text-sm leading-relaxed text-muted-foreground" role="status">
+        During gameplay, type <code class="text-foreground">@YOUR-GITHUB-USERNAME</code> and press Enter to change the avatar.
+      </p>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .doom-touch-tip { display: none; }
+  @media (max-width: 1023px) {
+    .doom-touch-tip { display: block; }
+    .doom-keyboard-tip { display: none; }
+  }
+</style>
+
+<script>
+  import { initDoomProTip } from '@/lib/doom-pro-tip'
+  for (const root of document.querySelectorAll<HTMLElement>('[data-doom-pro-tip]')) initDoomProTip(root)
+</script>

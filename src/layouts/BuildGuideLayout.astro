@@ -1,6 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import { ArrowLeft } from 'lucide-react'
+import { sitePath } from '@/lib/site-path'
 
 interface Props {
   title: string
@@ -14,7 +15,7 @@ const { title, description } = Astro.props
   <section class="container py-8 sm:py-12">
     <div class="mx-auto max-w-[75ch]">
       <a
-        href="/build"
+        href={sitePath('/build')}
         class="inline-flex min-h-11 items-center gap-2.5 font-mono text-sm uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-150 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />

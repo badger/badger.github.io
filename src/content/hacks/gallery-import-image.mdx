@@ -12,9 +12,11 @@ github: "https://github.com/badger/home/blob/main/badge/apps/menu/gallery.py"
 featured: 2
 ---
 
+import { sitePath } from '@/lib/site-path'
+
 The home screen menu mixes app icons with photo tiles. Select a photo tile and it opens full screen. This hack adds your own photo as a new tile.
 
-![Menu with a custom photo tile selected and labelled my photo](/images/hacks/menu-photo/menu-photo-tile.png)
+<img src={sitePath('/images/hacks/menu-photo/menu-photo-tile.png')} alt="Menu with a custom photo tile selected and labelled my photo" />
 
 ## What you need
 
@@ -89,7 +91,7 @@ The tile image doesn't have to match the full-screen image. Use a tight crop so 
 - Move to your tile with the direction pad. The label at the bottom shows **my photo**.
 - Press **Select** to open the photo full screen. Press any button to close it.
 
-![Custom photo open full screen on the badge](/images/hacks/menu-photo/menu-photo-open.png)
+<img src={sitePath('/images/hacks/menu-photo/menu-photo-open.png')} alt="Custom photo open full screen on the badge" />
 
 ## No-code alternative
 

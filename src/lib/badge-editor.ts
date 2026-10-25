@@ -13,6 +13,7 @@ import { indentWithTab, undo, redo, undoDepth, redoDepth } from '@codemirror/com
 import { python } from '@codemirror/lang-python'
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { tags } from '@lezer/highlight'
+import { sitePath } from './site-path'
 import { getActiveTheme } from './theme'
 
 const starter = `import badgeware
@@ -384,7 +385,7 @@ export async function initBadgeEditor() {
     runtimeStatus.textContent = 'Loading MicroPython…'
     stopButton.disabled = false
     saveDraft()
-    const activeWorker = new Worker('/simulator/micropython.worker.js', { type: 'module' })
+    const activeWorker = new Worker(sitePath('/simulator/micropython.worker.js'), { type: 'module' })
     worker = activeWorker
     const fail = (reason: string) => {
       if (worker !== activeWorker) return
@@ -632,14 +633,14 @@ export async function initBadgeEditor() {
   setBusy(true)
   void (async () => {
     try {
-      const response = await fetch('/editor-apps/catalog.json')
+      const response = await fetch(sitePath('/editor-apps/catalog.json'))
       if (!response.ok) throw new Error('Could not load the app examples.')
       picker.setApps(await response.json() as EditorCatalog)
     } catch { picker.setFailure('apps', 'Could not load the app collection. Reload to try again.') }
   })()
   void (async () => {
     try {
-      const response = await fetch('/editor-examples/catalog.json')
+      const response = await fetch(sitePath('/editor-examples/catalog.json'))
       if (!response.ok) throw new Error('Could not load the examples.')
       picker.setExamples(await response.json() as SimulatorExamples)
     } catch { picker.setFailure('examples', 'Could not load the example collection. Reload to try again.') }

@@ -1,4 +1,5 @@
 ---
+import { sitePath } from '@/lib/site-path'
 import Layout from '@/layouts/Layout.astro'
 import PreinstalledAppCard from '@/components/preinstalled-app-card.astro'
 import { HackCard } from '@/components/hack-card'
@@ -58,7 +59,7 @@ const pathways = [
           </div>
 
           <div class="flex flex-wrap gap-3">
-            <a href="/get-started" class="inline-flex h-11 items-center gap-2.5 rounded-md border border-primary bg-primary px-5 font-mono text-sm uppercase tracking-[0.12em] text-primary-foreground transition-colors hover:bg-primary/85">
+            <a href={sitePath('/get-started')} class="inline-flex h-11 items-center gap-2.5 rounded-md border border-primary bg-primary px-5 font-mono text-sm uppercase tracking-[0.12em] text-primary-foreground transition-colors hover:bg-primary/85">
               <Power className="h-4 w-4" />
               Start Here
             </a>
@@ -67,7 +68,7 @@ const pathways = [
 
         <div class="relative mx-auto hidden w-full max-w-[24rem] lg:block">
           <div class="surface overflow-hidden p-2">
-            <img src="/images/hero.jpg" alt="Badger 2350 hardware badge" class="aspect-[3/4] w-full rounded-lg object-cover" />
+            <img src={sitePath('/images/hero.jpg')} alt="Badger 2350 hardware badge" class="aspect-[3/4] w-full rounded-lg object-cover" />
           </div>
         </div>
       </div>
