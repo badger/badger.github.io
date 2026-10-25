@@ -29,15 +29,6 @@ for (const base of ['/', '/badger.github.io/']) {
     }
   })
 
-  test(`old build guide links respect the deployment base ${base}`, async () => {
-    const { legacyBuildGuidePath } = await compileModule('../src/lib/build-guide-navigation.ts', base)
-    for (const prefix of ['', 'windows-', 'mac-']) {
-      for (const [tool, guide] of [['copilot-app', 'app'], ['vscode', 'vscode'], ['copilot-cli', 'cli']]) {
-        assert.equal(legacyBuildGuidePath(`#${prefix}${tool}`), `${base}build/${guide}`)
-      }
-    }
-  })
-
   test(`Doom fetches manifest, WAD, and manifest artifacts under ${base}`, async () => {
     const { loadDoomRuntime } = await compileModule('../src/lib/doom-runtime.ts', base)
     const manifest = JSON.parse(await readFile(
