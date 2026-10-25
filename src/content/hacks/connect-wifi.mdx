@@ -11,6 +11,8 @@ hardware: ["Badger 2350"]
 github: "https://github.com/badger/home/blob/main/badge/apps/settings/__init__.py"
 ---
 
+import { sitePath } from '@/lib/site-path'
+
 Apps like **Badge** and **ISS** need Wi-Fi. Your badge comes set up for the **HYB-26** network in the **Hack Your Badge** area, so it works there straight away. When you leave that area, or once you get home, point it at a different network.
 
 ## Which networks work?
@@ -31,15 +33,15 @@ Network names and passwords are case-sensitive.
 
 1. Open **Settings** from the menu. **WiFi Network** is highlighted at the top. Press **Select** (the white circle).
 
-   ![Settings app with the WiFi Network row highlighted](/images/hacks/wifi/settings-wifi-network.png)
+   <img src={sitePath('/images/hacks/wifi/settings-wifi-network.png')} alt="Settings app with the WiFi Network row highlighted" />
 
 2. Type the network name on the on-screen keyboard. Move with the direction pad and press **Select** to type the highlighted key. **Back** deletes a character, `shift` switches case, and `#+=` shows symbols. Highlight **done** and press **Select**.
 
-   ![On-screen keyboard typing a Wi-Fi network name](/images/hacks/wifi/settings-wifi-keyboard.png)
+   <img src={sitePath('/images/hacks/wifi/settings-wifi-keyboard.png')} alt="On-screen keyboard typing a Wi-Fi network name" />
 
 3. Press **Down** to highlight **WiFi Password**, press **Select**, and type the password the same way. The password is visible while you type and hidden once saved. Choose **done**. The hint changes to **saved!**
 
-   ![Settings app showing the new network and saved password](/images/hacks/wifi/settings-wifi-saved.png)
+   <img src={sitePath('/images/hacks/wifi/settings-wifi-saved.png')} alt="Settings app showing the new network and saved password" />
 
 4. Press **Back** to leave Settings, then press reset once so the badge reconnects with the new details.
 
@@ -60,7 +62,7 @@ To switch back to the Hack Your Badge network, set **WiFi Network** to `HYB-26` 
 
 ## Verify
 
-- Open the **Badge** app. If you've [configured your GitHub username](/hack/badge-custom-username/), your avatar and contribution graph download within a few seconds.
+- Open the **Badge** app. If you've <a href={sitePath('/hack/badge-custom-username/')}>configured your GitHub username</a>, your avatar and contribution graph download within a few seconds.
 - If you see **Couldn't connect to WiFi**, check that:
   - the network is 2.4 GHz (or your phone's hotspot is in 2.4 GHz / compatibility mode),
   - the name and password match exactly, including capital letters,

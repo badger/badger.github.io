@@ -1,0 +1,23 @@
+---
+import { sitePath } from '@/lib/site-path'
+
+export function getStaticPaths() {
+  return ['doom', 'doom3d', 'd00m3d'].map(alias => ({ params: { doomAlias: alias } }))
+}
+
+const destination = sitePath('/virtual/')
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta http-equiv="refresh" content={`0;url=${destination}`} />
+    <title>Redirecting to D00M3D</title>
+    <script is:inline define:vars={{ destination }}>
+      location.replace(destination + location.search + location.hash)
+    </script>
+  </head>
+  <body><a href={destination}>Continue to D00M3D</a></body>
+</html>

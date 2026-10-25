@@ -27,8 +27,18 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Verify Doom runtime and shareware assets
+        run: npm run verify:doom-assets -- --require
       - name: Build site
-        run: npm run build
+        run: |
+          npm run build
+          node scripts/verify-site-paths.mjs "$BASE_PATH" "$SITE_URL"
+        env:
+          SITE_URL: ${{ github.repository == 'badger/badger.github.io' && 'https://badger.github.io' || steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

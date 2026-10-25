@@ -1,0 +1,26 @@
+--- a/opl/opl.c
++++ b/opl/opl.c
+@@ -40,0 +41,3 @@
++#ifdef __EMSCRIPTEN__
++extern void OPL_SDL_Delay(uint64_t us);
++#endif
+@@ -482,0 +486,8 @@
++#ifdef __EMSCRIPTEN__
++    if (driver == &opl_sdl_driver)
++    {
++        OPL_SDL_Delay(us);
++        return;
++    }
++#endif
++
+--- a/opl/opl_sdl.c
++++ b/opl/opl_sdl.c
+@@ -156,0 +157,8 @@
++#ifdef __EMSCRIPTEN__
++// WebAudio cannot advance the OPL probe's timers while the main thread waits.
++void OPL_SDL_Delay(uint64_t us)
++{
++    AdvanceTime((us * mixing_freq + OPL_SECOND - 1) / OPL_SECOND);
++}
++#endif
++

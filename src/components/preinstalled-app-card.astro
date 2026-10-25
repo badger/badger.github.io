@@ -1,4 +1,6 @@
 ---
+import { sitePath } from '@/lib/site-path'
+
 interface Props {
   title: string
   description: string
@@ -11,7 +13,7 @@ const { title, description, iconSrc, color } = Astro.props
 
 <div class="surface flex items-start gap-4 p-4">
   <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: color }}>
-    <img src={iconSrc} alt="" class="h-8 w-8" loading="lazy" />
+    <img src={sitePath(iconSrc)} alt="" class="h-8 w-8" loading="lazy" />
   </div>
   <div class="min-w-0 flex-1">
     <h3 class="mb-1.5 font-mono text-sm uppercase tracking-[0.12em]">{title}</h3>

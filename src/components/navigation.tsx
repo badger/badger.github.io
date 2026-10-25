@@ -12,6 +12,7 @@ import {
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GitHubRepoBadge } from '@/components/github-repo-badge'
 import { APP_CATALOG_PAGE_ENABLED, CONTACTS_PAGE_ENABLED } from '@/config/features'
+import { sitePath } from '@/lib/site-path'
 
 interface NavigationLink {
   href: string
@@ -87,7 +88,7 @@ const navigationGroups: NavigationGroup[] = [
 ]
 
 export function Navigation() {
-  const [pathname, setPathname] = useState('/')
+  const [pathname, setPathname] = useState(sitePath('/'))
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mobileOpenGroup, setMobileOpenGroup] = useState<string | null>(null)
   const [desktopOpenGroup, setDesktopOpenGroup] = useState<string | null>(null)
@@ -110,7 +111,7 @@ export function Navigation() {
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [desktopOpenGroup, mobileOpen])
 
-  const pathMatches = (path: string) => pathname === path || pathname.startsWith(`${path}/`)
+  const pathMatches = (path: string) => pathname === sitePath(path) || pathname.startsWith(`${sitePath(path)}/`)
   const isGroupActive = (group: NavigationGroup) => group.matches.some(pathMatches)
   const activeGroupHref = navigationGroups.find(isGroupActive)?.href ?? null
   const closeMobileMenu = () => {
@@ -126,8 +127,8 @@ export function Navigation() {
   return (
     <nav aria-label="Primary navigation" className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/95">
       <div className="container flex h-[4.5rem] items-center justify-between gap-6">
-        <a href="/" className="group flex shrink-0 items-center gap-3" aria-label="Badger home">
-          <img src="/favicon.svg" alt="" className="h-9 w-9 transition-opacity duration-150 group-hover:opacity-80" />
+        <a href={sitePath('/')} className="group flex shrink-0 items-center gap-3" aria-label="Badger home">
+          <img src={sitePath('/favicon.svg')} alt="" className="h-9 w-9 transition-opacity duration-150 group-hover:opacity-80" />
           <span className="font-display text-2xl font-semibold tracking-tight">Badger</span>
         </a>
 
@@ -150,8 +151,8 @@ export function Navigation() {
                 }}
               >
                 <a
-                  href={group.href}
-                  aria-current={pathname === group.href ? 'page' : undefined}
+                  href={sitePath(group.href)}
+                  aria-current={pathname === sitePath(group.href) ? 'page' : undefined}
                   aria-expanded={open}
                   data-active={active}
                   className="site-nav-link inline-flex items-center gap-2 rounded-md px-3 py-2 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:bg-primary/5 hover:text-foreground focus-visible:bg-primary/5 focus-visible:text-foreground data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
@@ -165,7 +166,7 @@ export function Navigation() {
                     {group.items.map((item) => (
                       <a
                         key={item.href}
-                        href={item.href}
+                        href={sitePath(item.href)}
                         className="block rounded-md px-3 py-2.5 transition-colors hover:bg-primary/5 focus-visible:bg-primary/5 focus-visible:outline-none"
                       >
                         <span className="block font-mono text-xs uppercase tracking-[0.1em] text-foreground">{item.label}</span>
@@ -221,7 +222,7 @@ export function Navigation() {
                   </summary>
                   <div className="grid gap-1 border-t border-border/50 p-2">
                     <a
-                      href={group.href}
+                      href={sitePath(group.href)}
                       onClick={closeMobileMenu}
                       className="rounded-md px-3 py-2.5 font-mono text-xs uppercase tracking-[0.1em] text-primary transition-colors hover:bg-primary/5"
                     >
@@ -230,7 +231,7 @@ export function Navigation() {
                     {group.items.map((item) => (
                       <a
                         key={item.href}
-                        href={item.href}
+                        href={sitePath(item.href)}
                         onClick={closeMobileMenu}
                         className="rounded-md px-3 py-2.5 transition-colors hover:bg-primary/5"
                       >

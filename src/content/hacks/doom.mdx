@@ -12,9 +12,11 @@ github: "https://github.com/martinwoodward/rp2040-doom/releases/tag/20261021"
 featured: 3
 ---
 
+import { sitePath } from '@/lib/site-path'
+
 This build of Doom runs on the badge with the 2026 controls and flips the screen when you turn the badge over. It replaces MonaOS, so you flash it as firmware and then flash the factory firmware to get your badge back.
 
-![Doom title screen running on the badge](/images/hacks/doom/doom-on-badge.jpg)
+<img src={sitePath('/images/hacks/doom/doom-on-badge.jpg')} alt="Doom title screen running on the badge" />
 
 > **Warning:** flashing Doom erases everything on the badge, including your apps, photos, Wi-Fi details, and GitHub username in `secrets.py`. Back up anything you want to keep first.
 
@@ -31,7 +33,7 @@ Two buttons on the back of the badge control power and firmware:
 - **HOME / BOOT** (left): hold it while pressing **RESET** to enter firmware mode.
 - **RESET** (right): press once to restart, double-tap for USB Disk Mode, or hold to sleep.
 
-![The HOME/BOOT and RESET buttons on the back of the badge](/images/hacks/doom/back-buttons.png)
+<img src={sitePath('/images/hacks/doom/back-buttons.png')} alt="The HOME/BOOT and RESET buttons on the back of the badge" />
 
 ## 1. Back up your badge
 
@@ -64,7 +66,7 @@ Windows may report that the device was disconnected, and a Mac may warn that the
 
 Doom uses the touch controls on the front of the badge.
 
-![Doom controls: direction pad to move and turn, Menu, Back to use, Select to fire](/images/hacks/doom/controls.png)
+<img src={sitePath('/images/hacks/doom/controls.png')} alt="Doom controls: direction pad to move and turn, Menu, Back to use, Select to fire" />
 
 | Control | Action |
 | --- | --- |
@@ -90,7 +92,7 @@ When you're done playing, put MonaOS back:
 2. Copy `secrets.py` and any apps or photos from your backup back to the **BADGER** drive. Copy individual files and folders rather than replacing the whole drive, so you keep the fresh system files.
 3. Eject **BADGER**. The badge restarts.
 
-You can also re-enter your Wi-Fi, GitHub, contact, and display preferences in the **Settings** app. See [Connect to Wi-Fi](/hack/connect-wifi/) and [Configure your badge settings](/hack/badge-custom-username/).
+You can also re-enter your Wi-Fi, GitHub, contact, and display preferences in the **Settings** app. See <a href={sitePath('/hack/connect-wifi/')}>Connect to Wi-Fi</a> and <a href={sitePath('/hack/badge-custom-username/')}>Configure your badge settings</a>.
 
 ## Troubleshooting
 

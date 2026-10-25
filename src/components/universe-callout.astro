@@ -1,0 +1,28 @@
+---
+import { Play } from 'lucide-react'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+---
+
+<aside aria-label="GitHub Universe 2026">
+  <a
+    data-universe-link
+    href="https://githubuniverse.com/?utm_source=GitHub&utm_medium=Site&utm_campaign=virtual_badge_uni_26"
+    class={cn(buttonVariants({ variant: 'outline' }), 'h-auto min-h-12 w-full justify-start gap-2.5 whitespace-normal rounded-lg py-3 text-xs uppercase tracking-[0.12em]')}
+  >
+    <Play aria-hidden="true" />
+    Explore GitHub Universe
+  </a>
+  <script is:inline>
+    {
+      const link = document.currentScript?.previousElementSibling
+      const username = new URLSearchParams(location.search).get('u')
+      if (username && link instanceof HTMLAnchorElement) {
+        const url = new URL(link.href)
+        url.searchParams.set('utm_content', username.toLowerCase())
+        link.href = url.href
+      }
+    }
+  </script>
+  <p class="mt-2 text-sm text-muted-foreground">Hear more about the badges in the keynote sessions.</p>
+</aside>

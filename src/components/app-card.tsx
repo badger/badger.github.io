@@ -1,6 +1,7 @@
 import React from 'react'
 import { getPlaceholderImage } from '@/lib/placeholder-images'
 import { APP_DETAIL_LINKS_ENABLED } from '@/config/features'
+import { sitePath } from '@/lib/site-path'
 
 export interface AppCardProps {
   title: string
@@ -39,20 +40,20 @@ export function AppCard({
 }: AppCardProps) {
   // Try to use actual icon, fallback to placeholder if needed
   const iconFilename = icon.split('/').pop() || 'app-icon.png'
-  const [iconSrc, setIconSrc] = React.useState(icon)
+  const [iconSrc, setIconSrc] = React.useState(sitePath(icon))
   const iconBgColor = APP_COLORS[iconFilename] || 'rgb(99, 102, 241)'
   
   React.useEffect(() => {
     // Check if actual image exists, otherwise use placeholder
     const img = new Image()
-    img.onload = () => setIconSrc(icon)
+    img.onload = () => setIconSrc(sitePath(icon))
     img.onerror = () => setIconSrc(getPlaceholderImage(iconFilename))
-    img.src = icon
+    img.src = sitePath(icon)
   }, [icon, iconFilename])
   
   const handleCardClick = () => {
     if (!APP_DETAIL_LINKS_ENABLED) return
-    window.location.href = `/app/${slug}`
+    window.location.href = sitePath(`/app/${slug}`)
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

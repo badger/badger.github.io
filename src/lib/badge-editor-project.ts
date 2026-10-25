@@ -1,5 +1,6 @@
 import type { DiskDirectory } from './badge-editor-upload'
 import { firmwareCompat } from './badge-firmware-compat'
+import { sitePath } from './site-path'
 
 export type ProjectFile = {
   path: string
@@ -230,7 +231,7 @@ export async function listBadgeApps(root: DiskDirectory) {
 
 export async function loadSimulatorExample(example: SimulatorExample): Promise<EditorProject> {
   if (!/^[a-z0-9_]+\.py$/.test(example.file)) throw new Error('Invalid example filename.')
-  const response = await fetch(`/editor-examples/${example.file}`)
+  const response = await fetch(sitePath(`/editor-examples/${example.file}`))
   if (!response.ok) throw new Error('Could not load this example. Try again.')
   let source = await response.text()
   if (/\brom_font\./.test(source)) source = `rom_font = font\n\n${source}`
@@ -238,7 +239,7 @@ export async function loadSimulatorExample(example: SimulatorExample): Promise<E
   for (const asset of example.assets) {
     validateFilePath(asset)
     source = source.replaceAll(`/system/${asset}`, asset)
-    const assetResponse = await fetch(`/editor-examples/${asset.split('/').map(encodeURIComponent).join('/')}`)
+    const assetResponse = await fetch(sitePath(`/editor-examples/${asset.split('/').map(encodeURIComponent).join('/')}`))
     if (!assetResponse.ok) throw new Error(`Could not load ${asset}. Try again.`)
     files.push(projectFile(asset, new Uint8Array(await assetResponse.arrayBuffer())))
   }
@@ -254,7 +255,7 @@ export async function loadExampleProject(app: EditorCatalogApp): Promise<EditorP
   await Promise.all(Array.from({ length: Math.min(6, app.files.length) }, async () => {
     while (cursor < app.files.length) {
       const path = validateFilePath(app.files[cursor++])
-      const response = await fetch(`/editor-apps/${encodeURIComponent(app.name)}/${path.split('/').map(encodeURIComponent).join('/')}`)
+      const response = await fetch(sitePath(`/editor-apps/${encodeURIComponent(app.name)}/${path.split('/').map(encodeURIComponent).join('/')}`))
       if (!response.ok) throw new Error(`Could not load ${app.name}/${path}. Reload and try again.`)
       const data = new Uint8Array(await response.arrayBuffer())
       total += data.length

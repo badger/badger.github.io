@@ -1,0 +1,21 @@
+---
+import DocumentViewer from '@/components/document-viewer.astro'
+import sharewareLicense from '../../public/doom/licenses/DOOM1-SHAREWARE.txt?raw'
+import engineLicense from '../../public/doom/runtime/COPYING.txt?raw'
+import correspondingSource from '../../public/doom/runtime/SOURCE.md?raw'
+import { sitePath } from '@/lib/site-path'
+---
+
+  <details name="doom-help" data-doom-legal>
+    <summary>Boring legal stuff</summary>
+    <div class="doom-help-content space-y-3">
+      <p>DOOM v1.9 shareware · Unofficial port</p>
+      <DocumentViewer id="doom-documents" documents={[
+        { title: 'Shareware license', href: sitePath('/doom/licenses/DOOM1-SHAREWARE.txt'), content: sharewareLicense },
+        { title: 'Engine GPLv2', href: sitePath('/doom/runtime/COPYING.txt'), content: engineLicense },
+        { title: 'Corresponding source', href: sitePath('/doom/runtime/SOURCE.md'), content: correspondingSource },
+      ]} />
+      <p>Includes unmodified Doom 1 v1.9 shareware. Commercial Doom data and Freedoom are not included.</p>
+      <p>© id Software · Not affiliated with id Software, Bethesda Softworks, or Microsoft.</p>
+    </div>
+  </details>

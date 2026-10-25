@@ -1,0 +1,48 @@
+---
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, Crosshair, Hand, Menu, MoveHorizontal } from 'lucide-react'
+---
+
+<div class="doom-mobile-controls">
+  <div class="doom-gamepad" role="group" aria-label="Doom touch controls">
+    <div class="doom-dpad">
+      <button type="button" data-doom-key="ArrowUp" class="doom-up" aria-label="Move forward"><ArrowUp aria-hidden="true" /></button>
+      <button type="button" data-doom-key="ArrowLeft" class="doom-left" aria-label="Turn left"><ArrowLeft aria-hidden="true" /></button>
+      <button type="button" data-doom-key="ArrowDown" class="doom-down" aria-label="Move backward"><ArrowDown aria-hidden="true" /></button>
+      <button type="button" data-doom-key="ArrowRight" class="doom-right" aria-label="Turn right"><ArrowRight aria-hidden="true" /></button>
+    </div>
+    <div class="doom-actions">
+      <button type="button" data-doom-key="ControlLeft"><Crosshair aria-hidden="true" />Fire</button>
+      <button type="button" data-doom-key="Space"><Hand aria-hidden="true" />Use</button>
+      <button type="button" data-doom-key="AltLeft"><MoveHorizontal aria-hidden="true" />Strafe</button>
+      <button type="button" data-doom-key="Enter"><Check aria-hidden="true" />Confirm</button>
+      <button type="button" data-doom-key="Escape"><Menu aria-hidden="true" />Menu</button>
+    </div>
+  </div>
+  <p class="doom-touch-hint">Hold to move or fire. Hold Strafe + a direction to sidestep.</p>
+</div>
+
+<style>
+  .doom-mobile-controls { display: none; }
+  @media (max-width: 1023px) {
+    .doom-mobile-controls { display: block; container-type: inline-size; }
+    .doom-gamepad { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .doom-dpad { display: grid; grid-template: repeat(3, 44px) / repeat(3, 44px); gap: 4px; flex-shrink: 0; }
+    .doom-up { grid-area: 1 / 2; }
+    .doom-left { grid-area: 2 / 1; }
+    .doom-right { grid-area: 2 / 3; }
+    .doom-down { grid-area: 3 / 2; }
+    .doom-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 14rem; }
+    button { display: inline-flex; align-items: center; justify-content: center; gap: 0.625rem; min-width: 44px; min-height: 44px; padding: 0.5rem; border: 1px solid hsl(var(--border) / 0.6); border-radius: 0.375rem; background: hsl(var(--card)); color: hsl(var(--foreground)); font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.12em; }
+    button[data-doom-key] { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+    button[data-pressed="true"], button:active { border-color: hsl(var(--primary)); background: hsl(var(--primary) / 0.12); }
+    button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 2px; }
+    button:disabled { opacity: 0.5; }
+    svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+    .doom-touch-hint { margin-top: 0.5rem; color: hsl(var(--muted-foreground)); font-size: 0.75rem; line-height: 1.5; }
+    @container (max-width: 319px) {
+      .doom-gamepad { gap: 0.5rem; }
+      .doom-actions button { gap: 0.25rem; padding: 0.375rem; font-size: 0.625rem; letter-spacing: 0.08em; }
+      .doom-actions svg { display: none; }
+    }
+  }
+</style>
