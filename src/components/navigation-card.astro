@@ -1,4 +1,6 @@
 ---
+import { sitePath } from '@/lib/site-path'
+
 interface Props {
   href: string
   title: string
@@ -22,7 +24,7 @@ const {
 
 <a
   id={id}
-  href={href}
+  href={sitePath(href)}
   data-build-path={dataBuildPath}
   class:list={[
     'surface surface-hover group flex min-w-0 items-start gap-3 scroll-mt-28 no-underline',

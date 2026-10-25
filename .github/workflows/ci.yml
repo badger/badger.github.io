@@ -10,6 +10,13 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - site_url: https://badger.github.io
+            base_path: /
+          - site_url: https://example.github.io
+            base_path: /badger.github.io/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,5 +33,12 @@ jobs:
         run: npm run test:app-catalog
       - name: Check editor projects
         run: npm run test:editor
+      - name: Verify Doom runtime and shareware assets
+        run: npm run verify:doom-assets -- --require
       - name: Build
         run: npm run build
+        env:
+          SITE_URL: ${{ matrix.site_url }}
+          BASE_PATH: ${{ matrix.base_path }}
+      - name: Verify built site URLs
+        run: node scripts/verify-site-paths.mjs "${{ matrix.base_path }}" "${{ matrix.site_url }}"

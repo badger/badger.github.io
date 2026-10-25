@@ -184,6 +184,24 @@ github: "https://github.com/your-repo/hack-code"
 
 ### GitHub Pages
 
+The production Doom page is `https://badger.github.io/virtual/`. Use HTTPS:
+Doom's asset integrity checks require Web Crypto in a secure context (localhost
+also works). Enable **Enforce HTTPS** in the repository's Pages settings so
+`http://badger.github.io/virtual` redirects to HTTPS.
+
+The deployment workflow reads `SITE_URL` and `BASE_PATH` from GitHub Pages;
+no fork owner or custom domain belongs in the source. Local builds default to
+`https://badger.github.io` with base `/`. To check a fork's project-site build:
+
+```bash
+SITE_URL=https://example.github.io BASE_PATH=/badger.github.io/ npm run build
+node scripts/verify-site-paths.mjs /badger.github.io/ https://example.github.io
+```
+
+CI checks both the production root and a fork subpath, including the absolute
+sharing image URL. Badge model source credits are external provenance links,
+not deployment URLs.
+
 1. Configure Astro:
    ```js
    export default defineConfig({
@@ -211,7 +229,32 @@ github: "https://github.com/your-repo/hack-code"
 
 ## 📄 License
 
-MIT License. See [LICENSE](LICENSE).
+Website code is MIT licensed; see [LICENSE](LICENSE). Bundled third-party
+software and assets retain their own licenses.
+
+### Doom easter egg
+
+Visit https://badger.github.io/virtual for a surpise :godmode:
+
+### Doom licensing
+
+The `/virtual/` page includes two separately licensed components:
+
+- **Engine:** WebSockets Doom / Chocolate Doom and its browser adapter are
+  GPLv2 software, not MIT. See the bundled [GPLv2 text](public/doom/runtime/COPYING.txt)
+  and [corresponding source, local patch, and rebuild instructions](public/doom/runtime/SOURCE.md).
+- **Game data:** `DOOM1.WAD` is the original, unmodified Doom 1 v1.9 shareware
+  episode, copyright id Software. It is **not GPL, freeware, or public domain**.
+  Redistribution is governed by the [original limited-use shareware license](public/doom/licenses/DOOM1-SHAREWARE.txt),
+  which permits free copies but prohibits charging for receipt or use without
+  id Software's prior written consent. Commercial `DOOM.WAD` and `DOOM2.WAD`
+  data are not included.
+
+See [Doom asset documentation](public/doom/README.md) and
+[third-party notices](public/doom/THIRD_PARTY.md) for provenance and verification
+details. DOOM and associated trademarks belong to their respective owners.
+This unofficial integration is not affiliated with or endorsed by id Software,
+Bethesda Softworks, or Microsoft.
 
 ## 🙏 Acknowledgements
 

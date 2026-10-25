@@ -1,3 +1,5 @@
+import { sitePath } from './site-path.ts'
+
 export const GITHUB_APPS_TREE_URL = 'https://api.github.com/repos/badger/home/git/trees/main?recursive=1'
 export const APP_CATALOG_URL = '/app-catalog.json'
 
@@ -54,7 +56,7 @@ export function validateAppCatalog(value: unknown): AppCatalog {
 }
 
 export async function fetchAppCatalog({ refresh = false }: { refresh?: boolean } = {}) {
-  const response = await fetch(APP_CATALOG_URL, { cache: refresh ? 'no-store' : 'no-cache' })
+  const response = await fetch(sitePath(APP_CATALOG_URL), { cache: refresh ? 'no-store' : 'no-cache' })
   if (!response.ok) throw new Error(`App catalog request failed with ${response.status}`)
   return validateAppCatalog(await response.json())
 }

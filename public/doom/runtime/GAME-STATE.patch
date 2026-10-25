@@ -1,0 +1,36 @@
+--- a/src/doom/g_game.c
++++ b/src/doom/g_game.c
+@@ -140,5 +140,23 @@
+ boolean precache = true; // if true, load all graphics at start
+ 
++#ifdef __EMSCRIPTEN__
++#include <emscripten.h>
++
++static unsigned int badger_session;
++
++EMSCRIPTEN_KEEPALIVE int badger_game_state(void)
++{
++    if (!usergame || demoplayback || gamestate != GS_LEVEL || menuactive || paused)
++        return 0;
++    return 1 | ((players[consoleplayer].cheats & CF_GODMODE) ? 2 : 0);
++}
++
++EMSCRIPTEN_KEEPALIVE unsigned int badger_game_session(void)
++{
++    return badger_session;
++}
++#endif
++
+ boolean testcontrols = false; // Invoked by setup to test controls
+ int testcontrols_mousespeed;
+ 
+@@ -1530,5 +1548,9 @@
+     int i;
+ 
++#ifdef __EMSCRIPTEN__
++    ++badger_session;
++#endif
++
+     if (paused) {
+         paused = false;
+         S_ResumeSound();

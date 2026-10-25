@@ -1,6 +1,7 @@
 import { Clock } from 'lucide-react'
 import { DifficultyBadge } from '@/components/difficulty-badge'
 import { formatDuration } from '@/lib/utils'
+import { sitePath } from '@/lib/site-path'
 
 export interface HackListItemProps {
   title: string
@@ -22,7 +23,7 @@ export function HackListItem({
   slug 
 }: HackListItemProps) {
   const handleClick = () => {
-    window.location.href = `/hack/${slug}`
+    window.location.href = sitePath(`/hack/${slug}`)
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

@@ -17,6 +17,9 @@ jobs:
   build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -40,12 +43,22 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - name: Verify Doom runtime and shareware assets
+        run: npm run verify:doom-assets -- --require
       - name: Generate app catalog and descriptions
         run: npm run sync:app-catalog -- .catalog-source
       - name: Check app metadata
         run: npm run test:app-descriptions && npm run test:app-catalog
       - name: Build site
-        run: npm run build
+        run: |
+          npm run build
+          node scripts/verify-site-paths.mjs "$BASE_PATH" "$SITE_URL"
+        env:
+          SITE_URL: ${{ github.repository == 'badger/badger.github.io' && 'https://badger.github.io' || steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:

@@ -4,6 +4,7 @@ import type { GetStaticPaths } from 'astro'
 import Layout from '@/layouts/Layout.astro'
 import { ArrowLeft, FileCode } from 'lucide-react'
 import { APP_CATALOG_PAGE_ENABLED } from '@/config/features'
+import { sitePath } from '@/lib/site-path'
 
 export const getStaticPaths = (async () => {
   const apps = await getCollection('apps')
@@ -15,7 +16,7 @@ export const getStaticPaths = (async () => {
 
 const { app } = Astro.props
 const { Content } = await app.render()
-const backHref = APP_CATALOG_PAGE_ENABLED ? '/browse-apps' : '/'
+const backHref = sitePath(APP_CATALOG_PAGE_ENABLED ? '/browse-apps' : '/')
 const backLabel = APP_CATALOG_PAGE_ENABLED ? 'Back to Apps' : 'Back home'
 
 // Bold background colors for app icons
@@ -54,7 +55,7 @@ const titleQualifier = app.data.preloaded ? 'Preloaded App' : 'Loadable App'
           <!-- App Icon -->
           <div class="w-32 h-32 rounded-2xl flex items-center justify-center p-6 shadow-lg" style={`background-color: ${iconBgColor}`}>
             <img 
-              src={app.data.icon} 
+              src={sitePath(app.data.icon)}
               alt={app.data.title}
               class="w-20 h-20 object-contain"
             />

@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { DifficultyBadge } from '@/components/difficulty-badge'
 import { formatDuration } from '@/lib/utils'
 import { getPlaceholderImage } from '@/lib/placeholder-images'
+import { sitePath } from '@/lib/site-path'
 
 export interface HackCardProps {
   title: string
@@ -26,7 +27,7 @@ export function HackCard({
   slug 
 }: HackCardProps) {
   const handleCardClick = () => {
-    window.location.href = `/hack/${slug}`
+    window.location.href = sitePath(`/hack/${slug}`)
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

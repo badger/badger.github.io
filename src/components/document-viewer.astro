@@ -1,0 +1,97 @@
+---
+import { FileText, X } from 'lucide-react'
+
+interface Props {
+  id: string
+  documents: { title: string; label?: string; href: string; content: string }[]
+}
+
+const { id, documents } = Astro.props
+---
+
+<div data-document-viewer>
+  <p class="font-mono text-xs leading-relaxed text-muted-foreground">
+    {documents.map(({ title, label, href }, index) => (
+      <>
+        {index > 0 && ' · '}
+        <a class="text-primary hover:underline" href={href} data-document-open={index} aria-label={label ? title : undefined} aria-haspopup="dialog" aria-controls={id}>{label ?? title}</a>
+      </>
+    ))}
+  </p>
+  <dialog id={id} class="document-dialog" aria-labelledby={`${id}-title`}>
+    <header class="flex items-start justify-between gap-4 border-b border-border/40 p-5">
+      <div class="min-w-0">
+        <h2 id={`${id}-title`} data-document-title class="font-mono text-sm uppercase tracking-[0.14em]"></h2>
+        <a data-document-original class="mt-2 inline-flex items-center gap-2.5 break-all font-mono text-xs text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+          <FileText size={16} className="shrink-0" />
+          <span data-document-path></span>
+          <span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </div>
+      <form method="dialog">
+        <button class="document-close" type="submit" aria-label="Close document"><X size={18} /></button>
+      </form>
+    </header>
+    <div data-document-body class="min-h-0 overflow-auto p-5 sm:p-8">
+      {documents.map(({ content, title }, index) => (
+        <pre data-document-panel={index} hidden tabindex="0" aria-label={title} class="m-0 whitespace-pre-wrap break-words font-mono text-xs leading-7 text-foreground">{content}</pre>
+      ))}
+    </div>
+    <footer class="border-t border-border/40 px-5 py-3 font-mono text-xs text-muted-foreground">Esc to close · Scroll to read</footer>
+  </dialog>
+</div>
+
+<style>
+  .document-dialog {
+    color-scheme: dark;
+    width: min(56rem, calc(100vw - 2rem));
+    max-width: none;
+    max-height: min(40rem, 75dvh);
+    margin: auto;
+    padding: 0;
+    border: 1px solid hsl(var(--primary) / 0.25);
+    border-radius: 0.5rem;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    box-shadow: 0 24px 80px rgb(0 0 0 / 0.6);
+  }
+  .document-dialog[open] { display: flex; flex-direction: column; }
+  .document-dialog::backdrop { background: rgb(0 0 0 / 0.85); }
+  .document-dialog header, .document-dialog footer { flex-shrink: 0; }
+  .document-dialog pre { outline-offset: 4px; }
+  .document-close { display: flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; border: 1px solid hsl(var(--border) / 0.4); border-radius: 0.5rem; }
+  .document-close:hover { border-color: hsl(var(--primary) / 0.5); background: hsl(var(--primary) / 0.05); }
+</style>
+
+<script>
+  for (const viewer of document.querySelectorAll<HTMLElement>('[data-document-viewer]')) {
+    const dialog = viewer.querySelector<HTMLDialogElement>('dialog')!
+    const title = viewer.querySelector<HTMLElement>('[data-document-title]')!
+    const original = viewer.querySelector<HTMLAnchorElement>('[data-document-original]')!
+    const path = viewer.querySelector<HTMLElement>('[data-document-path]')!
+    const body = viewer.querySelector<HTMLElement>('[data-document-body]')!
+    const panels = [...viewer.querySelectorAll<HTMLElement>('[data-document-panel]')]
+    for (const link of viewer.querySelectorAll<HTMLAnchorElement>('[data-document-open]')) {
+      link.addEventListener('click', event => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+        event.preventDefault()
+        title.textContent = link.getAttribute('aria-label') || link.textContent
+        original.href = link.href
+        path.textContent = new URL(link.href).pathname
+        for (const panel of panels) panel.hidden = panel.dataset.documentPanel !== link.dataset.documentOpen
+        link.focus()
+        dialog.showModal()
+        body.scrollTop = 0
+        viewer.dispatchEvent(new Event('document-viewer:open', { bubbles: true }))
+      })
+    }
+    dialog.addEventListener('close', () => {
+      viewer.dispatchEvent(new Event('document-viewer:close', { bubbles: true }))
+    })
+    dialog.addEventListener('click', event => {
+      if (event.target !== dialog) return
+      const bounds = dialog.getBoundingClientRect()
+      if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close()
+    })
+  }
+</script>
