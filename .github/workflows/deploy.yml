@@ -52,7 +52,7 @@ jobs:
         run: npm run sync:app-catalog -- .catalog-source
       - name: Check app metadata
         run: npm run test:app-descriptions && npm run test:app-catalog
-      - name: Build site
+      - name: Build and verify site URLs
         run: |
           npm run build
           node scripts/verify-site-paths.mjs "$BASE_PATH" "$SITE_URL"
