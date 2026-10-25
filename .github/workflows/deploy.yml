@@ -32,7 +32,7 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Verify Doom runtime and shareware assets
         run: npm run verify:doom-assets -- --require
-      - name: Build site
+      - name: Build and verify site URLs
         run: |
           npm run build
           node scripts/verify-site-paths.mjs "$BASE_PATH" "$SITE_URL"
