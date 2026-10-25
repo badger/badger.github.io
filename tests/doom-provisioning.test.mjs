@@ -95,7 +95,7 @@ test('CI and deployment verify committed pinned assets before building', () => {
   assert.match(runtimeBuild, /postMainLoop\(\)/)
   assert.match(runtimeBuild, /preserveDrawingBuffer = true/)
   assert.doesNotMatch(runtimeBuild, /framePump/)
-  assert.match(deploy, /Verify Doom runtime and shareware assets[\s\S]*verify:doom-assets -- --require[\s\S]*Build site/)
+  assert.match(deploy, /Verify Doom runtime and shareware assets[\s\S]*verify:doom-assets -- --require[\s\S]*run:\s*(?:\|\s*)?npm run build\b/)
   assert.match(ci, /Verify Doom runtime and shareware assets[\s\S]*verify:doom-assets -- --require[\s\S]*name: Build/)
   assert.doesNotMatch(deploy, /DOOM_RUNTIME_ENABLED|DOOM_WAD_B64|releases\/latest|\/latest(?:\/|$)/)
   assert.match(readme, /committed/)
