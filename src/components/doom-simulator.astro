@@ -4,6 +4,7 @@ import DoomBadgeLinks from './doom-badge-links.astro'
 import DoomVideo from './doom-video.astro'
 import DoomMobileControls from './doom-mobile-controls.astro'
 import DoomControls from './doom-controls.astro'
+import BadgeControlSymbols from './badge-control-symbols.astro'
 import { sitePath } from '@/lib/site-path'
 ---
 
@@ -29,6 +30,7 @@ import { sitePath } from '@/lib/site-path'
 
   <div class="doom-stage">
     <div data-doom-model data-state="idle" class="doom-model">
+      <BadgeControlSymbols />
       <img data-doom-preview src={sitePath('/images/doom-badge-preview.webp')} alt="GitHub badge with DOOM running on its screen" width="293" height="600" fetchpriority="high" class="doom-preview" />
       <canvas data-doom-runtime-screen width="320" height="200" aria-hidden="true"></canvas>
       <div data-doom-fallback class="doom-fallback">
