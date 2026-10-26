@@ -1,6 +1,7 @@
-import { Box3, CanvasTexture, DirectionalLight, DoubleSide, HemisphereLight, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, PerspectiveCamera, Raycaster, Scene, SRGBColorSpace, Vector2, Vector3, WebGLRenderer, type Material, type Object3D } from 'three'
+import { Box3, CanvasTexture, DirectionalLight, DoubleSide, Group, HemisphereLight, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, PerspectiveCamera, Raycaster, Scene, SRGBColorSpace, Vector2, Vector3, WebGLRenderer, type Material, type Object3D } from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js'
 import { displayOverlayMatrix } from './badge-display-overlay'
 import { initBadgeIdleRotation } from './badge-model-idle-rotation'
 import { sitePath } from './site-path'
@@ -374,6 +375,7 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
     })
     if (!displayMesh || caps.size !== 5) throw new Error('The badge model is missing its screen or controls.')
     roundPanels(model)
+    addControlSymbols(model)
     if (disposed) { disposeModel(); return }
     updateFrame()
     setButtons(mask)
@@ -443,6 +445,56 @@ export function initBadgeModel(host: HTMLElement, screen: HTMLCanvasElement, but
       material.alphaMap = alphaMap
       material.alphaTest = 0.5
       material.needsUpdate = true
+    }
+  }
+
+  function addControlSymbols(root: Object3D) {
+    const front = root.getObjectByName('Front_electronic_assembly_face')
+    const sources = host.querySelectorAll<SVGSVGElement>('[data-badge-symbol]')
+    if (!front || !artwork || sources.length !== 6) throw new Error('The badge model is missing its control symbols.')
+    const frontBounds = new Box3().setFromObject(front)
+    const artBounds = new Box3().setFromObject(artwork.mesh)
+    const home = touchPads.find(pad => pad.bit === 32)!
+    const loader = new SVGLoader()
+    // White is the model's printed ink, not a page-theme color.
+    const ink = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide, toneMapped: false })
+    for (const source of sources) {
+      const bit = Number(source.dataset.badgeSymbol)
+      const cap = caps.get(bit)
+      let center: Vector3
+      let size = 0.006
+      if (cap) {
+        center = new Box3().setFromObject(cap.mesh).getCenter(new Vector3())
+        if (bit === 2) center.y += 0.0065
+        else if (bit === 1) center.y -= 0.0065
+        else center.x += 0.0065
+        center.z = frontBounds.max.z + 0.00005
+      } else if (bit === 32) {
+        size = 0.005
+        center = new Vector3(
+          artBounds.min.x + (home.x0 + home.x1) / 2 / padTexture.width * (artBounds.max.x - artBounds.min.x),
+          artBounds.max.y - (home.y0 + home.y1) / 2 / padTexture.height * (artBounds.max.y - artBounds.min.y) - 0.0055,
+          artBounds.max.z + 0.00005,
+        )
+      } else continue
+      const svg = source.cloneNode(true) as SVGSVGElement
+      svg.setAttribute('stroke', '#fff')
+      const group = new Group()
+      group.name = `Control_symbol_${source.dataset.badgeSymbolName}`
+      root.worldToLocal(center)
+      group.position.set(center.x - size / 2, center.y + size / 2, center.z)
+      group.scale.set(size / 24, -size / 24, size / 24)
+      root.add(group)
+      for (const path of loader.parse(new XMLSerializer().serializeToString(svg)).paths) {
+        for (const subpath of path.subPaths) {
+          const geometry = SVGLoader.pointsToStroke(subpath.getPoints(16), path.userData!.style)
+          if (!geometry) continue
+          const stroke = new Mesh(geometry, ink)
+          group.add(stroke)
+          targets.set(stroke, bit)
+        }
+      }
+      if (!group.children.length) throw new Error(`Could not draw the badge ${source.dataset.badgeSymbolName} symbol.`)
     }
   }
 

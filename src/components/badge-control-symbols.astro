@@ -1,0 +1,9 @@
+---
+import { badgeControls } from '@/lib/badge-controls'
+---
+
+<div hidden aria-hidden="true" data-badge-symbols>
+  {badgeControls.map(({ icon: Icon, name, bit }) => (
+    <Icon data-badge-symbol={bit} data-badge-symbol-name={name} aria-hidden="true" />
+  ))}
+</div>
