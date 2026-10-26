@@ -1,0 +1,32 @@
+---
+import CopyPrompt from '@/components/copy-prompt.astro'
+---
+
+<h2 id="describe-your-app">3. Describe your app</h2>
+
+<p>
+  Tell Copilot what you want to make in your local session and ask it to use
+  <code>hyb26-skill</code>. The prompt below is only an example. You do not need
+  to copy it or use it as written; describe your own idea in your own words.
+</p>
+
+<CopyPrompt prompt="Use hyb26-skill to make a badge app with a counter that increases when I press SELECT. Walk me through anything I need to do with the badge using plain English." />
+
+<p>
+  Answer Copilot's questions. If a permission request appears, check that it is
+  for your local project, the installed skill tools, or BADGER before allowing
+  it. You may still need to approve a tool action; the prompt does not bypass
+  those controls. Do not use an allow-everything option.
+</p>
+
+<p>
+  On macOS, your tool may also ask for access to Documents or removable volumes.
+  Allow only access needed for this work; do not grant broad disk access or
+  disable safety settings.
+</p>
+
+<p>
+  Copilot should check the app before copying it. If the skill, Python, or badge
+  tools are missing, or Copilot cannot identify the badge, ask staff for help
+  rather than skip the checks.
+</p>
