@@ -1,11 +1,18 @@
 ---
 import Layout from '@/layouts/Layout.astro'
+import BadgeControlSymbols from '@/components/badge-control-symbols.astro'
+import BadgeControls from '@/components/badge-controls.astro'
 import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, RefreshCw, ArrowRight, Undo2, Redo2, Grid2X2, Maximize, Minimize, X, Search, Trash2, Plus, RotateCw } from 'lucide-react'
 ---
 
 <Layout title="Developer Simulator" description="Write Python, run it in the browser, and upload your app to a Badger badge.">
   <section class="container py-10 sm:py-14">
     <h1 class="mb-6 text-4xl sm:text-5xl">Developer Simulator</h1>
+
+    <div class="mb-6 max-w-[75ch]">
+      <h2 class="mb-2 text-2xl sm:text-3xl">Use the browser</h2>
+      <p class="text-sm leading-6 text-muted-foreground">No badge is needed. Select <strong class="font-mono font-medium text-foreground">Apps</strong> or <strong class="font-mono font-medium text-foreground">Examples</strong>, or select <strong class="font-mono font-medium text-foreground">New app</strong>. Edit the code, then select <strong class="font-mono font-medium text-foreground">Run</strong> to test it in the browser. With <strong class="font-mono font-medium text-foreground">Auto-run</strong> selected, the preview updates as you edit. Run does not change files on a connected badge.</p>
+    </div>
 
     <div id="badge-editor" class="font-sans">
       <div id="editor-workspace" class="surface overflow-hidden">
@@ -69,13 +76,13 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
                 </div>
               </div>
               <div id="badge-model" class="badge-model" data-state="loading">
+                <BadgeControlSymbols />
                 <canvas id="badge-screen" width="320" height="240" tabindex="0" aria-label="Simulated badge display. Arrow keys control the badge, Space selects. WASD and J control the gamepad."></canvas>
                 <div id="screen-placeholder" class="pointer-events-none absolute inset-0 grid place-content-center gap-2 text-center"><Code2 size={28} className="mx-auto text-primary" /><span class="text-xs text-[#8b949e]">Your code starts here.</span></div>
                 <p id="model-status" role="status" class="pointer-events-none absolute inset-x-4 bottom-3 text-center text-xs text-muted-foreground">Loading 3D view… You can use the simulator now.</p>
               </div>
-              <div class="mx-auto mt-2 flex max-w-[380px] items-center justify-between gap-2" role="group" aria-label="Badge controls">
-                <div class="flex gap-2">{[['A',16],['B',8],['C',4]].map(([label,bit]) => <button class="badge-key" data-button={bit} aria-label={`Badge button ${label}`}>{label}</button>)}</div>
-                <div class="flex gap-2">{[['↑',2],['↓',1],['⌂',32]].map(([label,bit]) => <button class="badge-key" data-button={bit} aria-label={bit === 32 ? 'Badge Home button' : bit === 2 ? 'Badge Up button' : 'Badge Down button'}>{label}</button>)}</div>
+              <div class="mt-2">
+                <BadgeControls />
               </div>
               <div class="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[0.65rem] text-muted-foreground"><span>Drag to rotate · Scroll to zoom</span><a href="https://leereilly.net/h4x0r3d-badge/#hardware" target="_blank" rel="noreferrer" class="hover:text-foreground">Model source ↗</a></div>
               <details class="mx-auto mt-3 max-w-[380px] text-xs text-muted-foreground">
@@ -84,7 +91,7 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
                   {[['←',256],['↑',2048],['↓',4096],['→',512],['Select',1024],['Back',8192]].map(([label,bit]) => <button class="badge-key !w-auto min-w-8 px-2" data-button={bit} aria-label={`Gamepad ${label}`}>{label}</button>)}
                 </div>
                 <label class="mt-3 flex items-center gap-2"><input id="simulator-flipped" type="checkbox" /> Upside down</label>
-                <p class="mt-2 leading-relaxed">Badge: arrow keys, Space or Enter to select, Escape for Home. Gamepad: WASD to move, J to select, K to go back, U for Menu. Keyboard controls work while the simulator is focused. In full screen, Escape exits full screen; use the ⌂ button for Home.</p>
+                <p class="mt-2 leading-relaxed">Badge: arrow keys, Space or Enter to select, Escape for Home. Gamepad: WASD to move, J to select, K to go back, U for Menu. Keyboard controls work while the simulator is focused. In full screen, Escape exits full screen; use the Home button for Home.</p>
               </details>
             </div>
           </div>
@@ -104,6 +111,16 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
           <h2 class="flex items-center gap-2 text-2xl sm:text-3xl"><Usb size={22} className="text-primary" /> Edit apps on your badge</h2>
           <span id="disk-status" role="status" class="font-mono text-[0.65rem] text-muted-foreground">No badge connected</span>
         </div>
+        <div id="usb-help" class="mb-4 max-w-[75ch] text-sm leading-6 text-muted-foreground">
+          <p class="mb-2">Use desktop Chrome or Edge.</p>
+          <ol class="list-decimal space-y-2 pl-5">
+            <li>Connect the badge to your computer with a USB data cable. Quickly press RESET twice. Wait for USB Disk Mode on the screen and the BADGER drive on your computer.</li>
+            <li>Select <strong class="font-mono font-medium text-foreground">Connect badge</strong>. Choose the BADGER drive itself and allow access.</li>
+            <li>To edit an installed app, select <strong class="font-mono font-medium text-foreground">Choose badge app</strong>. To install your current project, leave it open in the editor.</li>
+            <li>Edit the code, then select <strong class="font-mono font-medium text-foreground">Upload</strong> or <strong class="font-mono font-medium text-foreground">Install</strong>. Wait for confirmation.</li>
+            <li>Select <strong class="font-mono font-medium text-foreground">Disconnect</strong>, then eject BADGER from your computer. Wait for the drive to disappear before unplugging. If the badge does not restart on its own, press RESET. Open the app on the badge to test it.</li>
+          </ol>
+        </div>
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex min-w-0 max-w-full flex-wrap items-center gap-3">
             <button id="connect-disk" class="editor-button"><FolderOpen size={15} /> Connect badge</button>
@@ -119,10 +136,6 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
             <button id="upload-code" class="editor-button editor-button-primary" disabled><Upload size={15} /> <span id="upload-label">Upload</span></button>
           </div>
         </div>
-        <details id="usb-help" class="mt-2 text-xs text-muted-foreground">
-          <summary class="font-mono w-fit cursor-pointer text-xs hover:text-foreground">USB setup</summary>
-          <p class="mt-2 max-w-2xl leading-relaxed">Connect over USB, double tap the reset button to open disk mode, then choose the BADGER volume with Connect badge. Select an app to edit its files.</p>
-        </details>
         <label id="overwrite-option" class="font-mono mt-3 flex items-center gap-2 text-xs" hidden><input id="overwrite" type="checkbox" /><span>Allow updating this existing app.</span></label>
         <p id="upload-message" role="status" class="mt-3 text-sm" hidden></p>
       </div>
@@ -213,6 +226,7 @@ import { Code2, Play, Square, Upload, Download, FolderOpen, Terminal, Cpu, Usb, 
   .fullscreen-exit { display: none; }
   #badge-editor[data-fullscreen='true'] { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; height: 100dvh; width: 100%; max-width: none; margin: 0; border: 0; border-radius: 0; box-shadow: none; background: hsl(var(--background)); }
   #badge-editor[data-fullscreen='true'] #badge-connection { flex-shrink: 0; margin: 0 0 0.75rem; border: 0; border-radius: 0; box-shadow: none; }
+  #badge-editor[data-fullscreen='true'] #usb-help { display: none; }
   #badge-editor[data-fullscreen='true'] #editor-workspace { display: flex; flex-direction: column; flex: 1; min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
   #badge-editor[data-fullscreen='true'] .editor-toolbar { flex-shrink: 0; }
   #badge-editor[data-fullscreen='true'] .editor-split { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }

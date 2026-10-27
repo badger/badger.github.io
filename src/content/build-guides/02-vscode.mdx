@@ -1,85 +1,35 @@
-import CopyPrompt from '@/components/copy-prompt.astro'
+import ConnectBadge from '@/components/build-guide-connect.astro'
+import DescribeApp from '@/components/build-guide-idea.astro'
+import TestBadge from '@/components/build-guide-test.astro'
+import ContinueBuilding from '@/components/build-guide-continue.astro'
 
 # Build with VS Code
 
 Describe your idea in Copilot Chat. Copilot builds the app and copies it to
 your connected badge. You test it on the badge.
 
-The Windows PC already has `hyb26-skill`, a set of instructions and tools
-that helps Copilot build apps for this badge. You do not need to install
-the skill or write code yourself.
+These steps work on Windows and macOS. They assume VS Code, GitHub Copilot,
+Python 3.10 or newer, and `hyb26-skill` are already installed. The skill is
+a set of instructions and tools that helps Copilot build apps for this badge.
+Installation is not covered here. You do not need to write code yourself.
 
-## 1. Connect the badge for VS Code
-
-1. Connect the badge to the PC with a USB cable that transfers data.
-2. Quickly press the badge's **RESET** button twice. Wait for **USB Disk Mode**.
-3. Press **Windows key + E** to open File Explorer. Select **This PC** and
-   find the **BADGER** drive. Windows adds a drive letter; yours may differ
-   from someone else's.
-4. Leave the badge connected in Disk Mode while Copilot works.
-
-If BADGER does not appear, ask event staff for help. If you see **RP2350**,
-stop: that drive is for firmware updates, not apps. Do not copy files to it
-or change the firmware.
+<ConnectBadge />
 
 ## 2. Open Copilot Chat in VS Code
 
-1. Open **VS Code** and use the **Badge Projects** folder prepared by staff.
-2. Open **Copilot Chat** with **Ctrl + Alt + I**.
+1. Open **VS Code** and use the **Badge Projects** folder prepared for you.
+2. Open **Copilot Chat**. On **Windows**, press **Ctrl + Alt + I**.
+   On **macOS**, press **Control + Command + I**.
 3. Start a new chat and select **Agent** so Copilot can create files and run
-   the badge tools. Work locally on this PC, not in a cloud session.
+   the badge tools. Work locally on your computer, not in a cloud session.
 
 If no folder is open, choose **File > Open Folder** and select **Badge
 Projects** in Documents. If it is missing, ask a volunteer for help.
 This folder is just a place to save your work. Copilot creates the app
 files inside it. You do not need a repository.
 
-## 3. Give VS Code your app idea
+<DescribeApp />
 
-Tell **Copilot Chat** what you want to make and ask it to use `hyb26-skill`.
-The prompt below is only an example. You do not need to copy it or use it
-as written; describe your own idea in your own words.
+<TestBadge />
 
-<CopyPrompt prompt="Use hyb26-skill to make a badge app with a counter that increases when I press SELECT. Walk me through anything I need to do with the badge using plain English." />
-
-Answer Copilot's questions. If a permission request appears, check that it
-is for your local project, the installed skill tools, or BADGER before
-allowing it. You may still need to approve a tool action; the prompt does
-not bypass those controls.
-
-Copilot should check the app before copying it. If the skill or Python is
-missing, or Copilot cannot identify the badge, ask staff for help rather
-than skip the checks.
-
-## 4. Test the app from VS Code on your badge
-
-Wait until Copilot says copying has finished. Follow its test steps:
-
-1. In File Explorer, right-click **BADGER** and choose **Eject**. Wait until
-   Windows confirms it is safe to remove or the drive disappears.
-2. Press **RESET** once. Open your app from the badge menu.
-3. Try its screens and buttons, then press **HOME** to return to the menu.
-   If the app saves data, reopen it and check the data after a reset too.
-
-Copilot can check files and copy them, but it needs you to report what the
-badge displays and how the controls work. Sensors and wireless features
-need tests on the real badge; passing file checks does not prove they work.
-
-## 5. Continue in VS Code
-
-Tell Copilot what you want to change. If the badge shows an error, provide
-the error message to Copilot as best as you can and ask it to try to fix
-it. If anything is unclear, ask a volunteer for help.
-
-Before copying a fix, reconnect the badge if needed and press **RESET**
-twice to return to Disk Mode. Follow Copilot's steps to copy and test the
-updated app.
-
-When updating your own app, tell Copilot it is an update so it uses the
-skill's replacement option and keeps a backup. Do not replace someone
-else's app or change shared badge files.
-
-If Copilot cannot access BADGER, ask it for the full path to your checked
-app folder and the correct destination. You can copy that one folder in
-File Explorer as a fallback, then eject and test as above. Do not disable
-broad safety settings to give access.
+<ContinueBuilding />
