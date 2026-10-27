@@ -69,36 +69,70 @@ npm run preview      # Preview the production build
 npm run astro        # Run Astro CLI commands
 ```
 
-## App store descriptions
+## App store catalog and descriptions
 
-The `/apps/` app store uses descriptions generated from the first sentence of
-each app's `README.md` in `badger/home`. App downloads also come from
-`badger/home`; descriptions on `/browse-apps/` and individual app
-pages still come from local app content.
-The store excludes the `menu` and `startup` system apps and the `quest` app.
+The `/apps/` app store reads `/app-catalog.json` from this website, not GitHub's
+REST API. Reload reads the currently published catalog; it does not start a
+workflow. App downloads still come from public `badger/home`, using the exact
+commit recorded in the catalog so file lists and downloaded code match.
 
-To update descriptions:
+Each deployment reads the latest `badger/home/main` file tree and app READMEs,
+then generates the catalog and `src/data/app-descriptions.json` in its build
+workspace. The latter also supplies descriptions in the Developer Simulator.
+Descriptions use the first sentence of each app's README. Descriptions on
+`/browse-apps/` and individual app pages still come from local app content.
+The store excludes `menu`, `startup`, and `quest`.
 
-1. Edit the app's `README.md` in `badger/home` so its first paragraph starts with
-   one plain-text sentence.
-2. After the change merges to `main`, the nightly `Update app descriptions`
-   workflow reads `badger/home` and opens a pull request here. To run it by hand, use `workflow_dispatch` or run
-   `npm run sync:app-descriptions` on a website working branch.
-3. Run `npm run test:app-descriptions` and `npm run build`, then submit the saved
-   website changes through a pull request.
+After the companion workflow is configured in `badger/home`, a push to its
+`main` branch that changes `badge/apps/**` starts this site's `Deploy` workflow.
+This includes fixes to existing apps, new or removed files, and README changes.
+It does not require a release or tag. Catalog refreshes publish build output
+without data commits or data-update PRs. Website source changes still use PRs.
+Until that setup is complete, an authorized maintainer can run `Deploy` manually
+on `main`. A failed generation or build does not replace the published site.
 
-The update command requires Node.js 22.6.0 or newer. It reads the file tree and
-READMEs from the public `badger/home` repository (`APPS_REF` selects a branch or
-commit, default `main`). Apps without a usable README keep their saved
-description. Folders that do not match the lowercase key rule
-(`^[a-z0-9][a-z0-9_-]*$`, such as `Copilot`) get no description. Invalid or
-incomplete updates fail with a clear error and leave the last good copy
-unchanged.
+### Cross-repository setup
 
-Do not edit `src/data/app-descriptions.json` by hand. It is the generated website
-copy used by normal builds and deployment. A newly added store app remains
-installable and is listed without a description until the descriptions are
-updated.
+Use a dedicated organization-owned GitHub App installed only on
+`badger/badger.github.io`, with repository **Actions: read and write** permission.
+The companion workflow creates a short-lived installation token only to start
+`deploy.yml` on `main`; it does not check out or execute badge-app code.
+
+An administrator must configure a `catalog-sync` environment in `badger/home`,
+restricted to the `main` branch, and protect workflow changes through review.
+Add the App's non-secret Client ID as the environment variable
+`CATALOG_APP_CLIENT_ID` and its private key as the environment secret
+`CATALOG_APP_PRIVATE_KEY`. Do not add content-write or administration permissions,
+install the App across all repositories, or put the key in code, logs, artifacts,
+or browser files. Restrict the website's Pages environment to deployments from
+`main` too. Follow the organization's approval requirements.
+
+The private key remains sensitive even though each installation token is
+temporary. Keep it protected and replace it if exposed. To stop automatic
+updates, disable the companion workflow or revoke the App's access.
+
+### Local catalog updates
+
+Normal local builds use the saved catalog and do not need the GitHub App.
+To refresh it, use a checkout of public `badger/home`:
+
+```bash
+npm run sync:app-catalog -- /path/to/home
+npm run test:app-descriptions
+npm run test:app-catalog
+npm run build
+```
+
+The generator reads committed files at that checkout's `HEAD`, not uncommitted
+edits. Only the Git file tree and app READMEs are needed; a sparse checkout is
+sufficient. It does not download or execute app code. Apps without a usable
+README keep their saved description. Existing folders outside the lowercase
+description-key rule (`^[a-z0-9][a-z0-9_-]*$`, such as `Copilot`) remain
+installable without a generated description.
+
+Do not edit `public/app-catalog.json` or `src/data/app-descriptions.json` by hand.
+Both are generated from the same public source commit. Invalid or incomplete
+updates fail before replacing the generated files.
 
 ## 📁 Project Structure
 

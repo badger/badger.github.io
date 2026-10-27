@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,6 +29,8 @@ jobs:
         run: npm ci
       - name: Check app description updates
         run: npm run test:app-descriptions
+      - name: Check app catalog updates
+        run: npm run test:app-catalog
       - name: Check editor projects
         run: npm run test:editor
       - name: Verify Doom runtime and shareware assets

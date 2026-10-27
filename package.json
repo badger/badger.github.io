@@ -8,6 +8,8 @@
     "preview": "astro preview",
     "sync:app-descriptions": "node --experimental-strip-types scripts/sync-app-descriptions.mjs",
     "test:app-descriptions": "node --experimental-strip-types --test scripts/sync-app-descriptions.test.mjs",
+    "sync:app-catalog": "node --experimental-strip-types scripts/sync-app-catalog.mjs",
+    "test:app-catalog": "node --experimental-strip-types --test scripts/sync-app-catalog.test.mjs",
     "astro": "astro",
     "sync:editor-apps": "node --experimental-strip-types scripts/sync-editor-apps.mjs",
     "sync:editor-examples": "node scripts/sync-editor-examples.mjs",

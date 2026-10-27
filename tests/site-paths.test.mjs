@@ -29,6 +29,26 @@ for (const base of ['/', '/badger.github.io/']) {
     }
   })
 
+  test(`published app catalog respects the deployment base ${base}`, async t => {
+    const { fetchAppCatalog } = await compileModule('../src/lib/github-app-catalog.ts', base)
+    const catalog = {
+      revision: 'a'.repeat(40),
+      apps: [{ name: 'snake', files: ['__init__.py'], description: 'Play Snake.' }],
+    }
+    const requests = []
+    t.mock.method(globalThis, 'fetch', async (url, options) => {
+      requests.push({ url, cache: options.cache })
+      return Response.json(catalog)
+    })
+
+    assert.deepEqual(await fetchAppCatalog(), catalog)
+    assert.deepEqual(await fetchAppCatalog({ refresh: true }), catalog)
+    assert.deepEqual(requests, [
+      { url: `${base}app-catalog.json`, cache: 'no-cache' },
+      { url: `${base}app-catalog.json`, cache: 'no-store' },
+    ])
+  })
+
   test(`Doom fetches manifest, WAD, and manifest artifacts under ${base}`, async () => {
     const { loadDoomRuntime } = await compileModule('../src/lib/doom-runtime.ts', base)
     const manifest = JSON.parse(await readFile(

@@ -5,7 +5,7 @@ import { BadgeSetupGuide } from '@/components/badge-setup-guide'
 import { StoreAppCard } from '@/components/store-app-card'
 import { SERIAL_CONNECTION_MODE_ENABLED } from '@/config/features'
 import { PREINSTALLED_APPS_BY_STORE_ID } from '@/data/preinstalled-apps'
-import { fetchInstallableAppFolders } from '@/lib/github-app-catalog'
+import { appFileUrl, fetchAppCatalog } from '@/lib/github-app-catalog'
 
 declare module 'react' {
   interface InputHTMLAttributes<T> {
@@ -60,6 +60,7 @@ type StoreApp = {
   name: string
   title: string
   files: string[]
+  revision: string
   iconUrl?: string
   iconColor?: string
   description?: string
@@ -176,7 +177,7 @@ async function collectDroppedFiles(dataTransfer: DataTransfer) {
   return (await Promise.all(entries.map((entry) => visit(entry)))).flat()
 }
 
-export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Record<string, string> }) {
+export function BadgeManager() {
   const [port, setPort] = useState<SerialPortLike | null>(null)
   const portRef = useRef<SerialPortLike | null>(null)
   const [diskRoot, setDiskRoot] = useState<DiskDirectoryHandle | null>(null)
@@ -187,7 +188,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
   const [apps, setApps] = useState<DeviceApp[]>([])
   const [legacyApps, setLegacyApps] = useState<string[]>([])
   const [storeApps, setStoreApps] = useState<StoreApp[]>([])
-  const [storeMessage, setStoreMessage] = useState('Loading apps from badger/home…')
+  const [storeMessage, setStoreMessage] = useState('Loading apps…')
   const [storeLoading, setStoreLoading] = useState(false)
   const [pendingApps, setPendingApps] = useState<PendingApp[]>([])
   const [removeQueue, setRemoveQueue] = useState<string[]>([])
@@ -276,27 +277,29 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
 
   async function loadStore(refresh = false) {
     setStoreLoading(true)
-    setStoreMessage(`${refresh ? 'Reloading' : 'Loading'} apps from badger/home…`)
+    setStoreMessage(`${refresh ? 'Reloading' : 'Loading'} apps…`)
     try {
-      const folders = await fetchInstallableAppFolders({ refresh })
-      const loadedApps = folders
-        .map(([name, files]) => {
+      const catalog = await fetchAppCatalog({ refresh })
+      const loadedApps = catalog.apps
+        .map(({ name, files, description }) => {
           const preinstalled = PREINSTALLED_APPS_BY_STORE_ID[name]
           return {
             name,
             title: preinstalled?.title ?? titleForApp(name),
             files: files.sort(),
-            iconUrl: preinstalled?.iconSrc ?? (files.includes('icon.png') ? `https://raw.githubusercontent.com/badger/home/main/badge/apps/${name}/icon.png` : undefined),
+            revision: catalog.revision,
+            iconUrl: preinstalled?.iconSrc ?? (files.includes('icon.png') ? appFileUrl(catalog.revision, name, 'icon.png') : undefined),
             iconColor: preinstalled?.color,
-            description: Object.hasOwn(appDescriptions, name) ? appDescriptions[name] : preinstalled?.description,
+            description: description ?? preinstalled?.description,
           }
         })
         .sort((left, right) => left.title.localeCompare(right.title))
       setStoreApps(loadedApps)
       setStoreMessage(`${loadedApps.length} apps${refresh ? ' reloaded' : ''} · source: badger/home`)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'The app catalog request failed.'
-      setStoreMessage(`Could not ${refresh ? 'reload' : 'load'} the app catalog: ${message}`)
+    } catch {
+      setStoreMessage(storeApps.length
+        ? 'Could not reload the app list. The previous list is still available.'
+        : 'Could not load the app list. Select Reload to try again.')
     } finally {
       setStoreLoading(false)
     }
@@ -613,7 +616,7 @@ export function BadgeManager({ appDescriptions = {} }: { appDescriptions?: Recor
     }
     setStatus(`Getting ${app.title} from badger/home…`)
     const files = await Promise.all(app.files.map(async (path) => {
-      const response = await fetch(`https://raw.githubusercontent.com/badger/home/main/badge/apps/${app.name}/${path}`)
+      const response = await fetch(appFileUrl(app.revision, app.name, path))
       if (!response.ok) throw new Error(`Could not get ${app.title} from the app store.`)
       const contents = await response.blob()
       return { file: new File([contents], path.split('/').at(-1) ?? path), relativePath: `${app.name}/${path}` }

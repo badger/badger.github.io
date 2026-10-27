@@ -14,7 +14,7 @@ export function readmeUrl(ref, name, file) {
   return `https://raw.githubusercontent.com/${HOME_REPOSITORY}/${ref}/badge/apps/${name}/${file}`
 }
 
-const OUTPUT_PATH = fileURLToPath(new URL('../src/data/app-descriptions.json', import.meta.url))
+export const APP_DESCRIPTIONS_PATH = fileURLToPath(new URL('../src/data/app-descriptions.json', import.meta.url))
 const README_NAMES = ['README.md', 'readme.md']
 const BLOCK_PREFIXES = ['#', '>', '|', '-', '!', '[!', '```', '<']
 
@@ -97,21 +97,11 @@ export function validateDescriptions(descriptions, catalog) {
   ))
 }
 
-export async function syncAppDescriptions({
-  outputPath = OUTPUT_PATH,
-  ref = process.env.APPS_REF || 'main',
-  readCatalog = readHomeCatalog,
+export async function descriptionsForCatalog(catalog, {
+  ref,
+  existing = {},
   readReadme = readHomeReadme,
 } = {}) {
-  let previous
-  try {
-    previous = await readFile(outputPath, 'utf8')
-  } catch (error) {
-    if (error.code !== 'ENOENT') throw error
-  }
-  const existing = previous ? JSON.parse(previous) : {}
-
-  const catalog = await readCatalog(ref)
   const source = { ...existing }
   const folders = Array.isArray(catalog?.tree) ? describableFolders(catalog.tree) : []
   for (const name of folders) {
@@ -124,10 +114,16 @@ export async function syncAppDescriptions({
     }
   }
 
-  const descriptions = validateDescriptions(source, catalog)
-  const contents = `${JSON.stringify(descriptions, null, 2)}\n`
-  if (previous === contents) return { changed: false, count: Object.keys(descriptions).length }
+  return validateDescriptions(source, catalog)
+}
 
+export async function writeJsonFile(outputPath, value) {
+  const contents = `${JSON.stringify(value, null, 2)}\n`
+  try {
+    if (await readFile(outputPath, 'utf8') === contents) return false
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
+  }
   await mkdir(dirname(outputPath), { recursive: true })
   const temporaryPath = `${outputPath}.${randomUUID()}.tmp`
   try {
@@ -136,7 +132,24 @@ export async function syncAppDescriptions({
   } finally {
     await rm(temporaryPath, { force: true })
   }
-  return { changed: true, count: Object.keys(descriptions).length }
+  return true
+}
+
+export async function syncAppDescriptions({
+  outputPath = APP_DESCRIPTIONS_PATH,
+  ref = process.env.APPS_REF || 'main',
+  readCatalog = readHomeCatalog,
+  readReadme = readHomeReadme,
+} = {}) {
+  let existing = {}
+  try {
+    existing = JSON.parse(await readFile(outputPath, 'utf8'))
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
+  }
+  const catalog = await readCatalog(ref)
+  const descriptions = await descriptionsForCatalog(catalog, { ref, existing, readReadme })
+  return { changed: await writeJsonFile(outputPath, descriptions), count: Object.keys(descriptions).length }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
