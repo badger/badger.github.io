@@ -1,4 +1,4 @@
-import { ExistingAppError, uploadEditorProject, validateAppName, type DiskDirectory } from './badge-editor-upload'
+import { ExistingAppError, uploadEditorProject, validateAppName, validateBadgeRoot, type DiskDirectory } from './badge-editor-upload'
 import { initEditorSplit } from './badge-editor-split'
 import { initProjectPicker } from './badge-editor-picker'
 import { initEditorFullscreen } from './badge-editor-fullscreen'
@@ -494,8 +494,7 @@ export async function initBadgeEditor() {
     setBusy(true)
     try {
       const root = await picker.call(window, { mode: 'readwrite' })
-      if (root.name.toUpperCase() !== 'BADGER') throw new Error('Select the BADGER USB volume itself, rather than an app folder.')
-      await root.getDirectoryHandle('apps')
+      await validateBadgeRoot(root)
       const oldDisk = disk
       disk = root
       try { await refreshDeviceApps() } catch (error) { disk = oldDisk; throw error }
