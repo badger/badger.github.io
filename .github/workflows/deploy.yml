@@ -20,6 +20,7 @@ jobs:
     permissions:
       contents: read
       pages: read
+      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -59,6 +60,21 @@ jobs:
         env:
           SITE_URL: ${{ github.repository == 'badger/badger.github.io' && 'https://badger.github.io' || steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
+      - name: Preserve assets for cached pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          previous_runs=$(gh run list --workflow deploy.yml --branch main --status success --limit 2 --json databaseId --jq '.[].databaseId')
+          previous_directories=()
+          for run_id in $previous_runs; do
+            archive_directory=".previous-pages/$run_id"
+            mkdir -p "$archive_directory/site"
+            gh run download "$run_id" --name github-pages --dir "$archive_directory"
+            tar -xf "$archive_directory/artifact.tar" -C "$archive_directory/site"
+            previous_directories+=("$archive_directory/site")
+          done
+          node scripts/preserve-page-assets.mjs dist "${previous_directories[@]}"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
