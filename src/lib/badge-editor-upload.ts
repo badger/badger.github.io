@@ -13,6 +13,17 @@ export type DiskDirectory = {
   removeEntry: (name: string, options?: { recursive?: boolean }) => Promise<void>
 }
 
+export async function validateBadgeRoot(root: DiskDirectory) {
+  try {
+    await root.getDirectoryHandle('apps')
+  } catch (error) {
+    if (error instanceof DOMException && (error.name === 'NotFoundError' || error.name === 'TypeMismatchError')) {
+      throw new Error('Select the BADGER USB volume itself, rather than an app folder. The selected folder must contain the apps directory.')
+    }
+    throw error
+  }
+}
+
 export class ExistingAppError extends Error {
   constructor() {
     super('This app already exists. Open it from the badge to edit, or allow updating this app and click Upload again.')

@@ -5,7 +5,43 @@ import { build } from 'esbuild'
 
 const compiled = await build({ entryPoints: [fileURLToPath(new URL('../src/lib/badge-editor-upload.ts', import.meta.url))], bundle: true, format: 'esm', platform: 'node', write: false })
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled.outputFiles[0].text).toString('base64')}`
-const { uploadEditorApp, uploadEditorProject, ExistingAppError } = await import(moduleUrl)
+const { uploadEditorApp, uploadEditorProject, validateBadgeRoot, ExistingAppError } = await import(moduleUrl)
+
+test('badge root validation accepts Windows drive names and renamed volumes without writing', async () => {
+  for (const name of ['BADGER', 'E:', 'E:\\', 'BADGER (E:)', 'MY-BADGE']) {
+    const checked = []
+    await validateBadgeRoot({
+      name,
+      async getDirectoryHandle(path, options) {
+        checked.push(path)
+        assert.equal(options, undefined)
+        return {}
+      },
+    })
+    assert.deepEqual(checked, ['apps'])
+  }
+})
+
+test('badge root validation rejects app folders and volumes without an apps directory', async () => {
+  for (const name of ['my-app', 'apps', 'BADGER', 'RP2350', 'E:']) {
+    for (const errorName of ['NotFoundError', 'TypeMismatchError']) {
+      await assert.rejects(validateBadgeRoot({
+        name,
+        async getDirectoryHandle() { throw new DOMException('Invalid apps directory', errorName) },
+      }), /Select the BADGER USB volume itself/)
+    }
+  }
+})
+
+test('badge root validation preserves permission and device errors', async () => {
+  for (const errorName of ['NotAllowedError', 'NotReadableError']) {
+    const error = new DOMException('Cannot read device', errorName)
+    await assert.rejects(validateBadgeRoot({
+      name: 'E:',
+      async getDirectoryHandle() { throw error },
+    }), thrown => thrown === error)
+  }
+})
 
 function filesystem(existing = false, failure = '') {
   const files = new Map(existing ? [['__init__.py', 'original'], ['icon.png', 'icon']] : [])
