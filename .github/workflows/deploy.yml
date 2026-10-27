@@ -65,13 +65,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          previous_runs=$(gh run list --workflow deploy.yml --branch main --status success --limit 2 --json databaseId --jq '.[].databaseId')
+          if ! previous_runs=$(gh run list --workflow deploy.yml --branch main --status success --limit 2 --json databaseId --jq '.[].databaseId'); then
+            echo "::warning::Could not list previous deployments. Deploying current assets only."
+            previous_runs=''
+          fi
           previous_directories=()
           for run_id in $previous_runs; do
             archive_directory=".previous-pages/$run_id"
             mkdir -p "$archive_directory/site"
-            gh run download "$run_id" --name github-pages --dir "$archive_directory"
-            tar -xf "$archive_directory/artifact.tar" -C "$archive_directory/site"
+            if ! gh run download "$run_id" --name github-pages --dir "$archive_directory"; then
+              echo "::warning::Pages artifact for run $run_id is unavailable or expired. Skipping historical assets."
+              continue
+            fi
+            if ! tar -xf "$archive_directory/artifact.tar" -C "$archive_directory/site"; then
+              echo "::warning::Pages artifact for run $run_id could not be extracted. Skipping historical assets."
+              continue
+            fi
             previous_directories+=("$archive_directory/site")
           done
           node scripts/preserve-page-assets.mjs dist "${previous_directories[@]}"
@@ -79,6 +88,7 @@ jobs:
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: dist
+          retention-days: 30
 
   deploy:
     needs: build
