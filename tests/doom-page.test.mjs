@@ -37,6 +37,7 @@ async function compileDoomPage() {
     `,
     './doom-runtime': `
       export async function loadDoomRuntime(_canvas, _signal, _base, _audio, onFrame) {
+        globalThis.__doomAudio = _audio
         globalThis.__doomFrame = onFrame
         document.title = 'Engine window title'
         return globalThis.__doomRuntime
@@ -105,7 +106,7 @@ test('compact hero merges the punchline, leads with firmware and keeps Universe 
   assert.match(panel, /On a GitHub Universe badge\? Of course it does\.<\/p>/)
   assert.match(panel, /<DoomDownload \/>\s*<UniverseCallout \/>/)
   assert.doesNotMatch(page, /Secret editor route/)
-  assert.ok(callout.includes('href="https://githubuniverse.com/?utm_source=GitHub&utm_medium=Site&utm_campaign=virtual_badge_uni_26"'))
+  assert.ok(callout.includes('href="https://github.com/events/universe/recap?utm_source=virtual-badge&utm_medium=web&utm_campaign=universe-2026"'))
   assert.match(callout, /Explore GitHub Universe/)
   assert.match(callout, /<\/a>[\s\S]*<p[^>]*>Hear more about the badges in the keynote sessions\.<\/p>/)
   assert.doesNotMatch(callout, /Missed the action|Catch it on demand/)
@@ -138,6 +139,111 @@ test('bottom link list is removed while video return controls remain available',
   assert.doesNotMatch(links, /<nav|Five lower badge buttons|doomBadgeActions|data-doom-video-open/)
   assert.match(links, /data-doom-video-toolbar/)
   assert.match(links, /data-doom-video-close/)
+})
+
+test('Copilot is projected onto the badge screen, not shown in a dialog', async () => {
+  const overlay = await readFile(new URL('../src/components/doom-video.astro', import.meta.url), 'utf8')
+  const terminal = await readFile(new URL('../src/components/doom-copilot-terminal.astro', import.meta.url), 'utf8')
+  assert.match(overlay, /<DoomCopilotTerminal \/>/)
+  assert.doesNotMatch(terminal, /<dialog/)
+  assert.match(terminal, /\/images\/copilot-cli\.png/)
+  assert.match(terminal, /Click the middle badge button below for more info\s*<span aria-hidden="true">v<\/span>/)
+})
+
+test('Copilot types the prompt, thinks for two seconds, streams the list and cancels on close', async t => {
+  const { initDoomCopilotTerminal, universePrompt, universeResponse } = await compileModule('../src/lib/doom-copilot-terminal.ts')
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const randomSamples = [0.05, 0.8, 0.4, 0.95, 0.2, 0.6]
+  let sample = 0
+  t.mock.method(Math, 'random', () => randomSamples[sample++ % randomSamples.length])
+  const parts = new Map(['prompt', 'output', 'status', 'caret', 'transcript', 'scroll', 'hint'].map(name => [
+    `[data-terminal-${name}]`, Object.assign(new EventTarget(), { textContent: '', hidden: false, scrollTop: 0, scrollHeight: 1000 }),
+  ]))
+  const dialog = Object.assign(new EventTarget(), {
+    dataset: {}, hidden: true, focus() {},
+    querySelector: selector => parts.get(selector),
+  })
+  let reducedMotion = false
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: {
+    matchMedia: () => ({ matches: reducedMotion }),
+  } })
+  t.after(() => {
+    if (previousWindow) Object.defineProperty(globalThis, 'window', previousWindow)
+    else delete globalThis.window
+  })
+  const abort = new AbortController()
+  t.after(() => abort.abort())
+  let opens = 0
+  let closes = 0
+  const terminal = initDoomCopilotTerminal({ querySelector: () => dialog }, abort.signal, () => opens++, () => closes++)
+  const part = name => parts.get(`[data-terminal-${name}]`)
+  const tickUntil = state => {
+    for (let i = 0; i < 2000 && dialog.dataset.state !== state; i++) t.mock.timers.tick(10)
+    assert.equal(dialog.dataset.state, state)
+  }
+  terminal.open()
+  terminal.open()
+  assert.equal(opens, 1)
+  assert.equal(part('hint').hidden, true)
+  t.mock.timers.tick(250)
+  assert.equal(part('prompt').textContent, 'W')
+  const keystrokeDelays = []
+  let lastLength = 1
+  let elapsed = 0
+  for (let i = 0; i < 20000 && dialog.dataset.state === 'typing'; i++) {
+    t.mock.timers.tick(1)
+    elapsed++
+    if (part('prompt').textContent.length !== lastLength) {
+      keystrokeDelays.push(elapsed)
+      elapsed = 0
+      lastLength = part('prompt').textContent.length
+    }
+  }
+  assert.equal(dialog.dataset.state, 'thinking')
+  assert.ok(Math.max(...keystrokeDelays) > Math.min(...keystrokeDelays) * 2)
+  assert.equal(part('prompt').textContent, universePrompt)
+  assert.equal(part('output').textContent, '')
+  t.mock.timers.tick(1990)
+  assert.equal(dialog.dataset.state, 'thinking')
+  t.mock.timers.tick(10)
+  assert.equal(dialog.dataset.state, 'streaming')
+  assert.ok(part('output').textContent.length > 0)
+  assert.ok(part('output').textContent.length < universeResponse.length)
+  t.mock.timers.tick(3000)
+  assert.equal(dialog.dataset.state, 'streaming')
+  tickUntil('complete')
+  assert.equal(part('output').textContent, universeResponse)
+  assert.match(part('output').textContent, /Issue Artifacts: add files/)
+  assert.equal(part('output').textContent.split('\n').filter(line => line.startsWith('- ')).length, 8)
+  assert.equal(part('transcript').hidden, false)
+  assert.equal(part('hint').hidden, false)
+
+  assert.equal(part('scroll').scrollTop, 1000)
+  terminal.close()
+  terminal.open()
+  t.mock.timers.tick(250)
+  const escape = new Event('keydown')
+  Object.defineProperty(escape, 'key', { value: 'Escape' })
+  dialog.dispatchEvent(escape)
+  const interrupted = part('prompt').textContent
+  t.mock.timers.tick(10000)
+  assert.equal(part('prompt').textContent, interrupted)
+  assert.equal(part('output').textContent, '')
+  assert.equal(closes, 2)
+
+  reducedMotion = true
+  terminal.open()
+  assert.equal(dialog.dataset.state, 'thinking')
+  t.mock.timers.tick(2000)
+  assert.equal(dialog.dataset.state, 'complete')
+  assert.equal(part('output').textContent, universeResponse)
+  terminal.close()
+  terminal.open()
+  abort.abort()
+  t.mock.timers.tick(10000)
+  assert.equal(dialog.hidden, true)
+  assert.equal(part('output').textContent, '')
 })
 
 test('Doom leads with the original cheat pro tip before the avatar guidance', async () => {
@@ -184,6 +290,11 @@ test('Doom starts with the full 3D badge on both desktop and mobile, with the ba
   assert.match(page, /grid-template-areas: 'game' 'panel'/)
 })
 
+test('the 2D loading display starts hidden and unfocusable behind the badge preview', () => {
+  assert.match(component, /<div data-doom-fallback[^>]*\bhidden\b[^>]*\binert\b/)
+  assert.match(component, /<canvas data-doom-screen[^>]*tabindex="-1"/)
+})
+
 test('Doom omits the bottom control buttons and asset checksum details', () => {
   assert.doesNotMatch(component, /data-doom-button|doom-key|Doom badge controls/)
   assert.doesNotMatch(component, /DoomAvatarControls|data-doom-avatar-(?:form|status)/)
@@ -200,7 +311,7 @@ test('page accurately names shareware and exposes the complete control set', () 
   assert.doesNotMatch(component, /data-doom-start/)
   assert.match(component, /data-doom-load-state/)
   assert.match(doomPage, /void boot\(\)/)
-  assert.match(doomPage, /root\.addEventListener\('pointerdown', unlockAudio/)
+  assert.match(doomPage, /root\.addEventListener\('click', unlockAudio/)
 })
 
 test('explicit rotation counter-rotates Doom and remaps held physical controls', () => {
@@ -226,11 +337,13 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
     setAttribute(name, value) { this[name] = value }
     removeAttribute(name) { delete this[name] }
     setPointerCapture() {}
+    closest() { return null }
     focus() {}
   }
 
   const left = new Element({ badgeBit: '256' })
   const up = new Element({ badgeBit: '2048' })
+  const mobileFire = new Element({ doomKey: 'ControlLeft' })
   const canvas = Object.assign(new Element(), {
     width: 320,
     height: 200,
@@ -259,6 +372,22 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   const videoClose = new Element()
   const videoOpen = new Element()
   const videoToolbar = new Element()
+  const terminalPrompt = new Element()
+  const terminalOutput = new Element()
+  const terminalStatus = new Element()
+  const terminal = Object.assign(new Element(), {
+    hidden: true,
+  })
+  const terminalElements = new Map([
+    ['[data-terminal-prompt]', terminalPrompt],
+    ['[data-terminal-output]', terminalOutput],
+    ['[data-terminal-status]', terminalStatus],
+    ['[data-terminal-caret]', new Element()],
+    ['[data-terminal-transcript]', new Element()],
+    ['[data-terminal-scroll]', new Element()],
+    ['[data-terminal-hint]', new Element()],
+  ])
+  terminal.querySelector = selector => terminalElements.get(selector)
   const partyVideo = Object.assign(new Element(), { pause() {}, load() {} })
   const modelHost = new Element()
   const modelCanvas = new Element()
@@ -286,6 +415,7 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
     ['[data-doom-video-close]', videoClose],
     ['[data-doom-video-toolbar]', videoToolbar],
     ['[data-party-marty-video]', partyVideo],
+    ['[data-doom-terminal]', terminal],
   ])
   const shareElements = new Map([
     ['[data-doom-selfie-save]', selfieSave],
@@ -298,6 +428,7 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   root.querySelector = selector => elements.get(selector)
   root.querySelectorAll = selector => {
     if (selector === '[data-doom-button]') return [left, up]
+    if (selector === '[data-doom-key]') return [mobileFire]
     if (selector === '[data-doom-video-open]') return [videoOpen]
     return []
   }
@@ -309,7 +440,12 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   const opened = []
   const window = Object.assign(new EventTarget(), {
     setTimeout,
-    AudioContext: undefined,
+    AudioContext: class {
+      state = 'running'
+      async suspend() { this.state = 'suspended' }
+      async resume() { this.state = 'running' }
+      async close() { this.state = 'closed' }
+    },
     matchMedia: () => ({ matches: true }),
     open: (...args) => opened.push(args),
   })
@@ -327,6 +463,7 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
     delete globalThis.__doomModelInput
     delete globalThis.__doomRuntime
     delete globalThis.__doomFrame
+    delete globalThis.__doomAudio
   })
 
   const changes = []
@@ -348,6 +485,21 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   const page = initDoomPage(root)
   await page.start()
   await Promise.resolve()
+  await t.test('audio stays silent through engine resumes and non-click input until the badge panel is clicked', async () => {
+    const audio = globalThis.__doomAudio
+    assert.equal(audio.state, 'suspended')
+    await audio.resume()
+    root.dispatchEvent(new Event('pointerdown'))
+    root.dispatchEvent(new Event('keydown'))
+    window.dispatchEvent(new Event('click'))
+    await audio.resume()
+    assert.equal(audio.state, 'suspended')
+    root.dispatchEvent(new Event('click'))
+    assert.equal(audio.state, 'running')
+    await audio.suspend()
+    await audio.resume()
+    assert.equal(audio.state, 'running')
+  })
   const fallback = elements.get('[data-doom-fallback]')
   assert.equal(fallback.hidden, true)
   assert.equal(fallback.inert, true)
@@ -448,9 +600,8 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
   toggleRotation()
   for (const [bit, href] of [
     [16, 'https://github.com/id-software/doom'],
-    [8, 'https://githubuniverse.com/?utm_source=GitHub&utm_medium=Site&utm_campaign=virtual_badge_uni_26'],
+    [8, 'https://github.com/events/universe/recap?utm_source=virtual-badge&utm_medium=web&utm_campaign=universe-2026'],
     [4, 'https://canitrundoom.org/'],
-    [2, 'https://www.reddit.com/r/itrunsdoom/'],
   ]) {
     modelInput(bit, true)
     toggleRotation()
@@ -458,6 +609,91 @@ test('rotation remaps model-relative inputs without changing fixed controls', as
     assert.deepEqual(changes.splice(0), [])
     assert.deepEqual(opened.splice(0), [[href, '_blank', 'noopener,noreferrer']])
   }
+
+  await t.test('upper badge button opens the terminal and pauses gameplay until close', () => {
+    modelInput(2, true)
+    modelInput(2, false)
+    assert.equal(terminal.hidden, false)
+    assert.equal(video.hidden, false)
+    assert.equal(videoFrame.hidden, true)
+    assert.equal(opened.length, 0)
+    assert.deepEqual(playback.splice(0), ['pause'])
+    page.key('ControlLeft', true)
+    assert.deepEqual(changes.splice(0), [])
+    document.dispatchEvent(new Event('visibilitychange'))
+    assert.deepEqual(playback.splice(0), ['pause'])
+    videoClose.dispatchEvent(new Event('click'))
+    assert.equal(terminal.hidden, true)
+    assert.equal(video.hidden, true)
+    assert.deepEqual(playback.splice(0), ['resume'])
+    assert.equal(focused, modelCanvas)
+  })
+
+  await t.test('badge links still open while the Copilot terminal is displayed', () => {
+    modelInput(2, true)
+    modelInput(2, false)
+    try {
+      for (const [bit, href] of [
+        [16, 'https://github.com/id-software/doom'],
+        [8, 'https://github.com/events/universe/recap?utm_source=virtual-badge&utm_medium=web&utm_campaign=universe-2026'],
+        [4, 'https://canitrundoom.org/'],
+      ]) {
+        modelInput(bit, true)
+        modelInput(bit, false)
+        assert.deepEqual(opened.splice(0), [[href, '_blank', 'noopener,noreferrer']])
+      }
+    } finally {
+      videoClose.dispatchEvent(new Event('click'))
+      playback.splice(0)
+    }
+  })
+
+  await t.test('a gameplay pad closes the terminal and handles the same press and release', () => {
+    modelInput(2, true)
+    modelInput(2, false)
+    playback.splice(0)
+    try {
+      modelInput(1024, true)
+      modelInput(1024, false)
+      assert.equal(terminal.hidden, true)
+      assert.equal(video.hidden, true)
+      assert.deepEqual(playback.splice(0), ['resume'])
+      assert.deepEqual(changes.splice(0), [['ControlLeft', true], ['ControlLeft', false]])
+    } finally {
+      videoClose.dispatchEvent(new Event('click'))
+      playback.splice(0)
+      changes.splice(0)
+    }
+  })
+
+  await t.test('touch controls close the terminal without losing the first press or leaving a key held', () => {
+    modelInput(2, true)
+    modelInput(2, false)
+    playback.splice(0)
+    mobileFire.dispatchEvent(pointer('pointerdown'))
+    mobileFire.dispatchEvent(pointer('pointerup'))
+    assert.equal(terminal.hidden, true)
+    assert.deepEqual(playback.splice(0), ['resume'])
+    assert.deepEqual(changes.splice(0), [['ControlLeft', true], ['ControlLeft', false]])
+    assert.equal(mobileFire.dataset.pressed, 'false')
+  })
+
+  await t.test('the video button switches directly from the terminal to video', () => {
+    modelInput(2, true)
+    modelInput(2, false)
+    playback.splice(0)
+    try {
+      modelInput(1, true)
+      modelInput(1, false)
+      assert.equal(terminal.hidden, true)
+      assert.equal(video.hidden, false)
+      assert.equal(videoFrame.hidden, false)
+      assert.match(videoFrame.src, /youtube-nocookie\.com\/embed\//)
+    } finally {
+      videoClose.dispatchEvent(new Event('click'))
+      playback.splice(0)
+    }
+  })
 
   modelInput(1024, true)
   modelInput(1, true)

@@ -81,7 +81,7 @@ test('sharing controls survive cached navigation and clean up on a final departu
 })
 
 test('Universe attribution follows the avatar while preserving the campaign and ignoring other destinations', () => {
-  const base = 'https://githubuniverse.com/?utm_source=GitHub&utm_medium=Site&utm_campaign=virtual_badge_uni_26'
+  const base = 'https://github.com/events/universe/recap?utm_source=virtual-badge&utm_medium=web&utm_campaign=universe-2026'
   assert.equal(withUniverseUsername(base, 'LeeReilly'), `${base}&utm_content=leereilly`)
   assert.equal(withUniverseUsername(`${base}&utm_content=previous`, ''), base)
   assert.equal(withUniverseUsername(base, '../user'), base)

@@ -31,8 +31,8 @@ import { sitePath } from '@/lib/site-path'
     <div data-doom-model data-state="idle" class="doom-model">
       <img data-doom-preview src={sitePath('/images/doom-badge-preview.webp')} alt="GitHub badge with DOOM running on its screen" width="293" height="600" fetchpriority="high" class="doom-preview" />
       <canvas data-doom-runtime-screen width="320" height="200" aria-hidden="true"></canvas>
-      <div data-doom-fallback class="doom-fallback">
-        <canvas data-doom-screen width="320" height="200" tabindex="0" aria-label="Doom display. Use arrow keys, Ctrl or J to fire, Space or K to use, Shift or Alt to strafe, Escape for menu, and Enter to confirm."></canvas>
+      <div data-doom-fallback hidden inert class="doom-fallback">
+        <canvas data-doom-screen width="320" height="200" tabindex="-1" aria-label="Doom display. Use arrow keys, Ctrl or J to fire, Space or K to use, Shift or Alt to strafe, Escape for menu, and Enter to confirm."></canvas>
         <DoomVideo />
       </div>
       <p data-model-status class="pointer-events-none absolute inset-x-4 bottom-3 text-center font-mono text-xs text-muted-foreground">Loading 3D badge view</p>
