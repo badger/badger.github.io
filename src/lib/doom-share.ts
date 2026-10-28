@@ -31,7 +31,8 @@ export function shareURL(href: string, source?: string) {
 
 export function withUniverseUsername(href: string, value: string) {
   const url = new URL(href)
-  if (url.hostname !== 'githubuniverse.com') return href
+  if (url.hostname !== 'githubuniverse.com' &&
+    !(url.hostname === 'github.com' && url.pathname === '/events/universe/recap')) return href
   const username = githubUsername(value)
   if (username) url.searchParams.set('utm_content', username)
   else url.searchParams.delete('utm_content')

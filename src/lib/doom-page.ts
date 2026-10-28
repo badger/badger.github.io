@@ -8,6 +8,7 @@ import { createDoomAvatar } from './doom-avatar'
 import { withUniverseUsername } from './doom-share'
 import { initDoomMobile } from './doom-mobile'
 import { initDoomSelfie } from './doom-selfie'
+import { initDoomCopilotTerminal } from './doom-copilot-terminal'
 
 function paintMessage(canvas: HTMLCanvasElement, title: string, lines: string[]) {
   const context = canvas.getContext('2d', { willReadFrequently: true })
@@ -52,24 +53,26 @@ export function initDoomPage(root: HTMLElement) {
     idleRotation: !mobileView,
     capture: new URLSearchParams(globalThis.location?.search).has('capture'),
     displayOverlay: video,
-    canvasLabel: 'Interactive 3D badge. Drag to rotate, scroll to zoom. Touch pads and keyboard control Doom. Lower physical buttons: left opens Doom source, middle opens GitHub Universe, right opens Can it run Doom, up opens r/itrunsdoom, down plays a video in the badge.',
+    canvasLabel: 'Interactive 3D badge. Drag to rotate, scroll to zoom. Touch pads and keyboard control Doom. Lower physical buttons: left opens Doom source, middle opens GitHub Universe, right opens Can it run Doom, up opens the Made with Copilot terminal, down plays a video in the badge.',
   }
   const abort = new AbortController()
   const { signal } = abort
   let runtime: DoomRuntime | undefined
   let mobile: ReturnType<typeof initDoomMobile> | undefined
   let audio: AudioContext | undefined
+  let audioActivated = false
   let bootPromise: Promise<void> | undefined
   let badgeMask = 0
   let rotated = false
   let fallbackMode = false
   let documentOpen = false
   let videoOpen = false
+  let terminalOpen = false
   let runtimeStatus = { message: status.textContent, state: loadState.textContent }
   type BadgeSource = { id: string, modelRelative: boolean }
   const badgeSources = new Map<string, { bit: number, modelRelative: boolean }>()
 
-  paintMessage(canvas, 'LOADING DOOM', ['Verifying local engine and WAD assets.', 'Audio unlocks on first input.'])
+  paintMessage(canvas, 'LOADING DOOM', ['Verifying local engine and WAD assets.', 'Click the badge panel to enable audio.'])
 
   const input = new DoomInput((key, pressed) => runtime?.key(key, pressed))
   const clearBadgeInput = () => {
@@ -98,7 +101,7 @@ export function initDoomPage(root: HTMLElement) {
     return model.capture(1200, 630)
   }, signal)
   const syncSelfie = () => {
-    selfie.setReady(!videoOpen && !documentOpen && !fallbackMode && modelHost.dataset.state === 'ready')
+    selfie.setReady(!videoOpen && !terminalOpen && !documentOpen && !fallbackMode && modelHost.dataset.state === 'ready')
   }
   const pauseOverlays = (paused: boolean) => {
     partyMarty.setPaused(paused)
@@ -108,8 +111,35 @@ export function initDoomPage(root: HTMLElement) {
     if (fallback.hidden) modelHost.querySelector<HTMLElement>('canvas[role="img"]')?.focus({ preventScroll: true })
     else canvas.focus({ preventScroll: true })
   }
+  const terminal = initDoomCopilotTerminal(root, signal, () => {
+    terminalOpen = true
+    video.hidden = false
+    videoFrame.hidden = true
+    videoToolbar.hidden = false
+    root.querySelector<HTMLElement>('[data-doom-video-link]')?.setAttribute('hidden', '')
+    clearBadgeInput()
+    removeKeyboard()
+    runtime?.pause()
+    pauseOverlays(true)
+    selfie.setReady(false)
+    if (document.pointerLockElement) void document.exitPointerLock()
+    model.updateFrame()
+  }, () => {
+    terminalOpen = false
+    video.hidden = true
+    videoFrame.hidden = false
+    videoToolbar.hidden = true
+    root.querySelector<HTMLElement>('[data-doom-video-link]')?.removeAttribute('hidden')
+    removeKeyboard = initDoomKeyboard(root, input)
+    const paused = document.hidden || documentOpen || videoOpen
+    if (!paused) runtime?.resume()
+    pauseOverlays(paused)
+    syncSelfie()
+    focusDisplay()
+  })
   function openVideo() {
     if (videoOpen) return
+    if (terminalOpen) terminal.close()
     videoOpen = true
     selfie.setReady(false)
     clearBadgeInput()
@@ -145,7 +175,11 @@ export function initDoomPage(root: HTMLElement) {
     focusDisplay()
   }
   function activateBadgeAction(action: DoomBadgeAction) {
-    if (action.kind === 'video') openVideo()
+    if (action.kind === 'terminal') {
+      if (videoOpen) closeVideo()
+      terminal.open()
+    }
+    else if (action.kind === 'video') openVideo()
     else window.open(withUniverseUsername(action.href, new URLSearchParams(globalThis.location?.search).get('u') ?? ''), '_blank', 'noopener,noreferrer')
   }
   const updateFrame = () => {
@@ -159,12 +193,16 @@ export function initDoomPage(root: HTMLElement) {
     syncSelfie()
   }
   const setBadge = (source: BadgeSource, bit: number, pressed: boolean) => {
+    const action = source.modelRelative && doomBadgeActions.find(action => action.bit === bit)
+    if (terminalOpen && !action) {
+      if (!pressed) return
+      terminal.close()
+    }
     if (pressed) badgeSources.set(source.id, { bit, modelRelative: source.modelRelative })
     else badgeSources.delete(source.id)
     badgeMask = [...badgeSources.values()].reduce((mask, value) => mask | value.bit, 0)
     model.setButtons(badgeMask)
     for (const key of keys) key.dataset.pressed = String(Boolean(badgeMask & Number(key.dataset.badgeBit)))
-    const action = source.modelRelative && doomBadgeActions.find(action => action.bit === bit)
     if (action) {
       if (pressed) activateBadgeAction(action)
       return
@@ -222,6 +260,9 @@ export function initDoomPage(root: HTMLElement) {
     if (!Audio || audio) return audio
     try {
       audio = new Audio()
+      const resume = audio.resume.bind(audio)
+      // The engine also resumes audio when returning from overlays.
+      audio.resume = () => audioActivated ? resume() : Promise.resolve()
     } catch (error) {
       console.warn('Doom audio context could not be created.', error)
     }
@@ -229,6 +270,7 @@ export function initDoomPage(root: HTMLElement) {
   }
 
   function unlockAudio() {
+    audioActivated = true
     const context = ensureAudio()
     if (context?.state === 'suspended') void context.resume().catch(error => {
       console.warn('Doom audio could not be resumed.', error)
@@ -241,11 +283,16 @@ export function initDoomPage(root: HTMLElement) {
       setRuntimeStatus('Checking exact WAD and runtime hashes', 'Loading')
       model.start()
       try {
-        runtime = await loadDoomRuntime(runtimeCanvas, signal, '/doom', ensureAudio(), updateFrame)
+        const context = ensureAudio()
+        if (!audioActivated) {
+          await context?.suspend()
+          if (audioActivated) await context?.resume()
+        }
+        runtime = await loadDoomRuntime(runtimeCanvas, signal, '/doom', context, updateFrame)
         if (signal.aborted) return
         document.title = pageTitle
         setRuntimeStatus('Running approved Doom runtime with Doom 1 v1.9 shareware', 'Running')
-        if (documentOpen || document.hidden || videoOpen) runtime.pause()
+        if (documentOpen || document.hidden || videoOpen || terminalOpen) runtime.pause()
         else if (!mobileView) focusDisplay()
         updateFrame()
       } catch (error) {
@@ -262,16 +309,19 @@ export function initDoomPage(root: HTMLElement) {
     return bootPromise
   }
 
-  root.addEventListener('pointerdown', unlockAudio, { signal, once: true, capture: true })
-  root.addEventListener('keydown', unlockAudio, { signal, once: true, capture: true })
+  root.addEventListener('click', unlockAudio, { signal, once: true, capture: true })
   rotate.addEventListener('click', () => applyOrientation(!rotated), { signal })
   for (const button of root.querySelectorAll<HTMLButtonElement>('[data-doom-video-open]')) {
     button.addEventListener('click', openVideo, { signal })
   }
-  videoClose.addEventListener('click', closeVideo, { signal })
+  videoClose.addEventListener('click', () => {
+    if (terminalOpen) terminal.close()
+    else closeVideo()
+  }, { signal })
   mobile = initDoomMobile(root, {
     key: (source, key, pressed) => {
-      if (!videoOpen && !documentOpen) input.set(source, key, pressed)
+      if (terminalOpen && pressed) terminal.close()
+      if (!videoOpen && !documentOpen && !terminalOpen) input.set(source, key, pressed)
     },
     release: clearBadgeInput,
   }, signal)
@@ -306,14 +356,14 @@ export function initDoomPage(root: HTMLElement) {
   }, { signal })
   document.addEventListener('document-viewer:close', () => {
     documentOpen = false
-    pauseOverlays(document.hidden || videoOpen)
-    if (!document.hidden && !videoOpen) runtime?.resume()
+    pauseOverlays(document.hidden || videoOpen || terminalOpen)
+    if (!document.hidden && !videoOpen && !terminalOpen) runtime?.resume()
     syncSelfie()
   }, { signal })
   document.addEventListener('visibilitychange', () => {
     clearBadgeInput()
-    pauseOverlays(document.hidden || documentOpen || videoOpen)
-    if (document.hidden || documentOpen || videoOpen) runtime?.pause()
+    pauseOverlays(document.hidden || documentOpen || videoOpen || terminalOpen)
+    if (document.hidden || documentOpen || videoOpen || terminalOpen) runtime?.pause()
     else runtime?.resume()
   }, { signal })
   window.addEventListener('pagehide', event => {
@@ -328,7 +378,7 @@ export function initDoomPage(root: HTMLElement) {
   }, { signal })
   window.addEventListener('pageshow', event => {
     if (!event.persisted) return
-    const paused = document.hidden || documentOpen || videoOpen
+    const paused = document.hidden || documentOpen || videoOpen || terminalOpen
     pauseOverlays(paused)
     if (!paused) runtime?.resume()
     syncSelfie()
@@ -352,7 +402,7 @@ export function initDoomPage(root: HTMLElement) {
 
   return {
     start: boot,
-    key(key: DoomKey, pressed: boolean) { if (!videoOpen) input.set(`api:${key}`, key, pressed) },
+    key(key: DoomKey, pressed: boolean) { if (!videoOpen && !terminalOpen) input.set(`api:${key}`, key, pressed) },
     dispose,
   }
 }
